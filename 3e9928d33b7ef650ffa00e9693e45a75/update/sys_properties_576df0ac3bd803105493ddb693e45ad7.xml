@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><record_update table="sys_properties">
     <sys_properties action="INSERT_OR_UPDATE">
         <choices/>
-        <description>Specify a value of 0, 1, 2, or 3 to determine the number of decimal places displayed for numeric values in the incentive statement. If no value is specified, 2 decimal places will be used by default.</description>
+        <description>Specify a value of 0, 1, 2, or 3 to determine the number of decimal places displayed for numeric values in the incentive statement. If no value is specified, 2 decimal places will be used by default</description>
         <ignore_cache>true</ignore_cache>
         <is_private>false</is_private>
         <name>x_ctans_incentnow.decimal_places</name>
@@ -11,14 +11,14 @@
         <sys_created_by>upma.rai</sys_created_by>
         <sys_created_on>2026-04-13 17:13:30</sys_created_on>
         <sys_id>576df0ac3bd803105493ddb693e45ad7</sys_id>
-        <sys_mod_count>16</sys_mod_count>
+        <sys_mod_count>17</sys_mod_count>
         <sys_name>x_ctans_incentnow.decimal_places</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy/>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
         <sys_update_name>sys_properties_576df0ac3bd803105493ddb693e45ad7</sys_update_name>
-        <sys_updated_by>upma.rai</sys_updated_by>
-        <sys_updated_on>2026-06-15 09:52:57</sys_updated_on>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-06-21 11:06:22</sys_updated_on>
         <type>integer</type>
         <value>2</value>
         <write_roles/>
