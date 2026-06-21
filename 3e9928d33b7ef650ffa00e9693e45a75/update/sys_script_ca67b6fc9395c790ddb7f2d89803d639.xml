@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update sys_domain="global" table="sys_script">
+    <sys_script action="INSERT_OR_UPDATE">
+        <abort_action>false</abort_action>
+        <access>package_private</access>
+        <action_delete>false</action_delete>
+        <action_insert>true</action_insert>
+        <action_query>false</action_query>
+        <action_update>true</action_update>
+        <active>true</active>
+        <add_message>false</add_message>
+        <advanced>true</advanced>
+        <change_fields>false</change_fields>
+        <client_callable>false</client_callable>
+        <collection>x_ctans_incentnow_user_profile</collection>
+        <condition/>
+        <description/>
+        <execute_function>false</execute_function>
+        <filter_condition/>
+        <is_rest>false</is_rest>
+        <message/>
+        <name>Make External User ID Unique</name>
+        <order>100</order>
+        <priority>100</priority>
+        <rest_method/>
+        <rest_method_text/>
+        <rest_service/>
+        <rest_service_text/>
+        <rest_variables/>
+        <role_conditions/>
+        <script><![CDATA[(function executeRule(current, previous) {
+
+    var userID = current.getValue('external_user_id');
+
+    if (!userID) {
+        return;
+    }
+
+    var userProfile = new GlideRecord('x_ctans_incentnow_user_profile');
+    guserProfiler.addQuery('external_user_id', userID);
+    userProfile.addQuery('sys_id', '!=', current.sys_id); // exclude self
+    userProfile.setLimit(1);
+    userProfile.query();
+
+    if (userProfile.hasNext()) {
+
+        gs.addErrorMessage(
+            "External user with User ID " + userID + "' already exists. Please use a unique External User ID."
+        );
+
+        current.setAbortAction(true);
+    }
+
+})(current, previous);]]></script>
+        <sys_class_name>sys_script</sys_class_name>
+        <sys_created_by>upma.rai</sys_created_by>
+        <sys_created_on>2026-06-03 13:53:06</sys_created_on>
+        <sys_domain>global</sys_domain>
+        <sys_domain_path>/</sys_domain_path>
+        <sys_id>ca67b6fc9395c790ddb7f2d89803d639</sys_id>
+        <sys_mod_count>4</sys_mod_count>
+        <sys_name>Make External User ID Unique</sys_name>
+        <sys_overrides/>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_script_ca67b6fc9395c790ddb7f2d89803d639</sys_update_name>
+        <sys_updated_by>upma.rai</sys_updated_by>
+        <sys_updated_on>2026-06-11 11:54:21</sys_updated_on>
+        <template/>
+        <when>before</when>
+    </sys_script>
+    <sys_translated_text action="delete_multiple" query="documentkey=ca67b6fc9395c790ddb7f2d89803d639"/>
+</record_update>

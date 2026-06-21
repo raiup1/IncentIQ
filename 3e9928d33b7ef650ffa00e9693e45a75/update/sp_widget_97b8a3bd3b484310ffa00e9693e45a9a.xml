@@ -1,0 +1,1205 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <client_script><![CDATA[api.controller = function($scope, spUtil,$location) {
+    /* widget controller */
+    var c = this;
+	
+	if(c.activeStep=="" || !c.activeStep || c.activeStep==null)
+	c.activeStep = 'basic';
+	c.sysId = $location.search().sys_id;
+  	c.hasSysId = !!c.sysId;
+
+	c.earningCount = 0;
+	$scope.$on('earningRulesUpdated', function(event, data) {
+		c.earningCount = data.earningrulescount;
+	});
+	
+	
+
+
+	c.setStep = function(step) {
+	if (!c.hasSysId && step !== 'basic') {
+            spUtil.addErrorMessage("Start by creating a plan before moving the other sections.");
+            return;
+        }
+	c.data.atStep=step;
+	c.data.action='stepClicked';
+
+	/*	if(step=='commission')
+			{
+				
+				c.server.update().then(function(res)
+							{
+								//alert(JSON.stringify(res.earningexist));
+								if(!res.earningexist)
+								{
+									spUtil.addErrorMessage('You must configure at least one earning rule before setting up commission rules. Go to the "Earning Rules" tab to get started.');
+									return;
+								}
+								c.activeStep=step;
+								
+							});
+							return;
+			}*/
+
+			if (step === 'commission' && c.earningCount === 0) {
+    spUtil.addErrorMessage('You must configure at least one earning rule before setting up commission rules. Go to the "Earning Rules" tab to get started.');
+    return;
+}
+	
+  c.activeStep = step;
+};
+
+	c.goBack = function() {
+			//c.pk="called"
+			window.history.back();
+	};
+    c.data.fiscal_period = {
+        displayValue: "",
+        value: ""
+    };
+	
+		 c.data.status = {
+        displayValue: "",
+        value: ""
+    };
+	
+		 c.data.business_unit = {
+        displayValue: "",
+        value: ""
+    };
+	
+	c.rule = {
+  filters: []
+};
+
+c.earningRules = [];
+
+c.addFilter = function() {
+  c.rule.filters.push({});
+};
+
+c.addRule = function() {
+  c.earningRules.push(angular.copy(c.rule));
+  c.rule = { filters: [] };
+};
+
+c.removeRule = function(index) {
+  c.earningRules.splice(index, 1);
+};
+
+		
+		
+				
+				var step = $location.search().step;
+		if (step) {
+				c.activeStep = step;
+		}
+		
+	
+    
+};]]></client_script>
+        <controller_as>c</controller_as>
+        <css>body {
+  font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
+	
+}
+
+.modern-body input.form-control::placeholder {
+  color: #e2e8f0 !important;
+  opacity: 1 !important;
+}
+
+.modern-body textarea.form-control::placeholder {
+  color: #e2e8f0 !important;
+  opacity: 1 !important;
+}
+
+.modern-body .select2-default .select2-chosen {
+  color: #e2e8f0 !important;
+}
+
+.modern-body .select2-chosen {
+  color: #0f172a !important;
+}
+
+.qa-back-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  cursor: pointer;
+  color: #374151;
+  transition: background 0.15s, border-color 0.15s;
+  flex-shrink: 0;
+}
+
+.qa-back-btn:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+}
+
+/* ================= STEP TABS ================= */
+
+/* ================= STEP TABS (FIXED) ================= */
+
+.upload-step-tabs {
+  display: flex;
+  align-items: center;
+  margin: 20px 0;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 8px 14px;
+}
+
+/* STEP BUTTON */
+.upload-step-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: transparent;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+/* ✅ FIXED HOVER (only apply when NOT active) */
+.upload-step-tab:not(.upload-step-tab-active):hover {
+  background: #f1f5f9;
+  color: #111827;
+}
+
+/* ✅ STRONG ACTIVE STYLE */
+.upload-step-tab-active {
+  background: #0f172a;
+  color: #ffffff !important;
+}
+
+/* STEP NUMBER */
+.upload-step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.08);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* ACTIVE NUMBER */
+.upload-step-tab-active .upload-step-num {
+  background: rgba(255,255,255,0.25);
+  color: #ffffff;
+}
+
+/* DIVIDER */
+.upload-step-divider {
+  flex: 1;
+  height: 1px;
+  background: #e2e8f0;
+  margin: 0 6px;
+  max-width: 32px; /* tighter like reference */
+}
+
+.ip-steps {
+  display: flex;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.ip-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  min-width: 100px;
+}
+
+.ip-step-circle {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.ip-step-label {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+/* LINE */
+.ip-step-line {
+  flex: 1;
+  height: 2px;
+  background: #e5e7eb;
+}
+
+/* ACTIVE STEP */
+.ip-step.active .ip-step-circle {
+  background: #000;
+  color: #fff;
+}
+
+.ip-step.active .ip-step-label {
+  color: #000;
+  font-weight: 500;
+}
+
+.ip-tab-panel {
+  display: none;
+}
+
+.ip-tab-panel.active {
+  display: block;
+}
+/* BASE */
+.ip-container {
+  font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #f8fafc;
+  padding:20px;
+  color: #111827;
+}
+
+/* HEADER */
+.ip-header {
+  display: flex;
+  
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.ip-back-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.ip-back-btn:hover {
+  background: #f1f5f9;
+}
+
+.ip-header-text {
+  flex: 1;
+}
+
+.ip-header-text h1 {
+  font-size: 2.6rem;
+  font-weight: 600;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.ip-header-text p {
+  font-size: 1.4rem;
+  margin-top: 4px;
+  color: #6b7280;
+}
+
+/* BUTTONS */
+.ip-save-btn,
+.ip-btn-primary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 36px;
+  padding: 0 16px;
+  background: #000000;
+  color: #fff;
+  border-radius: 8px;
+  border: none;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.ip-save-btn:hover,
+.ip-btn-primary:hover {
+  background: #4338ca;
+}
+
+.ip-btn-secondary {
+  height: 36px;
+  padding: 0 16px;
+  background: #ffffff;
+
+  /* 🔥 BORDER FIX */
+  border: 1px solid #e5e7eb;  /* softer gray like Figma */
+  
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #111827;
+  cursor: pointer;
+}
+
+/* Hover (important for exact feel) */
+.ip-btn-secondary:hover {
+  background: #f9fafb;
+  border-color: #d1d5db; /* slightly darker on hover */
+}
+
+/* TABS */
+.ip-tabs {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  background: #ececf0;
+  color: #000000;
+  padding: 3px;
+  border-radius: 12px;
+  max-width: 60%;
+  margin-bottom: 24px;
+}
+
+.ip-tab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ip-tab.active {
+  background: #ffffff;
+  color: #111827;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.ip-tab:hover {
+  color: #111827;
+}
+
+/* MAIN LAYOUT (VERTICAL STACK) */
+.ip-main {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* CARD */
+.ip-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 24px;
+  margin-top:20px;
+}
+
+.ip-card-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+/* FORM */
+.ip-field {
+  margin-bottom: 16px;
+}
+
+.ip-field label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+
+.ip-field input {
+  width: 100%;
+  height: 36px;
+  border: 1px solid;
+  border-radius: 8px;
+  padding: 0 10px;
+  //background: #f9fafb;
+  font-size: 14px;
+}
+
+
+
+
+.ip-help {
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 4px;
+}
+
+/* TWO COLUMN ROW */
+.ip-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+/* SELECT STYLE */
+.ip-select {
+  height: 36px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  background: #f9fafb;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+/* STATUS */
+.ip-status {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+  
+}
+
+.ip-status p {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.ip-status-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* TOGGLE */
+.ip-toggle {
+  width: 32px;
+  height: 18px;
+  background: #000000;
+  border-radius: 999px;
+  position: relative;
+  cursor: pointer;
+}
+
+.ip-toggle.active {
+  background: #4f46e5;
+}
+
+.ip-toggle::after {
+  content: "";
+  width: 14px;
+  height: 14px;
+  background: white;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  border-radius: 50%;
+  transition: 0.2s;
+}
+
+.ip-toggle.active::after {
+  left: 16px;
+}
+
+/* BADGE */
+.ip-badge {
+  background: #000000;
+  color: white;
+  font-size: 12px;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+/* SUMMARY */
+.ip-summary-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.ip-summary-row span {
+  color: #6b7280;
+}
+
+/* ALERT */
+.ip-alert {
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  gap: 12px;
+}
+
+.ip-alert-icon {
+  width: 20px;
+  height: 20px;
+  background: #f97316;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ip-alert h4 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #92400e;
+}
+
+.ip-alert ul {
+  font-size: 13px;
+  color: #b45309;
+  margin-top: 4px;
+}
+
+/* FOOTER */
+.ip-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+
+/* INFO CARD */
+.ip-info {
+  background: #eff6ff;        /* blue-50 */
+  border: 1px solid #bfdbfe;  /* blue-200 */
+  border-radius: 10px;
+  padding: 16px;
+}
+
+/* TITLE */
+.ip-info-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1e3a8a;            /* blue-900 */
+  margin-bottom: 8px;
+}
+
+/* TEXT */
+.ip-info-text {
+  font-size: 13px;
+  color: #1d4ed8;            /* blue-700 */
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+
+.ip-info-text:last-child {
+  margin-bottom: 0;
+}
+
+
+/* FLEX */
+.ip-flex {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ICON */
+.ip-icon {
+  font-size: 18px;
+}
+
+.ip-icon-small {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+/* DISABLED SELECT */
+.ip-disabled {
+  background: #f3f4f6;
+  color: #9ca3af;
+  pointer-events: none;
+}
+
+/* FILTER SECTION */
+.ip-filter {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.ip-filter-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+/* EMPTY BOX */
+.ip-empty-box {
+  border: 1px dashed #d1d5db;
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+/* SMALL BUTTON */
+.ip-btn-secondary.small {
+  height: 32px;
+  padding: 0 12px;
+  font-size: 13px;
+}
+
+/* FULL BUTTON */
+.ip-btn-primary.full {
+  width: 100%;
+  margin-top: 16px;
+}
+
+
+/* EMPTY CARD */
+.ip-empty-card {
+  border: 1px dashed #d1d5db;
+  background: #ffffff;
+}
+
+/* CONTENT CENTER */
+.ip-empty-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  text-align: center;
+}
+
+/* ICON */
+.ip-empty-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: #f3f4f6;
+  color: #9ca3af;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  margin-bottom: 16px;
+}
+
+/* TITLE */
+.ip-empty-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+/* TEXT */
+.ip-empty-text {
+  font-size: 13px;
+  color: #6b7280;
+  max-width: 420px;
+  line-height: 1.5;
+}
+
+
+/* FOOTER CONTAINER */
+.ip-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+  padding-top: 24px;
+  margin-top: 24px;
+  border-top: 1px solid #e5e7eb;
+}
+
+/* CANCEL BUTTON */
+.ip-btn-secondary {
+  height: 36px;
+  padding: 0 16px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;  /* softer border */
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #111827;
+  cursor: pointer;
+}
+
+.ip-btn-secondary:hover {
+  background: #f9fafb;
+  border-color: #d1d5db;
+}
+
+/* PRIMARY BUTTON */
+.ip-btn-primary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #4f46e5;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+/* LARGE PRIMARY (matches your Tailwind h-10 px-6) */
+.ip-btn-large {
+  height: 40px;
+  padding: 0 20px;
+}
+
+/* HOVER */
+.ip-btn-primary:hover {
+  background: #4338ca;
+}
+
+/* ICON */
+.ip-btn-primary svg {
+  width: 16px;
+  height: 16px;
+  stroke: #ffffff;
+  stroke-width: 2;
+  fill: none;
+}
+
+
+/* PURPLE VARIANT */
+.ip-info-purple {
+  background: #faf5ff;        /* purple-50 */
+  border: 1px solid #e9d5ff;  /* purple-200 */
+}
+
+/* TITLE (same style but color override) */
+.ip-info-purple .ip-info-title {
+  color: #581c87;            /* purple-900 */
+}
+
+/* TEXT */
+.ip-info-purple .ip-info-text {
+  color: #7e22ce;            /* purple-700 */
+}
+
+/* LIST */
+.ip-info-list {
+  font-size: 13px;
+  color: #7e22ce;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+
+/* BASE ALERT (you already had this, keeping consistent) */
+.ip-alert {
+  border-radius: 12px;
+  padding: 16px;
+  margin-top:20px;
+}
+
+/* ORANGE VARIANT */
+.ip-alert-orange {
+  background: #fff7ed;        /* orange-50 */
+  border: 1px solid #fed7aa;  /* orange-200 */
+}
+
+/* ROW */
+.ip-alert-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+/* ICON */
+.ip-alert-icon.orange {
+  width: 20px;
+  height: 20px;
+  background: #ea580c;       /* orange-600 */
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+/* TITLE */
+.ip-alert-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #9a3412;            /* orange-900 */
+  margin-bottom: 4px;
+}
+
+/* TEXT */
+.ip-alert-text {
+  font-size: 13px;
+  color: #c2410c;            /* orange-700 */
+  line-height: 1.5;
+}
+
+
+/* FOOTER */
+.ip-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+  padding-top: 24px;
+  margin-top: 24px;
+  border-top: 1px solid #e5e7eb;
+}
+
+/* REMOVE LINK STYLES */
+.ip-link-reset {
+  text-decoration: none;
+}
+
+/* CANCEL BUTTON */
+.ip-btn-secondary {
+  height: 36px;
+  padding: 0 16px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #111827;
+  cursor: pointer;
+}
+
+.ip-btn-secondary:hover {
+  background: #f9fafb;
+  border-color: #d1d5db;
+}
+
+/* PRIMARY BUTTON */
+.ip-btn-primary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #4f46e5;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.ip-btn-primary:hover {
+  background: #4338ca;
+}
+
+/* LARGE BUTTON */
+.ip-btn-large {
+  height: 40px;
+  padding: 0 20px;
+}
+
+/* ICON */
+.ip-btn-primary svg {
+  width: 16px;
+  height: 16px;
+  stroke: #ffffff;
+  stroke-width: 2;
+  fill: none;
+}
+
+/* Configured Section */
+.ip-configured {
+  margin-top: 20px;
+}
+
+/* Rule Card */
+.ip-rule-card {
+  border: 2px solid #dbeafe;
+  background: #eff6ff;
+  border-radius: 10px;
+  padding: 15px;
+  margin-bottom: 12px;
+}
+
+/* Header */
+.ip-rule-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Left */
+.ip-rule-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Badge */
+.ip-badge {
+  background: #2563eb;
+  color: #fff;
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 5px;
+}
+
+.ip-delete-btn {
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: #dc2626;        /* red */
+  font-size: 16px;
+  transition: 0.2s;
+}
+
+.ip-delete-btn:hover {
+  color: #b91c1c;        /* darker red on hover */
+}
+
+.ip-delete-icon {
+  width: 18px;
+  height: 18px;
+  stroke: #dc2626;
+  fill: none;
+  stroke-width: 2;
+  transition: 0.2s;
+}
+
+.ip-delete-btn:hover .ip-delete-icon {
+  stroke: #b91c1c;
+}
+
+/* Row */
+.ip-rule-row {
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+/* Conditions */
+.ip-cond-title {
+  margin-top: 10px;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.ip-cond-box {
+  margin-top: 5px;
+  background: #fff;
+  border: 1px solid #ddd;
+  padding: 5px 8px;
+  border-radius: 5px;
+  font-size: 12px;
+}
+
+/* SQL */
+.ip-sql {
+  margin-top: 12px;
+  background: #111827;
+  color: #22c55e;
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 12px;
+}
+
+</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description/>
+        <docs/>
+        <field_list/>
+        <has_preview>true</has_preview>
+        <id>incentnow-create-plan</id>
+        <internal>false</internal>
+        <link><![CDATA[function link(scope, element, attrs, controller) {
+  
+}]]></link>
+        <name>IncentNow Create Plan</name>
+        <option_schema/>
+        <public>false</public>
+        <roles>x_ctans_incentnow.user</roles>
+        <script><![CDATA[(function() {
+  /* populate the 'data' object */
+  /* e.g., data.table = $sp.getValue('table'); */
+	data.incentnowAdForm= $sp.getWidget('incentnow-form-advanced',{table:"x_ctans_incentnow_plan",view:"portal_view"});
+	data.earningrule=$sp.getWidget("incentnow-configured-earning-rule");
+	data.earningrulebuilder=$sp.getWidget('incentnow-rule-builder-form',{table:"x_ctans_incentnow_earning_rule",view:"portal_view"});
+	data.commissionrule=$sp.getWidget('incentive-commission-rules');
+	data.summary=$sp.getWidget('incentive-summary');
+	
+	data.sys_id="";
+	try
+		{
+			data.sys_id=$sp.getParameter('sys_id');
+		}
+	catch(e)
+		{
+		
+		}
+	if(data.sys_id)
+		{
+			data.planactiontitle="Update Incentive Plan";
+			
+		}
+	else
+		{
+			data.planactiontitle="Create Incentive Plan";
+		}
+	
+	
+	if(input && input.action=='stepClicked')
+		{
+			if(input.atStep=='commission')
+				{
+					var gEarning= new GlideRecordSecure('x_ctans_incentnow_earning_rule');
+					gEarning.addQuery('plan',data.sys_id);
+					gEarning.query();
+					if(gEarning.next())
+						{
+							data.earningexist=true;
+						}
+					else
+						data.earningexist=false;
+					
+					
+				}
+		}
+		
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>karan.kumar</sys_created_by>
+        <sys_created_on>2026-04-05 16:38:52</sys_created_on>
+        <sys_id>97b8a3bd3b484310ffa00e9693e45a9a</sys_id>
+        <sys_mod_count>228</sys_mod_count>
+        <sys_name>IncentNow Create Plan</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sp_widget_97b8a3bd3b484310ffa00e9693e45a9a</sys_update_name>
+        <sys_updated_by>karan.kumar</sys_updated_by>
+        <sys_updated_on>2026-06-12 05:51:42</sys_updated_on>
+        <template><![CDATA[<div class="ip-container">
+   <!-- HEADER -->
+   <div class="ip-header">
+      <button class="qa-back-btn" ng-click="c.goBack()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <circle cx="12" cy="12" r="10"/>
+        <polyline points="12 8 8 12 12 16"/>
+        <line x1="16" y1="12" x2="8" y2="12"/>
+      </svg>
+    </button>
+      <div class="ip-header-text">
+         <h1>{{c.data.planactiontitle}}</h1>
+         <p>Build a comprehensive incentive plan with earning and commission rules</p>
+      </div>
+      
+   </div>
+  
+  <div class="upload-step-tabs">
+
+  <button class="upload-step-tab"
+          ng-class="{'upload-step-tab-active': c.activeStep=='basic'}"
+          ng-click="c.setStep('basic')">
+    <span class="upload-step-num">1</span>
+    Basic Info
+  </button>
+
+  <div class="upload-step-divider"></div>
+
+  <button class="upload-step-tab"
+          ng-class="{'upload-step-tab-active': c.activeStep=='earning'}"
+          ng-click="c.setStep('earning')">
+    <span class="upload-step-num">2</span>
+    Earning Rules
+  </button>
+
+  <div class="upload-step-divider"></div>
+
+  <button class="upload-step-tab"
+          ng-class="{'upload-step-tab-active': c.activeStep=='commission'}"
+          ng-click="c.setStep('commission')">
+    <span class="upload-step-num">3</span>
+    Commission Rules
+  </button>
+
+  <div class="upload-step-divider"></div>
+
+  <button class="upload-step-tab"
+          ng-class="{'upload-step-tab-active': c.activeStep=='summary'}"
+          ng-click="c.setStep('summary')">
+    <span class="upload-step-num">4</span>
+    Summary
+  </button>
+
+</div>
+   <div id="basic" class="ip-tab-panel" ng-class="{'active': c.activeStep=='basic'}">
+      <!-- MAIN CONTENT -->
+      <div class="ip-main">
+         <sp-widget widget="data.incentnowAdForm"></sp-widget>
+         
+         <!-- ALERT -->
+         <div class="ip-alert">
+            <div class="ip-alert-icon">!</div>
+            <div>
+               <h4>Plan Incomplete</h4>
+               <ul>
+                  <li>Add at least one earning rule to define data sources</li>
+                  <li>Add at least one data gathering step</li>
+                 <li>Add at least one Payout Summary</li>
+               </ul>
+            </div>
+         </div>
+      </div>
+   </div>
+   <div id="earning" class="ip-tab-panel" ng-class="{'active': c.activeStep=='earning'}">
+      <div class="ip-info">
+         <h3 class="ip-info-title">About Earning Rules</h3>
+         <p class="ip-info-text">
+            Earning rules define what data to pull from your backend systems to calculate commissions. 
+            You can specify the source object (like Opportunities or Orders), the field to measure 
+            (like ARR or Amount), how to aggregate the data, and filter conditions to include only relevant records.
+         </p>
+         <p class="ip-info-text">
+            <strong>Example:</strong> "Sum ARR from Opportunities where Stage = 'Closed Won' AND Close_Date is in current quarter"
+         </p>
+      </div>
+      <!-- RULE BUILDER CARD -->
+      	<sp-widget widget="data.earningrulebuilder"></sp-widget>
+     	<sp-widget widget="data.earningrule"></sp-widget>
+      
+   </div>
+   <div id="commission" class="ip-tab-panel" ng-class="{'active': c.activeStep=='commission'}">
+      
+     <sp-widget widget="data.commissionrule"></sp-widget>
+     
+   </div>
+  
+  	<div id="summary" class="ip-tab-panel" ng-class="{'active': c.activeStep=='summary'}">
+      <sp-widget widget="data.summary"></sp-widget>
+  </div>
+</div>]]></template>
+    </sp_widget>
+</record_update>

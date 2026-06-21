@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>package_private</access>
+        <active>true</active>
+        <api_name>x_ctans_incentnow.IncentNowFiscalPeriodGenerator</api_name>
+        <caller_access/>
+        <client_callable>false</client_callable>
+        <description/>
+        <mobile_callable>false</mobile_callable>
+        <name>IncentNowFiscalPeriodGenerator</name>
+        <sandbox_callable>true</sandbox_callable>
+        <script><![CDATA[var IncentNowFiscalPeriodGenerator = Class.create();
+IncentNowFiscalPeriodGenerator.prototype = {
+
+    initialize: function () {},
+
+    generatePeriods: function (fiscalYearSysId) {
+
+
+        var fy = new GlideRecordSecure('x_ctans_incentnow_fiscal_calendar');
+        if (!fy.get(fiscalYearSysId)) {
+            gs.error('Fiscal year not found');
+            return;
+        }
+
+        var fiscalStartMonth = parseInt(fy.fiscal_start, 10);
+        var fiscalEndMonth   = parseInt(fy.fiscal_end, 10);
+        var fiscalStartYear  = this._extractYear(fy.fiscal_year + '');
+
+        if (!fiscalStartMonth || !fiscalEndMonth || !fiscalStartYear) {
+            gs.error('Invalid fiscal configuration');
+            return;
+        }
+
+        // Prevent duplicates
+        var dup = new GlideRecordSecure('x_ctans_incentnow_fiscal_period');
+        dup.addQuery('fiscal_year', fy.sys_id);
+        dup.setLimit(1);
+        dup.query();
+        if (dup.hasNext()) {
+            gs.warn('Fiscal periods already exist');
+            return;
+        }
+
+        /* =====================================================
+         * 1 Generate YEAR Period (ROOT)
+         * ===================================================== */
+
+        var yearStart = new GlideDateTime();
+        yearStart.setValue(
+            fiscalStartYear + '-' + this._pad(fiscalStartMonth) + '-01 00:00:00'
+        );
+
+        var yearEnd = new GlideDateTime(yearStart);
+        yearEnd.addMonthsUTC(12);
+        yearEnd.addDaysUTC(-1);
+
+        var yearRec = new GlideRecordSecure('x_ctans_incentnow_fiscal_period');
+        yearRec.initialize();
+        yearRec.fiscal_year = fy.sys_id;
+        yearRec.period_type = 'year';
+        yearRec.period_number = 1;
+		yearRec.period_display_name = fy.getDisplayValue();
+        yearRec.period_name = fy.fiscal_year + '';
+        yearRec.period_start_date = yearStart;
+        yearRec.period_end_date = yearEnd;
+
+        var yearSysId = yearRec.insert();
+
+        /* =====================================================
+         * 2️ Generate Quarters (Children of Year)
+         * ===================================================== */
+
+        var quarters = [];
+
+        for (var q = 0; q < 4; q++) {
+
+            var offset = q * 3;
+
+            var startMonth =
+                ((fiscalStartMonth - 1 + offset) % 12) + 1;
+
+            var startYear =
+                fiscalStartYear +
+                Math.floor((fiscalStartMonth - 1 + offset) / 12);
+
+            var qStart = new GlideDateTime();
+            qStart.setValue(
+                startYear + '-' + this._pad(startMonth) + '-01 00:00:00'
+            );
+
+            var qEnd = new GlideDateTime(qStart);
+            qEnd.addMonthsUTC(3);
+            qEnd.addDaysUTC(-1);
+
+            var qRec = new GlideRecordSecure('x_ctans_incentnow_fiscal_period');
+            qRec.initialize();
+            qRec.fiscal_year = fy.sys_id;
+            qRec.period_type = 'quarter';
+            qRec.period_number = q + 1;
+            qRec.parent_period = yearSysId; 
+            qRec.period_name = 'Q' + (q + 1) + ' ' + startYear;
+			qRec.period_display_name = qRec.period_name;
+            qRec.period_start_date = qStart;
+            qRec.period_end_date = qEnd;
+
+            quarters.push(qRec.insert());
+        }
+
+        /* =====================================================
+         * 3️ Generate Months (Children of Quarters)
+         * ===================================================== */
+
+        for (var m = 0; m < 12; m++) {
+
+            var month =
+                ((fiscalStartMonth - 1 + m) % 12) + 1;
+
+            var year =
+                fiscalStartYear +
+                Math.floor((fiscalStartMonth - 1 + m) / 12);
+
+            var mStart = new GlideDateTime();
+            mStart.setValue(
+                year + '-' + this._pad(month) + '-01 00:00:00'
+            );
+
+            var mEnd = new GlideDateTime(mStart);
+            mEnd.addMonthsUTC(1);
+            mEnd.addDaysUTC(-1);
+
+            var mRec = new GlideRecordSecure('x_ctans_incentnow_fiscal_period');
+            mRec.initialize();
+            mRec.fiscal_year = fy.sys_id;
+            mRec.period_type = 'month';
+            mRec.period_number = m + 1;
+            mRec.parent_period = quarters[Math.floor(m / 3)];
+            mRec.period_name = this._getMonthName(month) + ' ' + year;
+			mRec.period_display_name = mRec.period_name;
+            mRec.period_start_date = mStart;
+            mRec.period_end_date = mEnd;
+            mRec.insert();
+        }
+
+        gs.info('Fiscal periods (Year, Quarter, Month) generated successfully.');
+    },
+
+    /* ===============================
+     * Helpers
+     * =============================== */
+
+    _extractYear: function (str) {
+        var m = str.match(/(20\d{2})/);
+        return m ? parseInt(m[1], 10) : null;
+    },
+
+    _pad: function (n) {
+        return (n < 10 ? '0' : '') + n;
+    },
+
+    _getMonthName: function (m) {
+        return [
+            'January', 'February', 'March', 'April', 'May', 'June',
+            'July', 'August', 'September', 'October', 'November', 'December'
+        ][m - 1];
+    },
+
+
+    type: 'IncentNowFiscalPeriodGenerator'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>karan.kumar</sys_created_by>
+        <sys_created_on>2026-02-25 19:53:18</sys_created_on>
+        <sys_id>ec5fdbd13b93f6d0ffa00e9693e45a2e</sys_id>
+        <sys_mod_count>13</sys_mod_count>
+        <sys_name>IncentNowFiscalPeriodGenerator</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_script_include_ec5fdbd13b93f6d0ffa00e9693e45a2e</sys_update_name>
+        <sys_updated_by>upma.rai</sys_updated_by>
+        <sys_updated_on>2026-04-15 09:23:26</sys_updated_on>
+    </sys_script_include>
+</record_update>

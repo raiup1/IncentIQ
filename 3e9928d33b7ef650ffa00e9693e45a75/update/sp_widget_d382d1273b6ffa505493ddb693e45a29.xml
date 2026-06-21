@@ -1,0 +1,952 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <client_script><![CDATA[api.controller = function() {
+  var c = this;
+	
+	c.charts = {};
+	
+	c.fiscalYears = [];
+	c.fiscalPeriods = [];
+	
+  c.chartId = Math.random().toString(36).substr(2, 9);
+
+  c.$onInit = function() {
+
+		c.fiscalYears = c.data.fiscalYears || [];
+		c.fiscalPeriods = c.data.fiscalPeriods || [];
+
+		// ✅ Set default FY FIRST
+		if (c.fiscalYears.length > 0) {
+			c.selectedFiscalYear = c.fiscalYears[0].id;
+		}
+
+		// ✅ THEN call filters
+		c.applyFilters();
+
+		c.waitForDOMAndRender();
+	};
+	
+	c.applyFilters = function() {
+
+  // reset invalid period if FY changes
+  if (c.lastSelectedFY !== c.selectedFiscalYear) {
+    c.selectedFiscalPeriod = '';
+  }
+
+  c.lastSelectedFY = c.selectedFiscalYear;
+
+  c.data.fiscalYear = c.selectedFiscalYear;
+  c.data.fiscalPeriod = c.selectedFiscalPeriod;
+
+  c.server.update().then(function() {
+
+    // ✅ IMPORTANT: refresh dropdown data from server
+    c.fiscalYears = c.data.fiscalYears || [];
+    c.fiscalPeriods = c.data.fiscalPeriods || [];
+		
+		if (c.fiscalYears.length > 0 && !c.selectedFiscalYear) {
+			c.selectedFiscalYear = c.fiscalYears[0].id;
+		}
+
+    setTimeout(function() {
+      c.renderCharts();
+    }, 200);
+
+  });
+};
+
+  c.waitForDOMAndRender = function(attempt) {
+    attempt = attempt || 1;
+
+    var monthlyEl = document.getElementById("monthlyChart_" + c.chartId);
+    var teamEl = document.getElementById("teamChart_" + c.chartId);
+		var businessEl = document.getElementById("businessIncentivesChart_" + c.chartId);
+		var totalCommissionEl = document.getElementById("totalCommissionChart_" + c.chartId);
+		var quotaAttainmentEl = document.getElementById("quotaAttainmentChart_" + c.chartId);
+		var repAvgPlanEl = document.getElementById("repAvgPlanChart_" + c.chartId);
+
+		if ((!businessEl || !totalCommissionEl || !quotaAttainmentEl || !repAvgPlanEl) && attempt < 10) {
+
+    //if ((!monthlyEl || !teamEl) && attempt < 10) {
+      setTimeout(function() {
+        c.waitForDOMAndRender(attempt + 1);
+      }, 300);
+      return;
+    }
+
+    c.renderCharts();
+  };
+	
+	
+
+  c.renderCharts = function() {
+   
+		
+		// Total Commission by Month (Line Chart)
+var ctx = document.getElementById("totalCommissionChart_" + c.chartId);
+
+if (c.charts.totalCommissionChart) {
+  c.charts.totalCommissionChart.destroy();
+}
+
+c.charts.totalCommissionChart = new Chart(ctx, {
+  type: "line",
+  data: {
+    labels: c.data.totalCommissionByMonth.map(function(item) {
+      return item.month;
+    }),
+    datasets: [
+      {
+        label: "Total Incentives",
+        data: c.data.totalCommissionByMonth.map(function(item) {
+          return item.totalCommission;
+        }),
+        borderColor: "#3b82f6",
+        backgroundColor: "rgba(59, 130, 246, 0.2)",
+        tension: 0.4,
+        fill: true,
+        pointRadius: 4
+      },
+			{
+				label: "Total Credits",
+				data: c.data.totalCreditsByMonth.map(function(item) {
+					return item.totalCredits;
+				}),
+				borderColor: "#22c55e",
+				backgroundColor: "rgba(34, 197, 94, 0.2)",
+				tension: 0.4,
+				fill: true,
+				pointRadius: 4
+			}
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+		animation: {
+			duration: 1200,   // smooth transition time
+			easing: 'easeOutQuart'
+		},
+    plugins: {
+      legend: { position: "bottom" }
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: {
+          callback: function(value) {
+            return "$" + (value / 1000) + "K";
+          }
+        }
+      }
+    }
+  }
+});
+		
+		
+		
+			// Business Incentives Chart
+var businessCtx = document.getElementById("businessIncentivesChart_" + c.chartId);
+
+if (c.charts.businessChart) {
+  c.charts.businessChart.destroy();
+}
+
+c.charts.businessChart = new Chart(businessCtx, {
+  type: "bar",
+  data: {
+    labels: c.data.businessIncentives.map(function(item) { 
+      return item.business_unit; 
+    }),
+    datasets: [
+      {
+        label: "Total Incentives",
+        data: c.data.businessIncentives.map(function(item) { 
+          return item.totalCommission; 
+        }),
+        backgroundColor: "#22c55e"
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { position: "bottom" } },
+    scales: {
+      y: {
+        ticks: {
+          callback: function(value) { return "$" + value / 1000 + "K"; }
+        }
+      }
+    }
+  }
+});
+		
+		// Quota Attainment by Month (Line)
+var ctx = document.getElementById("quotaAttainmentChart_" + c.chartId);
+
+if (c.charts.quotaChart) {
+  c.charts.quotaChart.destroy();
+}
+
+c.charts.quotaChart = new Chart(ctx, {
+  type: "line",
+  data: {
+    labels: c.data.quotaAttainmentByMonth.map(function(item) {
+      return item.month;
+    }),
+    datasets: [
+      {
+        label: "Quota Attainment (%)",
+        data: c.data.quotaAttainmentByMonth.map(function(item) {
+          return item.quotaAttainment;
+        }),
+        borderColor: "#f59e0b",
+        backgroundColor: "rgba(245, 158, 11, 0.2)",
+        tension: 0.4,
+        fill: true,
+        pointRadius: 4
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { position: "bottom" }
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: {
+          callback: function(value) {
+            return value.toFixed(0) + "%";
+          }
+        }
+      }
+    }
+  }
+});
+		
+		
+		// Rep Average by Plan (Horizontal Bar)
+var ctx = document.getElementById("repAvgPlanChart_" + c.chartId);
+
+if (c.charts.repAvgChart) {
+  c.charts.repAvgChart.destroy();
+}
+
+c.charts.repAvgChart = new Chart(ctx, {
+  type: "bar",
+  data: {
+    labels: c.data.repAvgByPlan.map(function(item) {
+      return item.plan;
+    }),
+    datasets: [
+      {
+        label: "Avg Incentive per Rep",
+        data: c.data.repAvgByPlan.map(function(item) {
+          return item.avgCommission;
+        }),
+        backgroundColor: "#8b5cf6"
+      }
+    ]
+  },
+  options: {
+    indexAxis: 'y',   // ✅ THIS makes it horizontal
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { position: "bottom" }
+    },
+    scales: {
+      x: {
+        ticks: {
+          callback: function(value) {
+            return "$" + (value / 1000) + "K";
+          }
+        }
+      }
+    }
+  }
+});
+
+		
+		
+  };
+};]]></client_script>
+        <controller_as>c</controller_as>
+        <css>.incentnow-dashboard {
+  .text-muted {
+    color: #6A6A6A;
+	}
+  .panel {
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    border-radius: 1rem;
+    
+   .panel-heading{
+    	background-color: white !important;
+      border: none;
+     	padding: 0rem 1.5rem !important;
+    }
+    
+    .currency {
+    	//color: #5cb85c;
+  		font-weight: 700;
+    }
+    
+    .panel-title{
+    	margin-top: 2rem;
+      margin-bottom: -0.5rem;
+      margin-left: 1rem;
+      font-size: 1.6rem;
+      font-weight: 600;
+      border: none;
+    }
+    .panel-body {
+      padding: 1.8rem;
+      .m-b-sm{
+        //margin-bottom: 3rem !important;
+      }
+    }
+  }
+  
+
+	.progress-wrapper {
+    //display: inline-flex;  
+    align-items: center;
+    gap: 10px;
+    white-space: nowrap; 
+  }
+
+  .progress-text {
+    display: inline-block;
+  }
+  .progress {
+    background-color: #e0e0e0;
+    margin:0;
+    height:0.75rem;
+    width: 9rem;
+    flex: 0 0 160px;
+    display: inline-block;
+    
+    .progress-bar {
+      transition: width 0.3s ease;
+      
+      span {
+        font-size: 12px;
+        font-weight: 600;
+      }
+    }
+  }
+  
+  canvas {
+    max-height: 300
+      px;
+  }
+}
+
+/*css for team section in top performer table*/
+.table .label.label-default {
+  background-color: transparent !important; 
+  color: #000 !important;                  
+  border: 0.5px solid #e9e1e1 !important;       
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+
+
+.label-success {
+    background-color: #000000;
+}
+
+.label-warning {
+	background-color: #ECEEF2;
+  color: black;
+}</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description/>
+        <docs/>
+        <field_list/>
+        <has_preview>false</has_preview>
+        <id>incentnow_dashboard</id>
+        <internal>false</internal>
+        <link><![CDATA[function link(scope, element, attrs, controller) {
+  
+}]]></link>
+        <name>IncentNow Dashboard</name>
+        <option_schema/>
+        <public>false</public>
+        <roles>x_ctans_incentnow.user,x_ctans_incentnow.admin</roles>
+        <script><![CDATA[(function() {
+
+  var fiscalYear = input && input.fiscalYear ? input.fiscalYear : '';
+  var fiscalPeriod = input && input.fiscalPeriod ? input.fiscalPeriod : '';
+
+  /* ===================== COMMON HELPERS ===================== */
+
+  var MONTH_MAP_FULL_TO_SHORT = {
+    "January": "Jan", "February": "Feb", "March": "Mar",
+    "April": "Apr", "May": "May", "June": "Jun",
+    "July": "Jul", "August": "Aug", "September": "Sep",
+    "October": "Oct", "November": "Nov", "December": "Dec"
+  };
+
+  var MONTH_ORDER_FULL = [
+    "January","February","March","April","May","June",
+    "July","August","September","October","November","December"
+  ];
+
+  var MONTH_ORDER_SHORT = [
+    "Jan","Feb","Mar","Apr","May","Jun",
+    "Jul","Aug","Sep","Oct","Nov","Dec"
+  ];
+
+  function applyFilters(grF) {
+
+    if (fiscalYear) {
+      //gr.addQuery('fiscal_year.fiscal_year_name', 'CONTAINS', fiscalYear);
+			grF.addQuery('fiscal_year', fiscalYear);
+    }
+    if (fiscalPeriod) {
+      //gr.addQuery('fiscal_period.period_display_name', 'STARTSWITH', fiscalPeriod.split(" ")[0]);
+			grF.addQuery('fiscal_period', fiscalPeriod);
+    }
+  }
+
+  function getMonthShort(fp) {
+    var month = fp ? fp.split(" ")[0] : "";
+    return MONTH_MAP_FULL_TO_SHORT[month] || month;
+  }
+
+  function formatNumber(num) {
+    return num.toFixed(1).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  }
+
+  /* ===================== FILTER OPTIONS ===================== */
+
+  data.fiscalYears = [];
+
+	var fyMap = {};
+	var fyGR = new GlideRecordSecure('x_ctans_incentnow_fiscal_calendar');
+	fyGR.orderBy('fiscal_year_name');
+	fyGR.query();
+
+	while (fyGR.next()) {
+
+			var fyId = fyGR.getUniqueValue();
+			var fyName = fyGR.getValue('fiscal_year_name');
+
+			if (!fyMap[fyId]) {
+					fyMap[fyId] = true;
+
+					data.fiscalYears.push({
+							id: fyId,
+							name: fyName
+					});
+			}
+	}
+
+	data.fiscalPeriods = [];
+
+	var fpGR = new GlideRecordSecure('x_ctans_incentnow_fiscal_period');
+
+	if (fiscalYear) {
+		fpGR.addQuery('fiscal_year', fiscalYear);
+	}
+
+	fpGR.addQuery('period_type', 'month');
+	fpGR.query();
+
+	var tempPeriods = [];
+
+	while (fpGR.next()) {
+		tempPeriods.push({
+			id: fpGR.getUniqueValue(),
+			name: fpGR.getValue('period_name')
+		});
+	}
+
+	// ✅ Sort manually using MONTH_ORDER_FULL
+	tempPeriods.sort(function(a, b) {
+		var monthA = a.name.split(" ")[0];
+		var monthB = b.name.split(" ")[0];
+
+		return MONTH_ORDER_FULL.indexOf(monthA) - MONTH_ORDER_FULL.indexOf(monthB);
+	});
+
+	data.fiscalPeriods = tempPeriods;
+	
+	 /* =====================Average Incentive per Rep===================== */
+
+	data.avgIncentive = 0;
+
+	var totalCommissionAvg = 0;
+	var recordCount = 0;
+
+	var grAvg = new GlideRecordSecure('x_ctans_incentnow_metric_report');
+	grAvg.addQuery('period_type', 'month');
+	applyFilters(grAvg);
+	grAvg.query();
+
+	while (grAvg.next()) {
+		var comm = parseFloat(grAvg.getValue('total_commission'));
+
+		if (!isNaN(comm)) {
+			totalCommissionAvg += comm;
+			recordCount++;
+		}
+	}
+
+	// Final average
+	data.avgIncentive = recordCount > 0 ? (totalCommissionAvg / recordCount) : 0;
+
+	
+	/* ===================== TOTALS ===================== */
+
+  var totalCommission = 0;
+  var totalQuota = 0;
+  var totalAttainment = 0;
+  var count = 0;
+
+  var grTotal = new GlideRecordSecure('x_ctans_incentnow_metric_report');
+  grTotal.addQuery('period_type', 'month');
+  applyFilters(grTotal);
+  grTotal.query();
+
+  while (grTotal.next()) {
+    totalCommission += parseFloat(grTotal.getValue('total_commission')) || 0;
+    totalQuota += parseFloat(grTotal.target_quota) || 0;
+
+    var att = parseFloat(grTotal.getValue('quota_attainment'));
+    if (!isNaN(att)) {
+      totalAttainment += att;
+      count++;
+    }
+  }
+
+  data.totalIncentives = totalCommission;
+  data.totalQuota = totalQuota;
+  data.avgAchievement = count > 0 ? (totalAttainment / count) : 0;
+
+  /* ===================== STATS ===================== */
+
+  data.stats = [
+    {
+      title: 'Total Incentives',
+      value: '$' + (data.totalIncentives / 1000).toFixed(1) + 'K',
+      change: '+12.5%',
+      trend: 'up',
+      icon: 'fa-dollar'
+    },
+    {
+      title: 'Total Quota Amount',
+      value: '$' + (data.totalQuota / 1000).toFixed(1) + 'K',
+      change: '+8.2%',
+      trend: 'up',
+      icon: 'fa-dollar'
+    },
+    {
+      title: 'Average Quota Attainment',
+      value: (data.avgAchievement || 0).toFixed(1) + '%',
+      change: '+2',
+      trend: 'up',
+      icon: 'fa-percent'
+    },
+    {
+      title: 'Average Incentive per Rep',
+      value: '$' + (data.avgIncentive || 0).toFixed(2),
+      change: '+5.3%',
+      trend: 'up',
+      icon: 'fa-users'
+    }
+  ];
+
+  /* ===================== TOTAL COMMISSION BY MONTH ===================== */
+	
+	data.totalCommissionByMonth = [];
+	data.totalCreditsByMonth = [];
+
+	var monthlyMap = {};
+
+	var grMR = new GlideRecordSecure('x_ctans_incentnow_metric_report');
+	grMR.addQuery('period_type', 'month');
+	applyFilters(grMR);
+	grMR.query();
+
+	while (grMR.next()) {
+		var month = getMonthShort(grMR.getDisplayValue("fiscal_period"));
+		var commission = parseFloat(grMR.getValue("total_commission")) || 0;
+		var credits = parseFloat(grMR.getValue("total_credits")) || 0;
+
+		if (!monthlyMap[month]) {
+			monthlyMap[month] = {
+				month: month,
+				totalCommission: 0,
+				totalCredits: 0
+			};
+		}
+
+		monthlyMap[month].totalCommission += commission;
+		monthlyMap[month].totalCredits += credits;
+	}
+
+	// Populate both datasets
+	if (fiscalPeriod) {
+		for (var m in monthlyMap) {
+			data.totalCommissionByMonth.push({
+				month: m,
+				totalCommission: monthlyMap[m].totalCommission
+			});
+
+			data.totalCreditsByMonth.push({
+				month: m,
+				totalCredits: monthlyMap[m].totalCredits
+			});
+		}
+	} else {
+		MONTH_ORDER_SHORT.forEach(function(m) {
+			if (monthlyMap[m]) {
+				data.totalCommissionByMonth.push({
+					month: m,
+					totalCommission: monthlyMap[m].totalCommission
+				});
+
+				data.totalCreditsByMonth.push({
+					month: m,
+					totalCredits: monthlyMap[m].totalCredits
+				});
+			}
+		});
+	}
+	
+	  /* ===================== BUSINESS INCENTIVES ===================== */
+
+  data.businessIncentives = [];
+  var buMap = {};
+
+  var grBU = new GlideRecordSecure('x_ctans_incentnow_metric_report');
+  grBU.addQuery('period_type', 'month');
+  applyFilters(grBU);
+  grBU.query();
+
+  while (grBU.next()) {
+    var user = grBU.user.getRefRecord();
+    var buName = "Unknown";
+
+    if (user && user.business_unit) {
+      var bu = user.business_unit.getRefRecord();
+      buName = bu ? bu.getDisplayValue("name") : "Unknown";
+    }
+
+    var commission = parseFloat(grBU.getValue("total_commission")) || 0;
+
+    if (!buMap[buName]) {
+      buMap[buName] = { business_unit: buName, totalCommission: 0 };
+    }
+
+    buMap[buName].totalCommission += commission;
+  }
+
+  if (fiscalPeriod) {
+		// ]]>👉<![CDATA[ Collapse everything into one value (like graph)
+		var total = 0;
+
+		for (var b in buMap) {
+			total += buMap[b].totalCommission;
+		}
+
+		data.businessIncentives.push({
+			business_unit: fiscalPeriod, // label
+			totalCommission: total
+		});
+
+	} else {
+		// ]]>👉<![CDATA[ Normal full-year breakdown
+		for (var b in buMap) {
+			data.businessIncentives.push(buMap[b]);
+		}
+	}
+
+  /* ===================== REP AVG BY PLAN ===================== */
+
+  data.repAvgByPlan = [];
+  var planMap = {};
+
+  var grPlan = new GlideRecordSecure('x_ctans_incentnow_metric_report');
+  applyFilters(grPlan);
+	grPlan.addQuery('period_type', 'month');
+  grPlan.query();
+
+  while (grPlan.next()) {
+    var plan = grPlan.getDisplayValue("plan") || "Unknown";
+    var userId = grPlan.getValue("user");
+    var commission = parseFloat(grPlan.getValue("total_commission")) || 0;
+
+    if (!planMap[plan]) {
+      planMap[plan] = { plan: plan, totalCommission: 0, users: {} };
+    }
+
+    planMap[plan].totalCommission += commission;
+
+    if (userId) {
+      planMap[plan].users[userId] = true;
+    }
+  }
+
+  for (var p in planMap) {
+    var userCount = Object.keys(planMap[p].users).length;
+
+    data.repAvgByPlan.push({
+      plan: p,
+      avgCommission: userCount > 0 ? (planMap[p].totalCommission / userCount) : 0
+    });
+  }
+
+
+  /* ===================== QUOTA ATTAINMENT BY MONTH ===================== */
+
+  data.quotaAttainmentByMonth = [];
+  var quotaMap = {};
+
+  var grQuota = new GlideRecordSecure('x_ctans_incentnow_metric_report');
+  grQuota.addQuery('period_type', 'month');
+  applyFilters(grQuota);
+  grQuota.query();
+
+  while (grQuota.next()) {
+    var month = getMonthShort(grQuota.getDisplayValue("fiscal_period"));
+    var att = parseFloat(grQuota.getValue("quota_attainment"));
+
+    if (isNaN(att)) continue;
+
+    if (!quotaMap[month]) {
+      quotaMap[month] = { total: 0, count: 0 };
+    }
+
+    quotaMap[month].total += att;
+    quotaMap[month].count++;
+  }
+
+  if (fiscalPeriod) {
+		// ]]>👉<![CDATA[ Only selected month
+		for (var m in quotaMap) {
+			data.quotaAttainmentByMonth.push({
+				month: m,
+				quotaAttainment: quotaMap[m].total / quotaMap[m].count
+			});
+		}
+	} else {
+		// ]]>👉<![CDATA[ Full year
+		MONTH_ORDER_SHORT.forEach(function(m) {
+			if (quotaMap[m]) {
+				data.quotaAttainmentByMonth.push({
+					month: m,
+					quotaAttainment: quotaMap[m].total / quotaMap[m].count
+				});
+			}
+		});
+	}
+
+
+  /* ===================== TOP PERFORMERS ===================== */
+
+  data.topPerformers = [];
+
+  var tpGR = new GlideRecordSecure('x_ctans_incentnow_metric_report');
+  tpGR.orderByDesc('total_commission');
+	tpGR.addQuery('period_type', 'month');
+	applyFilters(tpGR);
+  tpGR.query();
+
+  while (tpGR.next()) {
+    var userName = tpGR.getDisplayValue("user");
+
+    var teamName = "";
+    if (user && user.business_unit) {
+      var bu = user.business_unit.getRefRecord();
+      teamName = bu ? bu.getDisplayValue("name") : "";
+    }
+
+    data.topPerformers.push({
+      name: userName,
+			fiscalYear: tpGR.getDisplayValue("fiscal_year"),
+    	fiscalPeriod: tpGR.getDisplayValue("fiscal_period"),
+      team: teamName,
+      commission: formatNumber(Number(tpGR.getValue("total_commission")) || 0),
+      targetQuota: formatNumber(Number(tpGR.getValue("target_quota")) || 0),
+      quotaAttainment: formatNumber(Number(tpGR.getValue("quota_attainment")) || 0),
+      totalCredits: formatNumber(Number(tpGR.getValue("total_credits")) || 0)
+    });
+  }
+
+  data.topPerformers = data.topPerformers.slice(0, 5);
+
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>karan.kumar</sys_created_by>
+        <sys_created_on>2026-03-16 19:40:53</sys_created_on>
+        <sys_id>d382d1273b6ffa505493ddb693e45a29</sys_id>
+        <sys_mod_count>317</sys_mod_count>
+        <sys_name>IncentNow Dashboard</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sp_widget_d382d1273b6ffa505493ddb693e45a29</sys_update_name>
+        <sys_updated_by>karan.kumar</sys_updated_by>
+        <sys_updated_on>2026-06-12 08:33:53</sys_updated_on>
+        <template><![CDATA[<div class="incentnow-dashboard">
+  <div class="m-b-md">
+    <h1>Dashboard</h1>
+    <p>Overview of sales performance and incentives</p>
+  </div>
+  <br>
+  
+<!-- FILTER SECTION -->
+<div class="row m-b-lg">
+  
+  <div class="col-sm-4">
+    <label>Fiscal Year</label>
+    <select class="form-control select-radius" ng-model="c.selectedFiscalYear" ng-change="c.applyFilters()">
+      <!--option value="">All</option-->
+      <option ng-repeat="fy in c.fiscalYears" value="{{fy.id}}">{{fy.name}}</option>
+    </select>
+  </div>
+
+  <div class="col-sm-4">
+    <label>Fiscal Period</label>
+    <select class="form-control select-radius" ng-model="c.selectedFiscalPeriod" ng-change="c.applyFilters()">
+      <option value="">All</option>
+      <option ng-repeat="fp in c.fiscalPeriods" value="{{fp.id}}">{{fp.name}}</option>
+    </select>
+  </div>
+
+</div>
+
+  <!-- Stats -->
+  <div class="row m-b-lg">
+    <div class="col-sm-3" ng-repeat="stat in c.data.stats">
+      <div class="pt-scorecard">
+        <div class="">
+          <div class="pt-scorecard-top">
+            <span class="pull-left pt-scorecard-label">{{stat.title}}</span>
+            <i class="fa {{stat.icon}} pull-right text-muted"></i>
+          </div>
+          <div class="pt-scorecard-value">{{stat.value}}</div>
+          <div class="pt-scorecard-trend">
+            <i class="fa" ng-class="stat.trend === 'up' ? 'fa-arrow-up text-success' : 'fa-arrow-down text-danger'"></i>
+            <span ng-class="stat.trend === 'up' ? 'text-success' : 'text-danger'">{{stat.change}}</span>
+            <span class="pt-scorecard-period">vs Last Period</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts Row--- -->
+  <div class="row m-b-lg">
+  <div class="col-md-6">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">Incentives vs Credits Trend</h3>
+      </div>
+      <div class="panel-body" style="height: 330px;">
+        <canvas id="totalCommissionChart_{{c.chartId}}"></canvas>
+      </div>
+    </div>
+  </div>
+    
+    <div class="col-md-6">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">Incentives by Business Unit</h3>
+      </div>
+      <div class="panel-body" style="height: 330px;">
+        <canvas id="businessIncentivesChart_{{c.chartId}}" height="300"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+  
+  <div class="row m-b-lg">
+    <div class="col-md-6">
+      <div class="panel panel-default">
+        <div class="panel-heading"><h3 class="panel-title">Quota Attainment Trend</h3></div>
+        <div class="panel-body" style="height: 330px;">
+          <canvas id="quotaAttainmentChart_{{c.chartId}}"></canvas>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-6">
+      <div class="panel panel-default">
+        <div class="panel-heading"><h3 class="panel-title">Rep Avg by Plan</h3></div>
+        <div class="panel-body" style="height: 330px;">
+          <canvas id="repAvgPlanChart_{{c.chartId}}"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  
+ 
+	
+  
+
+  <!-- Quota Assignment -->
+  <div class="panel panel-default m-b-lg">
+    <div class="panel-heading"><h3 class="panel-title">Top Performers</h3></div>
+    <div class="panel-body">
+      <table class="table table-striped table-hover">
+        <thead>
+          <tr>
+            <th>Name</th><th>Fiscal Year</th><th>Fiscal Period</th><th>Business Unit</th><th>Total Incentives</th><th>Target Quota</th><th>Quota Attainment</th><th>Total Credits</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr ng-repeat="rep in c.data.topPerformers">
+            <td>
+              <strong>{{rep.name}}</strong>
+            </td>
+            <td><span class="label label-default">{{rep.fiscalYear}}</span></td>
+            <td><span class="label label-default">{{rep.fiscalPeriod}}</span></td>
+            <td><span class="label label-default">{{rep.team}}</span></td>
+            <td class="currency"><p><span>$</span>{{rep.commission}}</p></td>
+            <td class="currency"><p><span>$</span>{{rep.targetQuota}}</p></td>
+            <td>
+              <div class="progress-wrapper">
+
+                <div class="progress">
+                  <div class="progress-bar"
+                       role="progressbar"
+                       ng-class="{
+                         'progress-bar-success': rep.quotaAttainment >= 100,
+                         'progress-bar-warning': rep.quotaAttainment > 50 && rep.quotaAttainment < 100,
+                         'progress-bar-danger': rep.quotaAttainment <= 50
+                       }"
+                       ng-style="{
+                         width: (rep.quotaAttainment > 100 ? 100 : rep.quotaAttainment) + '%'
+                       }">
+                  </div>
+                </div>
+
+                <span class="progress-text">
+                  {{rep.quotaAttainment}}%
+                </span>
+
+              </div>
+            </td>
+            <td class="currency"><p><span>$</span>{{rep.totalCredits}}</p></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+]]></template>
+    </sp_widget>
+</record_update>

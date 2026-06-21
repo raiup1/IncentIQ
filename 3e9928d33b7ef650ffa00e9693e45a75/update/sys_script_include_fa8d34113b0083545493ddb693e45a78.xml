@@ -1,0 +1,358 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>package_private</access>
+        <active>true</active>
+        <api_name>x_ctans_incentnow.IncentNowPayoutValidator</api_name>
+        <caller_access/>
+        <client_callable>false</client_callable>
+        <description/>
+        <mobile_callable>false</mobile_callable>
+        <name>IncentNowPayoutValidator</name>
+        <sandbox_callable>false</sandbox_callable>
+        <script><![CDATA[var IncentNowPayoutValidator = Class.create();
+IncentNowPayoutValidator.prototype = {
+
+    initialize: function(units) {
+        this.cache = {};
+
+        //  CONSTANT units
+        this.UNITS = units || {
+            CURRENCY: 'currency',
+            NUMBER: 'number',
+            PERCENTAGE: 'percentage'
+        };
+
+        this.LOG = 'IncentNowPayoutValidator | ';
+    },
+
+    validate: function(current) {
+
+        try {
+
+            var input1Obj = this.getInputObject(current, '1');
+            var input2Obj = this.getInputObject(current, '2');
+
+            // Same input validation
+            if (input1Obj.type == input2Obj.type &&
+                input1Obj.id &&
+                input1Obj.id == input2Obj.id) {
+
+                return this.fail(
+                    "Input 1 and Input 2 cannot be the same (" +
+                    input1Obj.type + "). Please select different inputs."
+                );
+            }
+
+            // Self reference
+            if (input1Obj.type == 'payout_step' && input1Obj.id == current.sys_id) {
+                return this.fail("A payout step cannot reference itself in Input 1.");
+            }
+
+            if (input2Obj.type == 'payout_step' && input2Obj.id == current.sys_id) {
+                return this.fail("A payout step cannot reference itself in Input 2.");
+            }
+
+            // UNIT VALIDATION
+            var op = current.operator ? current.operator.toString() : '';
+
+            var unit1 = this.getInputUnit(current, '1');
+            var unit2 = this.getInputUnit(current, '2');
+
+            if (!this.validateOperation(unit1, op, unit2)) {
+
+                var symbolMap = {
+                    multiply: '×',
+                    add: '+',
+                    subtract: '-',
+                    divide: '÷'
+                };
+
+                var opSymbol = symbolMap[op] || op;
+
+                return this.fail(
+                    "Invalid configuration: " +
+                    unit1 + " " + opSymbol + " " + unit2 +
+                    " is not allowed."
+                );
+            }
+
+            return {
+                valid: true
+            };
+
+        } catch (ex) {
+            return this.fail("Validation failed: " + (ex.message || ex));
+        }
+    },
+
+    // ======================
+    // HELPERS
+    // ======================
+
+    getInputUnit: function(gr, index) {
+
+        var type = gr.getValue('input' + index + '_type');
+        var key = type + "_" + index;
+
+        if (this.cache[key]) return this.cache[key];
+
+        var unit = this.UNITS.NUMBER;
+
+        if (type == 'earning_rule') {
+
+            var id = gr.getValue('input' + index + '_earning_rule');
+
+            if (id) {
+                var er = new GlideRecordSecure('x_ctans_incentnow_earning_rule');
+                if (er.get(id)) {
+                    unit = (er.getValue('aggregation') == 'count') ?
+                        this.UNITS.NUMBER :
+                        this.UNITS.CURRENCY;
+                }
+            }
+
+        } else if (type == 'data_step') {
+
+            var id = gr.getValue('input' + index + '_id');
+
+            if (id) {
+                var step = new GlideRecordSecure('x_ctans_incentnow_lookup_rule');
+                if (step.get(id)) {
+                    unit = step.getValue('rate_unit') || this.UNITS.NUMBER;
+                }
+            }
+
+        } else if (type == 'payout_step') {
+
+            var id = gr.getValue('input' + index + '_payout');
+
+            if (id) {
+                var payout = new GlideRecordSecure('x_ctans_incentnow_payout_summary');
+                if (payout.get(id)) {
+                    unit = payout.getValue('output_unit') || this.UNITS.NUMBER;
+                }
+            }
+        }
+
+        this.cache[key] = unit;
+        return unit;
+    },
+
+    validateOperation: function(unit1, op, unit2) {
+
+        try {
+
+            unit1 = unit1 ? unit1.toString() : '';
+            unit2 = unit2 ? unit2.toString() : '';
+            op = op ? op.toString() : '';
+
+            // ADD / SUBTRACT → must match
+            if (op == 'add' || op == 'subtract') {
+                if (unit1 != unit2) {
+                    gs.warn(this.LOG + "| Invalid Operation | " + unit1 + " " + op + " " + unit2);
+                    return false;
+                }
+            }
+
+            // MULTIPLY → allow all
+            if (op == 'multiply') {
+                return true;
+            }
+
+            // DIVIDE → strict validation
+            if (op == 'divide') {
+
+                if (unit1 == this.UNITS.CURRENCY && unit2 == this.UNITS.PERCENTAGE)
+                    return false;
+
+                if (unit1 == this.UNITS.PERCENTAGE && unit2 == this.UNITS.CURRENCY)
+                    return false;
+
+                if (unit1 == this.UNITS.NUMBER && unit2 == this.UNITS.CURRENCY)
+                    return false;
+
+                if (unit1 == this.UNITS.NUMBER && unit2 == this.UNITS.PERCENTAGE)
+                    return false;
+
+                return true;
+            }
+
+            return true;
+
+        } catch (ex) {
+            gs.error(this.LOG + "| ERROR in validateOperation | " + (ex.message || ex));
+            return false;
+        }
+    },
+
+    getInputObject: function(gr, index) {
+
+        var type = gr.getValue('input' + index + '_type');
+        var id = '';
+
+        switch (type) {
+
+            case 'earning_rule':
+                id = gr.getValue('input' + index + '_earning_rule');
+                break;
+
+            case 'data_step':
+                id = gr.getValue('input' + index + '_id');
+                break;
+
+            case 'payout_step':
+                id = gr.getValue('input' + index + '_payout');
+                break;
+        }
+
+        return {
+            type: type,
+            id: id
+        };
+    },
+
+    deriveOutputUnit: function(unit1, op, unit2) {
+
+        unit1 = unit1 || this.UNITS.NUMBER;
+        unit2 = unit2 || this.UNITS.NUMBER;
+
+        switch (op) {
+
+            case 'add':
+            case 'subtract':
+                return unit1;
+
+            case 'multiply':
+
+                if (unit1 == this.UNITS.CURRENCY || unit2 == this.UNITS.CURRENCY)
+                    return this.UNITS.CURRENCY;
+
+                if (unit1 == this.UNITS.PERCENTAGE && unit2 == this.UNITS.PERCENTAGE)
+                    return this.UNITS.PERCENTAGE;
+
+                return this.UNITS.NUMBER;
+
+            case 'divide':
+
+                if (unit1 == this.UNITS.CURRENCY && unit2 == this.UNITS.CURRENCY)
+                    return this.UNITS.NUMBER;
+
+                if (unit1 == this.UNITS.CURRENCY && unit2 == this.UNITS.NUMBER)
+                    return this.UNITS.CURRENCY;
+
+                if (unit1 == this.UNITS.CURRENCY && unit2 == this.UNITS.PERCENTAGE)
+                    return this.UNITS.CURRENCY;
+
+                if (unit1 == this.UNITS.PERCENTAGE && unit2 == this.UNITS.PERCENTAGE)
+                    return this.UNITS.NUMBER;
+
+                if (unit1 == this.UNITS.PERCENTAGE && unit2 == this.UNITS.NUMBER)
+                    return this.UNITS.PERCENTAGE;
+
+                return this.UNITS.NUMBER;
+        }
+
+        return this.UNITS.NUMBER;
+    },
+
+    fail: function(message) {
+        return {
+            valid: false,
+            message: message
+        };
+    },
+    validateStatement: function(current) {
+
+        try {
+
+            var user = current.user;
+            var plan = current.plan;
+            var fiscalPeriod = current.fiscal_period;
+            var fiscalYear = current.fiscal_year;
+
+            // -----------------------------------------
+            // 1. User must have ACTIVE PLAN
+            // -----------------------------------------
+            // var planGR = new GlideRecordSecure('x_ctans_incentnow_plan_users');
+            // planGR.addQuery('x_ctans_incentnow_sales_user', user);
+            // planGR.addQuery('x_ctans_incentnow_plan.status', 'active');
+            // planGR.setLimit(1);
+            // planGR.query();
+
+            // if (!planGR.hasNext()) {
+            //     //  return this.fail('Selected user does not have any active plan.');
+            // }
+
+            // -----------------------------------------
+            // 2. Check if plan has Quota Attainment rule
+            // -----------------------------------------
+            var hasQuotaRule = false;
+
+            var ruleGR = new GlideRecordSecure('x_ctans_incentnow_lookup_rule');
+            ruleGR.addQuery('plan', plan);
+            ruleGR.addQuery('active', true);
+            ruleGR.addQuery('rule_type', 'quota_attainment');
+            ruleGR.setLimit(1);
+            ruleGR.query();
+
+            if (ruleGR.hasNext()) {
+                hasQuotaRule = true;
+            }
+
+            // -----------------------------------------
+            // 3. Conditional quota validation
+            // -----------------------------------------
+            if (hasQuotaRule) {
+
+                var quotaGR = new GlideRecordSecure('x_ctans_incentnow_user_quota_assignment');
+                quotaGR.addQuery('user', user);
+                quotaGR.addQuery('quota.fiscal_year', fiscalYear);
+                quotaGR.addQuery('quota.status', 'active');
+                quotaGR.setLimit(1);
+                quotaGR.query();
+
+                if (!quotaGR.hasNext()) {
+                    return this.fail(
+                        'Quota required: No active Quota for this Fiscal Year while Plan uses Quota Attainment rule.'
+                    );
+                }
+                if (quotaGR.next()) {
+                    var quotaSysId = quotaGR.getValue('quota');
+                    var quotaPeriodGR = new GlideRecordSecure('x_ctans_incentnow_quota_period');
+                    quotaPeriodGR.addQuery('quota', quotaSysId);
+                    quotaPeriodGR.addQuery('fiscal_period', fiscalPeriod);
+                    quotaPeriodGR.query();
+
+                    if (!quotaPeriodGR.next()) {
+                        return this.fail(
+                            'Quota configuration error: The Fiscal Year of the assigned Quota does not match the Fiscal Year of the associated Quota Period.'
+                        );
+                    }
+                }
+
+            }
+            return {
+                valid: true
+            };
+
+        } catch (ex) {
+            return this.fail('Statement validation failed: ' + (ex.message || ex));
+        }
+    },
+
+    type: 'IncentNowPayoutValidator'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>upma.rai</sys_created_by>
+        <sys_created_on>2026-04-03 15:00:05</sys_created_on>
+        <sys_id>fa8d34113b0083545493ddb693e45a78</sys_id>
+        <sys_mod_count>25</sys_mod_count>
+        <sys_name>IncentNowPayoutValidator</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_script_include_fa8d34113b0083545493ddb693e45a78</sys_update_name>
+        <sys_updated_by>upma.rai</sys_updated_by>
+        <sys_updated_on>2026-06-08 09:47:23</sys_updated_on>
+    </sys_script_include>
+</record_update>

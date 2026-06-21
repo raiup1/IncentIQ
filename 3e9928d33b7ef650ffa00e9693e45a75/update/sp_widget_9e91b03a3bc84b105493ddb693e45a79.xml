@@ -1,0 +1,550 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <client_script><![CDATA[api.controller = function($sce) {
+    var c = this;
+
+    c.decodeHTML = function(html) {
+        if (!html) return "";
+        return html
+            .replace(/&lt;/g, "<")
+            .replace(/&gt;/g, ">")
+            .replace(/&amp;/g, "&")
+            .replace(/&quot;/g, '"')
+            .replace(/&#39;/g, "'");
+    };
+
+    c.renderHTML = function() {
+        var decoded = c.decodeHTML(c.data.raw_statement);
+        return $sce.trustAsHtml(decoded);
+    };
+	
+		c.goBack = function () {
+    window.location = '?id=incentive_statement_view';
+  };
+	
+	  // ✅ initialize from server
+    c.selectedUser = c.data.selectedUser;
+    c.selectedPeriod = c.data.selectedPeriod;
+
+    // OPTIONAL (if you want direct display)
+    c.selectedUserName = c.data.selectedUserName;
+    c.selectedPeriodName = c.data.selectedPeriodName;
+	
+	
+
+};]]></client_script>
+        <controller_as>c</controller_as>
+        <css>.statement-title {
+	display: none !important;
+}
+
+
+.statement-header-table  {
+		width: 100%;
+    margin-bottom: 2rem;
+    background: white;
+    border-radius: 1rem;
+}
+
+.earning-rules-table {
+		width: 100%;
+    margin-bottom: 2rem;
+    background: white;
+    border-radius: 1rem;
+}
+
+.payout-header {
+		font-size: 1.8rem;
+		font-weight: 600;
+}
+
+.payout-table {
+		width: 100%;
+    margin-bottom: 2rem;
+    background: white;
+    border-radius: 1rem;
+}
+
+.earning-rule-name {
+		padding-top: 1rem;
+		padding-bottom: 1rem;
+  	padding-left: 2rem;
+  	font-size: 1.5rem;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.earning-rule-type {
+	  font-size: 1.5rem;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.earning-rule-value {
+	color: #5cb85c;
+  font-weight: bold;
+}
+
+.earning-rule-col {
+		padding-left: 2rem;
+    padding-top: 2rem;
+  	font-size: 1.8rem;
+    font-weight: 600;
+}
+
+.earning-type-col {
+    padding-top: 2rem;
+		font-size: 1.8rem;
+    font-weight: 600;
+}
+.earning-value-col {
+    padding-top: 2rem;
+		font-size: 1.8rem;
+    font-weight: 600;
+}
+
+.payout-row {
+    border-bottom: .1rem solid #e6e6e6;
+}
+
+.payout-component-col{
+		padding-left: 2rem;
+    padding-top: 2rem;
+}
+
+.payout-detail {
+		font-weight: 600;
+    font-size: 1.5rem;
+  	padding-top: 1rem;
+		padding-bottom: 1rem;
+  	padding-left: 2rem;
+}
+
+.payout-amount {
+	color: #5cb85c;
+  font-weight: bold;
+}
+
+.payout-total-label {
+		padding-left: 2rem;
+    padding-top: 2rem;
+  	font-size: 2.4rem;
+    font-weight: 600;
+}
+
+.payout-total-value {
+    padding-top: 2rem;
+  	font-size: 2.4rem;
+    font-weight: bold;
+}
+
+.back-btn-wrapper {
+	display: none !important;
+}
+.b {
+		padding-left: 2rem !important;
+    padding-top: 1rem !important;
+  	border: none;
+  	margin-right: 60rem;
+    font-size: 1.6rem;
+
+}
+
+
+.statement-headers {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 5px;
+  font-family: "Inter", Arial, sans-serif;
+  }
+
+left-info h2 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+  }
+
+  .status-chip {
+    background: #f5f5f5;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    display: inline-flex;
+    align-items: center;
+    margin-top: 6px;
+  }
+
+  .actions {
+    display: flex;
+    gap: 10px;
+  }
+
+/* Light Buttons */
+  .btn-light {
+   	display: inline-flex;
+    align-items: center;
+    background: white;
+    gap: .5rem;
+    padding: .8rem 1.6rem;
+    border: none;
+    border-radius: .8rem;
+    font-size: 1.4rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background .15s;
+  }
+
+  .btn-light:hover {
+    background: #f8f8f8;
+  }
+
+  /* Dark Button */
+  .btn-dark {
+    background: #0c0c19;
+    color: white;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    font-weight: 600;
+  }
+
+  .btn-dark:hover {
+    background: #000;
+  }
+  
+  .code {
+    background: #f3f4f6;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+  }
+  
+  .modal {
+    overflow-y: auto;
+  }
+  .card-box {
+    background: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 1rem;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+	}
+	 .col-md-3 {
+       width: 23%;
+   }
+
+  .box-header {
+      font-weight: bold;
+      font-size: 14px;
+      opacity: 0.7;
+  }
+
+  .box-amount {
+      font-size: 2.4rem;
+      font-weight: bold;
+      margin-top: 3rem;
+  }
+
+  .box-sub {
+      color: #4caf50;
+      margin-top: 5px;
+  }
+
+  .progress {
+      height: 6px;
+      border-radius: 4px;
+  }
+
+  .progress-bar {
+      background-color: #4caf50;
+  }
+  
+  .desc {
+    margin-bottom: 0.5rem;
+	}
+  
+  .m-t-sm {
+    margin-top: 0 !important;
+	}
+  
+  .period-compare-row .row-item {
+  display: flex;
+  margin-bottom: 8px;
+}
+
+.period-heading {
+	background: transparent;
+	border: none;
+  font-size: 1.5rem;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.last {
+	border-radius: 1rem;
+  //margin-right: 1rem;
+  //margin-left: -.6rem;
+}
+
+.label-txt {
+  flex: 1;
+  font-weight: 600;
+}
+
+.value-txt {
+  font-weight: 600;
+}</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description/>
+        <docs/>
+        <field_list/>
+        <has_preview>false</has_preview>
+        <id>incentive_statement_view</id>
+        <internal>false</internal>
+        <link><![CDATA[function link(scope, element, attrs, controller) {  }]]></link>
+        <name>Incentive Statement View</name>
+        <option_schema/>
+        <public>false</public>
+        <roles>x_ctans_incentnow.user</roles>
+        <script><![CDATA[(function() {
+
+    data.statementId = $sp.getParameter("statement_id");
+
+    if (data.statementId) {
+
+        var grState = new GlideRecordSecure("x_ctans_incentnow_incentive_statement");
+        if (grState.get($sp.getParameter("statement_id"))) {
+            data.raw_statement = grState.statement + "";
+
+            if (grState.get(data.statementId)) {
+
+                data.raw_statement = grState.statement + "";
+
+
+                // ]]>🔹<![CDATA[ Quota Attainment
+                data.quotaAttainment = {
+                    percentage: grState.quota_percentage || 0,
+                    achieved: grState.quota_achieved || 0,
+                    quota: grState.quota_target || 0
+                };
+                var quota = parseFloat(grState.getValue("target_quota")) || 0;
+                var attainment = parseFloat(grState.getValue("quota_attainment")) || 0;
+                data.quotaAttainment = {
+                    percentage: attainment || 0,
+                    quota: quota || 0,
+                    achieved: parseFloat(((quota * attainment) / 100).toFixed(2))
+                };
+                var helper = new IncentNowStatementHelper();
+
+                var result = helper.getQTDAndYTD(
+                    grState.getValue("user"),
+                    grState.getValue("plan"),
+                    grState.getValue("fiscal_period")
+                );
+                // ]]>🔹<![CDATA[ QTD Commission
+                data.qtdCommission = {
+                    amount: result.qtd_commission,
+                    transactions: 0
+                };
+                // ]]>🔹<![CDATA[ YTD Commission
+                data.ytdCommission = {
+                    amount: result.ytd_commission,
+                    transactions: 0
+                };
+                var changeResult = helper.getPeriodChange(
+                    grState.getValue("user"),
+                    grState.getValue("plan"),
+                    grState.getValue("fiscal_period")
+                );
+                // ]]>🔹<![CDATA[ Period Commission
+                data.periodCommission = {
+                    amount: parseFloat(grState.getValue("total_commission")) || 0,
+                    change: changeResult.change_percentage + "%",
+                    transactions: 0
+                };
+
+
+                // ]]>🔹<![CDATA[ Current Period
+                data.currentPeriod = {
+                    period: grState.period_name || "",
+                    totalCommission: grState.total_commission || 0,
+                    transactions: grState.total_transactions || 0
+                };
+
+            }
+
+            // ✅ IMPORTANT: send selected values
+            data.selectedUser = grState.getValue("user");
+            data.selectedPeriod = grState.getValue("fiscal_period");
+
+            // ✅ ALSO send display names (best practice)
+            data.selectedUserName = grState.getDisplayValue("user");
+            data.selectedPeriodName = grState.getDisplayValue("fiscal_period");
+            //	}
+            //		}
+
+            var totalComm = parseFloat(grState.getValue("total_commission") || 0);
+
+
+        }
+    }
+
+
+
+
+
+
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>shroin.mandal</sys_created_by>
+        <sys_created_on>2026-04-08 05:52:17</sys_created_on>
+        <sys_id>9e91b03a3bc84b105493ddb693e45a79</sys_id>
+        <sys_mod_count>109</sys_mod_count>
+        <sys_name>Incentive Statement View</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sp_widget_9e91b03a3bc84b105493ddb693e45a79</sys_update_name>
+        <sys_updated_by>shroin.mandal</sys_updated_by>
+        <sys_updated_on>2026-06-11 12:17:09</sys_updated_on>
+        <template><![CDATA[<div class="statement-headers">
+
+  <!-- Left Section -->
+  <div class="left-info">
+    <h2>{{c.data.selectedUserName}} — {{c.data.selectedPeriodName}}</h2>
+    <span class="status-chip">]]>📄<![CDATA[ Draft</span>
+  </div>
+
+  <!-- Right Buttons -->
+  <div class="actions">
+    <button class="btn-light">
+      Create Dispute
+    </button>
+
+    <button class="btn-light">
+      Download Statement
+    </button>
+
+    <button class="btn-dark">
+      Freeze & Submit for Approval
+    </button>
+  </div>
+
+</div>
+  
+
+  <div class="row m-t-lg">
+
+    <!-- Period Commission -->
+    <div class="col-md-3 card-box">
+      <div class="box-header">$ Period Commission</div>
+      <div class="box-amount">${{data.periodCommission.amount | number}}</div>
+      <div class="box-sub">▲ {{data.periodCommission.change}} vs previous</div>
+      
+    </div>
+
+    <!-- Quota Attainment -->
+    <div class="col-md-3 card-box">
+      <div class="box-header">◎ Quota Attainment</div>
+      <div class="box-amount">{{data.quotaAttainment.percentage}}%</div>
+      <div class="progress m-t-sm">
+        <div class="progress-bar" style="width: {{data.quotaAttainment.percentage}}%">
+        </div>
+      </div>
+    </div>
+
+    <!-- QTD Commission -->
+    <div class="col-md-3 card-box">
+      <div class="box-header">]]>📅<![CDATA[ QTD Commission</div>
+      <div class="box-amount">${{data.qtdCommission.amount | number}}</div>
+      <td><p class="desc">Quarter to Date earnings</p></td>
+    </div>
+
+    <!-- YTD Commission -->
+    <div class="col-md-3 card-box">
+      <div class="box-header">]]>📅<![CDATA[ YTD Commission</div>
+      <div class="box-amount">${{data.ytdCommission.amount | number}}</div>
+      <td><p class="desc">Year to Date earnings</p></td>
+    </div>
+  </div>
+  
+<!-- Period Comparison>
+<div class="panel panel-default m-t-lg last">
+  <div class="panel-heading period-heading"><strong>Period Status</strong></div>
+
+  <div class="panel-body">
+    <div class="row period-compare-row"-->
+
+      <!-- Column 1: Current Period>
+      <div class="col-md-6 current">
+        <h4>Current Period</h4>
+
+        <div class="row-item">
+          <span class="label-txt">Period:</span>
+          <span class="value-txt">{{c.data.selectedPeriodName}}</span>
+        </div>
+
+        <!--div class="row-item">
+          <span class="label-txt">Total Sales:</span>
+          <span class="value-txt">{{data.currentPeriod.totalSales}}</span>
+        </div-->
+
+        <!--div class="row-item">
+          <span class="label-txt">Total Commission:</span>
+          <span class="value-txt">${{data.periodCommission.amount | number}}</span>
+        </div>
+
+      </div-->
+
+      <!-- Column 2: Previous Period Details >
+      <div class="col-md-6">
+        <h4>Previous Period</h4>
+
+        <div class="row-item">
+          <span class="label-txt">Period:</span>
+          <span class="value-txt">Previous Period</span>
+        </div>
+
+        <div class="row-item">
+          <span class="label-txt">Total Sales:</span>
+          <span class="value-txt">{{data.previousPeriod.totalSales}}</span>
+          <span class="badge badge-success m-l">{{data.previousPeriod.changeSales}}</span>
+        </div>
+
+        <div class="row-item">
+          <span class="label-txt">Total Commission:</span>
+          <span class="value-txt">{{data.previousPeriod.totalCommission}}</span>
+          <span class="badge badge-success m-l">{{data.previousPeriod.changeCommission}}</span>
+        </div>
+
+        <div class="row-item">
+          <span class="label-txt">Transactions:</span>
+          <span class="value-txt">{{data.previousPeriod.transactions}}</span>
+        </div>
+      </div-->
+    </div>
+  </div>
+</div>
+<div class="commission-statement-container">
+    <div ng-bind-html="c.renderHTML()"></div>
+</div>]]></template>
+    </sp_widget>
+    <sys_es_latest_script action="INSERT_OR_UPDATE">
+        <id>9e91b03a3bc84b105493ddb693e45a79</id>
+        <sys_created_by>shroin.mandal</sys_created_by>
+        <sys_created_on>2026-04-08 05:52:18</sys_created_on>
+        <sys_id>a691743a3bc84b105493ddb693e45ada</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>shroin.mandal</sys_updated_by>
+        <sys_updated_on>2026-04-08 05:52:18</sys_updated_on>
+        <table>sp_widget</table>
+        <use_es_latest>true</use_es_latest>
+    </sys_es_latest_script>
+</record_update>

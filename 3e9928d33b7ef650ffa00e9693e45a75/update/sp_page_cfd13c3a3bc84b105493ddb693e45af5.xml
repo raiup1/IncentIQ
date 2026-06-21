@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_page">
+    <sp_page action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <css>h2{
+	text-align: left !important;
+    font-size: 2.6rem;
+    font-weight: 700;
+    color: #0f172a;
+}
+section.flex-grow.page.sp-scroll.flex-column{
+	//background-color: #F9FAFB; //background color of page
+}
+td, th
+ {
+    padding-bottom: 7px;
+    padding-top: 5px;
+}
+.statement-header-table {
+	display: none !important; //removed user info from backend
+}
+
+.earning-rule-name {
+	width: 30rem;
+}
+
+.earning-object-col{
+	padding-top: 1.5rem;
+  padding-right: 6rem !important;
+}
+.earning-field-col {
+	padding-top: 1.5rem;
+}
+.earning-level-col {
+  padding-top: 1.5rem;
+}
+.earning-condition-col{
+	padding-top: 1.5rem;
+}
+
+.earning-type-col {
+	padding-left: 3rem;
+      font-size: 1.4rem !important;
+    	padding-top: 1.5rem !important;
+    font-weight: 700 !important;
+}
+
+.earning-rule-type {
+  	padding-left: 3rem;
+  	font-size: 1.4rem !important;
+    font-weight: 400 !important;
+
+}
+</css>
+        <draft>false</draft>
+        <dynamic_title_structure/>
+        <human_readable_url_structure/>
+        <id>incentive_statement_view</id>
+        <internal>false</internal>
+        <omit_watcher>false</omit_watcher>
+        <public>false</public>
+        <roles>x_ctans_incentnow.user</roles>
+        <seo_script/>
+        <short_description/>
+        <sys_class_name>sp_page</sys_class_name>
+        <sys_created_by>shroin.mandal</sys_created_by>
+        <sys_created_on>2026-04-08 05:53:26</sys_created_on>
+        <sys_id>cfd13c3a3bc84b105493ddb693e45af5</sys_id>
+        <sys_mod_count>31</sys_mod_count>
+        <sys_name>incentive_statement_view</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sp_page_cfd13c3a3bc84b105493ddb693e45af5</sys_update_name>
+        <sys_updated_by>karan.kumar</sys_updated_by>
+        <sys_updated_on>2026-05-19 04:29:25</sys_updated_on>
+        <title>incentive statement view</title>
+        <use_seo_script>false</use_seo_script>
+    </sp_page>
+    <sys_translated_text action="delete_multiple" query="documentkey=cfd13c3a3bc84b105493ddb693e45af5"/>
+</record_update>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update sys_domain="global" table="sn_aia_version">
+    <sn_aia_version action="INSERT_OR_UPDATE">
+        <condition/>
+        <instructions>Expertise: This workflow specializes in presenting comprehensive sales compensation and performance data in an accessible format.
+1. Retrieve and display detailed payout information, including incentives, commissions, bonuses, adjustments, and total earnings, with clear explanations.
+2. Present assigned sales quota details, including target values, time periods, and allocation specifics.
+3. Provide an overview of the user's compensation plan, covering eligibility, incentive structure, performance metrics, and payout rules.
+4. Identify and display the user's associated business unit for organizational context.
+5. Generate a consolidated summary for a selected fiscal period, including business unit, quota, compensation plan, and payout details.
+6. Notify users if commission data is unavailable for a selected or future period, advising them to check back later.</instructions>
+        <state>published</state>
+        <sys_class_name>sn_aia_version</sys_class_name>
+        <sys_created_by>sneha.potadar@ctrlaltnow.com</sys_created_by>
+        <sys_created_on>2026-04-17 10:01:43</sys_created_on>
+        <sys_domain>global</sys_domain>
+        <sys_id>c8018c313b504f105493ddb693e45a4f</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>V1</sys_name>
+        <sys_overrides/>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sn_aia_version_c8018c313b504f105493ddb693e45a4f</sys_update_name>
+        <sys_updated_by>sneha.potadar@ctrlaltnow.com</sys_updated_by>
+        <sys_updated_on>2026-04-17 10:01:43</sys_updated_on>
+        <target_id>37efffa53b104f105493ddb693e45a3f</target_id>
+        <target_table>sn_aia_usecase</target_table>
+        <version_name>V1</version_name>
+        <version_number>1</version_number>
+    </sn_aia_version>
+</record_update>

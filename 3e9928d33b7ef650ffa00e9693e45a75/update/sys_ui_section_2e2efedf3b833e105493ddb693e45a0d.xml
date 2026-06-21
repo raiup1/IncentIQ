@@ -1,0 +1,323 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update>
+    <sys_ui_section caption="Decimal Fields" section_id="2e2efedf3b833e105493ddb693e45a0d" sys_domain="global" table="x_ctans_incentnow_data_lake" version="3" view="">
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>column_61</element>
+            <position>0</position>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-02-19 12:20:40</sys_created_on>
+            <sys_id>b32eb2133bc33e105493ddb693e45a2e</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="Decimal Fields" display_value="Decimal Fields" name="x_ctans_incentnow_data_lake" sys_domain="global" view="Default view">2e2efedf3b833e105493ddb693e45a0d</sys_ui_section>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-02-19 12:20:40</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>column_62</element>
+            <position>1</position>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-02-19 12:20:40</sys_created_on>
+            <sys_id>332eb2133bc33e105493ddb693e45a2f</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="Decimal Fields" display_value="Decimal Fields" name="x_ctans_incentnow_data_lake" sys_domain="global" view="Default view">2e2efedf3b833e105493ddb693e45a0d</sys_ui_section>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-02-19 12:20:40</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>column_63</element>
+            <position>2</position>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-02-19 12:20:40</sys_created_on>
+            <sys_id>bf2eb2133bc33e105493ddb693e45a2f</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="Decimal Fields" display_value="Decimal Fields" name="x_ctans_incentnow_data_lake" sys_domain="global" view="Default view">2e2efedf3b833e105493ddb693e45a0d</sys_ui_section>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-02-19 12:20:40</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>column_64</element>
+            <position>3</position>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-02-19 12:20:40</sys_created_on>
+            <sys_id>3f2eb2133bc33e105493ddb693e45a30</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="Decimal Fields" display_value="Decimal Fields" name="x_ctans_incentnow_data_lake" sys_domain="global" view="Default view">2e2efedf3b833e105493ddb693e45a0d</sys_ui_section>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-02-19 12:20:40</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>column_65</element>
+            <position>4</position>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-02-19 12:20:40</sys_created_on>
+            <sys_id>bb2eb2133bc33e105493ddb693e45a31</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="Decimal Fields" display_value="Decimal Fields" name="x_ctans_incentnow_data_lake" sys_domain="global" view="Default view">2e2efedf3b833e105493ddb693e45a0d</sys_ui_section>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-02-19 12:20:40</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>column_66</element>
+            <position>5</position>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-02-19 12:20:40</sys_created_on>
+            <sys_id>3b2eb2133bc33e105493ddb693e45a32</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="Decimal Fields" display_value="Decimal Fields" name="x_ctans_incentnow_data_lake" sys_domain="global" view="Default view">2e2efedf3b833e105493ddb693e45a0d</sys_ui_section>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-02-19 12:20:40</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>column_67</element>
+            <position>6</position>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-02-19 12:20:40</sys_created_on>
+            <sys_id>b72eb2133bc33e105493ddb693e45a33</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="Decimal Fields" display_value="Decimal Fields" name="x_ctans_incentnow_data_lake" sys_domain="global" view="Default view">2e2efedf3b833e105493ddb693e45a0d</sys_ui_section>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-02-19 12:20:40</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>column_68</element>
+            <position>7</position>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-02-19 12:20:40</sys_created_on>
+            <sys_id>372eb2133bc33e105493ddb693e45a34</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="Decimal Fields" display_value="Decimal Fields" name="x_ctans_incentnow_data_lake" sys_domain="global" view="Default view">2e2efedf3b833e105493ddb693e45a0d</sys_ui_section>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-02-19 12:20:40</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>column_69</element>
+            <position>8</position>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-02-19 12:20:40</sys_created_on>
+            <sys_id>b32eb2133bc33e105493ddb693e45a35</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="Decimal Fields" display_value="Decimal Fields" name="x_ctans_incentnow_data_lake" sys_domain="global" view="Default view">2e2efedf3b833e105493ddb693e45a0d</sys_ui_section>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-02-19 12:20:40</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>column_70</element>
+            <position>9</position>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-02-19 12:20:40</sys_created_on>
+            <sys_id>332eb2133bc33e105493ddb693e45a36</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="Decimal Fields" display_value="Decimal Fields" name="x_ctans_incentnow_data_lake" sys_domain="global" view="Default view">2e2efedf3b833e105493ddb693e45a0d</sys_ui_section>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-02-19 12:20:40</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>.split</element>
+            <position>10</position>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-02-19 12:20:40</sys_created_on>
+            <sys_id>bf2eb2133bc33e105493ddb693e45a36</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="Decimal Fields" display_value="Decimal Fields" name="x_ctans_incentnow_data_lake" sys_domain="global" view="Default view">2e2efedf3b833e105493ddb693e45a0d</sys_ui_section>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-02-19 12:20:40</sys_updated_on>
+            <sys_user/>
+            <type>.split</type>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>column_71</element>
+            <position>11</position>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-02-19 12:20:40</sys_created_on>
+            <sys_id>3f2eb2133bc33e105493ddb693e45a37</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="Decimal Fields" display_value="Decimal Fields" name="x_ctans_incentnow_data_lake" sys_domain="global" view="Default view">2e2efedf3b833e105493ddb693e45a0d</sys_ui_section>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-02-19 12:20:40</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>column_72</element>
+            <position>12</position>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-02-19 12:20:40</sys_created_on>
+            <sys_id>bb2eb2133bc33e105493ddb693e45a38</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="Decimal Fields" display_value="Decimal Fields" name="x_ctans_incentnow_data_lake" sys_domain="global" view="Default view">2e2efedf3b833e105493ddb693e45a0d</sys_ui_section>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-02-19 12:20:40</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>column_73</element>
+            <position>13</position>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-02-19 12:20:41</sys_created_on>
+            <sys_id>3b2eb2133bc33e105493ddb693e45a39</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="Decimal Fields" display_value="Decimal Fields" name="x_ctans_incentnow_data_lake" sys_domain="global" view="Default view">2e2efedf3b833e105493ddb693e45a0d</sys_ui_section>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-02-19 12:20:41</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>column_74</element>
+            <position>14</position>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-02-19 12:20:41</sys_created_on>
+            <sys_id>b72eb2133bc33e105493ddb693e45a3a</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="Decimal Fields" display_value="Decimal Fields" name="x_ctans_incentnow_data_lake" sys_domain="global" view="Default view">2e2efedf3b833e105493ddb693e45a0d</sys_ui_section>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-02-19 12:20:41</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>column_75</element>
+            <position>15</position>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-02-19 12:20:41</sys_created_on>
+            <sys_id>fb2eb2133bc33e105493ddb693e45a47</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="Decimal Fields" display_value="Decimal Fields" name="x_ctans_incentnow_data_lake" sys_domain="global" view="Default view">2e2efedf3b833e105493ddb693e45a0d</sys_ui_section>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-02-19 12:20:41</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>column_76</element>
+            <position>16</position>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-02-19 12:20:41</sys_created_on>
+            <sys_id>7b2eb2133bc33e105493ddb693e45a48</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="Decimal Fields" display_value="Decimal Fields" name="x_ctans_incentnow_data_lake" sys_domain="global" view="Default view">2e2efedf3b833e105493ddb693e45a0d</sys_ui_section>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-02-19 12:20:41</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>column_77</element>
+            <position>17</position>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-02-19 12:20:41</sys_created_on>
+            <sys_id>f72eb2133bc33e105493ddb693e45a49</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="Decimal Fields" display_value="Decimal Fields" name="x_ctans_incentnow_data_lake" sys_domain="global" view="Default view">2e2efedf3b833e105493ddb693e45a0d</sys_ui_section>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-02-19 12:20:41</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>column_78</element>
+            <position>18</position>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-02-19 12:20:41</sys_created_on>
+            <sys_id>772eb2133bc33e105493ddb693e45a4a</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="Decimal Fields" display_value="Decimal Fields" name="x_ctans_incentnow_data_lake" sys_domain="global" view="Default view">2e2efedf3b833e105493ddb693e45a0d</sys_ui_section>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-02-19 12:20:41</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>column_79</element>
+            <position>19</position>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-02-19 12:20:41</sys_created_on>
+            <sys_id>f32eb2133bc33e105493ddb693e45a4b</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="Decimal Fields" display_value="Decimal Fields" name="x_ctans_incentnow_data_lake" sys_domain="global" view="Default view">2e2efedf3b833e105493ddb693e45a0d</sys_ui_section>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-02-19 12:20:41</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>column_80</element>
+            <position>20</position>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-02-19 12:20:41</sys_created_on>
+            <sys_id>732eb2133bc33e105493ddb693e45a4c</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="Decimal Fields" display_value="Decimal Fields" name="x_ctans_incentnow_data_lake" sys_domain="global" view="Default view">2e2efedf3b833e105493ddb693e45a0d</sys_ui_section>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-02-19 12:20:41</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_section action="INSERT_OR_UPDATE">
+            <caption>Decimal Fields</caption>
+            <header>false</header>
+            <name>x_ctans_incentnow_data_lake</name>
+            <roles/>
+            <sys_class_name>sys_ui_section</sys_class_name>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-02-19 12:20:36</sys_created_on>
+            <sys_domain>global</sys_domain>
+            <sys_domain_path>/</sys_domain_path>
+            <sys_id>2e2efedf3b833e105493ddb693e45a0d</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_name>x_ctans_incentnow_data_lake</sys_name>
+            <sys_overrides/>
+            <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+            <sys_policy/>
+            <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+            <sys_update_name>sys_ui_section_2e2efedf3b833e105493ddb693e45a0d</sys_update_name>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-02-19 12:20:36</sys_updated_on>
+            <sys_user/>
+            <title>false</title>
+            <view display_value="Default view" name="NULL">Default view</view>
+            <view_name/>
+        </sys_ui_section>
+    </sys_ui_section>
+</record_update>

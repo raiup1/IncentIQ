@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_analytics_bucket">
+    <sys_analytics_bucket action="INSERT_OR_UPDATE">
+        <analytics_channel display_value="web">6496ef61c7001010393d265c95c260b9</analytics_channel>
+        <application_name>Incentive Management System</application_name>
+        <bucket_document_id>4117b6a83bdbb6505493ddb693e45ada</bucket_document_id>
+        <bucket_metadata>{"HeartbeatInterval":"15000","MaxDataPointsPerHeartbeat":"1000","SessionTimeout":"14400000","IdleTimeout":"1800000","AutoDetectScreens":"true","ClientLogsUploadPolicy":"1","MetadataRecordingRatio":"1","ConfigReloadTime":"86400000","PerformanceDataSamplingRatio":"0.1"}</bucket_metadata>
+        <bucket_metadata_customer_override/>
+        <bucket_table_name>sp_portal</bucket_table_name>
+        <bucket_type>service_portal</bucket_type>
+        <enable_unauthenticated_user_tracking>false</enable_unauthenticated_user_tracking>
+        <enabled>true</enabled>
+        <internal_name_for_index>x_ctans_incentnow.sp_portal.4117b6a83bdbb6505493ddb693e45ada</internal_name_for_index>
+        <sys_class_name>sys_analytics_bucket</sys_class_name>
+        <sys_created_by>karan.kumar</sys_created_by>
+        <sys_created_on>2026-02-23 09:02:04</sys_created_on>
+        <sys_id>5517faa83bdbb6505493ddb693e45a31</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>Incentive Management System</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_analytics_bucket_5517faa83bdbb6505493ddb693e45a31</sys_update_name>
+        <sys_updated_by>karan.kumar</sys_updated_by>
+        <sys_updated_on>2026-02-23 09:02:04</sys_updated_on>
+    </sys_analytics_bucket>
+</record_update>

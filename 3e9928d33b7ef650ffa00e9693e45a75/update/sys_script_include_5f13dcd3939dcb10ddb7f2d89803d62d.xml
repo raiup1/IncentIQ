@@ -1,0 +1,849 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>public</access>
+        <active>true</active>
+        <api_name>x_ctans_incentnow.IncentNowPayoutHandler</api_name>
+        <caller_access/>
+        <client_callable>false</client_callable>
+        <description/>
+        <mobile_callable>false</mobile_callable>
+        <name>IncentNowPayoutHandler</name>
+        <sandbox_callable>false</sandbox_callable>
+        <script><![CDATA[var IncentNowPayoutHandler = Class.create();
+IncentNowPayoutHandler.prototype = {
+
+    initialize: function() {
+        this.utils = new IncentIQUtils();
+    },
+
+    handleYTDPayout: function(userId) {
+
+        try {
+
+            var profileId = this.utils.getUserProfileId(userId);
+
+            var metricGR = new GlideRecordSecure("x_ctans_incentnow_metric_report");
+
+            metricGR.addQuery("user", profileId);
+            metricGR.addQuery("period_type", "month");
+            metricGR.query();
+
+            var totalCommission = 0;
+
+            while (metricGR.next()) {
+                totalCommission += parseFloat(
+                    metricGR.getValue("total_commission") || 0
+                );
+            }
+
+            gs.info(
+                "IntentRouter :: YTD Commission Calculated = " +
+                totalCommission +
+                " | Profile = " +
+                profileId
+            );
+
+            return "Your Year-to-Date (YTD) commission is $" +
+                totalCommission.toFixed(2);
+
+        } catch (ex) {
+
+            gs.error(
+                "IntentRouter :: Error in handleYTDPayout() :: " +
+                ex.message
+            );
+
+            return "Unable to retrieve your Year-to-Date commission at this time.";
+        }
+    },
+    handleQTDPayout: function(userId) {
+
+        gs.error("QTD_DEBUG :: START");
+
+        try {
+
+            var profileId = this.utils.getUserProfileId(userId);
+
+            gs.error("QTD_DEBUG :: PROFILE = " + profileId);
+
+            var latestGR = new GlideRecordSecure(
+                "x_ctans_incentnow_metric_report"
+            );
+
+            latestGR.addQuery("user", profileId);
+            latestGR.addQuery("period_type", "month");
+            latestGR.orderByDesc("sys_created_on");
+            latestGR.setLimit(1);
+            latestGR.query();
+
+            if (!latestGR.next()) {
+
+                return "No QTD commission data found.";
+            }
+
+            var latestPeriod =
+                (latestGR.getDisplayValue("fiscal_period") || "")
+                .toLowerCase();
+
+            gs.error(
+                "QTD_DEBUG :: LATEST PERIOD = " +
+                latestPeriod
+            );
+
+            var quarterMonths = [];
+
+            if (
+                latestPeriod.indexOf("january") > -1 ||
+                latestPeriod.indexOf("february") > -1 ||
+                latestPeriod.indexOf("march") > -1
+            ) {
+
+                quarterMonths = [
+                    "january",
+                    "february",
+                    "march"
+                ];
+
+            } else if (
+                latestPeriod.indexOf("april") > -1 ||
+                latestPeriod.indexOf("may") > -1 ||
+                latestPeriod.indexOf("june") > -1
+            ) {
+
+                quarterMonths = [
+                    "april",
+                    "may",
+                    "june"
+                ];
+
+            } else if (
+                latestPeriod.indexOf("july") > -1 ||
+                latestPeriod.indexOf("august") > -1 ||
+                latestPeriod.indexOf("september") > -1
+            ) {
+
+                quarterMonths = [
+                    "july",
+                    "august",
+                    "september"
+                ];
+
+            } else {
+
+                quarterMonths = [
+                    "october",
+                    "november",
+                    "december"
+                ];
+            }
+
+            gs.error(
+                "QTD_DEBUG :: QUARTER MONTHS = " +
+                quarterMonths.join(", ")
+            );
+
+            var metricGR = new GlideRecordSecure(
+                "x_ctans_incentnow_metric_report"
+            );
+
+            metricGR.addQuery("user", profileId);
+            metricGR.addQuery("period_type", "month");
+            metricGR.query();
+
+            var totalCommission = 0;
+            var recordCount = 0;
+            var breakdown = "";
+
+            while (metricGR.next()) {
+
+                var fiscalPeriod =
+                    (metricGR.getDisplayValue("fiscal_period") || "")
+                    .toLowerCase();
+
+                var belongsToQuarter = false;
+
+                for (
+                    var i = 0; i < quarterMonths.length; i++
+                ) {
+
+                    if (
+                        fiscalPeriod.indexOf(
+                            quarterMonths[i]
+                        ) > -1
+                    ) {
+
+                        belongsToQuarter = true;
+                        break;
+                    }
+                }
+
+                if (!belongsToQuarter) {
+                    continue;
+                }
+
+                var commission =
+                    parseFloat(
+                        metricGR.getValue("total_commission")
+                    ) || 0;
+
+                totalCommission += commission;
+                recordCount++;
+
+                breakdown +=
+                    "• " +
+                    metricGR.getDisplayValue("fiscal_period") +
+                    ": $" +
+                    commission.toLocaleString(
+                        "en-US", {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                        }
+                    ) +
+                    "\n";
+
+                gs.error(
+                    "QTD_DEBUG :: INCLUDED = " +
+                    metricGR.getDisplayValue(
+                        "fiscal_period"
+                    ) +
+                    " | " +
+                    commission
+                );
+            }
+
+            if (recordCount === 0) {
+
+                return "No QTD commission data found.";
+            }
+
+            gs.error(
+                "QTD_DEBUG :: TOTAL = " +
+                totalCommission
+            );
+
+            return "]]>📊<![CDATA[ Your QTD commission breakdown:\n\n" +
+                breakdown +
+                "\n——————————————\n" +
+                "]]>💰<![CDATA[ Total QTD Commission: $" +
+                totalCommission.toLocaleString(
+                    "en-US", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    }
+                );
+
+        } catch (ex) {
+
+            gs.error(
+                "QTD_DEBUG :: ERROR = " +
+                ex.message
+            );
+
+            return "Unable to retrieve QTD commission details.";
+        }
+    },
+    handlePayout: function(userId, query) {
+
+        gs.info("IntentRouter :: ENTERED handlePayout()");
+        gs.info("IntentRouter :: USER = " + userId);
+        gs.info("IntentRouter :: QUERY = " + query);
+
+        try {
+
+            var profileId = this.utils.getUserProfileId(userId);
+
+            gs.info("IntentRouter :: PROFILE = " + profileId);
+
+            var periodFromQuery =
+                this.utils.extractMonthYear(query || "");
+            gs.info(
+                "IntentRouter :: EXTRACTED PERIOD = " +
+                periodFromQuery
+            );
+
+            var stmtGR = new GlideRecordSecure(
+                "x_ctans_incentnow_incentive_statement"
+            );
+
+            stmtGR.addQuery("user", profileId);
+            stmtGR.orderByDesc("sys_created_on");
+            stmtGR.query();
+
+            var fallback = null;
+
+            while (stmtGR.next()) {
+
+                var fiscalPeriod =
+                    stmtGR.getDisplayValue("fiscal_period") || "";
+
+                var normalizedPeriod =
+                    this.utils.normalizeMonth(fiscalPeriod);
+
+                var payout =
+                    parseFloat(
+                        stmtGR.getValue("total_commission")
+                    ) || 0;
+
+                if (periodFromQuery) {
+                    var normalizedQuery =
+                        this.utils.normalizeMonth(periodFromQuery);
+
+                    if (
+                        normalizedPeriod === normalizedQuery ||
+                        normalizedPeriod.indexOf(normalizedQuery) > -1
+                    ) {
+
+                        return "]]>💰<![CDATA[ Your payout for " +
+                            fiscalPeriod +
+                            " is $" +
+                            payout.toLocaleString(
+                                "en-US", {
+                                    minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2
+                                }
+                            );
+                    }
+                }
+
+                if (!fallback) {
+
+                    fallback = {
+                        period: fiscalPeriod,
+                        payout: payout
+                    };
+                }
+            }
+
+            if (periodFromQuery) {
+
+                return "No payout data available for " +
+                    periodFromQuery + ".";
+            }
+
+            if (fallback) {
+
+                return "]]>💰<![CDATA[ Your payout for " +
+                    fallback.period +
+                    " is $" +
+                    fallback.payout.toLocaleString(
+                        "en-US", {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                        }
+                    );
+            }
+
+            return "No payout data available.";
+
+        } catch (ex) {
+
+            gs.error(
+                "IntentRouter :: handlePayout Error = " +
+                ex.message
+            );
+
+            return "Unable to fetch payout details at this time.";
+        }
+    },
+
+    handleMonthlyPayout: function(userId) {
+
+        try {
+
+            var profileId = this.utils.getUserProfileId(userId);
+
+            var payoutResult = new GlideRecordSecure(
+                "x_ctans_incentnow_payout_results"
+            );
+
+            var qc = payoutResult.addQuery("user", userId);
+            qc.addOrCondition("user", profileId);
+
+            payoutResult.orderBy("fiscal_period");
+            payoutResult.query();
+
+            if (!payoutResult.next()) {
+                return "No monthly payout data available.";
+            }
+
+            var monthlyData = {};
+            var totalPayout = 0;
+
+            do {
+
+                var fiscalPeriod =
+                    payoutResult.getDisplayValue("fiscal_period") ||
+                    "Unknown Period";
+
+                var payoutValue =
+                    parseFloat(
+                        payoutResult.getValue("payout_value")
+                    ) || 0;
+
+                if (!monthlyData[fiscalPeriod]) {
+                    monthlyData[fiscalPeriod] = 0;
+                }
+
+                monthlyData[fiscalPeriod] += payoutValue;
+                totalPayout += payoutValue;
+
+            } while (payoutResult.next());
+
+            var months = [];
+
+            for (var month in monthlyData) {
+                months.push(month);
+            }
+
+            var monthOrder = {
+                "January": 1,
+                "February": 2,
+                "March": 3,
+                "April": 4,
+                "May": 5,
+                "June": 6,
+                "July": 7,
+                "August": 8,
+                "September": 9,
+                "October": 10,
+                "November": 11,
+                "December": 12
+            };
+
+            months.sort(function(a, b) {
+
+                var aParts = a.split(" ");
+                var bParts = b.split(" ");
+
+                var aYear = parseInt(aParts[1], 10);
+                var bYear = parseInt(bParts[1], 10);
+
+                if (aYear !== bYear) {
+                    return aYear - bYear;
+                }
+
+                return monthOrder[aParts[0]] -
+                    monthOrder[bParts[0]];
+            });
+
+            var response =
+                "]]>📊<![CDATA[ Here are your monthly payouts:\n\n";
+
+            for (var i = 0; i < months.length; i++) {
+
+                var month = months[i];
+
+                response +=
+                    "• " +
+                    month +
+                    ": $" +
+                    monthlyData[month].toLocaleString(
+                        "en-US", {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                        }
+                    ) +
+                    "\n";
+            }
+
+            response +=
+                "\n——————————————\n" +
+                "]]>💰<![CDATA[ Total Monthly Payout: $" +
+                totalPayout.toLocaleString(
+                    "en-US", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    }
+                );
+
+            return response;
+
+        } catch (ex) {
+
+            gs.error(
+                "IntentRouter :: handleMonthlyPayout Error = " +
+                ex.message
+            );
+
+            return "Unable to fetch monthly payout details at the moment.";
+        }
+    },
+
+    handlePayoutComponents: function(userId) {
+
+		gs.info("PAYOUT_COMPONENTS :: ENTERED");
+
+        try {
+
+            var profileId =
+                this.utils.getUserProfileId(userId);
+
+            var payoutGR = new GlideRecordSecure(
+                "x_ctans_incentnow_payout_results"
+            );
+
+            payoutGR.addQuery(
+                "user",
+                profileId
+            );
+
+            payoutGR.orderBy("step_number");
+            payoutGR.query();
+
+            if (!payoutGR.hasNext()) {
+
+                return "No payout component information is available.";
+            }
+
+            var components = {};
+            var totalPayout = 0;
+
+            while (payoutGR.next()) {
+
+                var component =
+                    payoutGR.getDisplayValue(
+                        "payout_summary_rule"
+                    ) || "Unknown Component";
+
+                var payoutValue =
+                    parseFloat(
+                        payoutGR.getValue(
+                            "payout_value"
+                        )
+                    ) || 0;
+
+                if (!components[component]) {
+
+                    components[component] = 0;
+                }
+
+                components[component] += payoutValue;
+                totalPayout += payoutValue;
+            }
+
+            var response =
+                "]]>📊<![CDATA[ Here are your payout components:\n\n";
+
+            for (var componentName in components) {
+
+                response +=
+                    "• " +
+                    componentName +
+                    ": $" +
+                    components[
+                        componentName
+                    ].toLocaleString(
+                        "en-US", {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                        }
+                    ) +
+                    "\n";
+            }
+
+            response +=
+                "\n——————————————\n" +
+                "]]>💰<![CDATA[ Total Payout: $" +
+                totalPayout.toLocaleString(
+                    "en-US", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    }
+                );
+
+            return response;
+
+        } catch (ex) {
+
+            gs.error(
+                "IntentRouter :: handlePayoutComponents Error = " +
+                ex.message
+            );
+
+            return "Unable to retrieve payout component details at this time.";
+        }
+    },
+
+    handleBreakdown: function(userId, question) {
+
+        gs.info("IncentNow :: ENTERED handleBreakdown()");
+        gs.info("IncentNow :: QUESTION = " + question);
+
+        try {
+
+            var profileId = this.utils.getUserProfileId(userId);
+
+            var query = (question || "").toLowerCase();
+            var requestedMonth = "";
+            var requestedYear = "";
+            var quarterMonths = [];
+            var fiscalPeriodIds = [];
+            var displayPeriod = "";
+
+            var months = [
+                "january",
+                "february",
+                "march",
+                "april",
+                "may",
+                "june",
+                "july",
+                "august",
+                "september",
+                "october",
+                "november",
+                "december"
+            ];
+
+            for (var i = 0; i < months.length; i++) {
+                if (query.indexOf(months[i]) > -1) {
+                    requestedMonth =
+                        months[i].charAt(0).toUpperCase() +
+                        months[i].slice(1);
+                    break;
+                }
+            }
+
+            var yearMatch = query.match(/\b(20\d{2})\b/);
+
+            if (yearMatch) {
+                requestedYear = yearMatch[0];
+            } else {
+                requestedYear = "2026";
+            }
+
+            if (
+                query.indexOf("q1") > -1 ||
+                query.indexOf("quarter 1") > -1
+            ) {
+                quarterMonths = ["January", "February", "March"];
+                displayPeriod = "Q1 " + requestedYear;
+            }
+
+            if (
+                query.indexOf("q2") > -1 ||
+                query.indexOf("quarter 2") > -1
+            ) {
+                quarterMonths = ["April", "May", "June"];
+                displayPeriod = "Q2 " + requestedYear;
+            }
+
+            if (
+                query.indexOf("q3") > -1 ||
+                query.indexOf("quarter 3") > -1
+            ) {
+                quarterMonths = ["July", "August", "September"];
+                displayPeriod = "Q3 " + requestedYear;
+            }
+
+            if (
+                query.indexOf("q4") > -1 ||
+                query.indexOf("quarter 4") > -1
+            ) {
+                quarterMonths = ["October", "November", "December"];
+                displayPeriod = "Q4 " + requestedYear;
+            }
+
+            if (
+                query.indexOf("yearly") > -1 ||
+                query.indexOf("year") > -1 ||
+                query.indexOf("ytd") > -1
+            ) {
+                quarterMonths = [
+                    "January", "February", "March",
+                    "April", "May", "June",
+                    "July", "August", "September",
+                    "October", "November", "December"
+                ];
+
+                displayPeriod = "Year " + requestedYear;
+            }
+
+            if (requestedMonth && quarterMonths.length === 0) {
+
+                displayPeriod = requestedMonth + " " + requestedYear;
+
+                var singleMonthGR = new GlideRecordSecure("x_ctans_incentnow_payout_results");
+                singleMonthGR.addQuery("user", profileId);
+                singleMonthGR.query();
+
+                while (singleMonthGR.next()) {
+
+                    var fpDisplay =
+                        singleMonthGR.getDisplayValue("fiscal_period") || "";
+
+                    if (
+                        fpDisplay.toLowerCase() ===
+                        displayPeriod.toLowerCase()
+                    ) {
+                        fiscalPeriodIds.push(
+                            singleMonthGR.getValue("fiscal_period")
+                        );
+                        break;
+                    }
+                }
+            }
+
+            if (quarterMonths.length > 0) {
+
+                var periodGR = new GlideRecordSecure("x_ctans_incentnow_payout_results");
+                periodGR.addQuery("user", profileId);
+                periodGR.query();
+
+                while (periodGR.next()) {
+
+                    var quarterDisplay =
+                        periodGR.getDisplayValue("fiscal_period") || "";
+
+                    for (var j = 0; j < quarterMonths.length; j++) {
+
+                        if (
+                            quarterDisplay.indexOf(quarterMonths[j]) > -1 &&
+                            quarterDisplay.indexOf(requestedYear) > -1
+                        ) {
+                            var fpId =
+                                periodGR.getValue("fiscal_period");
+
+                            if (
+                                fiscalPeriodIds.indexOf(fpId) === -1
+                            ) {
+                                fiscalPeriodIds.push(fpId);
+                            }
+
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (
+                !requestedMonth &&
+                quarterMonths.length === 0 &&
+                fiscalPeriodIds.length === 0
+            ) {
+
+                var latestGR = new GlideRecordSecure("x_ctans_incentnow_payout_results");
+                latestGR.addQuery("user", profileId);
+                latestGR.orderByDesc("fiscal_period");
+                latestGR.setLimit(1);
+                latestGR.query();
+
+                if (latestGR.next()) {
+
+                    fiscalPeriodIds.push(
+                        latestGR.getValue("fiscal_period")
+                    );
+
+                    displayPeriod =
+                        latestGR.getDisplayValue("fiscal_period");
+                }
+            }
+
+            if (fiscalPeriodIds.length === 0) {
+                return "No payout breakdown available for the requested period.";
+            }
+
+            var payoutResult = new GlideRecordSecure("x_ctans_incentnow_payout_results");
+            payoutResult.addQuery("user", profileId);
+            payoutResult.addQuery(
+                "fiscal_period",
+                "IN",
+                fiscalPeriodIds.join(",")
+            );
+            payoutResult.orderBy("step_number");
+            payoutResult.query();
+
+            if (!payoutResult.hasNext()) {
+                return "No payout breakdown available for " + displayPeriod + ".";
+            }
+
+            var groupedData = {};
+            var totalPayout = 0;
+
+            while (payoutResult.next()) {
+
+                var payoutRule =
+                    payoutResult.getDisplayValue("payout_summary_rule") || "";
+
+                var formula =
+                    payoutResult.getValue("formula") || "";
+
+                var payoutValue =
+                    parseFloat(payoutResult.getValue("payout_value")) || 0;
+
+                if (!groupedData[payoutRule]) {
+                    groupedData[payoutRule] = {
+                        total: 0,
+                        formulas: []
+                    };
+                }
+
+                groupedData[payoutRule].total += payoutValue;
+
+                if (formula) {
+                    groupedData[payoutRule].formulas.push(formula);
+                }
+
+                totalPayout += payoutValue;
+            }
+
+            var response =
+                "]]>📊<![CDATA[ Your payout breakdown for " +
+                displayPeriod +
+                " is as follows:\n\n";
+
+            for (var rule in groupedData) {
+
+                response += "• " + rule + "\n";
+
+                if (groupedData[rule].formulas.length > 0) {
+                    response +=
+                        "Formula Summary: " +
+                        groupedData[rule].formulas.join(" + ") +
+                        "\n";
+                }
+
+                response +=
+                    "Final Payable Amount: $" +
+                    groupedData[rule].total.toLocaleString("en-IN") +
+                    "\n\n";
+            }
+
+            response += "——————————————\n";
+            response +=
+                "]]>💰<![CDATA[ Total Breakdown Amount: $" +
+                totalPayout.toLocaleString("en-IN");
+
+            gs.info(
+                "BREAKDOWN_DEBUG :: RESPONSE = \n" +
+                response
+            );
+
+            return response;
+
+        } catch (ex) {
+
+            gs.error(
+                "IncentNow :: handleBreakdown Error = " + ex
+            );
+
+            return "Unable to fetch payout breakdown details at the moment.";
+        }
+    },
+
+    type: 'IncentNowPayoutHandler'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+        <sys_created_on>2026-06-10 20:15:16</sys_created_on>
+        <sys_id>5f13dcd3939dcb10ddb7f2d89803d62d</sys_id>
+        <sys_mod_count>18</sys_mod_count>
+        <sys_name>IncentNowPayoutHandler</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_script_include_5f13dcd3939dcb10ddb7f2d89803d62d</sys_update_name>
+        <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
+        <sys_updated_on>2026-06-17 09:44:45</sys_updated_on>
+    </sys_script_include>
+</record_update>

@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update sys_domain="global" table="sys_script">
+    <sys_script action="INSERT_OR_UPDATE">
+        <abort_action>false</abort_action>
+        <access>package_private</access>
+        <action_delete>true</action_delete>
+        <action_insert>false</action_insert>
+        <action_query>false</action_query>
+        <action_update>false</action_update>
+        <active>true</active>
+        <add_message>false</add_message>
+        <advanced>true</advanced>
+        <change_fields>false</change_fields>
+        <client_callable>false</client_callable>
+        <collection>x_ctans_incentnow_earning_rule</collection>
+        <condition/>
+        <description/>
+        <execute_function>false</execute_function>
+        <filter_condition table="x_ctans_incentnow_earning_rule">active=true^EQ<item endquery="false" field="active" goto="false" newquery="false" operator="=" or="false" value="true"/>
+            <item endquery="true" field="" goto="false" newquery="false" operator="=" or="false" value=""/>
+        </filter_condition>
+        <is_rest>false</is_rest>
+        <message/>
+        <name>Protect Earning Rule</name>
+        <order>100</order>
+        <priority>100</priority>
+        <rest_method/>
+        <rest_method_text/>
+        <rest_service/>
+        <rest_service_text/>
+        <rest_variables/>
+        <role_conditions/>
+        <script><![CDATA[(function executeRule(current, previous /*null when async*/) {
+
+    // ================================
+    // 1. Check Lookup Rule Dependency
+    // ================================
+    var lookupRule = new GlideRecord('x_ctans_incentnow_lookup_rule');
+    lookupRule.addQuery('input_type', 'earning_rule');
+    lookupRule.addQuery('select_earning_rule', current.sys_id);
+    lookupRule.query();
+
+    if (lookupRule.next()) {
+        gs.addErrorMessage(
+            "Cannot delete. This earning rule is used in lookup rule: " +
+            lookupRule.display_name
+        );
+        current.setAbortAction(true);
+        return;
+    }
+
+    // ================================
+    // 2. Check Payout Summary - Input 1
+    // ================================
+    var payout1 = new GlideRecord('x_ctans_incentnow_payout_summary');
+    payout1.addQuery('input1_type', 'earning_rule');
+    payout1.addQuery('input1_earning_rule', current.sys_id);
+    payout1.query();
+
+    if (payout1.next()) {
+        gs.addErrorMessage(
+            "Cannot delete. Used in payout rule (Input 1): " +
+            payout1.rule_name
+        );
+        current.setAbortAction(true);
+        return;
+    }
+
+    // ================================
+    // 3. Check Payout Summary - Input 2
+    // ================================
+    var payout2 = new GlideRecord('x_ctans_incentnow_payout_summary');
+    payout2.addQuery('input2_type', 'earning_rule');
+    payout2.addQuery('input2_earning_rule', current.sys_id);
+    payout2.query();
+
+    if (payout2.next()) {
+        gs.addErrorMessage(
+            "Cannot delete. Used in payout rule (Input 2): " +
+            payout2.rule_name
+        );
+        current.setAbortAction(true);
+        return;
+    }
+
+})(current, previous);]]></script>
+        <sys_class_name>sys_script</sys_class_name>
+        <sys_created_by>upma.rai</sys_created_by>
+        <sys_created_on>2026-04-08 12:07:37</sys_created_on>
+        <sys_domain>global</sys_domain>
+        <sys_domain_path>/</sys_domain_path>
+        <sys_id>15e6863a3bc08b10ffa00e9693e45aec</sys_id>
+        <sys_mod_count>6</sys_mod_count>
+        <sys_name>Protect Earning Rule</sys_name>
+        <sys_overrides/>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_script_15e6863a3bc08b10ffa00e9693e45aec</sys_update_name>
+        <sys_updated_by>upma.rai</sys_updated_by>
+        <sys_updated_on>2026-05-18 11:05:58</sys_updated_on>
+        <template/>
+        <when>before</when>
+    </sys_script>
+    <sys_translated_text action="delete_multiple" query="documentkey=15e6863a3bc08b10ffa00e9693e45aec"/>
+</record_update>

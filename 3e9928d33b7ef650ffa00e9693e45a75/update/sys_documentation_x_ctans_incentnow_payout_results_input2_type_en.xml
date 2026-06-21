@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update>
+    <sys_documentation element="input2_type" label="Input 2 Type" language="en" table="x_ctans_incentnow_payout_results">
+        <sys_documentation action="INSERT_OR_UPDATE">
+            <element>input2_type</element>
+            <help/>
+            <hint/>
+            <label>Input 2 Type</label>
+            <language>en</language>
+            <name>x_ctans_incentnow_payout_results</name>
+            <plural>Input 2 Types</plural>
+            <sys_class_name>sys_documentation</sys_class_name>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-04-24 10:37:35</sys_created_on>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_name>Input 2 Type</sys_name>
+            <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+            <sys_policy/>
+            <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+            <sys_update_name>sys_documentation_x_ctans_incentnow_payout_results_input2_type_en</sys_update_name>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-04-24 10:37:35</sys_updated_on>
+            <url/>
+            <url_target/>
+        </sys_documentation>
+    </sys_documentation>
+</record_update>

@@ -1,0 +1,1001 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <client_script><![CDATA[api.controller=function($scope, spUtil,$window,spModal,$location,$rootScope) {
+  
+    	var c = this;
+	
+			//c.assignRec="Assigned";
+	
+			c.openMappings = function(sysid)
+			{
+				 $rootScope.$broadcast('openmappings', {
+								filter: "data_model_object_id="+sysid
+						});
+			}
+		
+			c.openUploadPage= function(sys_id,type)
+			{
+				//alert(type);
+				if(type=="External")
+				{var url = '/incentiq?id=upload&sys_id='+sys_id;
+        $location.url(url);}
+				
+			}
+	
+			c.getAssignLabel = function(status) {
+						if (status === "draft") {
+							return "Submit for Approval";
+						} else if (status === "pending_approval") {
+							return "Review";
+						} else if (status === "active") {
+							return "Assign";
+						}
+						return "Assign";
+					};
+	
+			c.performAction = function(status, sysid)
+			{
+				//spUtil.addErrorMessage("inof "+status +" -- "+sysid);
+				c.data.action="performaction";
+				c.data.recstatus=status;
+				c.data.recsysid=sysid;
+				
+				if(status=='active')
+					{
+						//alert(status + " -- "+sysid);
+						
+						//$window.location.href = "?id=incentnow_assignment_page&table=" + c.data.table + "&sys_id=" + sysid;
+
+						var shared={};
+										$scope.$emit('openAssignFullPage', {
+										sys_id: sysid
+									}); 
+						
+						//c.server.refresh();
+					}
+				
+				else if(status=='pending_approval')
+					{
+						var url = "?id=incentnow_approval&table=" + c.data.table + "&sys_id=" + sysid;
+						$location.url(url);
+
+					}
+
+				else if(status=='draft')
+					{
+						c.data.table=c.data.table;
+								c.server.update().then(function(){
+									//c.server.refresh();
+						});
+					}
+				
+				
+				
+				
+			};
+
+
+		c.performActionQuota = function(status, sysid)
+			{
+				c.data.action="performactionquota";
+				c.data.recstatus=status;
+				c.data.recsysid=sysid;
+				
+				if(status=='active')
+					{
+						var url  = "?id=incentnow_assignment_page&table=" + c.data.table + "&sys_id=" + sysid;
+						$location.url(url);
+					}
+				
+				else if(status=='pending_approval')
+					{
+						var url ="?id=incentnow_approval&table=" + c.data.table + "&sys_id=" + sysid;
+							$location.url(url);
+					}
+			
+				else if(status=='draft')
+					{
+						c.data.table=c.data.table;
+								c.server.update().then(function(){
+		
+						});
+					}
+		
+				c.server.update().then(function(){
+					
+				});
+				
+				
+			};
+	
+		c.deleteQuota = function(sysid) {
+			c.data.action = "deleteQuota";
+			c.data.recsysid = sysid;
+			spModal.open({
+					title: 'Delete Confirmation',
+					message: 'This action cannot be undone. Are you sure?',
+					buttons: [
+							{ label: 'Cancel', cancel: true },
+							{ label: 'Delete', primary: true }
+					]
+			}).then(function () {
+					c.server.update().then(function (response) {
+							if (response.data.response.status === "success") {
+									spUtil.addInfoMessage("Record deleted successfully.");
+									// Refresh data properly
+									spUtil.update($scope).then(function () {
+											c.quotaList = c.data.quotaList; // adjust based on your variable
+									});
+							} else {
+									spUtil.addErrorMessage("Delete failed or no authorization");
+							}
+					});
+			});
+	};
+	
+	$scope.$on('refreshTableWidget', function() {
+    c.server.refresh();
+});
+	
+		c.deactivateQuota = function(sysid) {
+			c.data.action = "deactivateQuota"; 
+			c.data.recsysid = sysid;
+			spModal.open({
+					title: 'Deactivate Confirmation',
+					message: 'Are you sure you want to deactivate this record?',
+					buttons: [
+							{ label: 'Cancel', cancel: true },
+							{ label: 'Deactivate', primary: true }
+					]
+			}).then(function () {
+					c.server.update().then(function (response) {
+							if (response.data.response.status === "success") {
+									spUtil.addInfoMessage("Deactivated successfully");
+									// Refresh UI
+									spUtil.update($scope).then(function () {
+											c.quotaList = c.data.quotaList; // adjust to your actual variable
+									});
+							} else {
+									spUtil.addErrorMessage("Deactivation failed or no authorization");
+							}
+					});
+			});
+	};
+
+
+    c.nextPage = function() {
+        
+			var next = ($scope.data.page || 1) + 1;
+
+				$scope.data.page = next;   
+
+				spUtil.update($scope, {
+						page: next,
+						table: $scope.data.table,
+						view: $scope.data.view,
+						filter: $scope.data.filter
+				});
+
+        
+    };
+
+    c.prevPage = function() {
+        if ($scope.data.page > 1) {
+            $scope.data.page = $scope.data.page - 1;
+            spUtil.update($scope);
+        }
+    };
+
+    c.viewPeriods = function(sys_id) {
+			
+        $scope.$emit('openFiscalPeriods', {
+            sys_id: sys_id
+        });
+
+        
+    };
+	
+	c.openRecord = function(sysId) {
+		if(c.data.table=="x_ctans_incentnow_plan")
+			{
+				var url ="?id=create_plan&table=" + c.data.table + "&sys_id=" + sysId;
+				$location.url(url);
+			}
+		else if(c.data.table=="x_ctans_incentnow_quota")
+			{
+				var url = "?id=quota_builder&table=" + c.data.table + "&sys_id=" + sysId;
+				$location.url(url);
+			}
+		else
+		$location.url("?id=incentnow_form&table=" + c.data.table + "&sys_id=" + sysId);
+	};
+	
+	c.viewRecord = function(sysId) {
+		if(c.data.table=="x_ctans_incentnow_plan")
+			{
+				var url = "?id=create_plan&table=" + c.data.table + "&sys_id=" + sysId;
+				$location.url(url);
+				//$window.open(url); 
+			}
+		//else
+		//$window.location.href = "?id=incentnow_form&table=" + c.data.table + "&sys_id=" + sysId;
+	};
+	
+	c.filterQuery = c.data.query || ''; 
+
+  c.onFilterChange = function(query) {
+    c.filterQuery = query;
+    c.server.update({ query: query });
+  };
+	
+	$scope.$on('widget-filter-breadcrumbs.queryModified', function(e, newFilter) {
+  $scope.data.filter = newFilter;
+  $scope.server.update();
+});
+	
+//	$scope.server.update().then(function(response) {
+
+  if ($scope.data.filterBreadcrumbs) {
+    $scope.$broadcast(
+      'widget-filter-breadcrumbs.setBreadcrumbs',
+      $scope.data.filterBreadcrumbs.data,
+      $scope.data.filter
+    );
+  }
+
+//});
+	
+	
+	
+	
+};]]></client_script>
+        <controller_as>c</controller_as>
+        <css>.modern-table th {
+  vertical-align: middle;
+ 
+}
+
+
+.action-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.2;
+  white-space: nowrap;
+  box-shadow: none;
+}
+
+.action-btn:focus,
+.action-btn:active:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(81, 163, 255, 0.25);
+}
+
+.action-icon svg {
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+
+.action-btn-ghost {
+  background: transparent;
+  border: 1px solid transparent;
+  color: #111827; 
+}
+
+
+.action-btn-ghost:hover,
+.action-btn-ghost:focus {
+  background: #f3f4f6;
+  /*color: #111827;*/
+}
+
+.action-btn-outline {
+  background: #fff;
+  border: 1px solid #d1d5db;
+  color: #111827;
+}
+
+.action-btn-outline:hover,
+.action-btn-outline:focus {
+  background: #f3f4f6;
+  color: #111827;
+  border-color: #d1d5db;
+}
+
+.delete-icon {
+  /*padding-left: 0.2rem;*/
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /*background: #fff;
+  border: .1rem solid #d1d5db; */
+  color: #ff0000;
+}
+
+.delete-icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+
+.panel-heading h4 {
+  font-weight: 600;
+}
+
+.table td {
+  vertical-align: middle;
+  height: 50px;
+}
+
+.btn-default {
+  border-radius: 8px;
+}
+
+.filter-section {
+  margin-bottom: 15px;
+  padding: 10px;
+  background: #f9f9f9;
+  border: 1px solid #ddd;
+}
+
+
+/* CARD */
+.modern-table-card {
+  border-radius: 14px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+  overflow: hidden;
+}
+
+/* HEADER */
+.modern-table-header {
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 14px 18px;
+}
+
+.modern-table-title {
+  font-weight: 600;
+  margin: 0;
+}
+
+/* BODY */
+.modern-table-body {
+  padding: 0;
+}
+
+/* TABLE */
+.modern-table {
+  margin-bottom: 0;
+}
+
+.modern-table thead th {
+  font-size: 12px;
+  color: #6b7280;
+  font-weight: 500;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* ROW */
+.modern-table tbody tr {
+  transition: background 0.2s ease;
+}
+
+.modern-table tbody tr:hover {
+  background: #f9fafb;
+}
+
+/* BUTTONS */
+.btn-modern {
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  color: #111827;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 13px;
+  transition: all 0.2s ease;
+}
+
+.btn-modern:hover {
+  background: #f3f4f6;
+}
+
+.btn-modern:disabled {
+  background: #f9fafb;
+  color: #9ca3af;
+  border-color: #e5e7eb;
+  cursor: not-allowed;
+}
+/* ICON BUTTON */
+.btn-icon {
+  background: transparent;
+  border: none;
+  color: #6b7280;
+}
+
+.btn-icon:hover {
+  color: #111827;
+}
+
+/* PAGINATION */
+.pagination-modern {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  padding: 12px;
+  border-top: 1px solid #e5e7eb;
+  background: #fafafa;
+}
+
+.page-info {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+/* ALERT */
+.modern-alert {
+  border-radius: 8px;
+  margin-top: 10px;
+}
+
+.filter-breadcrumbs-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.modern-table thead th {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  background: #fafafa;
+}
+</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description/>
+        <docs/>
+        <field_list/>
+        <has_preview>true</has_preview>
+        <id>incentnow-table-widget</id>
+        <internal>false</internal>
+        <link><![CDATA[function link(scope, element, attrs, controller) {
+  
+}]]></link>
+        <name>IncentNow Table Widget</name>
+        <option_schema>[{"hint":"table backend name","name":"table","section":"other","default_value":"","label":"Table","type":"string"},{"name":"page_size","section":"other","default_value":"10","label":"Page Size","type":"string"},{"hint":"view","name":"view","section":"other","default_value":"Default view","label":"View","type":"string"},{"hint":"Title","name":"title","section":"other","default_value":"","label":"Title","type":"string"},{"hint":"'true' if u want to show the view period column","name":"viewperiod","section":"other","default_value":"","label":"View Period","type":"boolean"},{"hint":"filter","name":"filter","section":"other","label":"Filter","type":"string"}]</option_schema>
+        <public>false</public>
+        <roles>x_ctans_incentnow.admin,x_ctans_incentnow.user</roles>
+        <script><![CDATA[(function() {
+
+	data.isIncentNowGroupAdmin= gs.hasRole('x_ctans_incentnow.business_group_admin') || gs.hasRole('x_ctans_incentnow.admin');
+	data.isIncentNowUser=gs.hasRole('x_ctans_incentnow.user');
+
+    input = input || {};
+	
+		data.table = input.table || options.table || data.table || '';
+		
+		if(data.table=="x_ctans_incentnow_plan")
+			{
+				data.isPlan=true;
+			}
+	
+		if(data.table=="x_ctans_incentnow_quota")
+			{
+				data.isQuota=true;
+			}
+		if(data.table=="x_ctans_incentnow_data_model_object")
+			{
+				
+				data.dataModelObj=true;
+			}
+
+			if(data.table=="x_ctans_incentnow_metadata_mapping")
+			{
+				
+				data.metaDataMapping=true;
+			}
+
+		var grtable = new GlideRecordSecure(data.table);
+		data.table_title = grtable.getLabel();
+		if (input.viewperiod !== undefined) {
+					data.view_period = input.viewperiod;
+			} else if (options.viewperiod !== undefined) {
+					data.view_period = options.viewperiod;
+			} else {
+					data.view_period = data.viewperiod;
+			}
+		data.viewperiod = (data.view_period + '' === "true");
+	
+		//data.debug_message = "Type: " + typeof data.view_period + 
+    //                 " | Value: " + data.view_period;
+	
+
+    data.table = input.table || options.table || data.table;
+    
+
+		data.page = parseInt(input.page, 10) || data.page || 1;
+
+		
+    data.page_size = options.page_size || 10;
+
+    // Get fields from Default View
+		data.view = input.view || options.view || data.view || 'default';
+	
+
+		data.fields = new x_ctans_incentnow.IncentNowPortalUtils().getFieldMapping(data.table, data.view);
+    data.filter = input.filter || options.filter || data.filter || "";
+
+		data.enable_filter = true;
+		data.show_breadcrumbs = true;
+
+			var breadcrumbWidgetParams = {
+				table: data.table,
+				query: data.filter || '',
+				enable_filter: true
+			};
+
+			data.filterBreadcrumbs = $sp.getWidget(
+				'widget-filter-breadcrumbs',
+				breadcrumbWidgetParams
+			);
+		//fetch records
+		fetchRec();
+		function fetchRec()
+		{
+		var gTable = new GlideRecordSecure(data.table);
+		
+		// 1. Get filter
+		data.filter = input.filter || options.filter || data.filter || "";
+
+		// 2. Apply filter
+		if (data.filter) {
+			gTable.addEncodedQuery(data.filter);
+		}
+			
+			var start = (data.page - 1) * data.page_size;
+			var end = start + parseInt(data.page_size);
+
+			gTable.orderByDesc('sys_created_on');
+			gTable.chooseWindow(start, end);
+			gTable.query();
+		
+		
+	
+		data.filter = gTable.getEncodedQuery();
+
+		
+		data.filterBreadcrumbs = $sp.getWidget('widget-filter-breadcrumbs', {
+			table: data.table,
+			query: data.filter,
+			enable_filter: true
+		});	
+    data.records = [];
+
+    while (gTable.next()) {
+        var rec = {};
+        rec.sys_id = gTable.getUniqueValue();
+				rec.statusBack=gTable.getValue("status");
+
+        data.fields.forEach(function(field) {
+					var fieldName = field.column_name;
+
+    			if (fieldName && gTable.isValidField(fieldName)) {
+								rec[fieldName] = gTable.getDisplayValue(fieldName);
+						} else {
+								rec[fieldName] = '';
+						}
+				});
+				
+        data.records.push(rec);
+    }
+		
+		  // Total count
+    data.total = 0;
+		data.total_pages = 0;
+
+		if (data.filter) {
+
+				var countGR = new GlideAggregate(data.table);
+				countGR.addEncodedQuery(data.filter);
+				countGR.addAggregate('COUNT');
+				countGR.query();
+
+				if (countGR.next()) {
+						data.total = parseInt(countGR.getAggregate('COUNT'), 10);
+				}
+
+				data.total_pages = Math.ceil(data.total / data.page_size);
+		}
+		
+		
+		
+	}
+    
+
+  
+	
+		if (input && input.action == "performaction") {
+
+						data.response = {}; 
+			
+
+						var gPlan = new GlideRecordSecure(data.table);
+
+						if (gPlan.get(input.recsysid)) {
+
+								if (gPlan.getValue('status') == "draft") {
+
+										gPlan.setValue("status", 'pending_approval');
+										gPlan.update();
+
+										data.response.status = "success";
+								} 
+								else {
+										data.response.status = "no_change";
+								}
+
+						} else {
+								data.response.status = "error";
+						} 
+				fetchRec();
+				}
+	
+		if (input && input.action == "performactionquota") {
+
+						data.response = {}; 
+
+						var gPlan = new GlideRecordSecure(data.table);
+
+						if (gPlan.get(input.recsysid)) {
+
+								if (gPlan.getValue('status') == "draft") {
+
+										gPlan.setValue("status", 'pending_approval');
+										gPlan.update();
+
+										data.response.status = "success";
+								} 
+								else {
+										data.response.status = "no_change";
+								}
+
+						} else {
+								data.response.status = "error";
+						}
+				fetchRec();
+				}
+	
+		if (input && input.action == "deleteQuota") {
+				data.response = {};
+				var deleteGR = new GlideRecordSecure(data.table);
+
+				if (deleteGR.get(input.recsysid) && deleteGR.getValue('status') == "draft") {
+						deleteGR.deleteRecord();
+						data.response.status = "success";
+				} else {
+						data.response.status = "error";
+				}
+
+				fetchRec();
+		}
+	
+		if (input && input.action == "deactivateQuota") {
+
+				data.response = {};
+				var deactivateGR = new GlideRecordSecure(data.table);
+
+				if (deactivateGR.get(input.recsysid) && deactivateGR.getValue('status') == "active") {
+						deactivateGR.setValue("status", "inactive");
+						deactivateGR.update();
+						data.response.status = "success";
+				} else {
+						data.response.status = "error";
+				}
+
+				fetchRec();
+		}
+
+
+
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>karan.kumar</sys_created_by>
+        <sys_created_on>2026-03-23 08:11:01</sys_created_on>
+        <sys_id>19c73a2d3b3bfe905493ddb693e45ae9</sys_id>
+        <sys_mod_count>439</sys_mod_count>
+        <sys_name>IncentNow Table Widget</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sp_widget_19c73a2d3b3bfe905493ddb693e45ae9</sys_update_name>
+        <sys_updated_by>karan.kumar</sys_updated_by>
+        <sys_updated_on>2026-06-12 06:07:52</sys_updated_on>
+        <template><![CDATA[<sp-widget widget="widget-filter-breadcrumbs"></sp-widget>
+
+<div class="panel modern-table-card">
+
+  <!-- HEADER -->
+  <div class="panel-heading modern-table-header">
+
+    <div class="header-left">
+      <h4 class="modern-table-title">
+        {{::options.title || data.table_title}}
+      </h4>
+
+      <div class="filter-breadcrumbs-wrapper" ng-if="data.filterBreadcrumbs">
+  <sp-widget widget="data.filterBreadcrumbs"></sp-widget>
+</div>
+    </div>
+
+  </div>
+
+  <!-- BODY -->
+  <div class="panel-body modern-table-body">
+
+    <div class="table-responsive">
+
+      <table class="table modern-table">
+        <thead>
+          <tr >
+            <th ng-repeat="field in data.fields">
+              {{field.column_label}}
+            </th>
+            <th  class="th-bold" id="action" ng-if="!c.data.metaDataMapping">Actions</th>
+            
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr ng-repeat="rec in data.records">
+
+            <td ng-repeat="field in data.fields">
+            <!--  {{rec[field.column_name]}} -->
+<span title="{{rec[field.column_name]}}">
+    {{rec[field.column_name].length > 20
+      ? (rec[field.column_name] | limitTo:20) + '...'
+      : rec[field.column_name]}}
+  </span>
+            </td>
+
+
+            <!-- VIEW PERIOD -->
+            <td >
+              
+              <div class="action-bar text-right">
+                
+                 <button type="button" class="btn action-btn action-btn-ghost" ng-if="data.viewperiod"
+                      ng-click="c.viewPeriods(rec.sys_id)">
+                View Periods
+              </button>
+              
+              <button  type="button" class="btn action-btn action-btn-ghost"
+                      ng-click="c.openRecord(rec.sys_id)" ng-if="!c.data.isPlan && !c.data.isQuota && !c.data.dataModelObj && !c.data.metaDataMapping">
+                 <!-- VIEW (non-draft) -->
+                  <span class="action-icon" aria-hidden="true" ng-if="rec.statusBack!='draft'">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"></path>
+                      <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                  </span>
+                  <!-- <span ng-if="rec.statusBack!='draft'">View</span> -->
+
+                  <!-- EDIT (draft) -->
+                  <span class="action-icon" aria-hidden="true" ng-if="rec.statusBack=='draft'">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                      <path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"></path>
+                    </svg>
+                  </span>
+                  <!--<span ng-if="rec.statusBack=='draft'">Edit</span> -->
+              </button>
+                
+                <!-- Buttons for Data Model -->
+                
+                
+               <button
+                type="button"
+                class="btn action-btn action-btn-outline"
+                ng-click="c.openMappings(rec.sys_id)" ng-if="c.data.dataModelObj">
+                <span class="action-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <line x1="19" x2="19" y1="8" y2="14"></line>
+                    <line x1="22" x2="16" y1="11" y2="11"></line>
+                  </svg>
+                </span>
+                <span>Mappings</span>
+              </button>
+                
+                <button
+                type="button"
+                class="btn action-btn action-btn-outline"
+                ng-click="c.openUploadPage(rec.sys_id,rec.data_source_system)" ng-if="c.data.dataModelObj && rec.data_source_system=='External'">
+               
+                <span>Load Data</span>
+              </button>
+                
+                
+                
+                <!-- Buttons for Quota Table -->
+							
+                <button
+                type="button"
+                class="btn action-btn action-btn-ghost"
+                ng-click="c.openRecord(rec.sys_id)" ng-if="c.data.isQuota && data.isIncentNowGroupAdmin">
+                <span class="action-icon" aria-hidden="true" ng-if="rec.statusBack!='draft'">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                  </svg>
+                </span>
+                
+                
+                <span class="action-icon" aria-hidden="true" ng-if="rec.statusBack=='draft'">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                    viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="size-4 mr-1">
+                    <path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"></path>
+                  </svg>
+                </span>
+               
+                
+              </button>
+                
+                
+                <!-- Buttons for Plan Table -->
+              <button
+                type="button"
+                class="btn action-btn action-btn-ghost"
+                ng-click="c.viewRecord(rec.sys_id)" ng-if="c.data.isPlan && data.isIncentNowGroupAdmin">
+                <span class="action-icon" aria-hidden="true" ng-if="rec.statusBack!='draft'">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                  </svg>
+                </span>
+                
+                
+                <span class="action-icon" aria-hidden="true" ng-if="rec.statusBack=='draft'">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                    viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="size-4 mr-1">
+                    <path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"></path>
+                  </svg>
+                </span>
+               
+                
+              </button>
+                
+                  <button
+                  type="button"
+                  class="btn delete-icon action-btn action-btn-ghost"
+                  ng-if="rec.statusBack === 'draft' && data.isIncentNowGroupAdmin"
+                  ng-click="c.deleteQuota(rec.sys_id)">
+
+                  <span class="action-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="3 6 5 6 21 6"></polyline>
+                      <path d="M19 6l-2 14H7L5 6"></path>
+                      <path d="M10 11v6"></path>
+                      <path d="M14 11v6"></path>
+                      <path d="M9 6V4h6v2"></path>
+                    </svg>
+                  </span>
+                  
+                </button>
+                
+        
+              <button
+                type="button"
+                class="btn action-btn action-btn-outline"
+                ng-click="c.performAction(rec.statusBack,rec.sys_id)" ng-if="c.data.isPlan && rec.statusBack!='inactive' && ((c.data.isIncentNowUser && rec.statusBack=='active')|| data.isIncentNowGroupAdmin)">
+                <span class="action-icon" aria-hidden="true" ng-if="c.data.isPlan">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <line x1="19" x2="19" y1="8" y2="14"></line>
+                    <line x1="22" x2="16" y1="11" y2="11"></line>
+                  </svg>
+                </span>
+                <span>{{c.getAssignLabel(rec.statusBack)}}</span>
+              </button>
+                
+                <!--button for quota table -->
+               <button
+                type="button"
+                class="btn action-btn action-btn-outline"
+                ng-click="c.performActionQuota(rec.statusBack,rec.sys_id)" ng-if="c.data.isQuota && rec.statusBack!='inactive' && ((c.data.isIncentNowUser && rec.statusBack=='active')|| data.isIncentNowGroupAdmin)">
+                <span class="action-icon" aria-hidden="true" ng-if="c.data.isQuota">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <line x1="19" x2="19" y1="8" y2="14"></line>
+                    <line x1="22" x2="16" y1="11" y2="11"></line>
+                  </svg>
+                </span>
+                <span>{{c.getAssignLabel(rec.statusBack)}}</span>
+              </button>
+                
+                <!-- NEW Delete Button (only for draft) -->
+              
+                
+                <button
+                  type="button"
+                  class="btn action-btn action-btn-outline"
+                  ng-if="rec.statusBack === 'active' && data.isIncentNowGroupAdmin"
+                  ng-click="c.deactivateQuota(rec.sys_id)">
+                  <span class="action-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 2v10"></path>
+                      <path d="M5 7a9 9 0 1 0 14 0"></path>
+                    </svg>
+                  </span>
+                  Deactivate
+                </button>
+            </div>
+              
+            </td>
+
+          </tr>
+        </tbody>
+      </table>
+
+    </div>
+
+    <!-- PAGINATION -->
+    <div class="pagination-modern" ng-if="c.data.total>0">
+
+      <button class="btn btn-modern"
+              ng-disabled="c.data.page == 1"
+              ng-click="c.prevPage()">
+        ← Prev
+      </button>
+
+      <span class="page-info">
+        Page {{c.data.page}}/{{c.data.total_pages}}
+      </span>
+
+      <button class="btn btn-modern"
+              ng-disabled="c.data.page * c.data.page_size >= c.data.total"
+              ng-click="c.nextPage()">
+        Next →
+      </button>
+
+    </div>
+    
+    <div class="pagination-modern" ng-if="c.data.total<=0">
+      No Records Found
+    </div>
+
+  </div>
+</div>
+
+<!-- DEBUG -->
+<div class="alert alert-info modern-alert"
+     ng-if="data.debug_message">
+  {{data.debug_message}}
+</div>]]></template>
+    </sp_widget>
+</record_update>

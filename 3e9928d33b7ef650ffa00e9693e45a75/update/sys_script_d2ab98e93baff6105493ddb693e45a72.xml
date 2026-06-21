@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update sys_domain="global" table="sys_script">
+    <sys_script action="INSERT_OR_UPDATE">
+        <abort_action>false</abort_action>
+        <access>package_private</access>
+        <action_delete>false</action_delete>
+        <action_insert>true</action_insert>
+        <action_query>false</action_query>
+        <action_update>false</action_update>
+        <active>false</active>
+        <add_message>false</add_message>
+        <advanced>true</advanced>
+        <change_fields>false</change_fields>
+        <client_callable>false</client_callable>
+        <collection>x_ctans_incentnow_quota</collection>
+        <condition/>
+        <description/>
+        <execute_function>false</execute_function>
+        <filter_condition/>
+        <is_rest>false</is_rest>
+        <message/>
+        <name>Generate Quota Period</name>
+        <order>100</order>
+        <priority>100</priority>
+        <rest_method/>
+        <rest_method_text/>
+        <rest_service/>
+        <rest_service_text/>
+        <rest_variables/>
+        <role_conditions/>
+        <script><![CDATA[(function executeRule(current, previous) {
+
+    if (!current.fiscal_year)
+        return;
+
+    // Map fiscal_period_sys_id → quota_period_sys_id
+    var fiscalToQuotaMap = {};
+
+    // Helper to create quota periods for a given period type
+    function createQuotaPeriods(periodType) {
+
+        var fp = new GlideRecord('x_ctans_incentnow_fiscal_period');
+        fp.addQuery('fiscal_year', current.fiscal_year);
+        fp.addQuery('period_type', periodType);
+        fp.orderBy('period_number');
+        fp.query();
+
+        while (fp.next()) {
+
+            var qp = new GlideRecord('x_ctans_incentnow_quota_period');
+            qp.initialize();
+            qp.quota = current.sys_id;
+            qp.fiscal_period = fp.sys_id;
+            qp.period_type = fp.period_type;
+            qp.period_number = fp.period_number;
+            qp.target_value = 0;
+			qp.calculation_mode = 'driven_by_annual_quota';
+
+           
+            if (fp.parent_period) {
+                var parentQuotaSysId = fiscalToQuotaMap[fp.parent_period.toString()];
+                if (parentQuotaSysId) {
+                    qp.parent_period = parentQuotaSysId;
+                }
+            }
+
+            var qpSysId = qp.insert();
+
+            // Store mapping
+            fiscalToQuotaMap[fp.sys_id.toString()] = qpSysId;
+        }
+    }
+
+    // ---------- Explicit hierarchy order ----------
+    createQuotaPeriods('year');
+    createQuotaPeriods('quarter');
+    createQuotaPeriods('month');
+
+})(current, previous);
+]]></script>
+        <sys_class_name>sys_script</sys_class_name>
+        <sys_created_by>upma.rai</sys_created_by>
+        <sys_created_on>2026-03-10 10:36:19</sys_created_on>
+        <sys_domain>global</sys_domain>
+        <sys_domain_path>/</sys_domain_path>
+        <sys_id>d2ab98e93baff6105493ddb693e45a72</sys_id>
+        <sys_mod_count>4</sys_mod_count>
+        <sys_name>Generate Quota Period</sys_name>
+        <sys_overrides/>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_script_d2ab98e93baff6105493ddb693e45a72</sys_update_name>
+        <sys_updated_by>shroin.mandal</sys_updated_by>
+        <sys_updated_on>2026-04-21 09:55:04</sys_updated_on>
+        <template/>
+        <when>after</when>
+    </sys_script>
+    <sys_translated_text action="delete_multiple" query="documentkey=d2ab98e93baff6105493ddb693e45a72"/>
+</record_update>

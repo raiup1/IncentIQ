@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update sys_domain="global" table="sys_one_extend_eval_strategy_metric">
+    <sys_one_extend_eval_strategy_metric action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <definition display_value="Tool inputs evaluation">46542201ebee5210b356f4a8cad0cdc6</definition>
+        <eval_strategy display_value="IncentNow Payout Validation Test">15d82b303b2043905493ddb693e45a19</eval_strategy>
+        <gen_ai_config display_value="OneExtend Capability Definition: Tool inputs evaluation">ad0f661afff03210d9c1ffffffffff88</gen_ai_config>
+        <metric_name>Tool calling evaluation</metric_name>
+        <sys_class_name>sys_one_extend_eval_strategy_metric</sys_class_name>
+        <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+        <sys_created_on>2026-04-27 10:37:47</sys_created_on>
+        <sys_domain>global</sys_domain>
+        <sys_domain_path>/</sys_domain_path>
+        <sys_id>7129e7343b2043905493ddb693e45a98</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>Tool calling evaluation</sys_name>
+        <sys_overrides/>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_one_extend_eval_strategy_metric_7129e7343b2043905493ddb693e45a98</sys_update_name>
+        <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
+        <sys_updated_on>2026-04-27 10:37:47</sys_updated_on>
+    </sys_one_extend_eval_strategy_metric>
+</record_update>

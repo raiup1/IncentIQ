@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element db_object_id="f82cbbc93b9f36d0ffa00e9693e45abb" label="Fiscal Period" max_length="40" name="x_ctans_incentnow_fiscal_period" type="collection">
+        <element attributes="edge_encryption_enabled=true" label="Period Start Date" max_length="40" name="period_start_date" read_only="true" type="glide_date"/>
+        <element attributes="edge_encryption_enabled=true" choice="1" label="Period Type" max_length="40" name="period_type" read_only="true" type="string">
+            <choice>
+                <element inactive_on_update="false" label="Year" sequence="2" value="year"/>
+                <element inactive_on_update="false" label="Quarter" sequence="1" value="quarter"/>
+                <element inactive_on_update="false" label="Month" sequence="0" value="month"/>
+            </choice>
+        </element>
+        <element attributes="edge_encryption_enabled=true" display="true" label="Period Display Name" max_length="40" name="period_display_name" type="string"/>
+        <element attributes="encode_utf8=false" label="Parent Period" max_length="32" name="parent_period" read_only="true" reference="x_ctans_incentnow_fiscal_period" type="reference"/>
+        <element label="Period Number" max_length="40" name="period_number" read_only="true" type="integer"/>
+        <element attributes="edge_encryption_enabled=true" label="Period End Date" max_length="40" name="period_end_date" read_only="true" type="glide_date"/>
+        <element label="Domain" max_length="32" name="sys_domain" type="domain_id"/>
+        <element attributes="edge_encryption_enabled=true" label="Period Name" max_length="40" name="period_name" read_only="true" type="string"/>
+        <element attributes="encode_utf8=false" label="Fiscal Year" max_length="32" name="fiscal_year" read_only="true" reference="x_ctans_incentnow_fiscal_calendar" type="reference"/>
+        <index name="index">
+            <element name="fiscal_year"/>
+        </index>
+        <index name="index2">
+            <element name="parent_period"/>
+        </index>
+        <index name="index3">
+            <element name="sys_domain"/>
+        </index>
+    </element>
+</database>

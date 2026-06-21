@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update>
+    <sys_ui_section caption="Input Types" section_id="fd22c5363b8c4b105493ddb693e45add" sys_domain="global" table="x_ctans_incentnow_payout_summary" version="3" view="portal_view">
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>input1_type</element>
+            <position>0</position>
+            <sys_created_by>karan.kumar</sys_created_by>
+            <sys_created_on>2026-04-27 06:03:52</sys_created_on>
+            <sys_id>1d7a223c3b684f50ffa00e9693e45add</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="Input Types" display_value="Input Types" name="x_ctans_incentnow_payout_summary" sys_domain="global" view="bc824a2e3bf73ad05493ddb693e45aae">fd22c5363b8c4b105493ddb693e45add</sys_ui_section>
+            <sys_updated_by>karan.kumar</sys_updated_by>
+            <sys_updated_on>2026-04-27 06:03:52</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>input1_id</element>
+            <position>1</position>
+            <sys_created_by>karan.kumar</sys_created_by>
+            <sys_created_on>2026-04-27 06:03:52</sys_created_on>
+            <sys_id>997a223c3b684f50ffa00e9693e45ade</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="Input Types" display_value="Input Types" name="x_ctans_incentnow_payout_summary" sys_domain="global" view="bc824a2e3bf73ad05493ddb693e45aae">fd22c5363b8c4b105493ddb693e45add</sys_ui_section>
+            <sys_updated_by>karan.kumar</sys_updated_by>
+            <sys_updated_on>2026-04-27 06:03:52</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>input1_payout</element>
+            <position>2</position>
+            <sys_created_by>karan.kumar</sys_created_by>
+            <sys_created_on>2026-04-27 06:03:52</sys_created_on>
+            <sys_id>197a223c3b684f50ffa00e9693e45adf</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="Input Types" display_value="Input Types" name="x_ctans_incentnow_payout_summary" sys_domain="global" view="bc824a2e3bf73ad05493ddb693e45aae">fd22c5363b8c4b105493ddb693e45add</sys_ui_section>
+            <sys_updated_by>karan.kumar</sys_updated_by>
+            <sys_updated_on>2026-04-27 06:03:52</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>input1_earning_rule</element>
+            <position>3</position>
+            <sys_created_by>karan.kumar</sys_created_by>
+            <sys_created_on>2026-04-27 06:03:52</sys_created_on>
+            <sys_id>957a223c3b684f50ffa00e9693e45ae0</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="Input Types" display_value="Input Types" name="x_ctans_incentnow_payout_summary" sys_domain="global" view="bc824a2e3bf73ad05493ddb693e45aae">fd22c5363b8c4b105493ddb693e45add</sys_ui_section>
+            <sys_updated_by>karan.kumar</sys_updated_by>
+            <sys_updated_on>2026-04-27 06:03:52</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>operator</element>
+            <position>4</position>
+            <sys_created_by>karan.kumar</sys_created_by>
+            <sys_created_on>2026-04-27 06:03:52</sys_created_on>
+            <sys_id>157a223c3b684f50ffa00e9693e45ae1</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="Input Types" display_value="Input Types" name="x_ctans_incentnow_payout_summary" sys_domain="global" view="bc824a2e3bf73ad05493ddb693e45aae">fd22c5363b8c4b105493ddb693e45add</sys_ui_section>
+            <sys_updated_by>karan.kumar</sys_updated_by>
+            <sys_updated_on>2026-04-27 06:03:52</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>input2_type</element>
+            <position>5</position>
+            <sys_created_by>karan.kumar</sys_created_by>
+            <sys_created_on>2026-04-27 06:03:52</sys_created_on>
+            <sys_id>117a223c3b684f50ffa00e9693e45afb</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="Input Types" display_value="Input Types" name="x_ctans_incentnow_payout_summary" sys_domain="global" view="bc824a2e3bf73ad05493ddb693e45aae">fd22c5363b8c4b105493ddb693e45add</sys_ui_section>
+            <sys_updated_by>karan.kumar</sys_updated_by>
+            <sys_updated_on>2026-04-27 06:03:52</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>input2_id</element>
+            <position>6</position>
+            <sys_created_by>karan.kumar</sys_created_by>
+            <sys_created_on>2026-04-27 06:03:52</sys_created_on>
+            <sys_id>9d7a223c3b684f50ffa00e9693e45afb</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="Input Types" display_value="Input Types" name="x_ctans_incentnow_payout_summary" sys_domain="global" view="bc824a2e3bf73ad05493ddb693e45aae">fd22c5363b8c4b105493ddb693e45add</sys_ui_section>
+            <sys_updated_by>karan.kumar</sys_updated_by>
+            <sys_updated_on>2026-04-27 06:03:52</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>input2_earning_rule</element>
+            <position>7</position>
+            <sys_created_by>karan.kumar</sys_created_by>
+            <sys_created_on>2026-04-27 06:03:52</sys_created_on>
+            <sys_id>1d7a223c3b684f50ffa00e9693e45afc</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="Input Types" display_value="Input Types" name="x_ctans_incentnow_payout_summary" sys_domain="global" view="bc824a2e3bf73ad05493ddb693e45aae">fd22c5363b8c4b105493ddb693e45add</sys_ui_section>
+            <sys_updated_by>karan.kumar</sys_updated_by>
+            <sys_updated_on>2026-04-27 06:03:52</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>input2_payout</element>
+            <position>8</position>
+            <sys_created_by>karan.kumar</sys_created_by>
+            <sys_created_on>2026-04-27 06:03:52</sys_created_on>
+            <sys_id>997a223c3b684f50ffa00e9693e45afd</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="Input Types" display_value="Input Types" name="x_ctans_incentnow_payout_summary" sys_domain="global" view="bc824a2e3bf73ad05493ddb693e45aae">fd22c5363b8c4b105493ddb693e45add</sys_ui_section>
+            <sys_updated_by>karan.kumar</sys_updated_by>
+            <sys_updated_on>2026-04-27 06:03:52</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>output_unit</element>
+            <position>9</position>
+            <sys_created_by>karan.kumar</sys_created_by>
+            <sys_created_on>2026-04-27 06:03:52</sys_created_on>
+            <sys_id>197a223c3b684f50ffa00e9693e45afe</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="Input Types" display_value="Input Types" name="x_ctans_incentnow_payout_summary" sys_domain="global" view="bc824a2e3bf73ad05493ddb693e45aae">fd22c5363b8c4b105493ddb693e45add</sys_ui_section>
+            <sys_updated_by>karan.kumar</sys_updated_by>
+            <sys_updated_on>2026-04-27 06:03:52</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_section action="INSERT_OR_UPDATE">
+            <caption>Input Types</caption>
+            <header>false</header>
+            <name>x_ctans_incentnow_payout_summary</name>
+            <roles/>
+            <sys_class_name>sys_ui_section</sys_class_name>
+            <sys_created_by>karan.kumar</sys_created_by>
+            <sys_created_on>2026-04-08 07:04:36</sys_created_on>
+            <sys_domain>global</sys_domain>
+            <sys_domain_path>/</sys_domain_path>
+            <sys_id>fd22c5363b8c4b105493ddb693e45add</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_name>x_ctans_incentnow_payout_summary</sys_name>
+            <sys_overrides/>
+            <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+            <sys_policy/>
+            <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+            <sys_update_name>sys_ui_section_fd22c5363b8c4b105493ddb693e45add</sys_update_name>
+            <sys_updated_by>karan.kumar</sys_updated_by>
+            <sys_updated_on>2026-04-08 07:04:36</sys_updated_on>
+            <sys_user/>
+            <title>false</title>
+            <view display_value="Portal View" name="portal_view">bc824a2e3bf73ad05493ddb693e45aae</view>
+            <view_name/>
+        </sys_ui_section>
+    </sys_ui_section>
+</record_update>

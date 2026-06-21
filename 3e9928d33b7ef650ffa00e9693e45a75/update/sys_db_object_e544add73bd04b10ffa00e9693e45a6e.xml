@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_db_object">
+    <sys_db_object action="INSERT_OR_UPDATE">
+        <access>public</access>
+        <actions_access>true</actions_access>
+        <alter_access>true</alter_access>
+        <caller_access/>
+        <client_scripts_access>true</client_scripts_access>
+        <configuration_access>true</configuration_access>
+        <create_access>true</create_access>
+        <create_access_controls>true</create_access_controls>
+        <delete_access>true</delete_access>
+        <filter_extension/>
+        <is_df_table>false</is_df_table>
+        <is_extendable>false</is_extendable>
+        <label>AI Learning Repository</label>
+        <live_feed_enabled>false</live_feed_enabled>
+        <name>x_ctans_incentnow_ai_learning_repository</name>
+        <number_ref display_value="AI">e035619b3bd04b10ffa00e9693e45a8c</number_ref>
+        <provider_class/>
+        <read_access>true</read_access>
+        <scriptable_table>false</scriptable_table>
+        <super_class/>
+        <sys_class_name>sys_db_object</sys_class_name>
+        <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+        <sys_created_on>2026-04-22 09:10:18</sys_created_on>
+        <sys_id>e544add73bd04b10ffa00e9693e45a6e</sys_id>
+        <sys_mod_count>2</sys_mod_count>
+        <sys_name>AI Learning Repository</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_db_object_e544add73bd04b10ffa00e9693e45a6e</sys_update_name>
+        <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
+        <sys_updated_on>2026-06-18 15:39:18</sys_updated_on>
+        <update_access>true</update_access>
+        <user_role display_value="x_ctans_incentnow.user" name="x_ctans_incentnow.user">439928d33b7ef650ffa00e9693e45ad5</user_role>
+        <ws_access>true</ws_access>
+    </sys_db_object>
+</record_update>

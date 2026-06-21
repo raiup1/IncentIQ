@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <client_script><![CDATA[api.controller=function() {
+  /* widget controller */
+  var c = this;
+};]]></client_script>
+        <controller_as>c</controller_as>
+        <css>.quota-kpi-card {
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  transition: all 0.2s ease;
+  margin: 10px 0;
+}
+
+.quota-kpi-card:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  transform: translateY(-2px);
+}
+
+.quota-kpi-card .panel-body {
+  padding: 20px;
+}
+
+.quota-kpi-card h2 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.quota-kpi-card .text-muted {
+  font-size: 13px;
+  color: #6b7280;
+  margin: 0;
+}
+
+.m-b-lg-card {
+  margin-bottom: 20px;
+  border-radius: 1.6rem;
+  
+}</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description/>
+        <docs/>
+        <field_list/>
+        <has_preview>true</has_preview>
+        <id>incentnow-fiscal-report</id>
+        <internal>false</internal>
+        <link><![CDATA[function link(scope, element, attrs, controller) {
+  
+}]]></link>
+        <name>IncentNow Fiscal Report</name>
+        <option_schema/>
+        <public>false</public>
+        <roles>x_ctans_incentnow.user</roles>
+        <script><![CDATA[(function() {
+
+    data.totalCalendars = 0;
+    data.currentCalendar = "N/A";
+    data.totalPeriods = 0;
+
+    // Example table (change to your table)
+    var grCalendar = new GlideAggregate('x_ctans_incentnow_fiscal_calendar');
+		grCalendar.addAggregate('COUNT');
+		grCalendar.query();
+
+		if (grCalendar.next()) {
+				data.totalCalendars = parseInt(grCalendar.getAggregate('COUNT'), 10);
+			/*gs.addErrorMessage(gr.fiscal_year_name);
+			if (gr.active == true) {
+            data.currentCalendar = gr.fiscal_year_name.toString();
+        } */
+		}
+	
+		
+   
+
+	 	var grActive = new GlideAggregate('x_ctans_incentnow_fiscal_calendar');
+		grActive.addEncodedQuery('active=true');
+		grActive.addAggregate('COUNT');
+		grActive.query();
+
+		if (grActive.next()) {
+				data.activeNumber = parseInt(grActive.getAggregate('COUNT'), 10);
+		}
+	
+		if(data.activeNumber==1 || data.activeNumber=="1")
+			{
+				var grAc= new GlideRecordSecure("x_ctans_incentnow_fiscal_calendar");
+				grAc.addActiveQuery();
+				grAc.query();
+				if(grAc.next())
+					{
+						data.currentCalendar=grAc.fiscal_year_name.toString();
+					}
+				
+			}
+
+
+		// Example periods table
+		var periodGR = new GlideAggregate('x_ctans_incentnow_fiscal_period');
+		periodGR.addAggregate('COUNT');
+		periodGR.query();
+
+		if (periodGR.next()) {
+				data.totalPeriods = parseInt(periodGR.getAggregate('COUNT'), 10);
+		}
+
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>karan.kumar</sys_created_by>
+        <sys_created_on>2026-04-03 06:16:50</sys_created_on>
+        <sys_id>2f27c3c93bc4cf14ffa00e9693e45a85</sys_id>
+        <sys_mod_count>26</sys_mod_count>
+        <sys_name>IncentNow Fiscal Report</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sp_widget_2f27c3c93bc4cf14ffa00e9693e45a85</sys_update_name>
+        <sys_updated_by>shroin.mandal</sys_updated_by>
+        <sys_updated_on>2026-06-12 08:31:33</sys_updated_on>
+        <template><![CDATA[<div class="row m-b-lg-card">
+
+  <!-- Total Calendars -->
+  <div class="col-md-4">
+    
+      <div class="pt-scorecard">
+        <div class="pt-scorecard-top"><span class="pt-scorecard-label">Total Calendars</span></div>
+        <div class="pt-scorecard-value">{{c.data.totalCalendars}}</div>
+        <div class="pt-scorecard-period">{{c.data.activeNumber}} Active</div>
+      </div>
+    
+  </div>
+
+  <!-- Current Calendar -->
+  <div class="col-md-4">
+    <div class="pt-scorecard">
+        <div class="pt-scorecard-top"><span class="pt-scorecard-label">Current Calendar</span></div>
+        <div class="pt-scorecard-value">{{c.data.currentCalendar}}</div>
+        <div class="pt-scorecard-period">Active Fiscal Year</div>
+      </div>
+    
+    
+  </div>
+
+  <!-- Total Periods -->
+  <div class="col-md-4">
+    <div class="pt-scorecard">
+        <div class="pt-scorecard-top"><span class="pt-scorecard-label">Total Periods</span></div>
+        <div class="pt-scorecard-value">{{c.data.totalPeriods}}</div>
+        <div class="pt-scorecard-period">Quarters and Months</div>
+      </div>
+    
+    
+  </div>
+
+</div>]]></template>
+    </sp_widget>
+</record_update>

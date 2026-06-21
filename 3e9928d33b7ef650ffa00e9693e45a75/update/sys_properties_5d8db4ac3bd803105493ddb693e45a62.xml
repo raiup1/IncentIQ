@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_properties">
+    <sys_properties action="INSERT_OR_UPDATE">
+        <choices/>
+        <description>If set to true, a thousands separator will be displayed for all numeric values in the incentive statement. Set it to false if no need to display thousands separators.</description>
+        <ignore_cache>true</ignore_cache>
+        <is_private>false</is_private>
+        <name>x_ctans_incentnow.thousand_separator</name>
+        <read_roles/>
+        <suffix>x_ctans_incentnow.thousand_separator</suffix>
+        <sys_class_name>sys_properties</sys_class_name>
+        <sys_created_by>upma.rai</sys_created_by>
+        <sys_created_on>2026-04-13 17:14:00</sys_created_on>
+        <sys_id>5d8db4ac3bd803105493ddb693e45a62</sys_id>
+        <sys_mod_count>11</sys_mod_count>
+        <sys_name>x_ctans_incentnow.thousand_separator</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_properties_5d8db4ac3bd803105493ddb693e45a62</sys_update_name>
+        <sys_updated_by>upma.rai</sys_updated_by>
+        <sys_updated_on>2026-06-08 12:15:23</sys_updated_on>
+        <type>boolean</type>
+        <value>true</value>
+        <write_roles/>
+    </sys_properties>
+    <sys_translated_text action="delete_multiple" query="documentkey=5d8db4ac3bd803105493ddb693e45a62"/>
+</record_update>

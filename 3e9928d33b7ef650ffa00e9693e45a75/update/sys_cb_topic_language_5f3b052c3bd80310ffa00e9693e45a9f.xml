@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update sys_domain="global" table="sys_cb_topic_language">
+    <sys_cb_topic_language action="INSERT_OR_UPDATE">
+        <cb_topic_id display_value="IncentNow Copilot">0b3b052c3bd80310ffa00e9693e45a9a</cb_topic_id>
+        <language_code>en</language_code>
+        <nlu_entities>[{"node_id":"74ab4fba40aa48eaba1bfbccc050dac4","variable_name":"user_input","nlu_entity":"","nlu_entity_label":""},{"node_id":"fe8bef208433449fb182e7a7a47b190b","variable_name":"user_choice","nlu_entity":"","nlu_entity_label":""}]</nlu_entities>
+        <nlu_intent>IncentNow Copilot Intent</nlu_intent>
+        <nlu_intent_label>IncentNow Copilot Intent</nlu_intent_label>
+        <nlu_model>ml_x_ctans_x_ctans_incentnow_global_ea684d243bd80310ffa00e9693e45a5a</nlu_model>
+        <nlu_model_label>IncentNow Copilot Model</nlu_model_label>
+        <nlu_provider>64c023c17300330021a044764df6a70e</nlu_provider>
+        <sys_class_name>sys_cb_topic_language</sys_class_name>
+        <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+        <sys_created_on>2026-04-13 18:13:40</sys_created_on>
+        <sys_domain>global</sys_domain>
+        <sys_id>5f3b052c3bd80310ffa00e9693e45a9f</sys_id>
+        <sys_mod_count>2</sys_mod_count>
+        <sys_name/>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_cb_topic_language_5f3b052c3bd80310ffa00e9693e45a9f</sys_update_name>
+        <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
+        <sys_updated_on>2026-04-16 22:04:03</sys_updated_on>
+    </sys_cb_topic_language>
+</record_update>

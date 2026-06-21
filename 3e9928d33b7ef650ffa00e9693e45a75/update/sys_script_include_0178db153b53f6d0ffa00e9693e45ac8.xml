@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>package_private</access>
+        <active>true</active>
+        <api_name>x_ctans_incentnow.IncentNowClientUtils</api_name>
+        <caller_access/>
+        <client_callable>true</client_callable>
+        <description/>
+        <mobile_callable>false</mobile_callable>
+        <name>IncentNowClientUtils</name>
+        <sandbox_callable>true</sandbox_callable>
+        <script><![CDATA[var IncentNowClientUtils = Class.create();
+IncentNowClientUtils.prototype = Object.extendsObject(global.AbstractAjaxProcessor, {
+
+    getPlan: function() {
+    var userSysId = this.getParameter('sysparm_user');
+    var fiscalYear = this.getParameter('sysparm_fiscal_year');
+
+    if (!userSysId || !fiscalYear)
+        return '';
+
+    var planGR = new GlideRecordSecure('x_ctans_incentnow_plan_users');
+    planGR.addQuery('x_ctans_incentnow_sales_user', userSysId);
+    planGR.addQuery('x_ctans_incentnow_plan.fiscal_year', fiscalYear);
+    planGR.addQuery('x_ctans_incentnow_plan.status', 'active');
+    planGR.query();
+
+    if (planGR.next()) {
+        return planGR.getValue('x_ctans_incentnow_plan');
+    }
+
+    // fallback inactive
+    var plans = [];
+    var inactiveGR = new GlideRecordSecure('x_ctans_incentnow_plan_users');
+    inactiveGR.addQuery('x_ctans_incentnow_sales_user', userSysId);
+    inactiveGR.addQuery('x_ctans_incentnow_plan.fiscal_year', fiscalYear);
+    inactiveGR.addQuery('x_ctans_incentnow_plan.status', 'inactive');
+    inactiveGR.query();
+
+    while (inactiveGR.next()) {
+        plans.push(inactiveGR.getValue('x_ctans_incentnow_plan'));
+    }
+
+    if (plans.length === 1)
+        return plans[0];
+
+    return '';
+},
+
+    getPlansForUser: function(userSysId, fiscalYear) {
+
+        if (!userSysId || !fiscalYear)
+            return 'sys_idISEMPTY';
+
+        var planIds = [];
+
+        var planUser = new GlideRecordSecure('x_ctans_incentnow_plan_users');
+        planUser.addQuery('x_ctans_incentnow_sales_user', userSysId);
+        planUser.addQuery('x_ctans_incentnow_plan.fiscal_year', fiscalYear);
+        planUser.query();
+
+        while (planUser.next()) {
+            planIds.push(planUser.getValue('x_ctans_incentnow_plan'));
+        }
+
+        if (planIds.length === 0)
+            return 'sys_idISEMPTY';
+
+        return 'sys_idIN' + planIds.join(',');
+    },
+
+    getFiscalDates: function() {
+
+        var fiscalYear = parseInt(this.getParameter('sysparm_fiscalYear'), 10);
+        var startMonth = parseInt(this.getParameter('sysparm_fiscalStartMonth'), 10);
+
+        if (!fiscalYear || !startMonth || startMonth < 1 || startMonth > 12) {
+            return '';
+        }
+
+        /* ---------------- Start Date ---------------- */
+        var startGDT = new GlideDateTime();
+        startGDT.setDisplayValueInternal(
+            fiscalYear + '-' + this._pad(startMonth) + '-01 00:00:00'
+        );
+
+        /* ---------------- End Month & Year (12 months) ---------------- */
+        var endMonthIndex = startMonth + 11;
+        var endYear = fiscalYear + Math.floor((endMonthIndex - 1) / 12);
+        var endMonth = ((endMonthIndex - 1) % 12) + 1;
+
+        /* ---------------- End Date (last day of end month) ---------------- */
+        var endGDT = new GlideDateTime();
+        endGDT.setDisplayValueInternal(
+            endYear + '-' + this._pad(endMonth) + '-01 00:00:00'
+        );
+        endGDT.addMonthsUTC(1);
+        endGDT.addDaysUTC(-1);
+
+        return JSON.stringify({
+            start_date: startGDT.getLocalDate().toString(),
+            end_date: endGDT.getLocalDate().toString(),
+            fiscal_end: endMonth // numeric choice value (1–12)
+        });
+    },
+
+    getFiscalDatesbyServer: function(fiscalYear, startMonth) {
+
+        if (!fiscalYear || !startMonth || startMonth < 1 || startMonth > 12) {
+            return '';
+        }
+
+        /* ---------------- Start Date ---------------- */
+        var startGDT = new GlideDateTime();
+        startGDT.setDisplayValueInternal(
+            fiscalYear + '-' + this._pad(startMonth) + '-01 00:00:00'
+        );
+
+        /* ---------------- End Month & Year (12 months) ---------------- */
+        var endMonthIndex = startMonth + 11;
+        var endYear = fiscalYear + Math.floor((endMonthIndex - 1) / 12);
+        var endMonth = ((endMonthIndex - 1) % 12) + 1;
+
+        /* ---------------- End Date (last day of end month) ---------------- */
+        var endGDT = new GlideDateTime();
+        endGDT.setDisplayValueInternal(
+            endYear + '-' + this._pad(endMonth) + '-01 00:00:00'
+        );
+        endGDT.addMonthsUTC(1);
+        endGDT.addDaysUTC(-1);
+
+        return JSON.stringify({
+            start_date: startGDT.getLocalDate().toString(),
+            end_date: endGDT.getLocalDate().toString(),
+            fiscal_end: endMonth // numeric choice value (1–12)
+        });
+    },
+
+    _pad: function(n) {
+        return (n < 10 ? '0' : '') + n;
+    },
+
+    getInputsForDecisionTable: function() {
+
+        var decisionTableId = this.getParameter('sysparm_decision_table');
+        if (!decisionTableId)
+            return '';
+
+        var inputs = [];
+        var di = new GlideRecordSecure('sys_decision_input');
+        di.addQuery('model', decisionTableId);
+        di.query();
+
+        while (di.next()) {
+            inputs.push(di.getUniqueValue());
+        }
+
+        // Glide List expects comma-separated sys_ids
+        return inputs.join(',');
+    },
+
+    getOutputsForDecisionTable: function() {
+
+        var decisionTableId = this.getParameter('sysparm_decision_table');
+        if (!decisionTableId)
+            return '';
+
+        var outputs = [];
+        var di = new GlideRecordSecure('sys_decision_multi_result_element');
+        di.addEncodedQuery('nameLIKE' + GlideStringUtil.escapeQueryTermSeparator(decisionTableId),true);
+        di.query();
+
+        while (di.next()) {
+            outputs.push(di.getUniqueValue());
+        }
+
+        return outputs.join(',');
+    },
+
+    getPlanFlowData: function(planGR) {
+        var result = {
+            hasFlows: false,
+            hasMultipleFlows: false,
+            flowId: "",
+            flowIds: [],
+            flowNames: [],
+            flows: [],
+            flowQuery: ""
+        };
+
+        if (!planGR || !planGR.isValidRecord())
+            return result;
+
+        var flowContextGR = new GlideRecordSecure("sys_flow_context");
+        flowContextGR.addQuery("source_table", planGR.getRecordClassName());
+        flowContextGR.addQuery("source_record", planGR.getUniqueValue());
+        flowContextGR.orderByDesc("sys_created_on");
+        flowContextGR.query();
+
+        while (flowContextGR.next()) {
+            result.hasFlows = true;
+
+            var flowSysId = flowContextGR.getUniqueValue();
+
+            result.flowIds.push(flowSysId);
+            result.flowNames.push(flowContextGR.name.toString());
+
+            // Detailed object (best for UI)
+            result.flows.push({
+                id: flowSysId,
+                name: flowContextGR.name.toString(),
+                state: flowContextGR.state.toString(),
+                started: flowContextGR.sys_created_on.toString(),
+                ended: flowContextGR.sys_updated_on.toString()
+            });
+        }
+
+        // Flags
+        if (result.flowIds.length === 1) {
+            result.flowId = result.flowIds[0];
+        }
+
+        if (result.flowIds.length > 1) {
+            result.hasMultipleFlows = true;
+        }
+
+        result.flowQuery = flowContextGR.getEncodedQuery();
+
+        return result;
+    },
+
+    getPlanFlowDataAjax: function() {
+
+        var sysId = this.getParameter('sysparm_sys_id');
+        var table = this.getParameter('sysparm_table');
+
+        var planFlow = new GlideRecordSecure(table);
+        if (!planFlow.get(sysId))
+            return JSON.stringify({
+                hasFlows: false
+            });
+
+        var data = this.getPlanFlowData(planFlow);
+
+        return JSON.stringify(data);
+    },
+
+	getUserID: function() {
+
+        var userSysId = this.getParameter('sysparm_user_sys_id');
+
+        if (gs.nil(userSysId))
+            return '';
+
+        var userGR = new GlideRecordSecure('sys_user');
+        if (userGR.get(userSysId))
+            return userGR.getValue('user_name');
+
+        return '';
+    },
+    type: 'IncentNowClientUtils'
+});]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>karan.kumar</sys_created_by>
+        <sys_created_on>2026-02-25 19:24:45</sys_created_on>
+        <sys_id>0178db153b53f6d0ffa00e9693e45ac8</sys_id>
+        <sys_mod_count>19</sys_mod_count>
+        <sys_name>IncentNowClientUtils</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_script_include_0178db153b53f6d0ffa00e9693e45ac8</sys_update_name>
+        <sys_updated_by>upma.rai</sys_updated_by>
+        <sys_updated_on>2026-06-12 12:11:36</sys_updated_on>
+    </sys_script_include>
+</record_update>

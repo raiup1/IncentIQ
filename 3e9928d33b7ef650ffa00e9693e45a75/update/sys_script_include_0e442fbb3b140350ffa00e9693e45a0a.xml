@@ -1,0 +1,401 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>public</access>
+        <active>false</active>
+        <api_name>x_ctans_incentnow.IncentNowIntentRouter</api_name>
+        <caller_access/>
+        <client_callable>false</client_callable>
+        <description/>
+        <mobile_callable>false</mobile_callable>
+        <name>IncentNowIntentRouter</name>
+        <sandbox_callable>false</sandbox_callable>
+        <script><![CDATA[var IncentNowIntentRouter = Class.create();
+IncentNowIntentRouter.prototype = {
+
+    initialize: function() {
+        this.service = new IncentNowCopilotService();
+    },
+
+
+    getResponse: function(query, userId) {
+        gs.error("ASHOK_TEST :: ROUTER ENTERED");
+
+        gs.info("IntentRouter :: RAW QUERY = " + query);
+        gs.info("IntentRouter :: USER ID = " + userId);
+
+        try {
+
+            query = (query || "")
+                .toString()
+                .toLowerCase()
+                .replace(/[^a-z0-9\s]/g, "")
+                .replace(/\s+/g, " ")
+                .trim();
+
+            if (!query) {
+                return "Please enter your question.";
+            }
+
+            var intent = this.service.classifyIntentUsingAI(query);
+
+            gs.info("IntentRouter :: FINAL DETECTED INTENT = " + intent);
+
+            return this.executeIntent(
+                intent,
+                userId,
+                query
+            );
+
+        } catch (ex) {
+
+            gs.error(
+                "IntentRouter :: Exception = " +
+                ex.message
+            );
+
+            return "Unable to process your request at the moment.";
+        }
+    },
+
+    executeIntent: function(intent, userId, query) {
+
+        gs.info("IntentRouter :: EXECUTE INTENT = " + intent);
+
+        if (!intent || intent == "unknown") {
+
+            gs.info("IntentRouter :: UNKNOWN INTENT → LEARNING");
+
+            return this.service.storeUnknownQuestion(
+                query,
+                userId,
+                "unknown"
+            );
+        }
+
+        var config = this.getIntentConfig(intent);
+
+        if (!config) {
+
+            gs.info("IntentRouter :: No config found");
+
+            return this.service.storeUnknownQuestion(
+                query,
+                userId,
+                intent
+            );
+        }
+
+        if (!config.sourceTable && config.template) {
+
+            gs.info(
+                "IntentRouter :: Returning template response for intent = " +
+                config.intentName
+            );
+
+            return config.template;
+        }
+
+        return this.processByLogicType(
+            config,
+            userId,
+            query
+        );
+    },
+
+    getIntentConfig: function(intent) {
+
+        gs.info(
+            "IntentRouter :: Searching config for intent = " +
+            intent
+        );
+
+        var gr = new GlideRecord(
+            "x_ctans_incentnow_ai_intent_configuration"
+        );
+
+        gr.addQuery("intent_name", intent);
+        gr.addQuery("active", true);
+        gr.orderByDesc("priority");
+        gr.setLimit(1);
+        gr.query();
+
+        if (gr.next()) {
+
+            gs.info(
+                "IntentRouter :: Config Found | Intent = " +
+                gr.getValue("intent_name") +
+                " | Logic Type = " +
+                gr.getValue("logic_type")
+            );
+
+            return {
+                intentName: gr.getValue("intent_name"),
+                logicType: gr.getValue("logic_type"),
+                sourceTable: gr.getValue("source_table"),
+                targetField: gr.getValue("field_mapping"),
+                groupBy: gr.getValue("group_by"),
+                formulaField: gr.getValue("formula_field"),
+                template: gr.getValue("response_template"),
+                approvalRequired: gr.getValue("approval_required")
+            };
+        }
+
+        gs.info(
+            "IntentRouter :: No active config found for intent = " +
+            intent
+        );
+
+        return null;
+    },
+
+    processByLogicType: function(config, userId, query) {
+
+        gs.info(
+            "IntentRouter :: PROCESSING LOGIC TYPE = " +
+            config.logicType
+        );
+
+        switch (config.logicType) {
+
+            /*
+            =====================================================
+            MONTHLY / QUOTA LOGIC
+            =====================================================
+            */
+
+            case "monthly_sum":
+
+                gs.info("IntentRouter :: CALLING handleQuota()");
+
+                return this.service.handleQuota(
+                    userId,
+                    query
+                );
+
+                /*
+                =====================================================
+                QUARTERLY LOGIC
+                =====================================================
+                */
+
+            case "earning_rules_lookup":
+
+                gs.info(
+                    "IntentRouter :: CALLING handleEarningRules()"
+                );
+
+                return this.service.handleEarningRules(
+                    userId
+                );
+
+            case "ai_explanation_lookup":
+
+                gs.info(
+                    "IntentRouter :: CALLING handleAIExplanation()"
+                );
+
+                return this.service.handleAIExplanation(
+                    userId,
+                    query
+                );
+
+            case "custom_formula":
+
+                gs.error(
+                    "ROUTER_DEBUG :: ENTERED CUSTOM FORMULA"
+                );
+
+                if (config.intentName == "lookup_rules") {
+
+                    gs.error(
+                        "ROUTER_DEBUG :: CALLING LOOKUP RULES"
+                    );
+
+                    return this.service.handleLookupRules(
+                        userId
+                    );
+                }
+
+                gs.error(
+                    "ROUTER_DEBUG :: INTENT DID NOT MATCH"
+                );
+
+                return "Intent mismatch";
+
+
+
+            case "monthly_payout_lookup":
+
+                gs.info(
+                    "IntentRouter :: CALLING handleMonthlyPayout()"
+                );
+
+                return this.service.handleMonthlyPayout(
+                    userId
+                );
+
+            case "summary_lookup":
+
+                gs.info(
+                    "IntentRouter :: CALLING handleSummary()"
+                );
+
+                return this.service.handleSummary(
+                    userId
+                );
+
+            case "incentive_statement_lookup":
+
+                gs.info(
+                    "IntentRouter :: CALLING handleIncentiveStatement()"
+                );
+
+                return this.service.handleIncentiveStatement(
+                    userId,
+                    query
+                );
+
+            case "quarterly_sum":
+
+                gs.info("IntentRouter :: CALLING handleQTDPayout()");
+
+                return this.service.handleQTDPayout(
+                    userId
+                );
+
+                /*
+                =====================================================
+                YEARLY LOGIC
+                =====================================================
+                */
+
+            case "yearly_sum":
+
+                gs.info("IntentRouter :: CALLING handleYTDPayout()");
+
+                return this.service.handleYTDPayout(
+                    userId
+                );
+
+                /*
+                =====================================================
+                DIRECT LOOKUP
+                PAYOUT / COMMISSION
+                =====================================================
+                */
+
+            case "direct_lookup":
+
+                gs.info("IntentRouter :: CALLING handlePayout()");
+
+                return this.service.handlePayout(
+                    userId,
+                    query
+                );
+
+                /*
+                =====================================================
+                FORMULA TRACE
+                BREAKDOWN / PAYOUT EXPLANATION
+                =====================================================
+                */
+
+            case "formula_trace":
+
+                gs.info("IntentRouter :: CALLING handleBreakdown()");
+
+                return this.service.handleBreakdown(
+                    userId,
+                    query
+                );
+
+                /*
+                =====================================================
+                PLAN LOOKUP
+                ONLY PARENT PLAN DETAILS
+                =====================================================
+                */
+
+            case "plan_components_lookup":
+
+                gs.info(
+                    "IntentRouter :: CALLING handlePlanComponents()"
+                );
+
+                return this.service.handlePlanComponents(
+                    userId
+                );
+
+            case "plan_lookup":
+
+                gs.info("IntentRouter :: CALLING handlePlan()");
+
+                return this.service.handlePlan(
+                    userId
+                );
+
+                /*
+                =====================================================
+                PLAN COMPONENTS LOOKUP
+                EARNING RULES + LOOKUP RULES +
+                PAYOUT SUMMARY + PLAN USERS + APPROVERS
+                =====================================================
+                */
+
+            case "payout_components_lookup":
+
+                gs.error(
+                    "ASHOK_DEBUG :: ENTERED PAYOUT COMPONENTS LOOKUP"
+                );
+
+                gs.info(
+                    "IntentRouter :: CALLING handlePayoutComponents()"
+                );
+
+                return this.service.handlePayoutComponents(
+                    userId
+                );
+
+            case "quota_attainment_lookup":
+
+                gs.info("IntentRouter :: CALLING handleQuotaAttainment()");
+
+                return this.service.handleQuotaAttainment(
+                    userId
+                );
+
+            case "business_unit":
+                return this.service.handleBusinessUnit(userId);
+                /*
+                =====================================================
+                UNSUPPORTED LOGIC TYPE
+                =====================================================
+                */
+
+            default:
+
+                gs.info(
+                    "IntentRouter :: Unsupported logic type = " +
+                    config.logicType
+                );
+
+                return "Logic type not supported.";
+        }
+    },
+
+    type: "IncentNowIntentRouter"
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+        <sys_created_on>2026-04-24 07:45:21</sys_created_on>
+        <sys_id>0e442fbb3b140350ffa00e9693e45a0a</sys_id>
+        <sys_mod_count>35</sys_mod_count>
+        <sys_name>IncentNowIntentRouter</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_script_include_0e442fbb3b140350ffa00e9693e45a0a</sys_update_name>
+        <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
+        <sys_updated_on>2026-06-16 19:11:11</sys_updated_on>
+    </sys_script_include>
+</record_update>

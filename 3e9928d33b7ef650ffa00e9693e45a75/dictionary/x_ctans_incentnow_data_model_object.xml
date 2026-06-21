@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element db_object_id="f0e924173b7ef650ffa00e9693e45a4e" label="Data Model Object" max_length="40" name="x_ctans_incentnow_data_model_object" type="collection">
+        <element attributes="edge_encryption_enabled=true" calculation="(function calculatedFieldValue(current) {&#10;&#10;    var parts = [];&#10;&#10;    if (!gs.nil(current.source_name))&#10;        parts.push(current.source_name);&#10;&#10;    if (!gs.nil(current.object_name))&#10;        parts.push(current.object_name);&#10;&#10;&#10;    return parts.join(' - ');&#10;&#10;&#10;})(current);" display="true" label="Display Name" max_length="40" name="display_name" type="string" virtual="true"/>
+        <element attributes="edge_encryption_enabled=true" choice="3" default="External" label="Data Source System" max_length="40" name="data_source_system" type="string">
+            <choice>
+                <element inactive_on_update="false" label="Internal" sequence="0" value="Internal"/>
+                <element inactive_on_update="false" label="External" sequence="1" value="External"/>
+            </choice>
+        </element>
+        <element choice="1" label="Source Type" mandatory="true" max_length="40" name="source_type" type="choice">
+            <choice>
+                <element inactive_on_update="false" label="File Upload" sequence="0" value="file_upload"/>
+                <element inactive_on_update="false" label="Direct" sequence="3" value="direct"/>
+                <element inactive_on_update="false" label="Api" sequence="1" value="api"/>
+                <element inactive_on_update="false" label="Database" sequence="2" value="database"/>
+            </choice>
+        </element>
+        <element attributes="encode_utf8=false" label="Object Table" max_length="32" name="object_table" reference="sys_db_object" reference_qual="label=Quote^ORlabel=Opportunity^ORlabel=Order^ORlabel=Install Base^ORlabel=Contract^ORlabel=Case^ORlabel=Work Order^EQ" reference_qual_condition="label=Quote^ORlabel=Opportunity^ORlabel=Order^ORlabel=Install Base^ORlabel=Contract^ORlabel=Case^ORlabel=Work Order^EQ" type="reference"/>
+        <element attributes="ignore_filter_on_new=true" default="javascript:global.getNextObjNumberPadded();" label="Number" max_length="40" name="number" read_only="true" type="string"/>
+        <element label="Object Name" mandatory="true" max_length="100" name="object_name" type="string"/>
+        <element label="Source Name" mandatory="true" max_length="100" name="source_name" type="string"/>
+        <element default="true" function_definition="true" label="Active" max_length="255" name="active" type="boolean"/>
+        <element label="Domain" max_length="32" name="sys_domain" type="domain_id"/>
+        <element attributes="encode_utf8=false" label="Connection And Credential Alias" max_length="32" name="connection_alias" reference="sys_alias" type="reference"/>
+        <index name="index">
+            <element name="connection_alias"/>
+        </index>
+        <index name="index2">
+            <element name="object_table"/>
+        </index>
+        <index name="index3">
+            <element name="sys_domain"/>
+        </index>
+    </element>
+</database>

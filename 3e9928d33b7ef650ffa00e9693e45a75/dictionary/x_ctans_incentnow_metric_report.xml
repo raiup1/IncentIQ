@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element db_object_id="d00b3bad3b9c0f10ffa00e9693e45a16" label="Metric Report" max_length="40" name="x_ctans_incentnow_metric_report" type="collection">
+        <element label="Target Quota" max_length="15" name="target_quota" type="decimal"/>
+        <element label="Transaction Count" max_length="40" name="transaction_count" type="integer"/>
+        <element attributes="edge_encryption_enabled=true" choice="1" label="Fiscal Period Type" max_length="40" name="period_type" type="string">
+            <choice>
+                <element inactive_on_update="false" label="Month" sequence="0" value="month"/>
+                <element inactive_on_update="false" label="Quarter" sequence="1" value="quarter"/>
+                <element inactive_on_update="false" label="Year" sequence="2" value="year"/>
+            </choice>
+        </element>
+        <element attributes="encode_utf8=false" label="Execution ID" max_length="32" name="execution_id" reference="x_ctans_incentnow_incentive_statement" type="reference"/>
+        <element label="Total Commission" max_length="15" name="total_commission" type="decimal"/>
+        <element label="Total Credits" max_length="15" name="total_credits" type="decimal"/>
+        <element attributes="encode_utf8=false" label="User" mandatory="true" max_length="32" name="user" reference="x_ctans_incentnow_user_profile" type="reference"/>
+        <element attributes="encode_utf8=false" label="Fiscal Period" mandatory="true" max_length="32" name="fiscal_period" reference="x_ctans_incentnow_fiscal_period" type="reference"/>
+        <element attributes="ignore_filter_on_new=true" default="javascript:global.getNextObjNumberPadded();" label="Number" max_length="40" name="number" read_only="true" type="string"/>
+        <element attributes="encode_utf8=false" label="Fiscal Year" mandatory="true" max_length="32" name="fiscal_year" reference="x_ctans_incentnow_fiscal_calendar" type="reference"/>
+        <element attributes="encode_utf8=false" label="Plan" mandatory="true" max_length="32" name="plan" reference="x_ctans_incentnow_plan" type="reference"/>
+        <element label="Domain" max_length="32" name="sys_domain" type="domain_id"/>
+        <element label="Quota Attainment" max_length="15" name="quota_attainment" type="decimal"/>
+        <element attributes="encode_utf8=false" label="Statement ID" max_length="32" name="statement_id" reference="x_ctans_incentnow_incentive_statement" type="reference"/>
+        <element attributes="encode_utf8=false" label="Bussiness Unit" max_length="32" name="business_unit" reference="business_unit" type="reference"/>
+        <index name="index">
+            <element name="business_unit"/>
+        </index>
+        <index name="index2">
+            <element name="execution_id"/>
+        </index>
+        <index name="index3">
+            <element name="fiscal_period"/>
+        </index>
+        <index name="index4">
+            <element name="fiscal_year"/>
+        </index>
+        <index name="index5">
+            <element name="plan"/>
+        </index>
+        <index name="index6">
+            <element name="statement_id"/>
+        </index>
+        <index name="index7">
+            <element name="sys_domain"/>
+        </index>
+        <index name="index8">
+            <element name="user"/>
+        </index>
+    </element>
+</database>

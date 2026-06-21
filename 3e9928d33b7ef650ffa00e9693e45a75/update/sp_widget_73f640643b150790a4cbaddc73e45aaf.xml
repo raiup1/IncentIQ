@@ -1,0 +1,2052 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <client_script><![CDATA[api.controller = function($location, spUtil) {
+
+  var c = this;
+	
+	c.distributionSaved = true;
+
+  c.quotaModel     = {};
+  c.fiscalPeriods  = c.data.fiscalPeriods;
+
+  c.getSymbol = function () {
+    return c.quotaModel.valueType === "currency" ? "$" : "";
+  };
+	
+	c.isDistributionMismatch = function () {
+			return !c.isDistributionMatched();
+	};
+
+	c.isQuotaValid = function() {
+
+    var q = c.quotaModel;
+
+    if (!q.name || !q.fiscalPeriodId || !q.frequency || !q.valueType || !q.businessUnit)
+        return false;
+
+    if (q.frequency === 'annually' && q.yearlyValue <= 0)
+        return false;
+
+    if (q.frequency === 'quarterly' && q.quarterlyValue <= 0)
+        return false;
+
+    if (q.frequency === 'monthly' && q.monthlyValue <= 0)
+        return false;
+
+    return true;
+};
+	
+  c.quotaModel = {
+    frequency:      "",
+    yearlyValue:    0,
+    quarterlyValue: 0,
+    monthlyValue:   0
+  };
+
+  c.auto = {
+    yearlyTotal: 0,
+    perQuarter:  0,
+    perMonth:    0
+  };
+
+  c.updateAutoDistribution = function () {
+    var f = c.quotaModel.frequency;
+    if (f === "annually") {
+      c.auto.yearlyTotal = Number(c.quotaModel.yearlyValue || 0);
+      c.auto.perQuarter  = (c.auto.yearlyTotal / 4).toFixed(2);
+      c.auto.perMonth    = (c.auto.yearlyTotal / 12).toFixed(2);
+    } else if (f === "quarterly") {
+      c.auto.perQuarter  = Number(c.quotaModel.quarterlyValue || 0);
+      c.auto.yearlyTotal = (c.auto.perQuarter * 4).toFixed(2);
+      c.auto.perMonth    = (c.auto.yearlyTotal / 12).toFixed(2);
+    } else if (f === "monthly") {
+      c.auto.perMonth    = Number(c.quotaModel.monthlyValue || 0);
+      c.auto.yearlyTotal = (c.auto.perMonth * 12).toFixed(2);
+      c.auto.perQuarter  = (c.auto.yearlyTotal / 4).toFixed(2);
+    }
+  };
+
+  c.saveDraft = function () {
+    c.server.update({ quotaModel: c.quotaModel });
+  };
+
+  c.quotaModel = {
+    name:           '',
+		businessUnit:   '',
+    fiscalPeriodId: '',
+    notes:          ''
+  };
+
+  c.currentStep = 1;
+
+  /* ================= NAVIGATION ================= */
+
+  		c.goBack=function () {
+		
+		const prev = sessionStorage.getItem('prevPage');
+				//alert(prev);
+		
+		if (prev) {
+			$location.url(prev);
+		} else {
+			// fallback if nothing stored
+			window.history.back();
+		}
+		}
+
+
+
+  /* ================= STEP NAV ================= */
+
+  c.goToStep = function(step) {
+    if (step === 2) {
+      c.showMessage('error', 'Please fill mandatory fields');
+      return;
+    }
+    c.currentStep = step;
+  };
+
+  c.nextStep = function() {
+    if (c.canProceed()) {
+      c.showMessage('error', 'Please fill Batch Name and Fiscal Period');
+      return;
+    }
+    c.currentStep++;
+  };
+
+  c.previousStep = function() {
+    c.currentStep--;
+  };
+
+  c.canProceed = function() {
+    return;
+  };
+
+  c.currentTab = 'distribution';
+
+  c.auto = {
+    yearlyTotal: 0,
+    perQuarter:  0,
+    perMonth:    0,
+    quarters: [
+      {
+        title: "Q1",
+        range: "January - March",
+        total: 0,
+        months: [
+          { name: "January",  value: 0, percentage: 0 },
+          { name: "February", value: 0, percentage: 0 },
+          { name: "March",    value: 0, percentage: 0 }
+        ]
+      },
+      {
+        title: "Q2",
+        range: "April - June",
+        total: 0,
+        months: [
+          { name: "April", value: 0, percentage: 0 },
+          { name: "May",   value: 0, percentage: 0 },
+          { name: "June",  value: 0, percentage: 0 }
+        ]
+      },
+      {
+        title: "Q3",
+        range: "July - September",
+        total: 0,
+        months: [
+          { name: "July",      value: 0, percentage: 0 },
+          { name: "August",    value: 0, percentage: 0 },
+          { name: "September", value: 0, percentage: 0 }
+        ]
+      },
+      {
+        title: "Q4",
+        range: "October - December",
+        total: 0,
+        months: [
+          { name: "October",  value: 0, percentage: 0 },
+          { name: "November", value: 0, percentage: 0 },
+          { name: "December", value: 0, percentage: 0 }
+        ]
+      }
+    ]
+  };
+
+  c.updateMonthDistribution = function () {
+    c.auto.quarters.forEach(function (q) {
+      var perMonth = (q.total / 3).toFixed(2);
+      q.months.forEach(function (m) {
+        m.value = Number(perMonth);
+      });
+    });
+  };
+
+  c.updateQuarterTotal = function (q) {
+
+    c.distributionSaved = false;
+
+    q.total = q.months.reduce(function (sum, m) {
+        return sum + Number(m.value || 0);
+    }, 0);
+
+    c.auto.yearlyTotal = c.auto.quarters.reduce(function (sum, item) {
+        return sum + Number(item.total || 0);
+    }, 0);
+
+    c.auto.perQuarter = (c.auto.yearlyTotal / 4).toFixed(2);
+    c.auto.perMonth   = (c.auto.yearlyTotal / 12).toFixed(2);
+
+    c.updatePercentagesFromAmounts();
+};
+
+  c.updateAutoDistribution = function () {
+    var f = c.quotaModel.frequency;
+
+    if (f === "annually") {
+      c.auto.yearlyTotal = Number(c.quotaModel.yearlyValue || 0);
+      c.auto.perQuarter  = (c.auto.yearlyTotal / 4).toFixed(2);
+      c.auto.perMonth    = (c.auto.yearlyTotal / 12).toFixed(2);
+      c.auto.quarters.forEach(function (q) {
+        q.total = Number(c.auto.perQuarter);
+      });
+      c.updateMonthDistribution();
+
+    } else if (f === "quarterly") {
+      c.auto.perQuarter  = Number(c.quotaModel.quarterlyValue || 0);
+      c.auto.yearlyTotal = (c.auto.perQuarter * 4).toFixed(2);
+      c.auto.perMonth    = (c.auto.yearlyTotal / 12).toFixed(2);
+      c.auto.quarters.forEach(function (q) {
+        q.total = Number(c.auto.perQuarter);
+      });
+      c.updateMonthDistribution();
+
+    } else if (f === "monthly") {
+      c.auto.perMonth    = Number(c.quotaModel.monthlyValue || 0);
+      c.auto.yearlyTotal = (c.auto.perMonth * 12).toFixed(2);
+      c.auto.perQuarter  = (c.auto.yearlyTotal / 4).toFixed(2);
+      c.auto.quarters.forEach(function (q) {
+        q.total = (c.auto.perMonth * 3).toFixed(2);
+      });
+      c.updateMonthDistribution();
+    }
+		c.updatePercentagesFromAmounts();
+  };
+	
+	c.getFixedYearlyTotal = function () {
+			if (c.quotaModel.frequency === 'annually') {
+					return Number(c.quotaModel.yearlyValue || 0);
+			}
+			if (c.quotaModel.frequency === 'quarterly') {
+					return Number(c.quotaModel.quarterlyValue || 0) * 4;
+			}
+			if (c.quotaModel.frequency === 'monthly') {
+					return Number(c.quotaModel.monthlyValue || 0) * 12;
+			}
+			return 0;
+	};
+	
+	c.getYearlyQuotaValue = function () {
+    if (c.quotaModel.frequency === 'annually')
+        return Number(c.quotaModel.yearlyValue || 0);
+    if (c.quotaModel.frequency === 'quarterly')
+        return Number(c.quotaModel.quarterlyValue || 0) * 4;
+    if (c.quotaModel.frequency === 'monthly')
+        return Number(c.quotaModel.monthlyValue || 0) * 12;
+			return 0;
+	};
+
+	c.updatePercentagesFromAmounts = function () {
+			var yearly = c.getYearlyQuotaValue();
+			if (!yearly)
+					return;
+			c.auto.quarters.forEach(function(q){
+					q.months.forEach(function(m){
+							m.percentage =
+									Number(
+											((Number(m.value || 0) / yearly) * 100).toFixed(2)
+									);
+					});
+			});
+	};
+	
+	c.updateAmountFromPercentage = function(month, q) {
+			c.distributionSaved = false;
+			var yearly = c.getYearlyQuotaValue();
+			month.value =
+					Number(
+							((yearly * Number(month.percentage || 0)) / 100).toFixed(2)
+					);
+			c.updateQuarterTotal(q);
+	};
+
+	c.getQuarterPercentage = function(q){
+			var yearly = c.getYearlyQuotaValue();
+			if (!yearly)
+					return 0;
+			return Math.round((Number(q.total || 0) / yearly) * 100);
+	};
+
+	c.getTotalPercentage = function(){
+			var fixed = c.getFixedYearlyTotal();
+			if (!fixed)
+					return 0;
+			return Math.round(
+					(c.getDistributionTotal() / fixed) * 100
+			);
+	};
+	
+	c.getDistributionTotal = function () {
+			return c.auto.quarters.reduce(function (sum, q) {
+					return sum + Number(q.total || 0);
+			}, 0);
+	};
+	
+	c.isDistributionMatched = function () {
+			return Number(c.getFixedYearlyTotal().toFixed(2)) === Number(c.getDistributionTotal().toFixed(2));
+	};
+	
+	c.saveDistribution = function () {
+    if (Math.abs(c.getTotalPercentage() - 100) > 0.01) {
+        spUtil.addErrorMessage(
+            'Total distribution percentage must equal 100%'
+        );
+        return;
+    }
+    if (!c.isDistributionMatched()) {
+        spUtil.addErrorMessage(
+            'Quota Value Not Matching: Yearly Quota Definition Value and Yearly Quota Distribution Value should match'
+        );
+        return;
+    }
+
+    c.distributionSaved = true;
+    spUtil.addInfoMessage(
+        'Distribution saved successfully'
+    );
+};
+	
+	//-----------------show datas------------------------
+	// ✅ Only read sys_id
+		
+	
+		var sys_id = c.data.sys_id;
+
+		if (sys_id) {
+
+			c.data.isEdit = true;
+
+			c.server.get({
+				action: 'getRecord',
+				sys_id: sys_id
+			}).then(function(res) {
+
+				if (res.data && res.data.record) {
+
+					var r = res.data.record;
+					
+					c.isDraft = (r.status === 'draft');
+
+					// ✅ Populate existing model					
+					c.quotaModel.name           = r.name;
+					c.quotaModel.notes          = r.notes;
+					c.quotaModel.fiscalPeriodId = r.fiscalPeriodId;
+					c.quotaModel.valueType      = r.valueType;
+					c.quotaModel.frequency      = r.frequency;
+					c.quotaModel.businessUnit   = r.businessUnit;
+
+					var yearly = 0;
+
+					if (r.frequency === 'annually') {
+						yearly = Number(r.yearlyValue || 0);
+					} else if (r.frequency === 'quarterly') {
+						yearly = Number(r.quarterlyValue || 0);
+					} else if (r.frequency === 'monthly') {
+						yearly = Number(r.monthlyValue || 0);
+					}
+
+					c.quotaModel.yearlyValue    = yearly;
+					c.quotaModel.quarterlyValue = yearly / 4;
+					c.quotaModel.monthlyValue   = yearly / 12;
+
+					// ✅ store sys_id for update
+					c.quotaModel.sys_id = res.data.sys_id;
+
+					// ✅ IMPORTANT
+					//c.updateAutoDistribution();
+					if (res.data.distribution && res.data.distribution.length) {
+
+						res.data.distribution.forEach(function(q, i) {
+
+							c.auto.quarters[i].total = Number(q.total || 0);
+
+							if (q.months && q.months.length) {
+								q.months.forEach(function(m, j) {
+									c.auto.quarters[i].months[j].value = Number(m.value || 0);
+									c.auto.quarters[i].months[j].percentage = 0;
+									c.updateQuarterTotal(c.auto.quarters[0]);
+									c.updatePercentagesFromAmounts();
+								});
+							}
+
+						});
+
+						// Recalculate totals
+						c.updateQuarterTotal(c.auto.quarters[0]); // triggers recalculation
+
+					} else {
+						// fallback only if no saved distribution
+						c.updateAutoDistribution();
+					}
+				}
+			});
+		}
+
+  /* ================= EXISTING CHECK ================= */
+
+  c.loadExistingQuotas = function() {
+    if (c.quotaBatch.fiscalPeriodId) {
+      c.server.get({
+        action:    'check_existing',
+        period_id: c.quotaBatch.fiscalPeriodId
+      }).then(function(response) {
+        c.existingQuotasCount = response.data.count || 0;
+      });
+    }
+  };
+
+  /* ================= ADD USER ================= */
+
+  c.showAddUserModal = function() {
+    c.newAssignment    = { userId: '', notes: '' };
+    c.selectedUserInfo = null;
+    c.showAddModal     = true;
+  };
+
+  c.closeAddModal = function() {
+    c.showAddModal = false;
+  };
+
+  c.loadUserDetails = function() {
+    if (c.newAssignment.userId) {
+      c.server.get({
+        action:  'get_user_info',
+        user_id: c.newAssignment.userId
+      }).then(function(response) {
+        c.selectedUserInfo = response.data.userInfo;
+      });
+    }
+  };
+
+  c.addAssignment = function() {
+    if (!c.newAssignment.userId) {
+      alert('Please select a user');
+      return;
+    }
+    var exists = c.quotaAssignments.find(function(a) {
+      return a.userId === c.newAssignment.userId;
+    });
+    if (exists) {
+      alert('User already assigned');
+      return;
+    }
+    var user = c.data.availableUsers.find(function(u) {
+      return u.id === c.newAssignment.userId;
+    });
+    c.quotaAssignments.push({
+      userId:    user.id,
+      userName:  user.name,
+      userEmail: user.email,
+      notes:     c.newAssignment.notes || ''
+    });
+    c.closeAddModal();
+  };
+
+  /* ================= BULK ================= */
+
+  c.showBulkAssignModal = function() {
+    c.bulkAssign    = {};
+    c.bulkUsers     = [];
+    c.showBulkModal = true;
+  };
+
+  c.closeBulkModal = function() {
+    c.showBulkModal = false;
+  };
+
+  c.loadBulkUsers = function() {
+    if (c.bulkAssign.businessUnitId) {
+      c.server.get({
+        action: 'get_bu_users',
+        bu_id:  c.bulkAssign.businessUnitId
+      }).then(function(response) {
+        c.bulkUsers = response.data.users || [];
+      });
+    }
+  };
+
+  c.processBulkAssign = function() {
+    c.bulkUsers.forEach(function(user) {
+      var exists = c.quotaAssignments.find(function(a) {
+        return a.userId === user.id;
+      });
+      if (!exists) {
+        c.quotaAssignments.push({
+          userId:    user.id,
+          userName:  user.name,
+          userEmail: user.email,
+          notes:     ''
+        });
+      }
+    });
+    c.closeBulkModal();
+  };
+
+  /* ================= CSV ================= */
+
+  c.showImportModal = function() {
+    c.csvPreview = null;
+    c.showImport = true;
+  };
+
+  c.closeImportModal = function() {
+    c.showImport = false;
+  };
+
+  c.handleCSVUpload = function(file) {
+    if (file) {
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        c.parseCSV(e.target.result);
+        c.$apply();
+      };
+      reader.readAsText(file);
+    }
+  };
+
+  c.parseCSV = function(csv) {
+    var lines  = csv.split('\n');
+    var result = [];
+    for (var i = 1; i < lines.length; i++) {
+      if (lines[i].trim()) {
+        var values = lines[i].split(',');
+        result.push({ email: values[0], notes: values[3] });
+      }
+    }
+    c.csvPreview = result;
+  };
+
+  c.processImport = function() {
+    alert('Import will process ' + c.csvPreview.length + ' rows');
+    c.closeImportModal();
+  };
+
+  /* ================= TABLE ================= */
+
+  c.removeAssignment = function(index) {
+    if (confirm('Remove assignment?')) {
+      c.quotaAssignments.splice(index, 1);
+    }
+  };
+
+  c.getFilteredAssignments = function() {
+    var filtered = c.quotaAssignments;
+    if (c.searchText) {
+      var s = c.searchText.toLowerCase();
+      filtered = filtered.filter(function(a) {
+        return a.userName.toLowerCase().includes(s) ||
+               a.userEmail.toLowerCase().includes(s);
+      });
+    }
+    return filtered;
+  };
+
+  /* ================= SAVE ================= */
+	
+		if (!c.isDistributionMatched()) {
+
+				spUtil.addErrorMessage(
+						'Quota Value Not Matching: Yearly Quota Definition Value and Yearly Quota Distribution Value should match'
+				);
+
+				return;
+		}
+
+		c.saveQuota = function () {
+		c.quotaModel.quotaValue = Number(c.auto.yearlyTotal || 0);
+
+		c.server.get({
+			action: 'saveQuota',
+			sys_id: c.quotaModel.sys_id,
+			quotaData: c.quotaModel,
+			distribution: c.auto.quarters
+		}).then(function (response) {
+			if (response.data.status === "success") {
+
+				setTimeout(function () {
+					$location.search({ id: 'quota_setup' });
+				}, 500);
+
+				spUtil.addInfoMessage('Quota saved successfully!');
+			} else {
+				spUtil.addErrorMessage(response.data.message || 'Error saving quota');
+			}
+
+		}).catch(function (error) {
+
+			console.log("]]>🔥<![CDATA[ SERVER ERROR:", error);
+
+		});
+
+	};
+
+
+};]]></client_script>
+        <controller_as>c</controller_as>
+        <css>input::placeholder {
+  color: #c2c7cc !important; //bit visible
+  opacity: 1 !important;
+}
+
+textarea::placeholder {
+  color: #c2c7cc !important;
+  opacity: 1 !important;
+}
+
+.fixed-yearly-card{
+    background:#f8fafc;
+    border:1px solid #dbe4ee;
+    border-radius:12px;
+    padding:18px 22px;
+    margin-bottom:18px;
+}
+
+.fixed-title{
+    font-size:15px;
+    font-weight:600;
+    color:#111827;
+    margin-bottom:4px;
+}
+
+.fixed-subtitle{
+    font-size:13px;
+    color:#6b7280;
+    margin-bottom:12px;
+}
+
+.fixed-value{
+    font-size:28px;
+    font-weight:700;
+    color:#2563eb;
+}
+
+
+.quota-builder {
+  background: #f1f5f9;
+  font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
+
+  .panel-primary {
+    border: none;
+    box-shadow: none;
+    background: #f9fafb;
+  }
+
+  .btn-save {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .8rem 1.6rem;
+    background: #0f172a;
+    border: none;
+    border-radius: .8rem;
+    font-size: 1.4rem;
+    font-weight: 500;
+    color: #ffffff;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background .15s;
+  }
+  .btn[disabled] {
+  	opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* ================= BACK BUTTON TOPBAR (ADDED) ================= */
+
+  .qb-page-topbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .qb-back-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #ffffff;
+    border: 1.5px solid #e2e8f0;
+    cursor: pointer;
+    color: #374151;
+    flex-shrink: 0;
+    transition: background 0.15s, border-color 0.15s;
+  }
+
+  .qb-back-btn:hover {
+    background: #f1f5f9;
+    border-color: #94a3b8;
+  }
+
+  .qb-page-title {
+    font-size: 2.6rem;
+    font-weight: 700;
+    color: #111827;
+  }
+
+  /* ================= PROGRESS ================= */
+
+  .quota-progress {
+    .progress-steps {
+      background: #e9eaee;
+      padding: 4px;
+      border-radius: 999px;
+      display: inline-flex;
+      gap: 4px;
+      height: 4.8rem;
+
+      .progress-step {
+        text-align: center;
+        border-radius: 999px;
+        cursor: pointer;
+
+        .step-number {
+          width: 25rem;
+          height: 40px;
+          border-radius: 2rem;
+          background: #e9eaee;
+          color: #6b7280;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: bold;
+          margin: 0 auto 8px;
+          white-space: nowrap;
+          transition: all 0.3s;
+        }
+
+        &amp;.active .step-number {
+          background: #ffffff;
+          color: #000;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.10);
+        }
+
+        &amp;.completed .step-number {
+          background: transparent;
+          color: white;
+        }
+      }
+
+      .progress-connector {
+        width: 100px;
+        height: 2px;
+        background: #e5e7eb;
+        margin: 0 20px 20px;
+
+        &amp;.active {
+          background: #3b82f6;
+        }
+      }
+    }
+  }
+
+  /* ================= NAV TABS ================= */
+      .stepper {
+        display: flex;
+        align-items: center;
+        background: white;
+        padding: 10px;
+        border-radius: 14px;
+        list-style: none;
+        gap: 5rem;
+        width: fit-content;
+      }
+
+      /* Each step */
+      .stepper li {
+        position: relative;
+        display: flex;
+        align-items: center;
+      }
+
+      /* Connector line */
+      .stepper li:not(:last-child)::after {
+        content: "";
+        position: absolute;
+        right: -3rem;
+        top: 50%;
+        width: 24px;
+        height: 2px;
+        background: #d1d5db;
+        transform: translateY(-50%);
+      }
+
+      /* Link */
+      .stepper li a {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+        padding: 8px 14px;
+        border-radius: 10px;
+        color: #6b7280;
+        font-weight: 500;
+        transition: all 0.25s ease;
+      }
+
+      /* Circle */
+      .step-circle {
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        background: #e5e7eb;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        font-weight: 600;
+      }
+
+      /* Active step */
+      .stepper li.active a {
+        background: #0f172a;
+        color: #fff;
+      }
+
+      /* Active circle */
+      .stepper li.active .step-circle {
+        background: #1f2937;
+        color: #fff;
+      }
+
+      /* Hover */
+      .stepper li a:hover {
+        background: #f1f5f9;
+    		color: #111827;
+      }
+
+
+
+
+  .text-right {
+        padding-top: 1rem;
+    }
+
+
+  .nav.nav-tabs.nav-tabs-lg {
+    background: #e9eaee;
+    padding: 4px;
+    border-radius: 999px;
+    display: inline-flex;
+    border: none;
+    gap: 4px;
+  }
+
+  .nav-tabs &gt; li &gt; a {
+    border: none !important;
+  }
+
+  .nav.nav-tabs.nav-tabs-lg &gt; li &gt; a {
+    padding: 8px 30px;
+    border-radius: 999px;
+    font-weight: 600;
+    color: #000;
+    background: transparent;
+  }
+
+  .nav.nav-tabs.nav-tabs-lg &gt; li.active &gt; a,
+  .nav.nav-tabs.nav-tabs-lg &gt; li.active &gt; a:focus,
+  .nav.nav-tabs.nav-tabs-lg &gt; li.active &gt; a:hover {
+    background: #ffffff !important;
+    color: #000 !important;
+    border: none !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.10);
+  }
+
+  .nav.nav-tabs.nav-tabs-lg &gt; li &gt; a:hover {
+    background: rgba(255, 255, 255, 0.4);
+    border-radius: 999px;
+  }
+
+  .nav-tabs &gt; li {
+    margin-bottom: 0 !important;
+  }
+
+  .nav.nav-tabs.nav-tabs-lg .badge {
+    background: #777;
+    margin-left: 5px;
+  }
+
+  /* ================= PANEL / FORM ================= */
+
+  .panel-heading {
+    background-color: transparent;
+    border: none;
+    margin-top: 1rem;
+    margin-left: 0.5rem;
+  }
+
+  .panel-title {
+    font-weight: 600;
+  }
+
+  .panel {
+    border-radius: 1rem;
+  }
+
+  .m-b-xs {
+    font-size: 2.8rem;
+    font-weight: 600;
+  }
+
+  .control-label {
+    width: 13rem;
+    text-align: left;
+    padding-left: 2rem;
+  }
+
+  .quota {
+    height: 3rem;
+  }
+
+  .form-control-a {
+    background-color: #fff;
+    border: .1rem solid #939393;
+    border-radius: .4rem;
+    width: 107.5rem;
+  }
+
+  .control-label-section {
+    width: 13rem;
+    text-align: left;
+  }
+
+  .form-control-section {
+    background-color: #fff;
+    border: .1rem solid #939393;
+    border-radius: .4rem;
+    width: 50.5rem;
+    height: 3.5rem;
+  }
+
+  .form-control-dis {
+    background: #e9eaee;
+    border: none;
+    width: 34rem;
+    border-radius: 1rem;
+  }
+
+  /* ================= AUTO DISTRIBUTION BOX ================= */
+
+  .auto-distribution-box {
+    background-color: #f0fff4;
+    border: 1px solid #b2f2bb;
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 15px;
+  }
+
+  .auto-distribution-box .header {
+    font-weight: 600;
+    font-size: 16px;
+    margin-bottom: 10px;
+    color: #2f855a;
+  }
+
+  .auto-distribution-box .label {
+    font-size: 14px;
+    color: #4a5568;
+  }
+
+  .auto-distribution-box .value {
+    font-size: 18px;
+    font-weight: 700;
+    color: #2d3748;
+  }
+
+  .old-distribution {
+    display: none;
+  }
+
+  /* ================= STEP 2 DISTRIBUTION ================= */
+
+  .tabs-container {
+    display: flex;
+    margin-bottom: 20px;
+  }
+
+  .tab {
+    padding: 10px 20px;
+    border-radius: 20px;
+    background: #eee;
+    margin-right: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    color: #666;
+  }
+
+  .tab.active {
+    background: #4f46e5;
+    color: #fff;
+  }
+
+  .success-banner {
+    background: #e8f8eb;
+    color: #2d8f57;
+    padding: 14px 18px;
+    border-radius: 8px;
+    margin-bottom: 25px;
+    font-size: 15px;
+  }
+
+  .yearly-total-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: white;
+    padding: 15px 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #eee;
+  }
+  
+  .yearly-total-card-label {
+  	font-size: 2rem !important;
+  }
+
+  .value-box {
+      background: transparent !important;
+      padding: 0 !important;
+      min-width: auto !important;
+      border-radius: 0 !important;
+      font-size: 24px;
+      font-weight: 700;
+  }
+
+  .quota-value-success {
+      color: #5cb85c !important;
+  }
+
+  .quota-value-danger {
+      color: #dc2626 !important;
+  }
+
+  .quarter-card {
+    background: #faf5ff;
+    border-radius: 12px;
+    border: 1px solid #e5d7ff;
+    margin-bottom: 2rem;
+  }
+
+  .quarter-header {
+    display: flex;
+    justify-content: space-between;
+    padding: 2rem 2rem 0rem 2rem;
+  }
+
+  .quarter-title {
+    font-size: 20px;
+    color: #7c3aed;
+    font-weight: 700;
+  }
+
+  .quarter-sub {
+    font-size: 13px;
+    color: #9810FA;
+  }
+
+  .quarter-total-head {
+    color: #9810FA;
+    font-size: 14px;
+    background: transparent;
+    padding: 6px 12px;
+  }
+
+  .quarter-total {
+    color: black;
+    font-size: 14px;
+    background: white;
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+  }
+
+  .month-css {
+    background-color: white;
+    padding: 0 2rem 0 2rem;
+  }
+
+  .month-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+  }
+
+  .month-table th {
+    text-align: left;
+    padding-bottom: 10px;
+    color: #666;
+  }
+
+  .month-table td {
+    padding: 10px 0;
+  }
+
+  .quota-input {
+    width: 120px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+  }
+
+  .quota-month {
+    width: 99rem;
+  }
+
+  .quarter-summary {
+    border-top: 2px solid #ddd;
+    margin-top: 10px;
+  }
+
+  .summary-value {
+    font-weight: 700;
+    color: #333;
+  }
+
+  .distribution-box {
+    border: 2px solid #4A8BFF;
+    border-radius: 12px;
+    padding: 25px;
+    background: #fff;
+  }
+
+  .header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+  }
+
+  .left-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #222;
+  }
+
+  .right-total {
+    font-size: 20px;
+    font-weight: 700;
+    color: #5cb85c;
+  }
+
+  .sub-title {
+    font-size: 16px;
+    margin-top: 10px;
+    font-weight: 500;
+  }
+
+  .divider {
+    border: none;
+    border-top: 1px solid #ddd;
+    margin: 15px 0;
+  }
+
+  .quarter-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+  }
+
+  .quarter-cards {
+    background: #f9f2ff;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+  }
+
+  .quarter-name {
+    font-size: 16px;
+    font-weight: 700;
+    color: #7a2ce0;
+  }
+
+  .quarter-value {
+    margin-top: 8px;
+    font-size: 15px;
+    color: #333;
+    font-weight: 600;
+  }
+
+  .modal {
+    overflow-y: auto;
+  }
+
+}</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description/>
+        <docs/>
+        <field_list/>
+        <has_preview>false</has_preview>
+        <id>quota_builder_test</id>
+        <internal>false</internal>
+        <link><![CDATA[function link(scope, element, attrs, controller) {
+  
+}]]></link>
+        <name>Quota Builder Test</name>
+        <option_schema>{&#13;
+  "quota_batch_id": {&#13;
+    "label": "Quota Batch ID (for editing)",&#13;
+    "type": "string"&#13;
+  }&#13;
+}</option_schema>
+        <public>false</public>
+        <roles>x_ctans_incentnow.user</roles>
+        <script><![CDATA[(function() {
+
+  /* populate the 'data' object */
+  data.isEdit    = !!options.quota_batch_id;
+  data.quotaModel = {};
+	data.distribution = [];
+	data.sys_id = $sp.getParameter('sys_id');
+	
+	//data.incentnowAdForm= $sp.getWidget('incentnow-form-advanced',{table:"x_ctans_incentnow_quota",view:""});
+  /* ================= FISCAL CALENDAR ================= */
+
+  data.fiscalPeriods = [];
+
+  var periodGR = new GlideRecordSecure('x_ctans_incentnow_fiscal_calendar');
+	periodGR.addQuery('active', true);
+  periodGR.orderByDesc('fiscal_year_name');
+  //periodGR.setLimit(12);
+  periodGR.query();
+
+  while (periodGR.next()) {
+    data.fiscalPeriods.push({
+      id:        periodGR.getUniqueValue(),
+      name:      periodGR.getValue('fiscal_year_name'),
+      startDate: '',
+      endDate:   ''
+    });
+  }
+
+/* ================= BUSINESS UNITS ================= */
+
+	data.businessUnits = [];
+
+	var buGR = new GlideRecordSecure('business_unit');
+
+	if (
+			gs.getUser().hasRole('admin') ||
+			gs.hasRole('x_ctans_incentnow.admin') ||
+			gs.hasRole('x_ctans_incentnow.business_group_executive')
+	) {
+
+			// ADMIN / APP ADMIN / BGE SEES ALL
+			buGR.orderBy('name');
+			buGR.query();
+
+	} else {
+
+			var accessUtils = new IncentNowAccessUtils();
+			var qualifier = accessUtils.getUserBusinessUnitQuery(gs.getUserName());
+
+			if (qualifier) {
+					buGR.addEncodedQuery(qualifier);
+			} else {
+					buGR.addQuery('sys_id', 'ISEMPTY'); // safety fallback
+			}
+
+			buGR.orderBy('name');
+			buGR.query();
+	}
+
+	while (buGR.next()) {
+			data.businessUnits.push({
+					id: buGR.getUniqueValue(),
+					name: buGR.getValue('name')
+			});
+}
+
+  /* ================= USERS ================= */
+
+  data.availableUsers = [];
+
+  var userGR = new GlideRecordSecure('x_ctans_incentnow_sales_user');
+  userGR.orderBy('name');
+  userGR.query();
+
+  while (userGR.next()) {
+    data.availableUsers.push({
+      id:    userGR.getUniqueValue(),
+      name:  userGR.getValue('name'),
+      email: userGR.getValue('email')
+    });
+  }
+
+  /* ================= CHECK EXISTING ================= */
+
+  if (input && input.action === 'check_existing') {
+
+    data.count = 0;
+
+    var countGR = new GlideAggregate('x_ctans_incentnow_user_quota_assignment');
+    countGR.addQuery('quota.financial_year', input.period_id);
+    countGR.addAggregate('COUNT');
+    countGR.query();
+
+    if (countGR.next()) {
+        data.count = parseInt(countGR.getAggregate('COUNT'), 10);
+    }
+}
+
+  /* ================= GET USER INFO ================= */
+
+  if (input && input.action === 'get_user_info') {
+    var uGR = new GlideRecordSecure('x_ctans_incentnow_sales_user');
+    if (uGR.get(input.user_id)) {
+      var businessUnit   = '';
+      var businessUnitId = '';
+      if (uGR.getValue('business_unit')) {
+        var bu = new GlideRecordSecure('business_unit');
+        if (bu.get(uGR.getValue('business_unit'))) {
+          businessUnit   = bu.getValue('name');
+          businessUnitId = bu.getUniqueValue();
+        }
+      }
+      data.userInfo = {
+        name:           uGR.getValue('name'),
+        email:          uGR.getValue('email'),
+        businessUnit:   businessUnit,
+        businessUnitId: businessUnitId
+      };
+    }
+  }
+	
+	/* ================= GET Record ================= */
+	
+	if (input && input.action === 'getRecord') {
+
+  data.record = {};
+
+  var gr = new GlideRecordSecure('x_ctans_incentnow_quota'); // ✅ fixed table
+	gs.info("Frequency: " + gr.getValue('quota_frequency'));
+
+  if (gr.get(input.sys_id)) {
+
+			data.sys_id = gr.getUniqueValue();
+
+			data.record = {
+				status: gr.getValue('status'),
+				name: gr.getValue('name'),
+				notes: gr.getValue('description'),
+				fiscalPeriodId: gr.getValue('fiscal_year'),
+				valueType: gr.getValue('quota_metric'),
+				frequency: gr.getValue('quota_frequency'),
+				businessUnit: gr.getValue('business_unit'),
+				
+
+				yearlyValue:    gr.getValue('quota_frequency') === 'annually'  ? gr.getValue('target_value') : '',
+				quarterlyValue: gr.getValue('quota_frequency') === 'quarterly' ? gr.getValue('target_value') : '',
+				monthlyValue:   gr.getValue('quota_frequency') === 'monthly'   ? gr.getValue('target_value') : ''
+			};
+		}
+		
+	var qpGR = new GlideRecordSecure('x_ctans_incentnow_quota_period');
+	qpGR.addQuery('quota', input.sys_id);
+	qpGR.orderBy('period_type');
+	qpGR.orderBy('period_number');
+	qpGR.query();
+
+	var quarters = {};
+	var months = {};
+
+	while (qpGR.next()) {
+
+		var type = qpGR.getValue('period_type');
+		var num  = parseInt(qpGR.getValue('period_number'));
+		var val  = Number(qpGR.getValue('target_value') || 0);
+
+		// QUARTERS
+		if (type === 'quarter') {
+			quarters[num] = {
+				total: val,
+				months: []
+			};
+		}
+
+		// MONTHS
+		if (type === 'month') {
+			var qIndex = Math.ceil(num / 3);
+			if (!months[qIndex]) months[qIndex] = [];
+
+			months[qIndex].push({
+				value: val
+			});
+		}
+	}
+
+	// Merge months into quarters
+	var monthNames = [
+			["January", "February", "March"],
+			["April", "May", "June"],
+			["July", "August", "September"],
+			["October", "November", "December"]
+		];
+
+		for (var q = 1; q <= 4; q++) {
+
+			var quarterMonths = [];
+
+			for (var m = 0; m < 3; m++) {
+
+				var monthData = (months[q] && months[q][m]) ? months[q][m] : { value: 0 };
+
+				quarterMonths.push({
+					name: monthNames[q-1][m],
+					value: Number(monthData.value || 0)
+				});
+			}
+
+			data.distribution.push({
+				total: quarters[q] ? Number(quarters[q].total || 0) : 0,
+				months: quarterMonths
+			});
+		}
+	}
+
+  /* ================= GET BU USERS ================= */
+
+  if (input && input.action === 'get_bu_users') {
+    data.users = [];
+    var buUserGR = new GlideRecordSecure('x_ctans_incentnow_sales_user');
+    buUserGR.addQuery('business_unit', input.bu_id);
+    buUserGR.query();
+    while (buUserGR.next()) {
+      var buName = '';
+      if (buUserGR.getValue('business_unit')) {
+        var b = new GlideRecordSecure('business_unit');
+        if (b.get(buUserGR.getValue('business_unit'))) {
+          buName = b.getValue('name');
+        }
+      }
+      data.users.push({
+        id:           buUserGR.getUniqueValue(),
+        name:         buUserGR.getValue('name'),
+        email:        buUserGR.getValue('email'),
+        businessUnit: buName
+      });
+    }
+  }
+
+  /* ================= SAVE QUOTAS ================= */
+	
+		if (input && input.action === 'saveQuota') {
+
+    data.status = "error";
+    data.message = "";
+
+    var q = input.quotaData;
+    var sysId = input.sys_id; // ✅ FIXED (single source)
+
+    // ✅ UNIQUE NAME CHECK
+    var check = new GlideRecordSecure('x_ctans_incentnow_quota');
+    check.addQuery('name', q.name);
+
+    if (sysId) {
+        check.addQuery('sys_id', '!=', sysId);
+    }
+
+    check.query();
+
+    if (check.next()) {
+        data.status = "error";
+        data.message = "Quota name already exists";
+        return;
+    }
+
+    // ✅ SINGLE GlideRecord (removed duplicate)
+    var quotaGR = new GlideRecordSecure('x_ctans_incentnow_quota');
+
+    if (quotaGR.get(sysId)) {
+        
+    } else {
+        quotaGR.initialize();
+    }
+
+    // ✅ VALIDATION
+    if (!q.name || !q.fiscalPeriodId || !q.frequency || !q.businessUnit || !q.valueType) {
+        data.message = "Missing required fields";
+        return;
+    }
+
+    var targetValue = Number(q.quotaValue || 0);
+
+    quotaGR.name            = q.name;
+    quotaGR.description     = q.notes;
+    quotaGR.fiscal_year     = q.fiscalPeriodId;
+    quotaGR.quota_frequency = q.frequency;
+    quotaGR.quota_metric    = q.valueType;
+    quotaGR.target_value    = targetValue;
+    quotaGR.business_unit   = q.businessUnit;
+
+    var newSysId;
+
+    if (sysId) {
+        quotaGR.update();   //  update
+        newSysId = sysId;
+    } else {
+        newSysId = quotaGR.insert(); //  insert
+    }
+
+    //  IMPORTANT FIX: refresh distribution
+    updateQuotaPeriods(newSysId, q.fiscalPeriodId, input.distribution || []);
+
+    data.status = "success";
+    data.sys_id = newSysId;
+}
+
+	
+	function updateQuotaPeriods(quotaSysId, fiscalYear, distribution) {
+
+    // DELETE OLD (this is what your code was missing)
+    var del = new GlideRecordSecure('x_ctans_incentnow_quota_period');
+    del.addQuery('quota', quotaSysId);
+    del.query();
+    while (del.next()) {
+        del.deleteRecord();
+    }
+
+    var fiscalToQuotaMap = {};
+
+    function create(periodType) {
+
+        var fp = new GlideRecordSecure('x_ctans_incentnow_fiscal_period');
+        fp.addQuery('fiscal_year', fiscalYear);
+        fp.addQuery('period_type', periodType);
+        fp.orderBy('period_number');
+        fp.query();
+
+        while (fp.next()) {
+
+            var qp = new GlideRecordSecure('x_ctans_incentnow_quota_period');
+            qp.initialize();
+
+            qp.quota = quotaSysId;
+            qp.fiscal_period = fp.sys_id;
+            qp.period_type = fp.period_type;
+            qp.period_number = fp.period_number;
+            qp.calculation_mode = 'driven_by_annual_quota';
+
+            if (periodType === 'year') {
+								 qp.target_value = Number(input.quotaData.quotaValue || 0);
+							}
+
+            if (periodType === 'quarter') {
+                var qIndex = parseInt(fp.period_number) - 1;
+               qp.target_value = Number(
+									(distribution[qIndex] && distribution[qIndex].total) || 0
+							);
+            }
+
+            if (periodType === 'month') {
+                var mIndex = parseInt(fp.period_number) - 1;
+                var qIndex = Math.floor(mIndex / 3);
+                var mInQ = mIndex % 3;
+
+                qp.target_value = Number(
+										(distribution[qIndex] &&
+										 distribution[qIndex].months &&
+										 distribution[qIndex].months[mInQ] &&
+										 distribution[qIndex].months[mInQ].value) || 0
+								);
+            }
+
+            var qpSysId = qp.insert();
+            fiscalToQuotaMap[fp.sys_id.toString()] = qpSysId;
+        }
+    }
+
+    create('year');
+    create('quarter');
+    create('month');
+}
+
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>shroin.mandal</sys_created_by>
+        <sys_created_on>2026-06-02 06:18:19</sys_created_on>
+        <sys_id>73f640643b150790a4cbaddc73e45aaf</sys_id>
+        <sys_mod_count>10</sys_mod_count>
+        <sys_name>Quota Builder Test</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sp_widget_73f640643b150790a4cbaddc73e45aaf</sys_update_name>
+        <sys_updated_by>shroin.mandal</sys_updated_by>
+        <sys_updated_on>2026-06-02 13:21:27</sys_updated_on>
+        <template><![CDATA[<div class="quota-builder">
+
+  <!-- Header -->
+  <div class="row m-b-lg">
+    <div class="col-sm-6">
+
+      <!-- CHANGE 1: Back button replaced with circular arrow style.
+           href fixed to navigate correctly back to admin quotas tab. -->
+      <div class="qb-page-topbar">
+        <button class="qb-back-btn" ng-click="c.goBack()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <circle cx="12" cy="12" r="10"/>
+            <polyline points="12 8 8 12 12 16"/>
+            <line x1="16" y1="12" x2="8" y2="12"/>
+          </svg>
+        </button>
+        <!-- CHANGE 2: Title changed from "Create Quota Assignments" to "Create Quota"
+             CHANGE 3: Sub description removed entirely -->
+        <span class="qb-page-title">
+          {{ c.data.isEdit ? (c.isDraft ? 'Edit' : 'View') : 'Create' }} Quota Test
+        </span>
+      </div>
+
+    </div>
+    <div class="col-sm-6 text-right">
+     
+      <button class="btn btn-primary btn-save-dist" ng-click="c.saveDistribution()" ng-disabled="c.data.isEdit && !c.isDraft">
+        Save Distribution
+    </button>
+      
+      <button class="btn btn-default btn-save" ng-click="c.saveQuota()" ng-disabled="!c.isQuotaValid() || !c.distributionSaved || (c.data.isEdit && !c.isDraft)">
+				 Save Quota
+      </button>
+    </div>
+  </div>
+	
+
+  <!-- Tab Navigation — Distribution tab kept as client requested -->
+  
+  <ul class="stepper">
+  <li ng-class="{'active': c.currentStep === 1}">
+    <a href="javascript:void(0)" ng-click="c.goToStep(1)">
+      <span class="step-circle">1</span>
+      <span class="step-label"><i class="fa fa-info-circle"></i> Basic Information</span>
+    </a>
+  </li>
+
+  <li ng-class="{'active': c.currentStep === 2}">
+    <a href="javascript:void(0)" ng-click="c.nextStep()">
+      <span class="step-circle">2</span>
+      <span class="step-label"><i class="fa fa-users"></i> Distribution</span>
+    </a>
+  </li>
+</ul>
+
+  <!--ul class="nav nav-tabs nav-tabs-lg m-b-lg" role="tablist">
+    <li role="presentation" ng-class="{'active': c.currentStep === 1}">
+      <a href="javascript:void(0)" ng-click="c.goToStep(1)">
+        <i class="fa fa-info-circle"></i> Basic Information
+      </a>
+    </li>
+    <li role="presentation" ng-class="{'active': c.currentStep === 2}">
+      <a href="javascript:void(0)" ng-click="c.nextStep()">
+        <i class="fa fa-users"></i> Distribution
+        <span class="badge" ng-if="c.quotaAssignments.length > 0">
+          {{c.quotaAssignments.length}}
+        </span>
+      </a>
+    </li>
+  </ul>
+
+  <!-- Tab Content -->
+  <div class="tab-content">
+
+    <!-- Step 1: Basic Information -->
+    <div ng-show="c.currentStep === 1">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">Quota Information</h3>
+        </div>
+        <div class="panel-body">
+          <form class="form-horizontal">
+            
+            
+
+            <!-- Quota Name -->
+            <div class="form-group">
+                <div class="col-sm-6">
+                  <label class="control-label-section"> Quota Name <span class="text-danger">*</span>
+                  </label>
+                  <input type="text" class="form-control-section" ng-model="c.quotaModel.name" ng-disabled="c.data.isEdit && !c.isDraft" placeholder="e.g., Q1 2026 Sales Quota">
+                </div>
+                <!-- Business Unit -->
+                <div class="col-sm-6">
+                  <label class="control-label-section"> Business Unit <span class="text-danger">*</span>
+                  </label>
+                  <select class="form-control-section" ng-model="c.quotaModel.businessUnit" ng-disabled="c.data.isEdit && !c.isDraft">
+                    <option value="">Select Business Unit</option>
+                    <option ng-repeat="bu in c.data.businessUnits track by bu.id"
+                            value="{{::bu.id}}">
+                      {{::bu.name}}
+                    </option>
+                  </select>
+                </div>
+              </div>
+
+            <!-- Fiscal Calendar + Value Type -->
+            <div class="form-group">
+              <div class="col-sm-6">
+                <label class="control-label-section">
+                  Fiscal Calender <span class="text-danger">*</span>
+                </label>
+                <select class="form-control-section"
+                  ng-model="c.quotaModel.fiscalPeriodId"
+                  ng-change="c.loadExistingQuotas()"
+                  ng-disabled="c.data.isEdit && !c.isDraft">
+                  <option value="">Select FY</option>
+                  <option ng-repeat="fy in c.fiscalPeriods" value="{{fy.id}}">
+                    {{fy.name}}
+                  </option>
+                </select>
+              </div>
+              <div class="col-sm-6">
+                <label class="control-label-section">Value Type <span class="text-danger">*</span></label>
+                <select class="form-control-section" ng-model="c.quotaModel.valueType" ng-disabled="c.data.isEdit && !c.isDraft">
+                  <option value="">Select Type</option>
+                  <option value="currency">$ Currency</option>
+                  <option value="number">Number</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Frequency + Value -->
+            <div class="form-group">
+              <div class="col-sm-6">
+                <label class="control-label-section">Frequency <span class="text-danger">*</span></label>
+                <select class="form-control-section"
+                  ng-model="c.quotaModel.frequency"
+                  ng-change="c.updateAutoDistribution()"
+                  ng-disabled="c.data.isEdit && !c.isDraft">
+                  <option value="">Select Frequency</option>
+                  <option value="annually">Annually</option>
+                  <option value="quarterly">Quarterly</option>
+                  <option value="monthly">Monthly</option>
+                </select>
+              </div>
+
+              <div class="col-sm-6">
+                <label>
+                    {{ c.quotaModel.frequency === 'annually'  ? 'Yearly Value' :
+                       c.quotaModel.frequency === 'quarterly' ? 'Per Quarter Value' :
+                       c.quotaModel.frequency === 'monthly'   ? 'Per Month Value' :
+                                                                'Value' }}
+                    <span class="text-danger">*</span>
+                  </label>
+                <div>
+                  <input type="text" min="0" class="form-control-section"
+                    ng-model="c.quotaModel.yearlyValue"
+                    ng-show="c.quotaModel.frequency === 'annually'"
+                    ng-change="c.updateAutoDistribution()"
+                    ng-disabled="c.data.isEdit && !c.isDraft"
+                    oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+                  <input type="text" min="0" class="form-control-section"
+                    ng-model="c.quotaModel.quarterlyValue"
+                    ng-show="c.quotaModel.frequency === 'quarterly'"
+                    ng-change="c.updateAutoDistribution()"
+                    ng-disabled="c.data.isEdit && !c.isDraft"
+                    oninput="this.value=this.value.replace(/[^0-9.]/g,'').replace(/(\..*)\./g,'$1').replace(/^(\d+\.\d{0,2}).*$/,'$1')">
+                  <input type="text" min="0" class="form-control-section"
+                    ng-model="c.quotaModel.monthlyValue"
+                    ng-show="c.quotaModel.frequency === 'monthly'"
+                    ng-change="c.updateAutoDistribution()"
+                    ng-disabled="c.data.isEdit && !c.isDraft"
+                    oninput="this.value=this.value.replace(/[^0-9.]/g,'').replace(/(\..*)\./g,'$1').replace(/^(\d+\.\d{0,2}).*$/,'$1')">
+                  <input type="text" min="0" class="form-control-section"
+                    ng-show="!c.quotaModel.frequency"
+                    step="any"
+                    oninput="this.value=this.value.replace(/[^0-9.]/g,'').replace(/(\..*)\./g,'$1').replace(/^(\d+\.\d{0,2}).*$/,'$1')"
+                    placeholder="Enter Value">
+                </div>
+              </div>
+            </div>
+            
+						<!-- Notes -->
+            <div class="form-group">
+              <label class="col-sm-3 control-label">Description</label>
+            </div>
+            <div class="form-group">
+              <div class="col-sm-6">
+                <textarea class="form-control-a" rows="3"
+                  ng-model="c.quotaModel.notes" ng-disabled="c.data.isEdit && !c.isDraft"
+                  placeholder="Describe the Quota purpose and coverage..."></textarea>
+              </div>
+            </div>
+            
+            <!--sp-widget widget="data.incentnowAdForm"></sp-widget-->
+
+            <!-- CHANGE 4: Auto-Distribution Preview box KEPT (as requested in point 4) -->
+            <div class="auto-distribution-box">
+              <div class="header">
+                <i class="fa fa-table"></i> Auto-Distribution Preview
+              </div>
+              <div class="row">
+                <div class="col-sm-4">
+                  <div class="label">Yearly Total:</div>
+                  <div class="value">{{ c.getSymbol() }}{{ c.auto.yearlyTotal | number:0 }}</div>
+                </div>
+                <div class="col-sm-4">
+                  <div class="label">Per Quarter:</div>
+                  <div class="value">{{ c.getSymbol() }}{{c.auto.perQuarter}}</div>
+                </div>
+                <div class="col-sm-4">
+                  <div class="label">Per Month:</div>
+                  <div class="value">{{ c.getSymbol() }}{{c.auto.perMonth}}</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Existing Quotas Warning -->
+            <div ng-if="c.existingQuotasCount > 0" class="alert alert-warning m-t-md">
+              <i class="fa fa-exclamation-triangle"></i>
+              <strong>Note:</strong> There are already {{c.existingQuotasCount}} quota assignments for this period.
+              Continuing will allow you to add more or modify existing ones.
+            </div>
+
+          </form>
+        </div>
+      </div>
+
+      <!-- Bottom navigation removed — Save Quota button is in the top-right header only -->
+
+    </div>
+
+    <!-- Step 2: Distribution -->
+    <div ng-show="c.currentStep === 2">
+        
+      <!-- Yearly Total -->
+      <div class="yearly-total-card">
+        <label class="yearly-total-card-label">
+          As per quota definition, Yearly Quota Value:
+        </label>
+        <div class="value-box quota-value-success">
+          {{ c.getSymbol() }}{{
+            c.quotaModel.frequency === 'annually'
+              ? ((c.quotaModel.yearlyValue || 0) | number:2)
+
+              : c.quotaModel.frequency === 'quarterly'
+                ? (((c.quotaModel.quarterlyValue || 0) * 4) | number:2)
+
+                : (((c.quotaModel.monthlyValue || 0) * 12) | number:2)
+          }}
+        </div>
+      </div>
+
+      <!-- Yearly Total -->
+      <div class="yearly-total-card">
+        <label class="yearly-total-card-label">
+          As per quota distribution, Yearly Quota Value:
+        </label>
+        <div class="value-box"
+             ng-class="{
+               'quota-value-success': !c.isDistributionMismatch(),
+               'quota-value-danger': c.isDistributionMismatch()
+             }">
+          {{ c.getSymbol() }}{{ c.auto.yearlyTotal | number:2 }}
+        </div>
+      </div>
+      
+      <div class="yearly-total-card">
+
+          <label class="yearly-total-card-label">
+              Total Distribution Percentage
+          </label>
+
+          <div class="value-box"
+               ng-class="{
+                 'quota-value-success':
+                   (c.getTotalPercentage() | number:2) == 100,
+                 'quota-value-danger':
+                   (c.getTotalPercentage() | number:2) != 100
+               }">
+
+              {{ c.getTotalPercentage() }}%
+
+          </div>
+
+      </div>
+
+      <!-- Quarter Box -->
+      <div ng-repeat="q in c.auto.quarters" class="quarter-card">
+        <div class="quarter-header">
+          <div>
+            <div class="quarter-title">{{ q.title }}</div>
+            <div class="quarter-sub">{{ q.range }}</div>
+          </div>
+          <div class="quarter-total">
+            Quarter Total: {{ c.getSymbol() }}{{ q.total | number:2 }}
+          </div>
+        </div>
+        <div class="month-css">
+          <table class="month-table">
+            <tr>
+              <th>Month</th>
+              <th>Quota Value</th>
+							<th>Percentage (%)</th>
+            </tr>
+            <tr ng-repeat="m in q.months">
+              <td class="quota-month">{{ m.name }}</td>
+              <td class="quota-value">
+                <input type="text"
+                 class="quota-input"
+                 ng-model="m.value"
+                 ng-change="c.updateQuarterTotal(q)"
+                 ng-disabled="c.data.isEdit && !c.isDraft"
+                 min="0"
+                 oninput="this.value=this.value.replace(/[^0-9.]/g,'').replace(/(\..*)\./g,'$1').replace(/^(\d+\.\d{0,2}).*$/,'$1')">
+              </td>
+              <td>
+                <input
+                    type="number"
+                    step="0.01"
+                    class="quota-input"
+                    ng-model="m.percentage"
+                    ng-change="c.updateAmountFromPercentage(m,q)"
+                    ng-disabled="c.data.isEdit && !c.isDraft">
+
+              </td>
+            </tr>
+            <tr class="quarter-summary">
+                <td>
+                    <strong>Quarter Total</strong>
+                </td>
+
+                <td>
+                    {{ c.getSymbol() }}{{ q.total | number:2 }}
+                </td>
+
+                <td>
+                    {{ c.getQuarterPercentage(q) | number:2 }}%
+                </td>
+
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="distribution-box">
+        <div class="header-row">
+          <div class="left-title">Distribution Summary</div>
+          <div class="right-total">{{ c.getSymbol() }}{{ c.auto.yearlyTotal | number:0 }}</div>
+        </div>
+        <div class="sub-title">Total Yearly Quota:</div>
+        <hr class="divider">
+        <div class="quarter-grid">
+          <div class="quarter-cards">
+            <div class="quarter-name">Q1</div>
+            <div class="quarter-value">{{ c.getSymbol() }}{{ c.auto.quarters[0].total | number:2 }}</div>
+          </div>
+          <div class="quarter-cards">
+            <div class="quarter-name">Q2</div>
+            <div class="quarter-value">{{ c.getSymbol() }}{{c.auto.quarters[1].total | number:2}}</div>
+          </div>
+          <div class="quarter-cards">
+            <div class="quarter-name">Q3</div>
+            <div class="quarter-value">{{ c.getSymbol() }}{{c.auto.quarters[2].total | number:2}}</div>
+          </div>
+          <div class="quarter-cards">
+            <div class="quarter-name">Q4</div>
+            <div class="quarter-value">{{ c.getSymbol() }}{{c.auto.quarters[3].total | number:2}}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Assignment Tools -->
+      <div class="panel panel-default m-b-lg old-distribution">
+        <div class="panel-heading">
+          <h3 class="panel-title">Quick Assignment Tools</h3>
+        </div>
+        <div class="panel-body">
+          <div class="row">
+            <div class="col-md-4">
+              <button class="btn btn-success btn-block" ng-click="c.showAddUserModal()">
+                <i class="fa fa-plus"></i> Add Individual User
+              </button>
+            </div>
+            <div class="col-md-4">
+              <button class="btn btn-info btn-block" ng-click="c.showBulkAssignModal()">
+                <i class="fa fa-users"></i> Bulk Assign by Business Unit
+              </button>
+            </div>
+            <div class="col-md-4">
+              <button class="btn btn-warning btn-block" ng-click="c.showImportModal()">
+                <i class="fa fa-upload"></i> Import from CSV
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Summary Cards -->
+      <div class="row m-b-lg old-distribution">
+        <div class="col-md-3">
+          <div class="panel panel-default">
+            <div class="panel-body text-center">
+              <h3 class="m-t-none text-primary">{{c.quotaAssignments.length}}</h3>
+              <p class="text-muted small m-b-none">Team Members</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="panel panel-default">
+            <div class="panel-body text-center">
+              <h3 class="m-t-none text-success">${{c.getTotalQuota()}}K</h3>
+              <p class="text-muted small m-b-none">Total Quota</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="panel panel-default">
+            <div class="panel-body text-center">
+              <h3 class="m-t-none text-info">${{c.getAverageQuota()}}K</h3>
+              <p class="text-muted small m-b-none">Average Quota</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="panel panel-default">
+            <div class="panel-body text-center">
+              <h3 class="m-t-none text-warning">{{c.getBusinessUnitCount()}}</h3>
+              <p class="text-muted small m-b-none">Business Units</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- Navigation -->
+      <div class="clearfix">
+        <!--button class="btn btn-default btn-lg pull-left" ng-click="c.previousStep()">
+          <i class="fa fa-arrow-left"></i> Back
+        </button>
+        <button class="btn btn-success btn-lg pull-right" ng-click="c.publish()" ng-disabled="c.quotaAssignments.length === 0">
+          <i class="fa fa-check"></i> Publish Quotas
+        </button-->
+      </div>
+
+    </div>
+  </div>
+  <div class="modal-backdrop fade in" ng-show="c.showImport"></div>
+
+</div>]]></template>
+    </sp_widget>
+</record_update>

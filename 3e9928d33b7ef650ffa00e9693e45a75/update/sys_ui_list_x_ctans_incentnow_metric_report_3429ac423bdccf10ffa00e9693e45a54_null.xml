@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update>
+    <sys_ui_list parent="x_ctans_incentnow_metric_report" relationship="3429ac423bdccf10ffa00e9693e45a54" sys_domain="global" table="x_ctans_incentnow_lookup_results" version="2" view="">
+        <sys_ui_list_element action="INSERT_OR_UPDATE">
+            <average_value>false</average_value>
+            <element>lookup_rule</element>
+            <list_id display_value="x_ctans_incentnow_lookup_results" element="NULL" name="x_ctans_incentnow_lookup_results" parent="x_ctans_incentnow_metric_report" relationship="3429ac423bdccf10ffa00e9693e45a54" sys_domain="global" view="Default view">a9cb70823b900350ffa00e9693e45aa2</list_id>
+            <max_value>false</max_value>
+            <min_value>false</min_value>
+            <position>0</position>
+            <sum>false</sum>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-04-18 08:57:00</sys_created_on>
+            <sys_id>2dcb70823b900350ffa00e9693e45aa3</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-04-18 08:57:00</sys_updated_on>
+        </sys_ui_list_element>
+        <sys_ui_list_element action="INSERT_OR_UPDATE">
+            <average_value>false</average_value>
+            <element>step_number</element>
+            <list_id display_value="x_ctans_incentnow_lookup_results" element="NULL" name="x_ctans_incentnow_lookup_results" parent="x_ctans_incentnow_metric_report" relationship="3429ac423bdccf10ffa00e9693e45a54" sys_domain="global" view="Default view">a9cb70823b900350ffa00e9693e45aa2</list_id>
+            <max_value>false</max_value>
+            <min_value>false</min_value>
+            <position>1</position>
+            <sum>false</sum>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-04-18 08:57:00</sys_created_on>
+            <sys_id>a1cb70823b900350ffa00e9693e45aa4</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-04-18 08:57:00</sys_updated_on>
+        </sys_ui_list_element>
+        <sys_ui_list_element action="INSERT_OR_UPDATE">
+            <average_value>false</average_value>
+            <element>input_value</element>
+            <list_id display_value="x_ctans_incentnow_lookup_results" element="NULL" name="x_ctans_incentnow_lookup_results" parent="x_ctans_incentnow_metric_report" relationship="3429ac423bdccf10ffa00e9693e45a54" sys_domain="global" view="Default view">a9cb70823b900350ffa00e9693e45aa2</list_id>
+            <max_value>false</max_value>
+            <min_value>false</min_value>
+            <position>2</position>
+            <sum>false</sum>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-04-18 08:57:00</sys_created_on>
+            <sys_id>29cb70823b900350ffa00e9693e45aa4</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-04-18 08:57:00</sys_updated_on>
+        </sys_ui_list_element>
+        <sys_ui_list_element action="INSERT_OR_UPDATE">
+            <average_value>false</average_value>
+            <element>value</element>
+            <list_id display_value="x_ctans_incentnow_lookup_results" element="NULL" name="x_ctans_incentnow_lookup_results" parent="x_ctans_incentnow_metric_report" relationship="3429ac423bdccf10ffa00e9693e45a54" sys_domain="global" view="Default view">a9cb70823b900350ffa00e9693e45aa2</list_id>
+            <max_value>false</max_value>
+            <min_value>false</min_value>
+            <position>3</position>
+            <sum>false</sum>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-04-18 08:57:00</sys_created_on>
+            <sys_id>adcb70823b900350ffa00e9693e45aa4</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-04-18 08:57:00</sys_updated_on>
+        </sys_ui_list_element>
+        <sys_ui_list_element action="INSERT_OR_UPDATE">
+            <average_value>false</average_value>
+            <element>rate_unit</element>
+            <list_id display_value="x_ctans_incentnow_lookup_results" element="NULL" name="x_ctans_incentnow_lookup_results" parent="x_ctans_incentnow_metric_report" relationship="3429ac423bdccf10ffa00e9693e45a54" sys_domain="global" view="Default view">a9cb70823b900350ffa00e9693e45aa2</list_id>
+            <max_value>false</max_value>
+            <min_value>false</min_value>
+            <position>4</position>
+            <sum>false</sum>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-04-18 08:57:00</sys_created_on>
+            <sys_id>25cb70823b900350ffa00e9693e45aa5</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-04-18 08:57:00</sys_updated_on>
+        </sys_ui_list_element>
+        <sys_ui_list_element action="INSERT_OR_UPDATE">
+            <average_value>false</average_value>
+            <element>user</element>
+            <list_id display_value="x_ctans_incentnow_lookup_results" element="NULL" name="x_ctans_incentnow_lookup_results" parent="x_ctans_incentnow_metric_report" relationship="3429ac423bdccf10ffa00e9693e45a54" sys_domain="global" view="Default view">a9cb70823b900350ffa00e9693e45aa2</list_id>
+            <max_value>false</max_value>
+            <min_value>false</min_value>
+            <position>5</position>
+            <sum>false</sum>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-04-18 08:57:00</sys_created_on>
+            <sys_id>a9cb70823b900350ffa00e9693e45aa5</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-04-18 08:57:00</sys_updated_on>
+        </sys_ui_list_element>
+        <sys_ui_list_element action="INSERT_OR_UPDATE">
+            <average_value>false</average_value>
+            <element>plan</element>
+            <list_id display_value="x_ctans_incentnow_lookup_results" element="NULL" name="x_ctans_incentnow_lookup_results" parent="x_ctans_incentnow_metric_report" relationship="3429ac423bdccf10ffa00e9693e45a54" sys_domain="global" view="Default view">a9cb70823b900350ffa00e9693e45aa2</list_id>
+            <max_value>false</max_value>
+            <min_value>false</min_value>
+            <position>6</position>
+            <sum>false</sum>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-04-18 08:57:00</sys_created_on>
+            <sys_id>21cb70823b900350ffa00e9693e45aa6</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-04-18 08:57:00</sys_updated_on>
+        </sys_ui_list_element>
+        <sys_ui_list_element action="INSERT_OR_UPDATE">
+            <average_value>false</average_value>
+            <element>fiscal_period</element>
+            <list_id display_value="x_ctans_incentnow_lookup_results" element="NULL" name="x_ctans_incentnow_lookup_results" parent="x_ctans_incentnow_metric_report" relationship="3429ac423bdccf10ffa00e9693e45a54" sys_domain="global" view="Default view">a9cb70823b900350ffa00e9693e45aa2</list_id>
+            <max_value>false</max_value>
+            <min_value>false</min_value>
+            <position>7</position>
+            <sum>false</sum>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-04-18 08:57:00</sys_created_on>
+            <sys_id>a5cb70823b900350ffa00e9693e45aa6</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-04-18 08:57:00</sys_updated_on>
+        </sys_ui_list_element>
+        <sys_ui_list action="INSERT_OR_UPDATE">
+            <average_value>false</average_value>
+            <element/>
+            <max_value>false</max_value>
+            <min_value>false</min_value>
+            <name>x_ctans_incentnow_lookup_results</name>
+            <parent>x_ctans_incentnow_metric_report</parent>
+            <position/>
+            <relationship display_value="Lookup Results">3429ac423bdccf10ffa00e9693e45a54</relationship>
+            <sum>false</sum>
+            <sys_class_name>sys_ui_list</sys_class_name>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-04-18 08:57:00</sys_created_on>
+            <sys_domain>global</sys_domain>
+            <sys_domain_path>/</sys_domain_path>
+            <sys_id>a9cb70823b900350ffa00e9693e45aa2</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_name>x_ctans_incentnow_lookup_results</sys_name>
+            <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+            <sys_policy/>
+            <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+            <sys_update_name>sys_ui_list_x_ctans_incentnow_metric_report_3429ac423bdccf10ffa00e9693e45a54_null</sys_update_name>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-04-18 08:57:00</sys_updated_on>
+            <sys_user/>
+            <view display_value="Default view" name="NULL">Default view</view>
+            <view_name/>
+        </sys_ui_list>
+    </sys_ui_list>
+</record_update>

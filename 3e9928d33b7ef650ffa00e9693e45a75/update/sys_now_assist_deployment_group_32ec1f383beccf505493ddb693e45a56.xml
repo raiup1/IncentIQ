@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update sys_domain="global" table="sys_now_assist_deployment_group">
+    <sys_now_assist_deployment_group action="INSERT_OR_UPDATE">
+        <primary_deployment_id display_value="Now Assist - IncentIQ">24abd7743b6ccf505493ddb693e45a32</primary_deployment_id>
+        <secondary_deployment_id display_value="Now Assist Panel - Platform (default)">7bd9820f14475650f87711349c1171be</secondary_deployment_id>
+        <sys_class_name>sys_now_assist_deployment_group</sys_class_name>
+        <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+        <sys_created_on>2026-04-27 09:44:20</sys_created_on>
+        <sys_domain>global</sys_domain>
+        <sys_id>32ec1f383beccf505493ddb693e45a56</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name/>
+        <sys_overrides/>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_now_assist_deployment_group_32ec1f383beccf505493ddb693e45a56</sys_update_name>
+        <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
+        <sys_updated_on>2026-04-27 09:44:20</sys_updated_on>
+    </sys_now_assist_deployment_group>
+</record_update>

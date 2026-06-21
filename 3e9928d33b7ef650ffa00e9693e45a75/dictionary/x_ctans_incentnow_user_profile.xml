@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element db_object_id="2fc29d3893d58790ddb7f2d89803d6be" label="IncentIQ Profile" max_length="40" name="x_ctans_incentnow_user_profile" type="collection">
+        <element attributes="edge_encryption_enabled=true" choice="1" label="Role" mandatory="true" max_length="40" name="role" type="string">
+            <choice>
+                <element inactive_on_update="false" label="Application Admin" sequence="1" value="application admin"/>
+                <element inactive_on_update="false" label="Organization Executive" sequence="5" value="organization executive"/>
+                <element inactive_on_update="false" label="Business Group Admin" sequence="3" value="business group admin"/>
+                <element inactive_on_update="false" label="Sales Manager" sequence="6" value="sales manager"/>
+                <element inactive_on_update="false" label="Account Executive" sequence="0" value="account executive"/>
+                <element inactive_on_update="false" label="Business Group Executive" sequence="4" value="business group executive"/>
+                <element inactive_on_update="false" label="Business Development Rep" sequence="2" value="business development rep"/>
+            </choice>
+        </element>
+        <element attributes="encode_utf8=false" label="Business Unit" mandatory="true" max_length="32" name="business_unit" reference="business_unit" type="reference"/>
+        <element default="true" label="Active" max_length="40" name="active" type="boolean"/>
+        <element attributes="edge_encryption_enabled=true" choice="1" label="External User ID" max_length="100" name="external_user_id" type="choice">
+            <choice/>
+        </element>
+        <element label="Domain" max_length="32" name="sys_domain" type="domain_id"/>
+        <element attributes="edge_encryption_enabled=true" label="Internal User ID" max_length="40" name="user_id" read_only="true" type="string"/>
+        <element label="Domain Path" max_length="255" name="sys_domain_path" type="domain_path"/>
+        <element attributes="encode_utf8=false" display="true" label="User" mandatory="true" max_length="32" name="user" reference="sys_user" type="reference"/>
+        <element attributes="ignore_filter_on_new=true" default="javascript:global.getNextObjNumberPadded();" label="Number" max_length="40" name="number" read_only="true" type="string"/>
+        <index name="index">
+            <element name="business_unit"/>
+        </index>
+        <index name="index2">
+            <element name="sys_domain"/>
+        </index>
+        <index name="index3">
+            <element name="sys_domain_path"/>
+        </index>
+        <index name="index4">
+            <element name="user"/>
+        </index>
+    </element>
+</database>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_css_include">
+    <sp_css_include action="INSERT_OR_UPDATE">
+        <lazy_load>false</lazy_load>
+        <name>Tailwind css</name>
+        <rtl_css_file_url/>
+        <source>url</source>
+        <sp_css/>
+        <sys_class_name>sp_css_include</sys_class_name>
+        <sys_created_by>karan.kumar</sys_created_by>
+        <sys_created_on>2026-04-05 15:59:18</sys_created_on>
+        <sys_id>536f9bf93b084310ffa00e9693e45ac1</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>Tailwind css</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sp_css_include_536f9bf93b084310ffa00e9693e45ac1</sys_update_name>
+        <sys_updated_by>karan.kumar</sys_updated_by>
+        <sys_updated_on>2026-04-05 15:59:18</sys_updated_on>
+        <url>https://cdn.tailwindcss.com</url>
+    </sp_css_include>
+</record_update>

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element db_object_id="c0af66a13b610790a4cbaddc73e45a94" label="AI Execution failure" max_length="40" name="x_ctans_incentnow_ai_execution_failure" type="collection">
+        <element label="Normalized Question" max_length="1000" name="normalized_question" type="string"/>
+        <element choice="1" label="Source Channel" max_length="40" name="source_channel" type="choice">
+            <choice>
+                <element inactive_on_update="false" label="Now Assist" sequence="0" value="Now Assist"/>
+                <element inactive_on_update="false" label="API" sequence="1" value="API"/>
+            </choice>
+        </element>
+        <element label="Runtime Context" max_length="255" name="runtime_context" type="string"/>
+        <element label="Stack Trace" max_length="1000" name="stack_trace" type="string"/>
+        <element label="Question" max_length="1000" name="question" type="string"/>
+        <element label="Detected Intent" max_length="100" name="detected_intent" type="string"/>
+        <element label="User" max_length="32" name="user" reference="x_ctans_incentnow_user_profile" type="reference"/>
+        <element label="Resolved By" max_length="32" name="resolved_by" reference="sys_user" type="reference"/>
+        <element label="Failure Reason" max_length="1000" name="failure_reason" type="string"/>
+        <element choice="1" label="Execution Status" max_length="40" name="execution_status" type="choice">
+            <choice>
+                <element inactive_on_update="false" label="Investigating" sequence="1" value="Investigating"/>
+                <element inactive_on_update="false" label="Ignored" sequence="3" value="Ignored"/>
+                <element inactive_on_update="false" label="Resolved" sequence="2" value="Resolved"/>
+                <element inactive_on_update="false" label="Open" sequence="0" value="Open"/>
+            </choice>
+        </element>
+        <element label="Occurrence Count" max_length="40" name="occurrence_count" type="integer"/>
+        <element label="Resolution Notes" max_length="1000" name="resolution_notes" type="string"/>
+        <element label="Transaction ID" max_length="255" name="transaction_id" type="string"/>
+        <element choice="1" label="Failure Stage" max_length="40" name="failure_stage" type="choice">
+            <choice>
+                <element inactive_on_update="false" label="Handler" sequence="3" value="Handler"/>
+                <element inactive_on_update="false" label="Unknown" sequence="7" value="Unknown"/>
+                <element inactive_on_update="false" label="Intent Matcher" sequence="0" value="Intent Matcher"/>
+                <element inactive_on_update="false" label="Database" sequence="6" value="Database"/>
+                <element inactive_on_update="false" label="Orchestrator" sequence="2" value="Orchestrator"/>
+                <element inactive_on_update="false" label="Intent Router" sequence="1" value="Intent Router"/>
+                <element inactive_on_update="false" label="AI Service" sequence="5" value="AI Service"/>
+                <element inactive_on_update="false" label="Response Builder" sequence="4" value="Response Builder"/>
+            </choice>
+        </element>
+        <element label="Error Message" max_length="1000" name="error_message" type="string"/>
+        <element attributes="ignore_filter_on_new=true" default="javascript:global.getNextObjNumberPadded();" label="Number" max_length="40" name="number" type="string"/>
+        <element label="Session ID" max_length="255" name="session_id" type="string"/>
+        <element label="Resolved On" max_length="40" name="resolved_on" type="glide_date_time"/>
+        <element label="Handler Name" max_length="255" name="handler_name" type="string"/>
+        <element label="Agent Name" max_length="255" name="agent_name" type="string"/>
+        <index name="index">
+            <element name="resolved_by"/>
+        </index>
+        <index name="index2">
+            <element name="user"/>
+        </index>
+    </element>
+</database>

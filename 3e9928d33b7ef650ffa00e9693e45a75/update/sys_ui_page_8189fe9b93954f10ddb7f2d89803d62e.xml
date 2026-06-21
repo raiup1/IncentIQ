@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_ui_page">
+    <sys_ui_page action="INSERT_OR_UPDATE">
+        <category>general</category>
+        <client_script/>
+        <description/>
+        <direct>false</direct>
+        <endpoint>x_ctans_incentnow_incentiq_contact_us.do</endpoint>
+        <html><![CDATA[<?xml version="1.0" encoding="utf-8" ?>
+<j:jelly trim="false" xmlns:j="jelly:core" xmlns:g="glide">
+
+<style>
+    body {
+        background: #f6f8fb;
+    }
+
+    .contact-wrapper {
+        max-width: 900px;
+        margin: 32px auto;
+        padding: 0 18px;
+        font-family: "Segoe UI", Arial, sans-serif;
+        color: #263238;
+    }
+
+    .contact-card {
+        background: #ffffff;
+        border-radius: 14px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+        overflow: hidden;
+        border: 1px solid #e5e7eb;
+    }
+
+    .contact-header {
+        background: linear-gradient(135deg, #17324d, #256b8f);
+        color: #ffffff;
+        padding: 34px 42px;
+    }
+
+    .contact-header h1 {
+        margin: 0;
+        font-size: 30px;
+        font-weight: 600;
+    }
+
+    .contact-header p {
+        margin-top: 10px;
+        font-size: 15px;
+    }
+
+    .contact-content {
+        padding: 40px;
+    }
+
+    .contact-section {
+        margin-bottom: 30px;
+    }
+
+    .contact-section h2 {
+        color: #17324d;
+        margin-bottom: 12px;
+        font-size: 22px;
+    }
+
+    .contact-section p {
+        line-height: 1.7;
+        font-size: 15px;
+    }
+
+    .contact-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 16px;
+        margin-top: 20px;
+    }
+
+    .contact-box {
+        background: #eef6fa;
+        border: 1px solid #d6e8f0;
+        border-radius: 10px;
+        padding: 18px;
+    }
+
+    .contact-box h3 {
+        margin-top: 0;
+        color: #17324d;
+        font-size: 18px;
+    }
+
+    .contact-box p {
+        margin: 8px 0;
+    }
+
+    .contact-box a {
+        color: #256b8f;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .support-note {
+        background: #f9fafb;
+        border-left: 5px solid #256b8f;
+        padding: 18px;
+        border-radius: 8px;
+        margin-top: 25px;
+    }
+
+    .footer-note {
+        text-align: center;
+        margin-top: 30px;
+        color: #607d8b;
+        font-size: 13px;
+    }
+</style>
+
+<div class="contact-wrapper">
+
+    <div class="contact-card">
+
+        <div class="contact-header">
+            <h1>Contact IncentIQ Support</h1>
+            <p>We're here to help with IncentIQ configuration, quotas, plans, payouts, and technical support.</p>
+        </div>
+
+        <div class="contact-content">
+
+            <div class="contact-section">
+                <h2>Need Assistance?</h2>
+
+                <p>
+                    The IncentIQ Support Team is available to assist with application setup,
+                    compensation plans, quota management, sales transactions, incentive calculations,
+                    reporting, troubleshooting, and general platform inquiries.
+                </p>
+
+                <div class="support-note">
+                    For the fastest resolution, please include relevant details such as user name,
+                    plan name, quota period, error message, or screenshots when contacting support.
+                </div>
+            </div>
+
+            <div class="contact-grid">
+
+                <div class="contact-box">
+                    <h3>Email Support</h3>
+                    <p>
+                        <a href="mailto:Contact@CtrlAltNow.com">
+                            Contact@CtrlAltNow.com
+                        </a>
+                    </p>
+                    <p>For technical issues, questions, and support requests.</p>
+                </div>
+
+                <div class="contact-box">
+                    <h3>Company Website</h3>
+                    <p>
+                        <a href="https://www.ctrlaltnow.com" target="_blank">
+                            www.ctrlaltnow.com
+                        </a>
+                    </p>
+                    <p>Learn more about CtrlAltNow and IncentIQ.</p>
+                </div>
+
+                <div class="contact-box">
+                    <h3>Business Hours</h3>
+                    <p>Monday – Friday</p>
+                    <p>9:00 AM – 6:00 PM</p>
+                </div>
+
+                <div class="contact-box">
+                    <h3>Application</h3>
+                    <p><strong>IncentIQ</strong></p>
+                    <p>Sales Incentive Management for ServiceNow</p>
+                </div>
+
+            </div>
+
+            <div class="contact-section" style="margin-top:30px;">
+                <h2>Support Scope</h2>
+
+                <p>Our team can assist with:</p>
+
+                <ul>
+                    <li>Compensation Plan Configuration</li>
+                    <li>Quota Setup and Assignments</li>
+                    <li>Sales User and Manager Configuration</li>
+                    <li>Transaction Processing Issues</li>
+                    <li>Commission and Payout Calculations</li>
+                    <li>Reports and Dashboards</li>
+                    <li>General Product Questions</li>
+                </ul>
+            </div>
+
+            <div class="footer-note">
+                © 2026 CtrlAltNow • IncentIQ Support Center
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+</j:jelly>]]></html>
+        <name>incentiq_contact_us</name>
+        <processing_script/>
+        <sys_class_name>sys_ui_page</sys_class_name>
+        <sys_created_by>shroin.mandal</sys_created_by>
+        <sys_created_on>2026-06-11 08:23:39</sys_created_on>
+        <sys_id>8189fe9b93954f10ddb7f2d89803d62e</sys_id>
+        <sys_mod_count>2</sys_mod_count>
+        <sys_name>incentiq_contact_us</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_ui_page_8189fe9b93954f10ddb7f2d89803d62e</sys_update_name>
+        <sys_updated_by>upma.rai</sys_updated_by>
+        <sys_updated_on>2026-06-11 10:56:15</sys_updated_on>
+    </sys_ui_page>
+</record_update>

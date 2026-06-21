@@ -1,0 +1,723 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <client_script><![CDATA[api.controller=function($scope,spUtil,$rootScope,spModal) {
+  
+	var c = this;
+    c.rules = c.data.rules;
+
+	$rootScope.$broadcast('earningRulesUpdated', {
+    earningrulescount: c.rules.length
+	});
+
+    c.formatCondition = function(condition) {
+        if (!condition) return "No conditions";
+
+        return condition.split("^").map(function(cond) {
+            return cond
+                .replace("=", " = ")
+                .replace(/_/g, " "); // makes column_01 → column 01
+        }).join(" AND ");
+    };
+
+    c.removeRule = function(index) {
+        c.rules.splice(index, 1);
+    };
+	
+	c.deleteRecord= function(rulesysid)
+	{
+		c.data.action="deleteRecord";
+		c.data.rulesysid= rulesysid;
+
+		spModal.open({
+					title: 'Delete Confirmation',
+					message: 'This action cannot be undone. Are you sure?',
+					buttons: [
+							{label: 'Cancel', cancel: true},
+							{label: 'Delete', primary: true}
+					]
+			}).then(function() {
+					c.server.update().then(function(response){
+							if(response.status==true)
+								{
+									spUtil.addInfoMessage("Record deleted successfully.");
+											spUtil.update($scope).then(function() {	
+										c.rules = c.data.rules;
+										$rootScope.$broadcast('earningRulesUpdated', {
+											earningrulescount: c.rules.length
+										});
+
+									});
+								}
+								else
+												spUtil.addErrorMessage("No Authorization to perform the action");
+														});
+									});
+		
+		
+		
+	};
+
+		// listen for refresh event
+			$scope.$on("earningruleupdation", function(event, data) {
+				 	spUtil.update($scope).then(function() {	
+					c.rules = c.data.rules;
+					$rootScope.$broadcast('earningRulesUpdated', {
+						earningrulescount: c.rules.length
+					});
+
+				});
+			});
+	
+			/*c.editRecord = function(rulesysid)
+			{
+				if(c.data.status=="draft")
+				window.location.href="?id=incentnow_form&table=x_ctans_incentnow_earning_rule&sys_id="+rulesysid;
+				else
+					spUtil.addErrorMessage("Related Plan should be in draft state for editing.")
+			} */
+	
+	
+		c.editRecord = function(rulesysid) {
+				if (c.data.status == "draft") {
+					$rootScope.$broadcast("earningrule.edit", {
+					sys_id: rulesysid
+				});
+								} else {
+					spUtil.addErrorMessage("Related Plan should be in draft state for editing.");
+				}
+			};
+
+	
+	
+};]]></client_script>
+        <controller_as>c</controller_as>
+        <css>.modal-body
+{
+	color: red;
+}
+.rule-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.action-icon svg {
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.2;
+  white-space: nowrap;
+  box-shadow: none;
+}
+
+.action-btn:focus,
+.action-btn:active:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(81, 163, 255, 0.25);
+}
+
+
+.action-btn-ghost {
+  background: transparent;
+  border: 1px solid transparent;
+  color: #111827;
+}
+
+.action-btn-ghost:hover,
+.action-btn-ghost:focus {
+  background: #f3f4f6;
+  /*color: #111827;*/
+}
+.delete-icon
+{
+color: red;
+}
+
+/* CARD CONTAINER */
+.earning-card {
+  border: 2px solid #bfdbfe;
+  background: #eff6ff;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  
+}
+
+.earning-card:hover {
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+}
+
+/* INNER CONTENT */
+.earning-card-body {
+  padding: 16px 20px;
+}
+
+/* HEADER ROW */
+.earning-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+/* BADGE */
+.earning-badge {
+  background: #2563eb;
+  color: #fff;
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-weight: 600;
+}
+
+/* TITLE */
+.earning-title {
+  font-weight: 600;
+  font-size: 15px;
+}
+
+/* TEXT */
+.earning-text {
+  font-size: 13px;
+  color: #374151;
+}
+
+.earning-subtext {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+/* CONDITION BOX */
+.condition-box {
+  margin-top: 10px;
+}
+
+.condition-code {
+  display: block;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: monospace;
+  color: #1f2937;
+}
+
+/* DELETE BUTTON */
+.delete-btn {
+  background: #ef4444;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.delete-btn:hover {
+  background: #dc2626;
+}
+
+/* SQL PREVIEW */
+.sql-section {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid #93c5fd;
+}
+
+.sql-title {
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #374151;
+}
+
+.sql-box {
+  background: #111827;
+  color: #4ade80;
+  padding: 10px;
+  border-radius: 6px;
+  font-family: monospace;
+  font-size: 12px;
+  overflow-x: auto;
+}
+
+/* SPACING */
+.rules-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* MAIN CARD */
+.card-container {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  margin-top:15px;
+}
+
+/* HEADER */
+.card-header {
+  padding: 18px 20px 10px;
+}
+
+.card-header h4 {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+/* CONTENT */
+.card-content {
+  padding: 0 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* RULE CARD */
+.rule-card {
+  border: 2px solid #bfdbfe;
+  background: #eff6ff;
+  border-radius: 12px;
+  transition: 0.2s;
+}
+
+.rule-card:hover {
+  box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+}
+
+/* BODY */
+.rule-body {
+  padding: 16px 18px;
+}
+
+/* TOP ROW */
+.rule-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+/* TITLE */
+.rule-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.rule-title {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+/* BADGE */
+.badge {
+  background: #2563eb;
+  color: white;
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-weight: 600;
+}
+
+/* TEXT */
+.rule-text {
+  font-size: 13px;
+  color: #374151;
+  margin-top: 6px;
+  display: flex;
+  gap: 6px;
+}
+
+/* ICON */
+.icon {
+  font-size: 13px;
+}
+
+/* CONDITION */
+.condition-section {
+  margin-top: 12px;
+}
+
+.condition-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 6px;
+  display: flex;
+  gap: 6px;
+}
+
+.condition-box {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: monospace;
+}
+
+/* DELETE BUTTON */
+.delete-btn {
+  background: #ef4444;
+  color: white;
+  border: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.delete-btn:hover {
+  background: #dc2626;
+}
+
+/* SQL */
+.sql-section {
+  margin-top: 14px;
+  border-top: 1px solid #93c5fd;
+  padding-top: 12px;
+}
+
+.sql-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 6px;
+}
+
+.sql-box {
+  background: #111827;
+  color: #4ade80;
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: monospace;
+}
+
+.sql-indent {
+  margin-left: 12px;
+}
+
+
+/* SUBTEXT */
+.rule-subtext {
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 4px;
+}
+
+/* EMPTY STATE */
+.empty-state {
+  text-align: center;
+  padding: 20px;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+/* EMPTY STATE */
+.empty-state-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 50px 20px;
+  text-align: center;
+}
+
+/* ICON */
+.empty-icon {
+  height: 64px;
+  width: 64px;
+  border-radius: 50%;
+  background: #f3f4f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.plus-icon {
+  width: 32px;
+  height: 32px;
+  color: #9ca3af;
+}
+
+/* TITLE */
+.empty-title {
+  font-weight: 600;
+  margin-bottom: 8px;
+  font-size: 16px;
+}
+
+/* TEXT */
+.empty-text {
+  font-size: 13px;
+  color: #6b7280;
+  max-width: 400px;
+  line-height: 1.5;
+}
+</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description/>
+        <docs/>
+        <field_list/>
+        <has_preview>true</has_preview>
+        <id>incentnow-configured-earning-rule</id>
+        <internal>false</internal>
+        <link><![CDATA[function link(scope, element, attrs, controller) {
+  
+}]]></link>
+        <name>IncentNow Configured Earning Rule</name>
+        <option_schema/>
+        <public>false</public>
+        <roles>x_ctans_incentnow.user</roles>
+        <script><![CDATA[(function() {
+
+    data.rules = [];	
+    var planSysId = $sp.getParameter('sys_id');
+    data.plan_sys_id = planSysId || "-1"; 
+		data.table= $sp.getParameter('table') || "";
+	
+	if(data.table && data.plan_sys_id)
+		{
+			var grPlan= new GlideRecordSecure(data.table);
+			if(grPlan.get(data.plan_sys_id))
+				{
+					data.status=grPlan.getValue("status");
+				}
+
+			var grEarn = new GlideRecordSecure('x_ctans_incentnow_earning_rule');
+
+			if (planSysId) {
+					grEarn.addQuery('plan', planSysId); // reference field
+					grEarn.addQuery('active', true); // optional
+					grEarn.orderByDesc('sys_created_on');
+					grEarn.query();
+
+					while (grEarn.next()) {
+
+							data.rules.push({
+									sys_id: grEarn.getUniqueValue(),
+									name: grEarn.getDisplayValue('rule_name'),
+									aggregation: grEarn.getDisplayValue('aggregation'),
+									source: grEarn.getDisplayValue('source_object'),
+									field: grEarn.getDisplayValue('field'),
+									condition: grEarn.getValue('condition_query_display'),
+									earning_level: grEarn.getDisplayValue('earning_level'),
+									plan: grEarn.getDisplayValue('plan'),
+									status: grEarn.getDisplayValue('status'),
+							});
+					}
+			}
+		}
+	
+	if(input && input.action=="deleteRecord")
+		{
+			var grearning = new GlideRecordSecure('x_ctans_incentnow_earning_rule');
+			if(grearning.get(input.rulesysid))
+				{
+					data.status=grearning.deleteRecord();
+				}
+			
+				
+		}
+	
+		
+
+    
+
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>karan.kumar</sys_created_by>
+        <sys_created_on>2026-04-07 02:52:53</sys_created_on>
+        <sys_id>b6defed63bcc4710ffa00e9693e45ae7</sys_id>
+        <sys_mod_count>71</sys_mod_count>
+        <sys_name>IncentNow Configured Earning Rule</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sp_widget_b6defed63bcc4710ffa00e9693e45ae7</sys_update_name>
+        <sys_updated_by>shroin.mandal</sys_updated_by>
+        <sys_updated_on>2026-06-11 12:29:00</sys_updated_on>
+        <template><![CDATA[<div class="card-container">
+
+  
+  <!-- HEADER -->
+  <div class="card-header">
+    <h4>Configured Earning Rules</h4>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="card-content">
+
+    <!-- RULE CARD -->
+    <div class="rule-card"
+         ng-repeat="rule in c.data.rules track by rule.sys_id">
+
+      <div class="rule-body">
+
+        <div class="rule-top">
+
+          <!-- LEFT -->
+          <div class="rule-info">
+
+            <div class="rule-title-row">
+              <span class="badge">{{rule.aggregation}}</span>
+              <h4 class="rule-title">{{rule.name}}</h4>
+            </div>
+
+            <!-- SOURCE -->
+            <div class="rule-text">
+              <span>]]>🗄<![CDATA[️</span>
+              <span><b>Source.Field:</b> {{rule.source}}.{{rule.field}}</span>
+            </div>
+
+            <!-- PLAN + LEVEL -->
+            <div class="rule-subtext">
+              Plan Name: {{rule.plan}}
+            </div>
+            <div class="rule-subtext">
+              Rollup: {{rule.earning_level}}
+            </div>
+
+            <!-- CONDITIONS -->
+            <div class="condition-section">
+              <div class="condition-label">
+                <span>]]>🔽<![CDATA[</span>
+                <span>Conditions:</span>
+              </div>
+
+              <div class="condition-box">
+                <code>
+                  {{c.formatCondition(rule.condition)}}
+                </code>
+              </div>
+            </div>
+
+          </div>
+          
+          <div class="rule-actions">
+          <button type="button"
+                class="btn action-btn action-btn-ghost"
+                ng-click="c.editRecord(rule.sys_id)">
+             <span class="action-icon" aria-hidden="true">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                    viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="size-4 mr-1">
+                    <path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"></path>
+                  </svg>
+                </span>
+                <span>Edit</span>
+                
+           </button>
+            
+            <button
+                  type="button"
+                  class="btn delete-icon action-btn action-btn-ghost"
+                  ng-click="c.deleteRecord(rule.sys_id)">
+
+                  <span class="action-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="3 6 5 6 21 6"></polyline>
+                      <path d="M19 6l-2 14H7L5 6"></path>
+                      <path d="M10 11v6"></path>
+                      <path d="M14 11v6"></path>
+                      <path d="M9 6V4h6v2"></path>
+                    </svg>
+                  </span>
+               <span>Delete</span>
+                </button>
+            
+          </div>
+
+          
+           
+          <!-- DELETE 
+          <button class="delete-btn"
+                  ng-click="c.removeRule($index)" ng-if="c.data.status=='draft'">
+            ]]>🗑
+<![CDATA[          </button> -->
+
+        </div>
+
+        <!-- SQL -->
+        <div class="sql-section">
+
+          <div class="sql-title">SQL Preview:</div>
+
+          <div class="sql-box">
+            <div>
+              SELECT {{rule.aggregation}}({{rule.field}}) as {{rule.name}}
+            </div>
+            <div>
+              FROM {{rule.source}}
+            </div>
+
+            <div ng-if="rule.condition">WHERE</div>
+
+            <div class="sql-indent" ng-if="rule.condition">
+              {{rule.condition}}
+              
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- EMPTY STATE -->
+<div ng-if="!c.rules.length"
+     class="empty-state-container">
+
+  <div class="empty-icon">
+    <svg xmlns="http://www.w3.org/2000/svg"
+         width="24" height="24"
+         viewBox="0 0 24 24"
+         fill="none"
+         stroke="currentColor"
+         stroke-width="2"
+         stroke-linecap="round"
+         stroke-linejoin="round"
+         class="plus-icon">
+      <path d="M5 12h14"></path>
+      <path d="M12 5v14"></path>
+    </svg>
+  </div>
+
+  <h3 class="empty-title">No Earning Rules Yet</h3>
+
+  <p class="empty-text">
+    Add earning rules to define how commission earnings are calculated
+    from your data sources. Click "Add Earning Rule" above to get started.
+  </p>
+
+</div>
+
+  </div>
+</div>]]></template>
+    </sp_widget>
+</record_update>

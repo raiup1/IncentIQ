@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update>
+    <sys_ui_section caption="Integer Fields" section_id="222efedf3b833e105493ddb693e45a0c" sys_domain="global" table="x_ctans_incentnow_data_lake" version="3" view="">
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>column_51</element>
+            <position>0</position>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-02-19 12:20:40</sys_created_on>
+            <sys_id>272eb2133bc33e105493ddb693e45a0d</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="Integer Fields" display_value="Integer Fields" name="x_ctans_incentnow_data_lake" sys_domain="global" view="Default view">222efedf3b833e105493ddb693e45a0c</sys_ui_section>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-02-19 12:20:40</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>column_52</element>
+            <position>1</position>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-02-19 12:20:40</sys_created_on>
+            <sys_id>a32eb2133bc33e105493ddb693e45a0e</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="Integer Fields" display_value="Integer Fields" name="x_ctans_incentnow_data_lake" sys_domain="global" view="Default view">222efedf3b833e105493ddb693e45a0c</sys_ui_section>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-02-19 12:20:40</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>column_53</element>
+            <position>2</position>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-02-19 12:20:40</sys_created_on>
+            <sys_id>232eb2133bc33e105493ddb693e45a0f</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="Integer Fields" display_value="Integer Fields" name="x_ctans_incentnow_data_lake" sys_domain="global" view="Default view">222efedf3b833e105493ddb693e45a0c</sys_ui_section>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-02-19 12:20:40</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>column_54</element>
+            <position>3</position>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-02-19 12:20:40</sys_created_on>
+            <sys_id>af2eb2133bc33e105493ddb693e45a0f</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="Integer Fields" display_value="Integer Fields" name="x_ctans_incentnow_data_lake" sys_domain="global" view="Default view">222efedf3b833e105493ddb693e45a0c</sys_ui_section>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-02-19 12:20:40</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>column_55</element>
+            <position>4</position>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-02-19 12:20:40</sys_created_on>
+            <sys_id>2f2eb2133bc33e105493ddb693e45a10</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="Integer Fields" display_value="Integer Fields" name="x_ctans_incentnow_data_lake" sys_domain="global" view="Default view">222efedf3b833e105493ddb693e45a0c</sys_ui_section>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-02-19 12:20:40</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>.split</element>
+            <position>5</position>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-02-19 12:20:40</sys_created_on>
+            <sys_id>ab2eb2133bc33e105493ddb693e45a11</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="Integer Fields" display_value="Integer Fields" name="x_ctans_incentnow_data_lake" sys_domain="global" view="Default view">222efedf3b833e105493ddb693e45a0c</sys_ui_section>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-02-19 12:20:40</sys_updated_on>
+            <sys_user/>
+            <type>.split</type>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>column_56</element>
+            <position>6</position>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-02-19 12:20:40</sys_created_on>
+            <sys_id>2b2eb2133bc33e105493ddb693e45a12</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="Integer Fields" display_value="Integer Fields" name="x_ctans_incentnow_data_lake" sys_domain="global" view="Default view">222efedf3b833e105493ddb693e45a0c</sys_ui_section>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-02-19 12:20:40</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>column_57</element>
+            <position>7</position>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-02-19 12:20:40</sys_created_on>
+            <sys_id>a72eb2133bc33e105493ddb693e45a13</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="Integer Fields" display_value="Integer Fields" name="x_ctans_incentnow_data_lake" sys_domain="global" view="Default view">222efedf3b833e105493ddb693e45a0c</sys_ui_section>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-02-19 12:20:40</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>column_58</element>
+            <position>8</position>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-02-19 12:20:40</sys_created_on>
+            <sys_id>272eb2133bc33e105493ddb693e45a14</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="Integer Fields" display_value="Integer Fields" name="x_ctans_incentnow_data_lake" sys_domain="global" view="Default view">222efedf3b833e105493ddb693e45a0c</sys_ui_section>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-02-19 12:20:40</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>column_59</element>
+            <position>9</position>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-02-19 12:20:40</sys_created_on>
+            <sys_id>a32eb2133bc33e105493ddb693e45a15</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="Integer Fields" display_value="Integer Fields" name="x_ctans_incentnow_data_lake" sys_domain="global" view="Default view">222efedf3b833e105493ddb693e45a0c</sys_ui_section>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-02-19 12:20:40</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>column_60</element>
+            <position>10</position>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-02-19 12:20:40</sys_created_on>
+            <sys_id>232eb2133bc33e105493ddb693e45a16</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="Integer Fields" display_value="Integer Fields" name="x_ctans_incentnow_data_lake" sys_domain="global" view="Default view">222efedf3b833e105493ddb693e45a0c</sys_ui_section>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-02-19 12:20:40</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_section action="INSERT_OR_UPDATE">
+            <caption>Integer Fields</caption>
+            <header>false</header>
+            <name>x_ctans_incentnow_data_lake</name>
+            <roles/>
+            <sys_class_name>sys_ui_section</sys_class_name>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-02-19 12:20:36</sys_created_on>
+            <sys_domain>global</sys_domain>
+            <sys_domain_path>/</sys_domain_path>
+            <sys_id>222efedf3b833e105493ddb693e45a0c</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_name>x_ctans_incentnow_data_lake</sys_name>
+            <sys_overrides/>
+            <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+            <sys_policy/>
+            <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+            <sys_update_name>sys_ui_section_222efedf3b833e105493ddb693e45a0c</sys_update_name>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-02-19 12:20:36</sys_updated_on>
+            <sys_user/>
+            <title>false</title>
+            <view display_value="Default view" name="NULL">Default view</view>
+            <view_name/>
+        </sys_ui_section>
+    </sys_ui_section>
+</record_update>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element db_object_id="795d47fb3b100350ffa00e9693e45a57" label="AI Intent Configuration" max_length="40" name="x_ctans_incentnow_ai_intent_configuration" type="collection">
+        <element label="Target Field" max_length="150" name="field_mapping" type="string"/>
+        <element attributes="encode_utf8=false" label="Business Unit" max_length="32" name="business_unit" reference="business_unit" type="reference"/>
+        <element label="Active" max_length="40" name="active" type="boolean"/>
+        <element attributes="edge_encryption_enabled=true" label="Keywords" mandatory="true" max_length="1000" name="keywords" type="string"/>
+        <element label="Response Template" max_length="1000" name="response_template" type="string"/>
+        <element choice="1" label="Logic Type" max_length="40" name="logic_type" type="choice">
+            <choice>
+                <element inactive_on_update="false" label="Direct Lookup" sequence="2" value="direct_lookup"/>
+                <element inactive_on_update="false" label="Quarterly SUM" sequence="4" value="quarterly_sum"/>
+                <element inactive_on_update="false" label="Plan Lookup" sequence="8" value="plan_lookup"/>
+                <element inactive_on_update="false" label="Payout Components Lookup" sequence="14" value="payout_components_lookup"/>
+                <element inactive_on_update="false" label="Monthly Sum" sequence="3" value="monthly_sum"/>
+                <element inactive_on_update="false" label="HTML Parser" sequence="7" value="html_parser"/>
+                <element inactive_on_update="false" label="Formula Trace" sequence="6" value="formula_trace"/>
+                <element inactive_on_update="false" label="Monthly Payout Lookup" sequence="10" value="monthly_payout_lookup"/>
+                <element inactive_on_update="false" label="Incentive Statement Lookup" sequence="15" value="incentive_statement_lookup"/>
+                <element inactive_on_update="false" label="Custom formula" sequence="9" value="custom_formula"/>
+                <element inactive_on_update="false" label="Quota Attainment Lookup" sequence="1" value="quota_attainment_lookup"/>
+                <element inactive_on_update="false" label="Yearly SUM" sequence="5" value="yearly_sum"/>
+                <element inactive_on_update="false" label="Plan components Lookup" sequence="0" value="plan_components_lookup"/>
+            </choice>
+        </element>
+        <element label="Group By" max_length="40" name="group_by" type="string"/>
+        <element label="Priority" mandatory="true" max_length="40" name="priority" type="integer"/>
+        <element label="Approval Required" max_length="40" name="approval_required" type="boolean"/>
+        <element attributes="encode_utf8=false" label="Source Table" max_length="32" name="source_table" reference="sys_db_object" reference_qual="sys_scope=3e9928d33b7ef650ffa00e9693e45a75^EQ" reference_qual_condition="sys_scope=3e9928d33b7ef650ffa00e9693e45a75^EQ" type="reference"/>
+        <element default="global" label="Domain" max_length="32" name="sys_domain" type="domain_id"/>
+        <element label="Formula Field" max_length="40" name="formula_field" type="string"/>
+        <element label="Description" max_length="1000" name="description" type="string"/>
+        <element label="Intent Name" mandatory="true" max_length="100" name="intent_name" type="string"/>
+        <element attributes="ignore_filter_on_new=true" default="javascript:global.getNextObjNumberPadded();" label="Number" max_length="40" name="number" type="string"/>
+        <index name="index">
+            <element name="business_unit"/>
+        </index>
+        <index name="index2">
+            <element name="source_table"/>
+        </index>
+        <index name="index3">
+            <element name="sys_domain"/>
+        </index>
+    </element>
+</database>

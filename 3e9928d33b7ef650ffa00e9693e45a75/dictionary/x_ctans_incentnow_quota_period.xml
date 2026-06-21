@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element db_object_id="d73950253baff6105493ddb693e45a90" label="Quota Period" max_length="40" name="x_ctans_incentnow_quota_period" type="collection">
+        <element label="Target Value" max_length="15" name="target_value" type="decimal"/>
+        <element attributes="edge_encryption_enabled=true" choice="1" label="Calculation Mode" max_length="40" name="calculation_mode" type="string">
+            <choice>
+                <element inactive_on_update="false" label="Driven by Monthly Quota" sequence="1" value="driven_by_monthly_quota"/>
+                <element inactive="true" inactive_on_update="true" label="Choice 3" sequence="2" value="Choice 3"/>
+                <element inactive_on_update="false" label="Driven by Annual Quota" sequence="0" value="driven_by_annual_quota"/>
+                <element inactive_on_update="false" label="Monthly Quota Adjusted" sequence="2" value="monthly_quota_adjusted"/>
+                <element inactive="true" inactive_on_update="true" label="Choice 2" sequence="1" value="Choice 2"/>
+                <element inactive="true" inactive_on_update="true" label="Choice 1" sequence="0" value="Choice 1"/>
+            </choice>
+        </element>
+        <element attributes="edge_encryption_enabled=true" choice="1" label="Period Type" max_length="40" name="period_type" type="string">
+            <choice>
+                <element inactive_on_update="false" label="Month" sequence="2" value="month"/>
+                <element inactive_on_update="false" label="Quarter" sequence="1" value="quarter"/>
+                <element inactive_on_update="false" label="Year" sequence="0" value="year"/>
+            </choice>
+        </element>
+        <element label="Domain" max_length="32" name="sys_domain" type="domain_id"/>
+        <element attributes="encode_utf8=false" label="Parent Period" max_length="32" name="parent_period" reference="x_ctans_incentnow_quota_period" type="reference"/>
+        <element attributes="encode_utf8=false" label="Quota" mandatory="true" max_length="32" name="quota" reference="x_ctans_incentnow_quota" type="reference"/>
+        <element attributes="encode_utf8=false" display="true" label="Fiscal Period" max_length="32" name="fiscal_period" reference="x_ctans_incentnow_fiscal_period" type="reference"/>
+        <element label="Period Number" max_length="40" name="period_number" type="integer"/>
+        <index name="index">
+            <element name="fiscal_period"/>
+        </index>
+        <index name="index2">
+            <element name="parent_period"/>
+        </index>
+        <index name="index3">
+            <element name="quota"/>
+        </index>
+        <index name="index4">
+            <element name="sys_domain"/>
+        </index>
+    </element>
+</database>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="m2m_sp_widget_dependency">
+    <m2m_sp_widget_dependency action="INSERT_OR_UPDATE">
+        <sp_dependency display_value="chartincentiq">7e5684fb3b994350a4cbaddc73e45ab7</sp_dependency>
+        <sp_widget display_value="IncentNow Dashboard">d382d1273b6ffa505493ddb693e45a29</sp_widget>
+        <sys_class_name>m2m_sp_widget_dependency</sys_class_name>
+        <sys_created_by>karan.kumar</sys_created_by>
+        <sys_created_on>2026-06-12 08:36:07</sys_created_on>
+        <sys_id>88760cfb3b994350a4cbaddc73e45ab4</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>chart.IncentNow Dashboard</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>m2m_sp_widget_dependency_88760cfb3b994350a4cbaddc73e45ab4</sys_update_name>
+        <sys_updated_by>karan.kumar</sys_updated_by>
+        <sys_updated_on>2026-06-12 08:36:07</sys_updated_on>
+    </m2m_sp_widget_dependency>
+</record_update>

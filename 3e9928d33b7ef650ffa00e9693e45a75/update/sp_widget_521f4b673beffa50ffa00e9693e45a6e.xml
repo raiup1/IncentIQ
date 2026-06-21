@@ -1,0 +1,1743 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <client_script><![CDATA[api.controller = function($scope,$location) {
+  var c = this;
+
+  /* ─────────────────────────────────────────────
+     STATE
+  ───────────────────────────────────────────── */
+  c.filtersVisible   = false;
+  c.viewingReport    = null;
+  c.viewingReportId  = null;
+  c._generatedChart  = null;
+	
+	c.masterGeneratedReports = [];
+
+  c.customFilters = {
+    period:  '',
+    team:    '',
+    metrics: '',
+    format:  'csv'
+  };
+
+  /* ─────────────────────────────────────────────
+     INIT — auto-render chart on page load/refresh
+  ───────────────────────────────────────────── */
+  c.$onInit = function() {
+
+		var wait = setInterval(function() {
+
+			if (!c.data.generatedReports || !c.data.generatedReports.length) return;
+
+			clearInterval(wait);
+
+			c.viewingReport   = c.data.generatedReports[0];
+			c.viewingReportId = c.viewingReport.sys_id;
+
+			$scope.$applyAsync();
+
+			setTimeout(function() {
+				c._poll(c.viewingReport, 0);
+			}, 200);
+
+		}, 100);
+	};
+
+		function waitForData(attempt) {
+			attempt = attempt || 0;
+
+			if (attempt > 50) return;
+
+			// wait for data + list
+			if (!c.data.generatedReports || c.data.generatedReports.length === 0) {
+				setTimeout(function() {
+					waitForData(attempt + 1);
+				}, 100);
+				return;
+			}
+
+			var firstReport = c.data.generatedReports[0];
+
+			c.viewingReport   = firstReport;
+			c.viewingReportId = firstReport.sys_id;
+
+			try { $scope.$apply(); } catch(e) {}
+
+			// wait for DOM too
+			setTimeout(function() {
+				c._poll(firstReport, 0);
+			}, 200);
+		}
+
+  /* ─────────────────────────────────────────────
+     HEADER ACTIONS
+  ───────────────────────────────────────────── */
+  c.toggleFilters = function() {
+    c.filtersVisible = !c.filtersVisible;
+  };
+
+  c.exportAll = function() {
+    c.server.update({ action: 'export_all', format: 'pdf' }).then(function() {
+      if (c.data.exportUrl) 
+				$location.url(c.data.exportUrl);
+				//window.open(c.data.exportUrl, '_blank');
+    });
+  };
+
+  /* ─────────────────────────────────────────────
+     REPORT TEMPLATE ACTIONS
+  ───────────────────────────────────────────── */
+  c.generateReport = function(templateId) {
+    if (templateId === 'commission_monthly') {
+      c.server.get({
+        action: 'generate_commission_monthly',
+        templateId: templateId,
+        format: c.customFilters.format || 'pdf'
+      }).then(function(response) {
+			var newReports = response.data.generatedReports || [];
+			c.masterGeneratedReports = c.masterGeneratedReports || [];
+			newReports.forEach(function(r) {
+					c.masterGeneratedReports.push(r);
+			});
+			c.data.generatedReports = c.masterGeneratedReports;
+			if (newReports.length > 0) {
+					c.viewGeneratedReport(newReports[0]);
+			}
+				
+				
+		});
+    } 
+		else if (templateId === 'sales_performance') {
+      c.server.get({
+        action: 'generate_sales_performance',
+        templateId: templateId,
+        format: c.customFilters.format || 'pdf'
+      }).then(function(response) {
+			var newReports = response.data.generatedReports || [];
+			c.masterGeneratedReports = c.masterGeneratedReports || [];
+			newReports.forEach(function(r) {
+					c.masterGeneratedReports.push(r);
+			});
+			c.data.generatedReports = c.masterGeneratedReports;
+			if (newReports.length > 0) {
+					c.viewGeneratedReport(newReports[0]);
+			}
+		});
+    } 
+		else if (templateId === 'team_leaderboard') {
+      c.server.get({
+        action: 'generate_team_leaderboard',
+        templateId: templateId,
+        format: c.customFilters.format || 'pdf'
+      }).then(function(response) {
+			var newReports = response.data.generatedReports || [];
+			c.masterGeneratedReports = c.masterGeneratedReports || [];
+			newReports.forEach(function(r) {
+					c.masterGeneratedReports.push(r);
+			});
+			c.data.generatedReports = c.masterGeneratedReports;
+			if (newReports.length > 0) {
+					c.viewGeneratedReport(newReports[0]);
+			}
+		});
+    } else {
+      c.server.update({
+        action: 'generate_report',
+        templateId: templateId,
+        format: c.customFilters.format || 'pdf'
+      }).then(function() {
+        if (c.data.exportUrl) 
+					$location.url(c.data.exportUrl);
+					//window.open(c.data.exportUrl, '_blank');
+			
+				
+      });
+    }
+		
+			
+				setTimeout(function() {
+						var el = document.getElementById("generatedReport");
+						if (el) {
+							el.scrollIntoView({ behavior: "smooth", block: "start" });
+						}
+					}, 100);
+  };
+
+  /* ─────────────────────────────────────────────
+     VIEW — inline chart toggle
+  ───────────────────────────────────────────── */
+  c.viewGeneratedReport = function(report) {
+    // Toggle off if same report clicked again
+    if (c.viewingReportId === report.sys_id) {
+      c.closeChart();
+      return;
+    }
+
+    // Destroy previous chart instance
+    if (c._generatedChart) {
+      try { c._generatedChart.destroy(); } catch(e) {}
+      c._generatedChart = null;
+    }
+
+    c.viewingReport   = report;
+    c.viewingReportId = report.sys_id;
+
+    // ng-if on the panel means DOM is created now — poll for the body div
+    c._poll(report, 0);
+  };
+
+  c._poll = function(report, attempt) {
+    if (attempt > 60) return;
+
+    var body = document.getElementById('inlineChartBody');
+
+		if (!body || body.offsetHeight === 0 || body.clientWidth === 0) {
+			setTimeout(function() {
+				c._poll(report, attempt + 1);
+			}, 100);
+			return;
+		}
+
+    // Use fixed width if clientWidth is 0 (not painted yet)
+    var W = (body.clientWidth > 48) ? (body.clientWidth - 48) : 860;
+    var H = 320;
+
+    // Destroy old chart first
+    if (c._generatedChart) {
+      try { c._generatedChart.destroy(); } catch(e) {}
+      c._generatedChart = null;
+    }
+
+    // Create fresh canvas
+    body.innerHTML = '';
+    var canvas = document.createElement('canvas');
+    canvas.id     = 'generatedReportChartFull';
+    canvas.width  = W;
+    canvas.height = H;
+    canvas.style.cssText = 'display:block;width:' + W + 'px;height:' + H + 'px;';
+    body.appendChild(canvas);
+
+    var all = report.chartData || [];
+		
+		// TEAM LEADERBOARD (TOP PERFORMER PER BUSINESS UNIT)
+		if (all[0] && all[0].business_unit !== undefined && all[0].total_commission !== undefined) {
+
+			// 1. Find TOP performer per business unit
+			var map = {};
+
+			all.forEach(function(d) {
+				var bu = d.business_unit || 'Unknown';
+				var val = parseFloat(d.total_commission) || 0;
+
+				// keep only highest commission per BU
+				if (!map[bu] || val > map[bu]) {
+					map[bu] = val;
+				}
+			});
+
+			// 2. Convert to array
+			var result = Object.keys(map).map(function(bu) {
+				return {
+					business_unit: bu,
+					amount: map[bu]
+				};
+			});
+
+			// 3. Sort descending (top BU first)
+			result.sort(function(a, b) {
+				return b.amount - a.amount;
+			});
+
+			// 4. Chart data
+			var labels = result.map(function(d) { return d.business_unit; });
+			var values = result.map(function(d) { return d.amount; });
+
+			c._generatedChart = new Chart(canvas.getContext('2d'), {
+				type: 'bar',
+				data: {
+					labels: labels,
+					datasets: [{
+						label: 'Top Performer Commission',
+						data: values,
+						backgroundColor: '#6366f1'
+					}]
+				},
+				options: {
+					responsive: false,
+					plugins: {
+						legend: { position: 'bottom' }
+					},
+					scales: {
+						x: {
+							grid: { color: '#f3f4f6' }
+						},
+						y: {
+							beginAtZero: true,
+							grid: { color: '#f3f4f6' },
+							ticks: {
+								callback: function(v) {
+									return v >= 1000 ? '$' + (v / 1000).toFixed(0) + 'K' : '$' + v;
+								}
+							}
+						}
+					}
+				}
+			});
+
+			return;
+		}
+		
+		
+		// =========================
+		// CUSTOM REPORT (GREEN CHART)
+		// =========================
+		if (report.type === 'custom') {
+
+			var labels = all.map(function(d) { return d.label; });
+			var values = all.map(function(d) { return d.value; });
+
+			c._generatedChart = new Chart(canvas.getContext('2d'), {
+				type: 'bar',
+				data: {
+					labels: labels,
+					datasets: [{
+						label: 'Custom Metrics',
+						data: values,
+						backgroundColor: '#22c55e' // ✅ GREEN
+					}]
+				},
+				options: {
+					responsive: false,
+					plugins: {
+						legend: { position: 'bottom' }
+					},
+					scales: {
+						x: {
+							grid: { color: '#f3f4f6' }
+						},
+						y: {
+							beginAtZero: true,
+							grid: { color: '#f3f4f6' }
+						}
+					}
+				}
+			});
+
+			return; // ✅ VERY IMPORTANT
+		}
+		
+		// SALES PERFORMANCE (BU BASED PARALLEL BAR)
+		if (all[0] && all[0].quota !== undefined) {
+
+			var labels = all.map(function(d) { return d.label; });
+
+			var creditsData = all.map(function(d) { return d.credits; });
+			var quotaData   = all.map(function(d) { return d.quota; });
+
+			c._generatedChart = new Chart(canvas.getContext('2d'), {
+				type: 'bar',
+				data: {
+					labels: labels,
+					datasets: [
+						{
+							label: 'Total Credits',
+							data: creditsData,
+							backgroundColor: '#3b82f6'
+						},
+						{
+							label: 'Quota Attainment',
+							data: quotaData,
+							backgroundColor: '#f59e0b'
+						}
+					]
+				},
+				options: {
+					responsive: false,
+					plugins: {
+						legend: { position: 'bottom' }
+					},
+					scales: {
+						x: {
+							grid: { color: '#f3f4f6' }
+						},
+						y: {
+							beginAtZero: true,
+							grid: { color: '#f3f4f6' },
+							ticks: {
+								callback: function(v) {
+									return v >= 1000 ? '$' + (v / 1000).toFixed(0) + 'K' : '$' + v;
+								}
+							}
+						}
+					}
+				}
+			});
+
+			return; 
+		}
+		var labels = all.map(function(d) { return d.label || d.month; });
+
+		// detect field dynamically
+		var key = (all[0] && all[0].incentive !== undefined) ? 'incentive' : 'value';
+
+		var plotData = all.filter(function(d) { return d[key] > 0; });
+		if (plotData.length === 0) plotData = all;
+
+		var values = plotData.map(function(d) { return d[key]; });
+
+    c._generatedChart = new Chart(canvas.getContext('2d'), {
+      type: (all[0] && all[0].label && all[0].value) ? 'bar' : 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: (key === 'incentive') 
+					? 'Incentives by Month ($)' 
+					: 'Top Performer',
+          data: values,
+          borderColor: '#f59e0b',
+          backgroundColor: 'rgba(245,158,11,0.15)',
+          borderWidth: 2,
+          tension: 0.4,
+          fill: true,
+          pointRadius: 5,
+          pointBackgroundColor: '#f59e0b',
+          pointBorderColor: '#fff',
+          pointBorderWidth: 2
+        }]
+      },
+      options: {
+        responsive: false,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'bottom' },
+          tooltip: {
+            callbacks: {
+              label: function(ctx) {
+                return ' $' + ctx.raw.toFixed(2);
+              }
+            }
+          }
+        },
+        scales: {
+          x: { grid: { color: '#f3f4f6' } },
+          y: {
+            beginAtZero: true,
+            grid: { color: '#f3f4f6' },
+            ticks: {
+              callback: function(v) {
+                return v >= 1000 ? '$' + (v / 1000).toFixed(0) + 'K' : '$' + v;
+              }
+            }
+          }
+        }
+      }
+    });
+  };
+
+  c.closeChart = function() {
+    if (c._generatedChart) {
+      try { c._generatedChart.destroy(); } catch(e) {}
+      c._generatedChart = null;
+    }
+    c.viewingReportId = null;
+    c.viewingReport   = null;
+  };
+
+  /* ─────────────────────────────────────────────
+     DOWNLOAD CSV
+  ───────────────────────────────────────────── */
+	
+	
+		c.downloadGeneratedCSV = function(report) {
+		if (!report || !report.chartData) return;
+
+		var all = report.chartData || [];
+		var csv = [];
+
+		// =========================
+		// TEAM LEADERBOARD
+		// =========================
+		if (all[0] && all[0].business_unit !== undefined) {
+
+			csv.push(["Business Unit", "Total Commission"]);
+
+			all.forEach(function(d) {
+				csv.push([
+					d.business_unit || "",
+					Number(d.total_commission || d.amount || 0)
+				]);
+			});
+
+		}
+
+		// =========================
+		// SALES PERFORMANCE (2 SERIES)
+		// =========================
+		else if (all[0] && all[0].quota !== undefined) {
+
+			csv.push(["Label", "Total Credits", "Quota"]);
+
+			all.forEach(function(d) {
+				csv.push([
+					d.label || "",
+					Number(d.credits || 0),
+					Number(d.quota || 0)
+				]);
+			});
+
+		}
+
+		// =========================
+		// MONTHLY / INCENTIVE (SINGLE SERIES)
+		// =========================
+		else if (all[0] && (all[0].month !== undefined || all[0].incentive !== undefined)) {
+
+			var key =
+				all[0].incentive !== undefined ? "incentive" :
+				all[0].value !== undefined ? "value" :
+				"value";
+
+			csv.push(["Month", "Value"]);
+
+			all.forEach(function(d) {
+				csv.push([
+					d.month || d.label || "",
+					Number(d[key] || 0)
+				]);
+			});
+
+		}
+
+		// =========================
+		// DEFAULT FALLBACK
+		// =========================
+		else {
+
+			csv.push(["Label", "Value"]);
+
+			all.forEach(function(d) {
+				csv.push([
+					d.label || "",
+					Number(d.value || 0)
+				]);
+			});
+
+		}
+
+		// =========================
+		// DOWNLOAD
+		// =========================
+		var csvContent = csv.map(e => e.join(",")).join("\n");
+
+		var blob = new Blob([csvContent], { type: "text/csv" });
+		var link = document.createElement("a");
+
+		link.href = window.URL.createObjectURL(blob);
+		link.download = (report.name || "report") + ".csv";
+
+		document.body.appendChild(link);
+		link.click();
+		document.body.removeChild(link);
+	};
+	
+  c.downloadGeneratedReport = function(report) {
+    if (!report || !report.chartData) return;
+
+    var key = (report.chartData[0] && report.chartData[0].incentive !== undefined)
+			? 'incentive'
+			: 'value';
+
+		var rows = (report.chartData || []).filter(function(d) { return d[key] > 0; });
+		if (rows.length === 0) rows = report.chartData;
+
+		var labels = rows.map(function(d) { return d.month; });
+		var values = rows.map(function(d) { return d[key]; });
+
+    // Create off-screen canvas with extra space at top for title/meta
+    var W = 960, H = 560;
+    var offCanvas    = document.createElement('canvas');
+    offCanvas.width  = W;
+    offCanvas.height = H;
+    var ctx2d = offCanvas.getContext('2d');
+
+    // White background
+    ctx2d.fillStyle = '#ffffff';
+    ctx2d.fillRect(0, 0, W, H);
+
+    // Title
+    ctx2d.fillStyle = '#111827';
+    ctx2d.font = 'bold 20px Arial, sans-serif';
+    ctx2d.fillText('Incentives by Month', 48, 44);
+
+    // Meta line
+    ctx2d.fillStyle = '#6b7280';
+    ctx2d.font = '13px Arial, sans-serif';
+    var meta = 'Period: ' + (report.period || '') +
+               '   |   Generated: ' + (report.generatedDate || '') +
+               '   |   By: ' + (report.generatedBy || '');
+    ctx2d.fillText(meta, 48, 68);
+
+    // Thin separator line
+    ctx2d.strokeStyle = '#e5e7eb';
+    ctx2d.lineWidth = 1;
+    ctx2d.beginPath();
+    ctx2d.moveTo(48, 80);
+    ctx2d.lineTo(W - 48, 80);
+    ctx2d.stroke();
+
+    // Create a second canvas just for the chart (below header area)
+    var chartCanvas    = document.createElement('canvas');
+    var chartH = H - 100;
+    chartCanvas.width  = W - 96;
+    chartCanvas.height = chartH;
+    var chartCtx = chartCanvas.getContext('2d');
+
+    // White chart background
+    chartCtx.fillStyle = '#ffffff';
+    chartCtx.fillRect(0, 0, W - 96, chartH);
+
+    var offChart = new Chart(chartCtx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Incentives by Month ($)',
+          data: values,
+          borderColor: '#f59e0b',
+          backgroundColor: 'rgba(245,158,11,0.12)',
+          borderWidth: 2.5,
+          tension: 0.4,
+          fill: true,
+          pointRadius: 6,
+          pointBackgroundColor: '#f59e0b',
+          pointBorderColor: '#ffffff',
+          pointBorderWidth: 2
+        }]
+      },
+      options: {
+        responsive: false,
+        maintainAspectRatio: false,
+        animation: { duration: 0 },
+        layout: { padding: { top: 20, right: 20, bottom: 10, left: 10 } },
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              color: '#374151',
+              font: { size: 12, family: 'Arial' },
+              padding: 16
+            }
+          }
+        },
+        scales: {
+          x: {
+            grid: { color: '#f3f4f6' },
+            ticks: { color: '#6b7280', font: { size: 12, family: 'Arial' } }
+          },
+          y: {
+            beginAtZero: true,
+            grid: { color: '#f3f4f6' },
+            ticks: {
+              color: '#6b7280',
+              font: { size: 12, family: 'Arial' },
+              callback: function(v) {
+                return v >= 1000 ? '$' + (v / 1000).toFixed(0) + 'K' : '$' + v;
+              }
+            }
+          }
+        }
+      }
+    });
+
+    setTimeout(function() {
+      // Draw chart canvas onto main canvas below the header
+      ctx2d.drawImage(chartCanvas, 48, 90);
+
+      // Light border around chart area
+      ctx2d.strokeStyle = '#e5e7eb';
+      ctx2d.lineWidth = 1;
+      ctx2d.strokeRect(48, 90, W - 96, chartH);
+
+      offChart.destroy();
+
+      // Download as PNG
+      var imgDataUrl = offCanvas.toDataURL('image/png');
+      var link = document.createElement('a');
+      link.href     = imgDataUrl;
+      link.download = 'Incentives_by_Month.png';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }, 400);
+  };
+
+  /* ─────────────────────────────────────────────
+     CUSTOM REPORT BUILDER ACTIONS
+  ───────────────────────────────────────────── */
+  c.generateCustomReport = function() {
+		
+		console.log("CUSTOM FILTERS:", c.customFilters);
+
+		c.server.get({
+			action: 'generate_custom_report',
+			filters: angular.copy(c.customFilters)
+		}).then(function(response) {
+			
+			console.log("SERVER RESPONSE:", response);
+			
+			var newReports = response.data.generatedReports || [];
+			
+			c.masterGeneratedReports = c.masterGeneratedReports || [];
+
+			newReports.forEach(function(r) {
+				c.masterGeneratedReports.push(r);
+			});
+
+			c.data.generatedReports = c.masterGeneratedReports;
+
+			$scope.$applyAsync();
+			
+			if (newReports.length > 0) {
+				c.viewGeneratedReport(newReports[0]);
+				
+				
+				
+			}
+			
+			setTimeout(function() {
+						var el = document.getElementById("generatedReport");
+						if (el) {
+							el.scrollIntoView({ behavior: "smooth", block: "start" });
+						}
+					}, 100);
+			
+		});
+	};
+
+  c.saveTemplate = function() {
+    c.server.update({ action: 'save_template', filters: c.customFilters }).then(function() {
+      alert('Template saved successfully.');
+    });
+  };
+
+  /* ─────────────────────────────────────────────
+     RECENT REPORTS ACTIONS
+  ───────────────────────────────────────────── */
+  c.downloadReport = function(reportId) {
+    c.server.update({ action: 'download_report', reportId: reportId }).then(function() {
+      if (c.data.downloadUrl) 
+				$location.url(c.data.downloadUrl);
+				//window.open(c.data.downloadUrl, '_blank');
+    });
+  };
+
+  c.viewReport = function(reportId) {
+    c.server.update({ action: 'view_report', reportId: reportId }).then(function() {
+      if (c.data.viewUrl) 
+				$location.url(c.data.viewUrl);
+				//window.open(c.data.viewUrl, '_blank');
+    });
+  };
+
+  /* ─────────────────────────────────────────────
+     SCHEDULED REPORTS ACTIONS
+  ───────────────────────────────────────────── */
+  c.scheduleNewReport = function() {
+    c.server.update({ action: 'schedule_new' }).then(function() {
+      if (c.data.scheduleUrl) 
+				$location.url(c.data.scheduleUrl);
+				//window.open(c.data.scheduleUrl, '_blank');
+    });
+  };
+};]]></client_script>
+        <controller_as>c</controller_as>
+        <css>/* ============================================================
+   Reports &amp; Analytics — CSS
+   ============================================================ */
+
+.reports-main {
+  background: #f5f6fa;
+  color: #111827;
+
+  .reports-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 24px;
+
+    .reports-header-right {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+
+      .btn-outline-filter {
+        background: #fff;
+        border: 1px solid #d1d5db;
+        color: #374151;
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-size: 13px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        &amp;:hover { background: #f9fafb; }
+      }
+
+      .btn-export-all {
+        background: #111827;
+        color: #fff;
+        border: none;
+        padding: 8px 18px;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        &amp;:hover { background: #1f2937; }
+      }
+    }
+  }
+
+  .summary-cards-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 20px;
+
+    .summary-card {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 20px 22px;
+
+      .summary-card-label { font-size: 12px; color: #6b7280; font-weight: 500; margin-bottom: 10px; }
+      .summary-card-value { font-size: 26px; font-weight: 700; color: #111827; margin-bottom: 4px; line-height: 1.2; }
+      .summary-card-sub   { font-size: 12px; color: #9ca3af; }
+    }
+  }
+
+  .section-block {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 20px;
+
+    .section-header {
+      margin-bottom: 20px;
+      .section-title { font-size: 16px; font-weight: 700; color: #111827; margin: 0 0 4px; }
+      .section-sub   { font-size: 13px; color: #6b7280; margin: 0; }
+    }
+  }
+
+  .template-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+
+    .template-card {
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: box-shadow 0.2s;
+      &amp;:hover { box-shadow: 0 4px 14px rgba(0,0,0,0.08); }
+
+      .template-card-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+
+        .template-icon {
+          width: 40px; height: 40px; border-radius: 10px;
+          display: flex; align-items: center; justify-content: center; font-size: 16px;
+        }
+        .template-badge {
+          font-size: 11px; font-weight: 500; color: #6b7280;
+          background: #f3f4f6; padding: 3px 10px; border-radius: 20px; border: 1px solid #e5e7eb;
+        }
+      }
+
+      .template-card-body {
+        flex: 1;
+        .template-name { font-size: 14px; font-weight: 700; color: #111827; margin: 0 0 6px; }
+        .template-desc { font-size: 12px; color: #6b7280; margin: 0; line-height: 1.5; }
+      }
+
+      .btn-generate {
+        width: 100%; padding: 9px; background: #fff; border: 1px solid #d1d5db;
+        border-radius: 8px; font-size: 13px; color: #374151; font-weight: 500;
+        cursor: pointer; display: flex; align-items: center; justify-content: center;
+        gap: 6px; transition: background 0.2s;
+        &amp;:hover { background: #f9fafb; }
+      }
+    }
+  }
+
+  .custom-builder-filters {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 16px;
+
+    .filter-group {
+      display: flex; flex-direction: column; gap: 6px;
+      .filter-label { font-size: 12px; font-weight: 500; color: #374151; }
+      .filter-select {
+        padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 8px;
+        font-size: 13px; color: #374151; background: #fff; cursor: pointer; width: 100%;
+        &amp;:focus { outline: none; border-color: #6366f1; box-shadow: 0 0 0 2px rgba(99,102,241,0.1); }
+      }
+    }
+  }
+
+  .custom-builder-actions {
+    display: flex; gap: 10px; align-items: center;
+
+    .btn-generate-custom {
+      background: #111827; color: #fff; border: none; padding: 9px 18px; border-radius: 8px;
+      font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;
+      &amp;:hover { background: #1f2937; }
+    }
+    .btn-save-template {
+      background: #fff; color: #374151; border: 1px solid #d1d5db; padding: 9px 16px;
+      border-radius: 8px; font-size: 13px; cursor: pointer;
+      &amp;:hover { background: #f9fafb; }
+    }
+  }
+
+  .recent-reports-table {
+    width: 100%; border-collapse: collapse; font-size: 13px;
+
+    thead tr { border-bottom: 1px solid #f3f4f6; }
+
+    th {
+      text-align: left; padding: 10px 14px; color: #6b7280; font-weight: 500; font-size: 12px;
+      &amp;.th-actions { text-align: right; }
+    }
+
+    tbody tr {
+      border-bottom: 1px solid #f9fafb; transition: background 0.15s;
+      &amp;:hover { background: #fafafa; }
+      &amp;:last-child { border-bottom: none; }
+    }
+
+    td { padding: 14px; color: #374151; vertical-align: middle; }
+    .report-name-cell { font-weight: 500; color: #111827; }
+    .date-cell { color: #6366f1; }
+
+    .type-badge {
+      font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; border: 1px solid #e5e7eb;
+      &amp;.type-badge-commission   { color: #6366f1; background: #eef2ff; border-color: #c7d2fe; }
+      &amp;.type-badge-performance  { color: #059669; background: #ecfdf5; border-color: #a7f3d0; }
+      &amp;.type-badge-team         { color: #0284c7; background: #e0f2fe; border-color: #bae6fd; }
+      &amp;.type-badge-transactions { color: #d97706; background: #fffbeb; border-color: #fde68a; }
+    }
+
+    .actions-cell {
+      text-align: right; display: flex; align-items: center; justify-content: flex-end; gap: 10px;
+      .btn-action-icon {
+        background: none; border: none; color: #6b7280; cursor: pointer; padding: 4px 6px; border-radius: 4px;
+        &amp;:hover { color: #111827; background: #f3f4f6; }
+      }
+      .btn-action-link {
+        background: none; border: none; color: #374151; cursor: pointer; font-size: 13px; font-weight: 500; padding: 0;
+        &amp;:hover { color: #111827; text-decoration: underline; }
+      }
+    }
+  }
+
+  /* ── Inline Chart Panel (replaces fixed overlay) ── */
+  .inline-chart-panel {
+    margin-top: 20px;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    overflow: hidden;
+
+    .inline-chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 20px;
+      background: #f9fafb;
+      border-bottom: 1px solid #e5e7eb;
+      font-size: 14px;
+      font-weight: 600;
+      color: #111827;
+
+      .btn-dl-csv {
+        background: #111827; color: #fff; border: none; padding: 7px 14px;
+        border-radius: 7px; font-size: 12px; font-weight: 600; cursor: pointer;
+        display: flex; align-items: center; gap: 5px;
+        &amp;:hover { background: #1f2937; }
+      }
+    }
+
+    .inline-chart-meta {
+      padding: 10px 20px;
+      font-size: 12px;
+      color: #6b7280;
+      background: #fff;
+      border-bottom: 1px solid #f3f4f6;
+    }
+
+    .inline-chart-body {
+      background: #fff;
+      padding: 24px;
+      /* Fixed pixel height — no percentage, no auto */
+      height: 380px;
+      position: relative;
+
+      canvas {
+        position: absolute;
+        top: 24px;
+        left: 24px;
+        right: 24px;
+        bottom: 24px;
+      }
+    }
+  }
+
+  .scheduled-list {
+    display: flex; flex-direction: column;
+
+    .scheduled-item {
+      display: flex; align-items: center; gap: 14px; padding: 16px 0; border-bottom: 1px solid #f3f4f6;
+      &amp;:last-child { border-bottom: none; }
+
+      .scheduled-icon {
+        width: 38px; height: 38px; border-radius: 10px;
+        display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0;
+      }
+      .scheduled-info {
+        flex: 1;
+        .scheduled-name { font-size: 14px; font-weight: 600; color: #111827; margin-bottom: 2px; }
+        .scheduled-freq { font-size: 12px; color: #6b7280; }
+      }
+      .status-pill {
+        font-size: 12px; font-weight: 600; padding: 4px 12px; border-radius: 20px;
+        &amp;.status-active { background: #111827; color: #fff; }
+        &amp;.status-paused { background: #f3f4f6; color: #6b7280; border: 1px solid #e5e7eb; }
+      }
+    }
+  }
+
+  .btn-schedule-new {
+    width: 100%; margin-top: 16px; padding: 11px; background: #fff; border: 1px solid #e5e7eb;
+    border-radius: 8px; font-size: 13px; color: #374151; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 8px; transition: background 0.2s;
+    &amp;:hover { background: #f9fafb; }
+  }
+
+  .empty-state {
+    text-align: center; padding: 32px 0; color: #9ca3af;
+    i { margin-bottom: 10px; display: block; }
+    p { margin: 0; font-size: 13px; }
+  }
+}</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description>Comprehensive reporting with exports, filters, and visualizations</description>
+        <docs/>
+        <field_list/>
+        <has_preview>false</has_preview>
+        <id>reports_main</id>
+        <internal>false</internal>
+        <link><![CDATA[function link(scope, element, attrs, controller) {
+  
+}]]></link>
+        <name>Reports Dashboard</name>
+        <option_schema/>
+        <public>false</public>
+        <roles>x_ctans_incentnow.user,x_ctans_incentnow.admin</roles>
+        <script><![CDATA[(function() {
+
+ 
+  function formatCurrency(amount) {
+    amount = parseFloat(amount) || 0;
+    if (amount >= 1000000) return '$' + (amount / 1000000).toFixed(2) + 'M';
+    if (amount >= 1000)    return '$' + (amount / 1000).toFixed(1) + 'K';
+    return '$' + amount.toFixed(0);
+  }
+
+  var MONTH_NAMES = ['Jan','Feb','Mar','Apr','May','Jun',
+                     'Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  var MONTH_MAP = {
+    'January':'Jan','February':'Feb','March':'Mar','April':'Apr',
+    'May':'May','June':'Jun','July':'Jul','August':'Aug',
+    'September':'Sep','October':'Oct','November':'Nov','December':'Dec'
+  };
+  var MONTH_ORDER_SHORT = ['Jan','Feb','Mar','Apr','May','Jun',
+                           'Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  function getMonthShort(fpDisplay) {
+    var first = fpDisplay ? fpDisplay.split(' ')[0] : '';
+    return MONTH_MAP[first] || first;
+  }
+
+  /* ─────────────────────────────────────────────────────────────
+     2. REPORT TEMPLATES
+  ───────────────────────────────────────────────────────────── */
+  data.reportTemplates = [
+    {
+      id: 'commission_monthly',  name: 'Monthly Commission Report',
+      description: 'Detailed breakdown of commission earned by each rep',
+      badge: 'Commission',   icon: 'fa-user-circle-o', iconBg: '#eef2ff', iconColor: '#6366f1'
+    },
+    {
+      id: 'sales_performance',   name: 'Sales Performance Summary',
+      description: 'Overall sales metrics and quota achievement',
+      badge: 'Performance',  icon: 'fa-line-chart',    iconBg: '#ecfdf5', iconColor: '#10b981'
+    },
+    {
+      id: 'team_leaderboard',    name: 'Team Leaderboard',
+      description: 'Rankings and top performers by team',
+      badge: 'Team',         icon: 'fa-users',         iconBg: '#e0f2fe', iconColor: '#0284c7'
+    }
+  ];
+
+  /* ─────────────────────────────────────────────────────────────
+     3. FISCAL PERIODS dropdown
+  ───────────────────────────────────────────────────────────── */
+  data.fiscalPeriods = [];
+  var fpSeen = {};
+  var fpGR = new GlideRecordSecure('x_ctans_incentnow_metric_report');
+  fpGR.orderByDesc('sys_created_on');
+  fpGR.query();
+  while (fpGR.next()) {
+    var fId   = fpGR.getValue('fiscal_year');
+    var fName = fpGR.getDisplayValue('fiscal_year');
+    if (fId && fName && !fpSeen[fId]) {
+      fpSeen[fId] = true;
+      data.fiscalPeriods.push({ id: fId, name: fName });
+    }
+  }
+
+  /* ─────────────────────────────────────────────────────────────
+     4. BUSINESS UNITS dropdown
+  ───────────────────────────────────────────────────────────── */
+  data.businessUnits = [];
+  var buSeen = {};
+  var buGR = new GlideRecordSecure('x_ctans_incentnow_metric_report');
+  buGR.query();
+  while (buGR.next()) {
+    var bId   = buGR.getValue('business_unit');
+    var bName = buGR.getDisplayValue('business_unit');
+    if (bId && bName && !buSeen[bId]) {
+      buSeen[bId] = true;
+      data.businessUnits.push({ id: bId, name: bName });
+    }
+  }
+
+  /* ─────────────────────────────────────────────────────────────
+     5. RECENTLY GENERATED REPORTS (NEW)
+        Source: x_ctans_incentnow_metric_report — Incentives by Month
+        Aggregated by fiscal_period, total_commission summed per month
+  ───────────────────────────────────────────────────────────── */
+  var monthIncentMap = {};
+  MONTH_ORDER_SHORT.forEach(function(m) { monthIncentMap[m] = 0; });
+
+  var metricGR = new GlideRecordSecure('x_ctans_incentnow_metric_report');
+  metricGR.addQuery('period_type', 'Month');
+  metricGR.query();
+
+  while (metricGR.next()) {
+    var fpDisp = metricGR.getDisplayValue('fiscal_period');
+    var mon    = getMonthShort(fpDisp);
+    var comm   = parseFloat(metricGR.getValue('total_commission') || 0);
+    if (monthIncentMap.hasOwnProperty(mon)) {
+      monthIncentMap[mon] += comm;
+    }
+  }
+
+  var chartData = MONTH_ORDER_SHORT.map(function(m) {
+    return { month: m, incentive: monthIncentMap[m] };
+  });
+
+  // Build the generated reports list — one entry for the Incentives by Month report
+  var todayDT  = new GlideDateTime();
+  var todayStr = todayDT.getYearLocalTime() + '-' +
+                 (todayDT.getMonthLocalTime() < 10 ? '0' : '') + todayDT.getMonthLocalTime() + '-' +
+                 (todayDT.getDayOfMonthLocalTime() < 10 ? '0' : '') + todayDT.getDayOfMonthLocalTime();
+
+  var currentUser = gs.getUserDisplayName() || gs.getUserName() || 'System';
+  var currentPeriod = MONTH_NAMES[todayDT.getMonthLocalTime() - 1] + ' ' + todayDT.getYearLocalTime();
+
+	data.generatedReports = [];
+  /*data.generatedReports = [
+    {
+      sys_id:        'incentives_by_month_report',
+      name:          'Incentives by Month',
+      period:        currentPeriod,
+      generatedDate: todayStr,
+      generatedBy:   currentUser,
+      chartData:     chartData
+    }
+  ];
+
+  /* ─────────────────────────────────────────────────────────────
+     6. RECENT REPORTS (sys_report)
+  ───────────────────────────────────────────────────────────── */
+  var typeClassMap = {
+    'commission':   'commission',
+    'performance':  'performance',
+    'team':         'team',
+    'transactions': 'transactions',
+    'list':         'commission',
+    'bar':          'performance',
+    'pie':          'performance',
+    'trend':        'performance',
+    'histogram':    'transactions',
+    'single_score': 'performance'
+  };
+
+  data.recentReports = [];
+  var rptGR = new GlideRecordSecure('sys_report');
+  rptGR.addQuery('active', true);
+  rptGR.addEncodedQuery('tableLIKEINCENTNOW');
+  rptGR.orderByDesc('sys_updated_on');
+  rptGR.setLimit(10);
+  rptGR.query();
+
+  while (rptGR.next()) {
+    var rType    = (rptGR.getValue('type') || '').toLowerCase();
+    var rUpdated = rptGR.getValue('sys_updated_on') || '';
+    var rPeriod  = '';
+    if (rUpdated) {
+      var rDT = new GlideDateTime(rUpdated);
+      rPeriod = MONTH_NAMES[rDT.getMonthLocalTime() - 1] + ' ' + rDT.getYearLocalTime();
+    }
+    data.recentReports.push({
+      id:            rptGR.getUniqueValue(),
+      name:          rptGR.getValue('title') || rptGR.getValue('name') || 'Untitled Report',
+      type:          rptGR.getDisplayValue('type') || rType,
+      typeClass:     typeClassMap[rType] || 'commission',
+      period:        rPeriod,
+      generatedDate: rUpdated ? rUpdated.substring(0, 10) : '',
+      generatedBy:   rptGR.getDisplayValue('sys_updated_by') || 'Admin User'
+    });
+  }
+
+  /* ─────────────────────────────────────────────────────────────
+     7. SCHEDULED REPORTS
+  ───────────────────────────────────────────────────────────── */
+  var schedIconMap = {
+    'commission':   { icon: 'fa-calendar',    iconBg: '#eef2ff', iconColor: '#6366f1' },
+    'performance':  { icon: 'fa-line-chart',  iconBg: '#ecfdf5', iconColor: '#10b981' },
+    'team':         { icon: 'fa-users',       iconBg: '#e0f2fe', iconColor: '#0284c7' },
+    'transactions': { icon: 'fa-file-text-o', iconBg: '#fffbeb', iconColor: '#d97706' }
+  };
+  var defaultSchedIcon = { icon: 'fa-user-circle-o', iconBg: '#fdf4ff', iconColor: '#a855f7' };
+
+  data.scheduledReports = [];
+  var schGR = new GlideRecordSecure('sys_report');
+  schGR.addQuery('active', true);
+  schGR.addNotNullQuery('schedule');
+  schGR.addEncodedQuery('tableLIKEINCENTNOW');
+  schGR.orderByDesc('sys_updated_on');
+  schGR.setLimit(10);
+  schGR.query();
+
+  while (schGR.next()) {
+    var sType  = (schGR.getValue('type') || '').toLowerCase();
+    var sStyle = schedIconMap[sType] || defaultSchedIcon;
+    data.scheduledReports.push({
+      id:        schGR.getUniqueValue(),
+      name:      schGR.getValue('title') || schGR.getValue('name') || 'Report',
+      frequency: schGR.getDisplayValue('schedule') || '',
+      status:    'Active',
+      icon:      sStyle.icon,
+      iconBg:    sStyle.iconBg,
+      iconColor: sStyle.iconColor
+    });
+  }
+
+  /* ─────────────────────────────────────────────────────────────
+     8. ACTION HANDLERS
+  ───────────────────────────────────────────────────────────── */
+  if (input && input.action) {
+
+    // ── NEW: Generate Incentives by Month report from metric table ──
+    if (input.action === 'generate_commission_monthly') {
+      var genMonthMap = {};
+      MONTH_ORDER_SHORT.forEach(function(m) { genMonthMap[m] = 0; });
+
+      var genGR = new GlideRecordSecure('x_ctans_incentnow_metric_report');
+      genGR.addQuery('period_type', 'Month');
+      genGR.query();
+
+      while (genGR.next()) {
+        var gFP  = genGR.getDisplayValue('fiscal_period');
+        var gMon = getMonthShort(gFP);
+        var gComm = parseFloat(genGR.getValue('total_commission') || 0);
+        if (genMonthMap.hasOwnProperty(gMon)) {
+          genMonthMap[gMon] += gComm;
+        }
+      }
+
+      var genChartData = MONTH_ORDER_SHORT.map(function(m) {
+        return { month: m, incentive: genMonthMap[m] };
+      });
+
+      var genDT     = new GlideDateTime();
+      var genToday  = genDT.getYearLocalTime() + '-' +
+                      (genDT.getMonthLocalTime() < 10 ? '0' : '') + genDT.getMonthLocalTime() + '-' +
+                      (genDT.getDayOfMonthLocalTime() < 10 ? '0' : '') + genDT.getDayOfMonthLocalTime();
+      var genPeriod = MONTH_NAMES[genDT.getMonthLocalTime() - 1] + ' ' + genDT.getYearLocalTime();
+      var genUser   = gs.getUserDisplayName() || gs.getUserName() || 'System';
+
+      data.generatedReports = [
+        {
+          sys_id:        'incentives_by_month_report_'+genDT.getNumericValue(),
+          name:          'Incentives by Month',
+          period:        genPeriod,
+          generatedDate: genToday,
+          generatedBy:   genUser,
+          chartData:     genChartData
+        }
+      ];
+    }
+		
+		//Sales Performance
+		if (input.action === 'generate_sales_performance') {
+
+			var buMap = {};
+
+			var grMR = new GlideRecordSecure('x_ctans_incentnow_metric_report');
+			grMR.addQuery('period_type', 'Month');
+			grMR.query();
+
+			while (grMR.next()) {
+
+				var bu = grMR.getDisplayValue('business_unit') || 'Unknown';
+
+				var credits = parseFloat(grMR.getValue('total_credits') || 0);
+				var quota   = parseFloat(grMR.getValue('quota_attainment') || 0);
+
+				if (!buMap[bu]) {
+					buMap[bu] = { credits: 0, quota: 0 };
+				}
+
+				buMap[bu].credits += credits;
+				buMap[bu].quota   += quota;
+			}
+
+			// Convert to chart format
+			var chartData = [];
+
+			for (var b in buMap) {
+				chartData.push({
+					label: b,
+					credits: buMap[b].credits,
+					quota: buMap[b].quota
+				});
+			}
+
+			// (optional) sort by credits desc
+			chartData.sort(function(a, b) {
+				return b.credits - a.credits;
+			});
+
+			var dt = new GlideDateTime();
+			var today = dt.getYearLocalTime() + '-' +
+									(dt.getMonthLocalTime() < 10 ? '0' : '') + dt.getMonthLocalTime() + '-' +
+									(dt.getDayOfMonthLocalTime() < 10 ? '0' : '') + dt.getDayOfMonthLocalTime();
+
+			var period = MONTH_NAMES[dt.getMonthLocalTime() - 1] + ' ' + dt.getYearLocalTime();
+			var user   = gs.getUserDisplayName() || gs.getUserName() || 'System';
+
+			data.generatedReports = [
+				{
+					sys_id: 'sales_performance_report_'+dt.getNumericValue(),
+					name: 'Sales Performance Summary',
+					period: period,
+					generatedDate: today,
+					generatedBy: user,
+					chartData: chartData
+				}
+			];
+		}
+		
+		//team leaderboard
+		
+		if (input.action === 'generate_team_leaderboard') {
+
+		var topMap = {};
+
+		var grMer = new GlideRecordSecure('x_ctans_incentnow_metric_report');
+		grMer.addQuery('period_type', 'Month');
+		grMer.query();
+
+		while (grMer.next()) {
+
+			var bu = grMer.getDisplayValue('business_unit') || 'Unknown';
+			var commission = parseFloat(grMer.getValue('total_commission') || 0);
+
+			// ]]>🔥<![CDATA[ keep ONLY top performer per BU
+			if (!topMap[bu] || commission > topMap[bu]) {
+				topMap[bu] = commission;
+			}
+		}
+
+		var chartData = [];
+
+		for (var b in topMap) {
+			chartData.push({
+				label: b,
+				value: topMap[b]
+			});
+		}
+
+		// ]]>🔥<![CDATA[ sort descending (leaderboard feel)
+		chartData.sort(function(a, b) {
+			return b.value - a.value;
+		});
+
+		var dt = new GlideDateTime();
+		var today = dt.getYearLocalTime() + '-' +
+								(dt.getMonthLocalTime() < 10 ? '0' : '') + dt.getMonthLocalTime() + '-' +
+								(dt.getDayOfMonthLocalTime() < 10 ? '0' : '') + dt.getDayOfMonthLocalTime();
+
+		var period = MONTH_NAMES[dt.getMonthLocalTime() - 1] + ' ' + dt.getYearLocalTime();
+		var user   = gs.getUserDisplayName() || gs.getUserName() || 'System';
+
+		data.generatedReports = [
+			{
+				sys_id: 'team_leaderboard_report_'+dt.getNumericValue(),
+				name: 'Team Leaderboard',
+				period: period,
+				generatedDate: today,
+				generatedBy: user,
+				chartData: chartData
+			}
+		];
+	}
+
+    // ── Download a generated report ──
+    if (input.action === 'download_generated_report' && input.reportId) {
+      data.downloadUrl = '/sys_report.do?sys_id=' + input.reportId + '&PDF';
+    }
+
+    if (input.action === 'generate_report') {
+      var fmt = input.format || 'pdf';
+      data.exportUrl = '/api/x_ctans_incentnow/report/export?type=' +
+                       (input.templateId || '') + '&format=' + fmt;
+    }
+
+		if (input.action === 'generate_custom_report') {
+			
+		var filters = input.filters || {};
+
+		var chartData = [];
+		var map = {};
+
+		var grMerp = new GlideRecordSecure('x_ctans_incentnow_metric_report');
+		grMerp.addQuery('period_type', 'Month');
+
+		// ✅ FIX 1: BUSINESS UNIT (DIRECT SYS_ID — THIS IS OK)
+		if (filters.team) {
+			grMerp.addQuery('business_unit', filters.team);
+		}
+		if (filters.period) {
+			grMerp.addQuery('fiscal_year', filters.period);
+		}
+
+		grMerp.query();
+
+		// ]]>🔥<![CDATA[ SAFETY: if still no rows → fallback
+		if (!grMerp.hasNext()) {
+			grMerp = new GlideRecordSecure('x_ctans_incentnow_metric_report');
+			grMerp.addQuery('period_type', 'Month');
+			grMerp.query();
+		}
+
+		while (grMerp.next()) {
+
+			var label = grMerp.getDisplayValue('business_unit') || 'Unknown';
+
+			var value = 0;
+
+			var metric = filters.metrics || 'commission';
+
+			if (metric === 'commission') {
+				value = parseFloat(grMerp.getValue('total_commission') || 0);
+			}
+			else if (metric === 'achievement') {
+				value = parseFloat(grMerp.getValue('quota_attainment') || 0);
+			}
+			else if (metric === 'credit') {
+				value = parseFloat(grMerp.getValue('total_credits') || 0);
+			}
+			else if (metric === 'quota') {
+				value = parseFloat(grMerp.getValue('target_quota') || 0);
+			}
+
+			if (!map[label]) map[label] = 0;
+			map[label] += value;
+		}
+
+		// convert to chart
+		for (var k in map) {
+			chartData.push({
+				label: k,
+				value: map[k]
+			});
+		}
+
+		// ]]>🔥<![CDATA[ ALWAYS RETURN SOMETHING (NO EMPTY REPORTS)
+		if (chartData.length === 0) {
+			chartData = [
+				{ label: "No Data", value: 0 }
+			];
+		}
+
+		// meta
+		var dt = new GlideDateTime();
+		var today =
+			dt.getYearLocalTime() + '-' +
+			(dt.getMonthLocalTime() < 10 ? '0' : '') + dt.getMonthLocalTime() + '-' +
+			(dt.getDayOfMonthLocalTime() < 10 ? '0' : '') + dt.getDayOfMonthLocalTime();
+
+		var period = 'Custom';
+		var user = gs.getUserDisplayName() || 'System';
+			
+		//name for custom report
+			
+		var metricLabelMap = {
+			commission: 'Commission',
+			achievement: 'Quota Achievement',
+			credit: 'Credits',
+			quota: 'Target Quota'
+		};
+
+		// Metric
+		var metricName = metricLabelMap[filters.metrics] || 'All Metrics';
+
+		// Team
+		var teamName = 'All Teams';
+		if (filters.team) {
+			var teamGR = new GlideRecordSecure('x_ctans_incentnow_plan');
+			if (teamGR.get('business_unit', filters.team)) {
+				teamName = teamGR.getDisplayValue('business_unit');
+			}
+		}
+
+		// Period
+		var period = 'All Periods';
+			if (filters.period) {
+				var fpLookup = new GlideRecordSecure('x_ctans_incentnow_metric_report');
+				fpLookup.addQuery('fiscal_year', filters.period);
+				fpLookup.setLimit(1);
+				fpLookup.query();
+				if (fpLookup.next()) {
+					period = fpLookup.getDisplayValue('fiscal_year');
+				}
+			}
+
+		// FINAL NAME
+		var reportName = metricName + ' - ' + teamName + ' - ' + period;
+
+		// ✅ FINAL OUTPUT (THIS WAS MISSING BEFORE)
+		data.generatedReports = [
+			{
+				sys_id: 'custom_' + dt.getNumericValue(),
+				name: reportName,
+				period: period,
+				generatedDate: today,
+				generatedBy: user,
+				chartData: chartData,
+				type: 'custom'
+			}
+		];
+	}
+
+    if (input.action === 'export_all') {
+      data.exportUrl = '/api/x_ctans_incentnow/report/export?type=all&format=pdf';
+    }
+
+    if (input.action === 'download_report' && input.reportId) {
+      data.downloadUrl = '/sys_report.do?sys_id=' + input.reportId + '&PDF';
+    }
+
+    if (input.action === 'view_report' && input.reportId) {
+      data.viewUrl = '/sys_report.do?sys_id=' + input.reportId;
+    }
+
+    if (input.action === 'save_template') {
+      data.savedTemplate = input.filters;
+    }
+
+    if (input.action === 'schedule_new') {
+      data.scheduleUrl = '/sys_report_list.do';
+    }
+  }
+
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>karan.kumar</sys_created_by>
+        <sys_created_on>2026-03-17 04:47:08</sys_created_on>
+        <sys_id>521f4b673beffa50ffa00e9693e45a6e</sys_id>
+        <sys_mod_count>97</sys_mod_count>
+        <sys_name>Reports Dashboard</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sp_widget_521f4b673beffa50ffa00e9693e45a6e</sys_update_name>
+        <sys_updated_by>shroin.mandal</sys_updated_by>
+        <sys_updated_on>2026-06-11 10:37:20</sys_updated_on>
+        <template><![CDATA[<div class="reports-main">
+
+  <!-- ── Header ── -->
+  <div class="reports-header">
+    <div class="reports-header-left">
+      <h1>Reports &amp; Analytics</h1>
+      <p>Generate insights and export performance data</p>
+    </div>
+  </div>
+  <!-- ── Report Templates ── -->
+  <div class="section-block">
+    <div class="section-header">
+      <h2 class="section-title">Report Templates</h2>
+      <p class="section-sub">Select a template to generate a customized report</p>
+    </div>
+    <div class="template-cards-grid">
+      <div class="template-card" ng-repeat="tpl in c.data.reportTemplates">
+        <div class="template-card-top">
+          <div class="template-icon" ng-style="{backgroundColor: tpl.iconBg}">
+            <i class="fa {{tpl.icon}}" ng-style="{color: tpl.iconColor}"></i>
+          </div>
+          <span class="template-badge">{{tpl.badge}}</span>
+        </div>
+        <div class="template-card-body">
+          <h4 class="template-name">{{tpl.name}}</h4>
+          <p class="template-desc">{{tpl.description}}</p>
+        </div>
+        <button class="btn-generate" ng-click="c.generateReport(tpl.id)">
+          <i class="fa fa-download"></i> Generate Report
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Custom Report Builder ── -->
+  <div class="section-block">
+    <div class="section-header">
+      <h2 class="section-title">Custom Report Builder</h2>
+      <p class="section-sub">Create a custom report with specific metrics and filters</p>
+    </div>
+    <div class="custom-builder-filters">
+      <div class="filter-group">
+        <label class="filter-label">Fiscal Year</label>
+        <select class="filter-select" ng-model="c.customFilters.period">
+          <option value="">All Years</option>
+          <option ng-repeat="p in c.data.fiscalPeriods" value="{{p.id}}">{{p.name}}</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label class="filter-label">Business Unit</label>
+        <select class="filter-select" ng-model="c.customFilters.team">
+          <option value="">All Business Units</option>
+          <option ng-repeat="u in c.data.businessUnits" value="{{u.id}}">{{u.name}}</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label class="filter-label">Metrics</label>
+        <select class="filter-select" ng-model="c.customFilters.metrics">
+          <option value="">All Metrics</option>
+          <option value="commission">Total Commission</option>
+          <option value="achievement">Quota Achievement</option>
+          <option value="credit">Total Credits</option>
+          <option value="quota">Target Quota</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label class="filter-label">Format</label>
+        <select class="filter-select" ng-model="c.customFilters.format">
+          <!--option value="pdf">PDF</option>
+          <option value="excel">Excel</option-->
+          <option value="csv">CSV</option>
+        </select>
+      </div>
+    </div>
+    <div class="custom-builder-actions">
+      <button class="btn-generate-custom" ng-click="c.generateCustomReport()">
+        <i class="fa fa-download"></i> Generate Custom Report
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Recently Generated Reports ── -->
+  <div class="section-block" id="generatedReport">
+    <div class="section-header">
+      <h2 class="section-title">Recently Generated Reports</h2>
+    </div>
+
+    <div class="empty-state" ng-show="c.data.generatedReports.length === 0">
+      <i class="fa fa-bar-chart fa-2x text-muted"></i>
+      <p class="text-muted">No reports generated yet. Click "Generate Report" on Monthly Commission Report to get started.</p>
+    </div>
+
+    <div ng-show="c.data.generatedReports.length > 0" >
+      <table class="recent-reports-table">
+        <thead>
+          <tr>
+            <th>Report Name</th>
+            <th>Fiscal Year</th>
+            <th>Generated</th>
+            <th>Generated By</th>
+            <th class="th-actions">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr ng-repeat="report in c.data.generatedReports">
+            <td class="report-name-cell">{{report.name}}</td>
+            <td>{{report.period}}</td>
+            <td class="date-cell">{{report.generatedDate}}</td>
+            <td>{{report.generatedBy}}</td>
+            <td class="actions-cell">
+              <button class="btn-action-icon" ng-click="c.downloadGeneratedCSV(report)">
+                <i class="fa fa-download"></i>
+              </button>
+              <button class="btn-action-link" ng-click="c.viewGeneratedReport(report)">
+                {{c.viewingReportId === report.sys_id ? 'Hide' : 'View'}}
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Chart panel shown inline below table when View is clicked -->
+      <div class="inline-chart-panel" ng-show="c.viewingReportId">
+        <div class="inline-chart-header">
+          <strong>{{c.viewingReport.name}}</strong>
+          <div style="display:flex;gap:10px;align-items:center;">
+            <button class="btn-dl-csv" ng-click="c.downloadGeneratedCSV(c.viewingReport)">
+              <i class="fa fa-download"></i> Download CSV
+            </button>
+            <button class="btn-action-link" ng-click="c.closeChart()">
+              <i class="fa fa-times"></i> Close
+            </button>
+          </div>
+        </div>
+        <div class="inline-chart-meta">
+          Period: <strong>{{c.viewingReport.period}}</strong>
+          &nbsp;&nbsp; Generated: <strong>{{c.viewingReport.generatedDate}}</strong>
+          &nbsp;&nbsp; By: <strong>{{c.viewingReport.generatedBy}}</strong>
+        </div>
+        <div class="inline-chart-body" id="inlineChartBody">
+          <canvas id="generatedReportChartFull"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>]]></template>
+    </sp_widget>
+</record_update>

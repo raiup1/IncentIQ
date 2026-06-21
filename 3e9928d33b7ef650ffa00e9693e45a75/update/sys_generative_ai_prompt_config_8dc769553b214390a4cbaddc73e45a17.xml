@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update sys_domain="global" table="sys_generative_ai_prompt_config">
+    <sys_generative_ai_prompt_config action="INSERT_OR_UPDATE">
+        <ai_config display_value="OneExtend Capability Definition: IncentNow Compensation Assistant (Now LLM Service - Now LLM Generic)">45c729553b214390a4cbaddc73e45a7d</ai_config>
+        <definition display_value="IncentNow Compensation Assistant (Now LLM Service - Now LLM Generic)">9fde14403bac0350ffa00e9693e45a42</definition>
+        <filter_properties>{}</filter_properties>
+        <filter_type>default</filter_type>
+        <is_default>true</is_default>
+        <order>0</order>
+        <sys_class_name>sys_generative_ai_prompt_config</sys_class_name>
+        <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+        <sys_created_on>2026-06-17 07:32:15</sys_created_on>
+        <sys_domain>global</sys_domain>
+        <sys_domain_path>/</sys_domain_path>
+        <sys_id>8dc769553b214390a4cbaddc73e45a17</sys_id>
+        <sys_mod_count>2</sys_mod_count>
+        <sys_name>45c729553b214390a4cbaddc73e45a7d</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_generative_ai_prompt_config_8dc769553b214390a4cbaddc73e45a17</sys_update_name>
+        <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
+        <sys_updated_on>2026-06-17 07:32:34</sys_updated_on>
+    </sys_generative_ai_prompt_config>
+</record_update>

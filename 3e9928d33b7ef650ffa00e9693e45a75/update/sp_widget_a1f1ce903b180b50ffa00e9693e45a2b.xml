@@ -1,0 +1,453 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <client_script><![CDATA[api.controller = function($scope, spUtil) {
+    var c = this;
+
+    var shared = c.widget.options.shared;
+    //console.log(JSON.stringify(shared));
+
+    c.updateStatus = function(action) {
+			
+				 if (action === 'rejected' && (!c.data.rejectionReason || c.data.rejectionReason.trim() === "")) {
+        spUtil.addErrorMessage("Please provide a rejection reason before rejecting.");
+        return;
+    }
+			
+        c.data.action = action;
+				c.data.sysid = c.data.sys_id; 
+
+        c.server.update().then(function(response) {
+					
+					
+					c.goBack();
+        	
+					
+        });
+    };
+	
+		c.goBack = function() {
+			//c.pk="called"
+			window.history.back();
+	};
+	
+	 /*closeModal=function($scope, data) {
+		 
+		 shared.result=data;
+		 
+   var scope = $scope;
+
+    while (scope && !scope.$close) {
+        scope = scope.$parent;
+    }
+
+    if (scope && scope.$close) {
+        scope.$close(data); 
+    } else {
+        console.error("No $close found in scope chain");
+    } */
+
+};]]></client_script>
+        <controller_as>c</controller_as>
+        <css>.modal-body {
+  padding: 10px;
+  background: #f3f4f6;
+}
+.btn-custom
+{
+	background: #000000;
+  color: #ffffff;
+}
+
+.qa-back-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  cursor: pointer;
+  color: #374151;
+  transition: background 0.15s, border-color 0.15s;
+  flex-shrink: 0;
+}
+
+.qa-back-btn:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+}
+
+/* Row layout */
+.header-row {
+  display: flex;
+  align-items: center; /* vertical alignment */
+  gap: 12px;
+}
+
+/* Text block */
+.header-text h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.header-text p {
+  margin: 2px 0 0 0;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+/* Card Container */
+.card-container {
+  background: #ffffff;
+  border-radius: 12px;
+ 
+  margin: auto;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Header */
+.card-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid #eee;
+}
+
+.card-header h2 {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.card-header p {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+/* Content */
+.card-content {
+  padding: 16px 20px;
+}
+
+/* Sections */
+.section {
+  margin-top: 16px;
+}
+
+/* Plan Grid */
+.plan-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  background: #f9fafb;
+  padding: 12px;
+  border-radius: 8px;
+}
+
+.col-span-2 {
+  grid-column: span 2;
+}
+
+.plan-grid label {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.value {
+  font-weight: 600;
+}
+
+/* Textarea */
+textarea {
+  width: 100%;
+  margin-top: 6px;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+}
+
+/* Timeline */
+.timeline {
+  margin-top: 18px;
+}
+
+.timeline h4 {
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.timeline-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  margin-top: 6px;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.gray { background: gray; }
+.yellow { background: #facc15; }
+.green { background: #22c55e; }
+
+/* Footer */
+.card-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 14px 20px;
+  border-top: 1px solid #eee;
+  background: #fafafa;
+}
+
+/* Buttons */
+.btn {
+  padding: 8px 14px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.btn.secondary {
+  background: #f3f4f6;
+}
+
+.btn.reject {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.btn.primary {
+  background: #2563eb;
+  color: #fff;
+}</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description/>
+        <docs/>
+        <field_list/>
+        <has_preview>true</has_preview>
+        <id>incentnow-review-widget</id>
+        <internal>false</internal>
+        <link><![CDATA[function link(scope, element, attrs, controller) {
+  
+}]]></link>
+        <name>IncentNow Review Widget</name>
+        <option_schema>[{"name":"table","section":"other","label":"Table","type":"string"},{"name":"sys_id","section":"other","label":"Sys ID","type":"string"}]</option_schema>
+        <public>false</public>
+        <roles>snc_internal</roles>
+        <script><![CDATA[(function() {
+
+    data.plan = {};
+
+    // -----------------------------
+    // TABLE & SYS_ID SETUP
+    // -----------------------------
+    if (input && input.table) 
+        data.table = input.table;
+    else if (options && options.table) 
+        data.table = options.table;
+    else if($sp.getParameter('table')) 
+        data.table = $sp.getParameter('table');
+		else
+				data.table="";
+
+    if (input && input.sysid) 
+        data.sys_id = input.sysid;
+    else if (options && options.sys_id) 
+        data.sys_id = options.sys_id;
+		else if($sp.getParameter('sys_id')) 
+        data.sys_id = $sp.getParameter('sys_id');
+    else 
+        data.sys_id = "";
+
+    // -----------------------------
+    // FETCH RECORD
+    // -----------------------------
+    var grTab = new GlideRecordSecure(data.table);
+    if (grTab.get(data.sys_id)) {
+
+        data.plan.sys_id = grTab.getUniqueValue();
+			
+			if(data.table=="x_ctans_incentnow_quota")
+				{
+					data.planFields = [
+            { label: "Quota Name", field: "name", col: 1 },
+						{ label: "Business Unit", field: "business_unit", col: 1 },
+						{ label: "Fiscal Year", field: "fiscal_year", col: 1 },
+            { label: "Frequency", field: "quota_frequency", col: 1 },
+						{ label: "Quota Value", field: "quota_metric", col: 1 },
+            { label: "Created By", field: "sys_created_by", col: 1 },
+            { label: "Description", field: "description", col: 2 }
+        ];
+				}
+			else if(data.table=="x_ctans_incentnow_plan")
+				{
+					 data.planFields = [
+            { label: "Plan Name", field: "plan_name", col: 1 },
+            { label: "Business Unit", field: "business_unit", col: 1 },
+            { label: "Fiscal Period", field: "fiscal_period", col: 1 },
+            { label: "Created By", field: "sys_created_by", col: 1 },
+            { label: "Description", field: "description", col: 2 }
+        ];
+					
+				}
+
+       
+
+        data.planFields.forEach(function(f) {
+            data.plan[f.field] = grTab.getDisplayValue(f.field);
+        });
+
+        data.timelineFields = [
+            {
+                label: "Created",
+                field: "sys_created_on",
+                userField: "sys_created_by",
+                color: "gray"
+            }
+        ];
+
+        data.timelineFields.forEach(function(t) {
+            t.date = grTab.getDisplayValue(t.field);
+            t.user = grTab.getDisplayValue(t.userField);
+        });
+    }
+
+    // -----------------------------
+    // ACTION HANDLING
+    // -----------------------------
+    if (input && input.action) {
+			data.query=input.action;
+
+        var user = gs.getUser().getID();
+
+        if (input.action == "approved" || input.action == "rejected") {
+            performApproval(input.action, user);
+        } 
+        else if (input.action == "closed") {
+            data.message = "Closed action not supported for approvals";
+        }
+    }
+
+    // -----------------------------
+    // APPROVAL FUNCTION
+    // -----------------------------
+    function performApproval(action, user) {
+
+        var gApproval = new GlideRecordSecure('sysapproval_approver');
+
+        gApproval.addQuery('document_id', data.sys_id);
+        gApproval.addQuery('approver', user);
+        gApproval.addQuery('state', 'requested'); // IMPORTANT
+
+        gApproval.orderByDesc('sys_created_on');
+        gApproval.query();
+			data.query=gApproval.getEncodedQuery();
+
+        if (gApproval.next()) {
+            gApproval.setValue('state', action);
+            gApproval.update();
+
+            data.status = "success";
+            data.message = "Approval " + action + " successfully";
+						gs.addInfoMessage(data.message);
+        } else {
+            data.status = "error";
+            data.message = "No pending approval found for you";
+						gs.addErrorMessage(data.message);
+            //data.message("You are not part of this approval group.");
+        }
+    }
+
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>karan.kumar</sys_created_by>
+        <sys_created_on>2026-04-13 03:35:23</sys_created_on>
+        <sys_id>a1f1ce903b180b50ffa00e9693e45a2b</sys_id>
+        <sys_mod_count>108</sys_mod_count>
+        <sys_name>IncentNow Review Widget</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sp_widget_a1f1ce903b180b50ffa00e9693e45a2b</sys_update_name>
+        <sys_updated_by>shroin.mandal</sys_updated_by>
+        <sys_updated_on>2026-06-11 12:19:24</sys_updated_on>
+        <template><![CDATA[
+  <div class="card-container">
+
+  <div class="card-header">
+
+  <div class="header-row">
+    
+    <button class="qa-back-btn" ng-click="c.goBack()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <circle cx="12" cy="12" r="10"/>
+        <polyline points="12 8 8 12 12 16"/>
+        <line x1="16" y1="12" x2="8" y2="12"/>
+      </svg>
+    </button>
+
+    <div class="header-text">
+      <h2>Review Plan: {{c.data.plan.name}}</h2>
+      <p>Review plan details and approve or reject</p>
+    </div>
+
+  </div>
+
+</div>
+
+    <!-- Body -->
+    <div class="card-content">
+
+      <!-- Plan Details -->
+      <div class="plan-grid">
+        <div ng-repeat="field in c.data.planFields"
+             ng-class="{'col-span-2': field.col == 2}">
+          <label>{{field.label}}</label>
+          <div class="value">
+            {{c.data.plan[field.field]}}
+          </div>
+        </div>
+      </div>
+
+      <!-- Rejection -->
+      <div class="section">
+        <label>Rejection Reason <span class="text-danger">*</span></label>
+        <textarea ng-model="c.data.rejectionReason" placeholder="Provide reason if rejecting..."></textarea>
+      </div>
+
+      <!-- Timeline -->
+      <div class="timeline">
+        <h4>Timeline</h4>
+
+        <div ng-repeat="item in c.data.timelineFields" class="timeline-item">
+          <div class="dot" ng-class="item.color"></div>
+          <span class="label">{{item.label}}:</span>
+          <span>{{item.date}}</span>
+          <span ng-if="item.user" class="user">by {{item.user}}</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Footer -->
+    <div class="card-footer">
+      <button class="btn secondary" ng-click="c.updateStatus('cancel')">Cancel</button>
+      <button class="btn reject" ng-click="c.updateStatus('rejected')">Reject</button>
+      <button class="btn  btn-custom" ng-click="c.updateStatus('approved')">Approve & Activate</button>
+    </div>
+
+  </div>
+]]></template>
+    </sp_widget>
+</record_update>

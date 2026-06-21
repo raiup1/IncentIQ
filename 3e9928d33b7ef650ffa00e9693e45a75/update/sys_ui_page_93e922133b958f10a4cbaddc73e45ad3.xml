@@ -1,0 +1,349 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_ui_page">
+    <sys_ui_page action="INSERT_OR_UPDATE">
+        <category>general</category>
+        <client_script/>
+        <description>IncentIQ  Application data privacy policy</description>
+        <direct>false</direct>
+        <endpoint>x_ctans_incentnow_incentiq_privacy_policy.do</endpoint>
+        <html><![CDATA[<?xml version="1.0" encoding="utf-8" ?>
+<j:jelly trim="false" xmlns:j="jelly:core" xmlns:g="glide">
+
+<style>
+    body {
+        background: #f6f8fb;
+    }
+
+    .privacy-wrapper {
+        max-width: 1050px;
+        margin: 32px auto;
+        padding: 0 18px;
+        font-family: "Segoe UI", Arial, sans-serif;
+        color: #263238;
+    }
+
+    .privacy-card {
+        background: #ffffff;
+        border-radius: 14px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+        border: 1px solid #e5e7eb;
+    }
+
+    .privacy-header {
+        background: linear-gradient(135deg, #17324d, #256b8f);
+        color: #ffffff;
+        padding: 34px 42px;
+    }
+
+    .privacy-header h1 {
+        margin: 0;
+        font-size: 30px;
+        font-weight: 600;
+    }
+
+    .privacy-header p {
+        margin: 10px 0 0;
+        font-size: 15px;
+    }
+
+    .meta-box {
+        background: #eef6fa;
+        border-left: 5px solid #256b8f;
+        padding: 18px 24px;
+        margin: 28px 40px;
+        border-radius: 8px;
+    }
+
+    .meta-box p {
+        margin: 6px 0;
+        font-size: 14px;
+    }
+
+    .privacy-content {
+        padding: 0 40px 40px;
+    }
+
+    .section {
+        padding: 22px 0;
+        border-bottom: 1px solid #edf0f2;
+    }
+
+    .section:last-child {
+        border-bottom: none;
+    }
+
+    .section h2 {
+        color: #17324d;
+        font-size: 21px;
+        margin: 0 0 12px;
+        font-weight: 600;
+    }
+
+    .section p,
+    .section li {
+        font-size: 15px;
+        line-height: 1.7;
+    }
+
+    .section ul {
+        margin: 12px 0 0 20px;
+        padding: 0;
+    }
+
+    .highlight {
+        background: #f9fafb;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        padding: 16px 20px;
+        margin-top: 14px;
+    }
+
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 14px;
+        margin-top: 18px;
+    }
+
+    .summary-item {
+        background: #eef6fa;
+        border-radius: 10px;
+        padding: 16px;
+        border: 1px solid #d6e8f0;
+    }
+
+    .summary-item strong {
+        display: block;
+        color: #17324d;
+        margin-bottom: 6px;
+    }
+
+    .contact-box {
+        background: #f4f7f9;
+        border-radius: 10px;
+        padding: 18px 22px;
+        margin-top: 12px;
+    }
+
+    .footer-note {
+        font-size: 13px;
+        color: #607d8b;
+        margin-top: 24px;
+    }
+</style>
+
+<div class="privacy-wrapper">
+    <div class="privacy-card">
+
+        <div class="privacy-header">
+            <h1>IncentIQ Data Privacy Policy</h1>
+            <p>Your privacy matters to us. This policy explains how IncentIQ handles customer data within ServiceNow.</p>
+        </div>
+
+        <div class="meta-box">
+            <p><strong>Application Name:</strong> IncentIQ</p>
+            <p><strong>Publisher:</strong> CtrlAltNow</p>
+            <p><strong>Application Type:</strong> Sales Incentive Management Application</p>
+            <p><strong>Effective Date:</strong> June 2026</p>
+            <p><strong>Version:</strong> V1.0</p>
+        </div>
+
+        <div class="privacy-content">
+
+            <div class="section">
+                <h2>Welcome – Your Privacy Matters to Us</h2>
+                <p>
+                    At CtrlAltNow, we value the trust customers place in us when they download and install
+                    IncentIQ from the ServiceNow Store. This Privacy Policy explains what information the application
+                    may collect, why it is used, and how it is protected.
+                </p>
+                <p>
+                    IncentIQ is designed to operate within the customer's ServiceNow instance. By default, the
+                    application does not transmit, process, or store customer data outside of ServiceNow.
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>What Information We Collect</h2>
+                <p>
+                    IncentIQ may collect, process, and store information configured or provided by the customer within
+                    their ServiceNow instance, including:
+                </p>
+                <ul>
+                    <li><strong>User and organizational data</strong> – user profiles, user identifiers, sales users, managers, reporting hierarchy, business units, and related organizational details.</li>
+                    <li><strong>Incentive management data</strong> – compensation plans, plan assignments, quotas, quota assignments, earning rules, lookup rules, payout rules, fiscal years, and fiscal periods.</li>
+                    <li><strong>Transaction and performance data</strong> – sales transactions, revenue values, credit calculations, achievement values, quota attainment, commission, and payout calculations.</li>
+                    <li><strong>Configuration data</strong> – application settings, data model configurations, import configurations, rule configurations, workflow settings, and administrative preferences.</li>
+                    <li><strong>System and audit data</strong> – timestamps, created/updated information, audit logs, processing status, and application execution logs.</li>
+                </ul>
+                <p>
+                    The application only processes data required to deliver Sales Incentive Management functionality.
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Why We Collect This Information</h2>
+                <p>IncentIQ uses customer data to:</p>
+                <ul>
+                    <li>Manage sales compensation plans and assignments.</li>
+                    <li>Manage quotas and quota assignments.</li>
+                    <li>Process sales transactions and performance data.</li>
+                    <li>Calculate credits, commissions, payouts, and incentive statements.</li>
+                    <li>Generate dashboards, reports, and analytics.</li>
+                    <li>Support application administration, troubleshooting, and auditing.</li>
+                </ul>
+                <div class="highlight">
+                    IncentIQ does not use customer data for advertising, resale, profiling, or marketing purposes.
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Sharing Information: When and Why</h2>
+                <p>
+                    IncentIQ does not sell, rent, or share customer data with CtrlAltNow or any third party.
+                    Customer data remains under the customer's control within their ServiceNow instance.
+                </p>
+                <p>
+                    Data may be shared or transferred only when the customer explicitly configures integrations with
+                    external systems through their ServiceNow environment.
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Where and How Your Data Is Stored</h2>
+                <ul>
+                    <li><strong>Storage Location:</strong> Application data is stored within the customer's ServiceNow instance.</li>
+                    <li><strong>No External Transmission:</strong> By default, IncentIQ does not transmit customer data outside ServiceNow.</li>
+                    <li><strong>Customer-Controlled Integrations:</strong> If integrations are configured, data transfer is initiated and controlled by the customer.</li>
+                    <li><strong>Data Retention:</strong> Data is retained according to the customer's ServiceNow data retention, archival, and deletion policies.</li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <h2>Security Practices</h2>
+                <p>
+                    IncentIQ relies on ServiceNow platform security capabilities and customer-configured controls,
+                    including:
+                </p>
+                <ul>
+                    <li>Role-based access controls</li>
+                    <li>Access Control Lists</li>
+                    <li>Authentication and authorization provided by ServiceNow</li>
+                    <li>Audit logging and activity tracking</li>
+                    <li>Domain Separation, where enabled by the customer</li>
+                    <li>Encryption capabilities provided by the ServiceNow platform</li>
+                </ul>
+                <p>
+                    Customers are responsible for configuring appropriate roles, permissions, access controls, and
+                    security policies in their ServiceNow environment.
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Third-Party Services</h2>
+                <p>
+                    IncentIQ does not include embedded third-party services that collect, process, transmit, or store
+                    customer data outside ServiceNow as part of its standard functionality.
+                </p>
+                <p>
+                    If future versions introduce optional third-party integrations, those integrations will be documented
+                    and controlled by the customer.
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Your Rights – You’re in Control</h2>
+                <p>
+                    Customers remain responsible for managing data within their ServiceNow instance. Depending on the
+                    customer's internal policies and applicable regulations, users may contact their ServiceNow
+                    administrator to:
+                </p>
+                <ul>
+                    <li>Request access to data stored in the application.</li>
+                    <li>Request correction of inaccurate data.</li>
+                    <li>Request deletion or archival of data, where applicable.</li>
+                    <li>Raise privacy or security concerns.</li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <h2>Need Help or Have Questions?</h2>
+                <p>
+                    For questions regarding this Privacy Policy or IncentIQ's data handling practices, please contact:
+                </p>
+                <div class="contact-box">
+                    <p><strong>CtrlAltNow</strong></p>
+                    <p><strong>Email:</strong> Contact@CtrlAltNow.com</p>
+                    <p><strong>Website:</strong> www.ctrlaltnow.com</p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Where to Find This Policy</h2>
+                <p>
+                    This privacy policy is available within the IncentIQ application under the module
+                    <strong>App Privacy Policy</strong>.
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Keeping You Informed</h2>
+                <p>
+                    CtrlAltNow may update this policy periodically to reflect changes in application
+                    functionality, regulatory requirements, or privacy practices. Updated versions will be made
+                    available through the application or accompanying documentation.
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>ServiceNow Certification Compliance</h2>
+
+                <div class="summary-grid">
+                    <div class="summary-item">
+                        <strong>Data Location</strong>
+                        Data remains within the customer's ServiceNow instance by default.
+                    </div>
+
+                    <div class="summary-item">
+                        <strong>External Transfer</strong>
+                        No customer data is transferred outside ServiceNow by default.
+                    </div>
+
+                    <div class="summary-item">
+                        <strong>Data Sharing</strong>
+                        Customer data is not sold, rented, or shared with third parties.
+                    </div>
+
+                    <div class="summary-item">
+                        <strong>Security</strong>
+                        Data is protected using ServiceNow platform security controls.
+                    </div>
+                </div>
+
+                <p class="footer-note">
+                    This policy is included to support customers with
+                    transparent information about IncentIQ's data handling practices.
+                </p>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+</j:jelly>]]></html>
+        <name>incentiq_privacy_policy</name>
+        <processing_script/>
+        <sys_class_name>sys_ui_page</sys_class_name>
+        <sys_created_by>upma.rai</sys_created_by>
+        <sys_created_on>2026-06-11 07:15:24</sys_created_on>
+        <sys_id>93e922133b958f10a4cbaddc73e45ad3</sys_id>
+        <sys_mod_count>7</sys_mod_count>
+        <sys_name>incentiq_privacy_policy</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_ui_page_93e922133b958f10a4cbaddc73e45ad3</sys_update_name>
+        <sys_updated_by>upma.rai</sys_updated_by>
+        <sys_updated_on>2026-06-11 10:54:54</sys_updated_on>
+    </sys_ui_page>
+</record_update>

@@ -1,0 +1,687 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <client_script><![CDATA[api.controller = function($window,$location) {
+  var c = this;
+
+  c.filteredQuotas = [];
+  c.uiFilter       = { period: '', frequency: '', search: '' };
+
+  /* ================= CREATE QUOTA ================= */
+  /*
+   * CHANGE: Store the current page URL in sessionStorage before navigating
+   * to the Quota Builder. The Quota Builder back button reads this value
+   * and returns to exactly this page — so the user lands back on
+   * Quota Setup, not on the Administration main page.
+   */
+  c.createQuota = function() {
+    /*
+     * Store the current page URL in sessionStorage.
+     * The Quota Builder back button reads this and returns here exactly.
+     * We append ?returnTo=1 as a marker so the page knows it's a return.
+     */
+    var currentUrl = $location.absUrl();
+    sessionStorage.setItem('qb_origin', currentUrl);
+		
+    $location.url('?id=quota_builder');
+  };
+	
+	c.goBack = function() {
+			$location.url('?id=incentnow_admin');
+	};
+
+  /* ================= VIEW ASSIGNMENTS ================= */
+  /* No change — exact provided code */
+  c.viewAssign = function() {
+    $location.url('?id=quota_assignments');
+  };
+
+  /* ================= QUOTA SUMMARY ================= */
+  c.getQuotaSummary = function() {
+		var total = 0;
+		var totalValue = 0;
+		if (c.data.quotaAssignments) {
+			c.data.quotaAssignments.forEach(function(q) {
+				if ((q.status || '').toLowerCase() === 'active') {  // ✅ FILTER
+					total++;
+					totalValue += parseFloat(q.targetValue) || 0;
+				}
+			});
+		}
+		return {
+			total: total,
+			totalValue: totalValue
+		};
+	};
+
+  /* ================= UI FILTER ================= */
+  c.applyUIFilter = function() {
+    var list = angular.copy(c.data.quotaAssignments || []);
+
+    if (c.uiFilter.period) {
+      list = list.filter(function(q) {
+        return q.periodName === c.uiFilter.period;
+      });
+    }
+
+    if (c.uiFilter.frequency) {
+      list = list.filter(function(q) {
+        return q.distributionMethod === c.uiFilter.frequency;
+      });
+    }
+
+    if (c.uiFilter.search) {
+      var s = c.uiFilter.search.toLowerCase();
+      list = list.filter(function(q) {
+        return q.name && q.name.toLowerCase().indexOf(s) !== -1;
+      });
+    }
+
+    c.filteredQuotas = list;
+  };
+
+  /* ================= SET TAB ================= */
+  c.setTab = function(tab) {
+    c.data.activeTab = tab;
+
+    if (tab === 'lookups') {
+      c.server.get({ action: 'load_lookups' }).then(function(response) {
+        c.data.lookupTables = (response.data && response.data.lookupTables) || [];
+      });
+      return;
+    }
+
+    if (tab === 'settings') {
+      return;
+    }
+
+    c.server.update({
+      action:    'refresh_all',
+      period:    c.selectedQuotaPeriod,
+      unit:      c.selectedQuotaUnit,
+      activeTab: tab
+    }).then(function(response) {
+      c.data.quotaAssignments = response.data.quotaAssignments;
+      c.data.quotaSummary     = response.data.quotaSummary;
+      c.filteredQuotas        = angular.copy(c.data.quotaAssignments || []);
+    });
+  };
+
+  /* ================= INIT ================= */
+  c.$onInit = function() {
+    c.filteredQuotas = c.data.quotaAssignments || [];
+
+    c.server.update({ action: 'refresh_all' }).then(function(response) {
+      c.data.quotaAssignments = response.data.quotaAssignments;
+      c.data.quotaSummary     = response.data.quotaSummary;
+      c.filteredQuotas        = angular.copy(c.data.quotaAssignments || []);
+    });
+  };
+
+};]]></client_script>
+        <controller_as>c</controller_as>
+        <css>.headd {
+	  font-size: 2.6rem;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.quota-page {
+	background: #f1f5f9;
+  font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.set {
+		font-size: 3.4rem;
+    font-weight: 700;
+    color: #0f172a;
+    line-height: 1;
+    margin-bottom: .6rem;
+}
+
+.admin-page-topbar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  //margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.admin-back-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  cursor: pointer;
+  color: #374151;
+  flex-shrink: 0;
+  transition: background 0.15s, border-color 0.15s;
+}
+ 
+.admin-back-btn:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+}
+
+
+body {
+  font-family: Inter, sans-serif;
+  background: #f8f9fb;
+  padding: 20px;
+}
+
+.setup {
+  font-weight: 600;
+}
+
+.quota-page {
+  max-width: 1200px;
+  margin: auto;
+}
+
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.subtitle {
+  margin-top: -10px;
+  color: #6d6d6d;
+  margin-bottom: 1rem;
+}
+
+.header-actions button {
+  margin-left: 10px;
+}
+
+.btn-create {
+  	display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .8rem 1.6rem;
+    background: #0f172a;
+    border: none;
+    border-radius: .8rem;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #ffffff;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background .15s;
+}
+
+.btn-secondary {
+  background: white;
+  padding: 10px 18px;
+  border-radius: 8px;
+  border: 1px solid #dcdcdc;
+  cursor: pointer;
+}
+
+.filters-row {
+  display: flex;
+  gap: 3rem;
+  margin: 20px 0;
+  border: 2px solid #e7e7e7;
+  border-radius: 1rem;
+  height: 9rem;
+  padding: 2rem;
+  background: white;
+}
+
+.filter {
+  padding: 2rem;
+}
+
+.option {
+  width: 45rem;
+  border-radius: 0.5rem;
+  height: 3rem;
+  font-weight: 600;
+  background: #F3F3F5;
+  border: none;
+}
+
+.filter label {
+  display: block;
+  font-size: 14px;
+}
+
+.labels {
+  color: black;
+  font-weight: 600;
+  margin-right: 1rem;
+}
+
+.filter select {
+  width: 200px;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+.box {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #475569;
+    margin-bottom: 1.2rem;
+}
+
+.stats-row {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.stat-box {
+  flex: 1;
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  text-align: left;
+  border: 1px solid #eee;
+  color: black;
+}
+
+.stat-box h3 { 
+    font-size: 3.4rem;
+    font-weight: 700;
+    color: #0f172a;
+    line-height: 1;
+    margin-bottom: .6rem;
+}
+
+.stat-box span {
+  font-size: 1.3rem;
+  color: #94a3b8;
+}
+
+.quota-cards {
+  display: flex;
+  gap: 20px;
+}
+
+.quota-card {
+  background: white;
+  padding: 20px;
+  width: 32%;
+  border-radius: 14px;
+  border: 2px solid #e7e7e7;
+}
+
+.quota-card.selected {
+  border-color: #5a8dfd;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.icon {
+  width: 35px;
+  height: 35px;
+  background: #f2e5ff;
+  border-radius: 8px;
+}
+
+.badge {
+  background: #000;
+  color: #fff;
+  padding: 4px 10px;
+  font-size: 12px;
+  border-radius: 6px;
+}
+
+.amount {
+  color: #00a854;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.dates p {
+  margin: 3px 0;
+  font-size: 14px;
+}
+
+.card-footer {
+  margin-top: 15px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.config {
+  margin-top: 2rem;
+  border-radius: 1rem;
+}
+
+.panel-heading {
+  border: none;
+  background: transparent;
+}
+
+.head {
+  font-weight: 600;
+}
+
+.btn-outline {
+  border: 1px solid #ccc;
+  padding: 8px 14px;
+  background: white;
+  border-radius: 1rem;
+  cursor: pointer;
+}</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description/>
+        <docs/>
+        <field_list/>
+        <has_preview>false</has_preview>
+        <id>quota_setup</id>
+        <internal>false</internal>
+        <link><![CDATA[function link(scope, element, attrs, controller) {
+  
+}]]></link>
+        <name>Quota Setup</name>
+        <option_schema/>
+        <public>false</public>
+        <roles>x_ctans_incentnow.user</roles>
+        <script><![CDATA[(function() {
+
+  data.isEdit    = !!options.quota_batch_id;
+  data.quotaModel = {};
+	data.tableWidget=$sp.getWidget('incentnow-table-widget',{ table: 'x_ctans_incentnow_quota',view:'portal_view',viewperiod:'false'});
+
+	data.isIncentNowGroupAdmin= gs.hasRole('x_ctans_incentnow.business_group_admin') || gs.hasRole('x_ctans_incentnow.admin');
+
+
+  /* ================= FISCAL CALENDAR ================= */
+
+  data.fiscalPeriods = [];
+
+  var periodGR = new GlideRecordSecure('x_ctans_incentnow_fiscal_calendar');
+  periodGR.orderByDesc('fiscal_year_name');
+  periodGR.setLimit(12);
+  periodGR.query();
+
+  while (periodGR.next()) {
+    data.fiscalPeriods.push({
+      id:        periodGR.getUniqueValue(),
+      name:      periodGR.getValue('fiscal_year_name'),
+      startDate: '',
+      endDate:   ''
+    });
+  }
+
+  /* ================= BUSINESS UNITS ================= */
+
+  data.businessUnits = [];
+
+  var buGR = new GlideRecordSecure('business_unit');
+  buGR.orderBy('name');
+  buGR.query();
+
+  while (buGR.next()) {
+    data.businessUnits.push({
+      id:   buGR.getUniqueValue(),
+      name: buGR.getValue('name')
+    });
+  }
+
+  /* ================= USERS ================= */
+
+  data.availableUsers = [];
+
+	var userGR = new GlideRecordSecure('x_ctans_incentnow_user_profile');
+	userGR.orderBy('user.name');
+	userGR.query();
+
+	while (userGR.next()) {
+			data.availableUsers.push({
+					id: userGR.getValue('user'),
+					name: userGR.getDisplayValue('user') || '',
+					email: userGR.user.email ? userGR.user.email.toString() : ''
+			});
+	}
+
+  /* ================= CHECK EXISTING ================= */
+
+ if (input && input.action === 'check_existing') {
+
+    var countGR = new GlideAggregate('x_ctans_incentnow_user_quota_assignment');
+    countGR.addQuery('quota.financial_year', input.period_id);
+    countGR.addAggregate('COUNT');
+    countGR.query();
+
+    if (countGR.next()) {
+        data.count = parseInt(countGR.getAggregate('COUNT'), 10);
+    }
+}
+
+  /* ================= GET USER INFO ================= */
+
+  if (input && input.action === 'get_user_info') {
+    var uGR = new GlideRecordSecure('');
+    if (uGR.get(input.user_id)) {
+      var businessUnit   = '';
+      var businessUnitId = '';
+      if (uGR.getValue('business_unit')) {
+        var bu = new GlideRecordSecure('business_unit');
+        if (bu.get(uGR.getValue('business_unit'))) {
+          businessUnit   = bu.getValue('name');
+          businessUnitId = bu.getUniqueValue();
+        }
+      }
+      data.userInfo = {
+        name:           uGR.getValue('name'),
+        email:          uGR.getValue('email'),
+        businessUnit:   businessUnit,
+        businessUnitId: businessUnitId
+      };
+    }
+  }
+
+  /* ================= GET BU USERS ================= */
+
+  if (input && input.action === 'get_bu_users') {
+    data.users = [];
+    var buUserGR = new GlideRecordSecure('x_ctans_incentnow_user_profile');
+    buUserGR.addQuery('business_unit', input.bu_id);
+    buUserGR.query();
+
+    while (buUserGR.next()) {
+      var buName = '';
+      if (buUserGR.getValue('business_unit')) {
+        var b = new GlideRecordSecure('business_unit');
+        if (b.get(buUserGR.getValue('business_unit'))) {
+          buName = b.getValue('name');
+        }
+      }
+      data.users.push({
+        id:           buUserGR.getValue('user'),
+        name:         buUserGR.user.name.toString(),
+        email:        buUserGR.user.email.toString(),
+        businessUnit: buName
+      });
+    }
+  }
+
+  /* ================= SAVE QUOTAS ================= */
+
+  if (input && input.action === 'saveQuota') {
+    var q       = input.quotaData;
+    var quotaGR = new GlideRecordSecure('x_ctans_incentnow_quota');
+
+    if (quotaGR.get(data.sys_id)) {
+      
+    } else {
+      quotaGR.initialize();
+    }
+
+    quotaGR.name            = q.name;
+    quotaGR.description     = q.notes;
+    quotaGR.fiscal_year     = q.fiscalPeriodId;
+    quotaGR.quota_frequency = q.frequency;
+    quotaGR.quota_metric    = q.valueType;
+    quotaGR.target_value    = q.quotaValue;
+
+    var sysId = quotaGR.update() || quotaGR.insert();
+
+    return {
+      status: "success",
+      sys_id: sysId
+    };
+  }
+
+  /* ================= LOAD QUOTA ASSIGNMENTS ================= */
+	
+	data.activeQuotaCount = 0;
+
+	var activeGR = new GlideAggregate('x_ctans_incentnow_quota');
+	activeGR.addQuery('status', 'active');
+	activeGR.addAggregate('COUNT');
+	activeGR.query();
+
+	if (activeGR.next()) {
+			data.activeQuotaCount = parseInt(activeGR.getAggregate('COUNT'), 10);
+	}
+
+  data.quotaAssignments = [];
+
+  var quotaGR2 = new GlideRecordSecure('x_ctans_incentnow_quota');
+  quotaGR2.orderByDesc('sys_created_on');
+  quotaGR2.query();
+
+  while (quotaGR2.next()) {
+    var rawQ    = quotaGR2.getValue('target_value');
+    var targetQ = (!rawQ || isNaN(parseFloat(rawQ))) ? 0 : parseFloat(rawQ);
+
+    data.quotaAssignments.push({
+      id:                 quotaGR2.getUniqueValue(),
+      name:               quotaGR2.getValue('name') || '',
+			status: quotaGR2.getValue('status') || '',
+      periodName:         quotaGR2.getDisplayValue('fiscal_year') || '',
+      targetValue:        targetQ,
+      targetDisplay:      targetQ.toString(),
+      quotaMetric:        quotaGR2.getDisplayValue('quota_metric') || '',
+      distributionMethod: quotaGR2.getDisplayValue('quota_frequency') || ''
+    });
+  }
+	
+	
+
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>shroin.mandal</sys_created_by>
+        <sys_created_on>2026-04-06 11:07:55</sys_created_on>
+        <sys_id>8676efc63bc007105493ddb693e45a43</sys_id>
+        <sys_mod_count>111</sys_mod_count>
+        <sys_name>Quota Setup</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sp_widget_8676efc63bc007105493ddb693e45a43</sys_update_name>
+        <sys_updated_by>upma.rai</sys_updated_by>
+        <sys_updated_on>2026-06-12 12:02:05</sys_updated_on>
+        <template><![CDATA[<div class="quota-page">
+  <!-- Header Section -->
+  <div class="header-row">
+    <div class="admin-page-topbar">
+      <!--<button class="admin-back-btn" ng-click="c.goBack()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12 8 8 12 12 16"/>
+          <line x1="16" y1="12" x2="8" y2="12"/>
+        </svg>
+      </button> -->
+      <span class="admin-page-topbar-title headd">Quota Setup</span>
+</div>
+    <!--h2 class="setup">Quota Setup</h2-->
+    <div class="header-actions">
+      <!-- <button class="btn-secondary" ng-click="c.viewAssign()">View Assignments</button> -->
+      <button class="btn-create" ng-click="c.createQuota()" ng-if="c.data.isIncentNowGroupAdmin">+ Create Quota</button>
+    </div>
+  </div>
+  <p class="subtitle">Configure sales quotas for different periods and frequencies</p>
+
+  <!-- Filters Section >
+  <div class="filters-row">
+    <div class="filter">
+      <label class="labels">Calendar:</label>
+      <select class="option" ng-model="c.uiFilter.period" ng-change="c.applyUIFilter()">
+        <option value="">All Calendar</option>
+        <option ng-repeat="q in c.data.quotaAssignments">{{q.periodName}}</option>
+      </select>
+    </div>
+    <div class="filter">
+      <label class="labels">Frequency:</label>
+      <select class="option" ng-model="c.uiFilter.frequency" ng-change="c.applyUIFilter()">
+        <option value="">All Frequencies</option>
+        <option ng-repeat="q in c.data.quotaAssignments">{{q.distributionMethod}}</option>
+      </select>
+    </div>
+  </div-->
+
+  <!-- Stats Boxes -->
+  <div class="stats-row">
+    <div class="stat-box">
+      <p class="box">Total Quotas</p>
+      <p class="set">{{c.data.quotaAssignments.length}}</p>
+      <span>Configurations</span>
+    </div>
+    <div class="stat-box">
+      <p class="box">Active Quotas</p>
+      <p class="set">{{c.data.activeQuotaCount}}</p>
+      <span>Currently in Use</span>
+    </div>
+    <div class="stat-box">
+      <p class="box">Total Active Quota Value</p>
+      <p class="set">$ {{c.getQuotaSummary().totalValue | number}}</p>
+      <span>Across all Active Quotas</span>
+    </div>
+  </div>
+  
+  
+  <!-- Quota table -->
+      <div>
+        <sp-widget widget="data.tableWidget"></sp-widget>
+      </div>
+
+  <!-- old table---
+  <div class="panel panel-default config">
+    <div class="panel-heading">
+      <h4 class="head">Quota Configurations</h4>
+    </div>
+    <table class="table table-striped table-hover">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Metric</th>
+          <th>Year</th>
+          <th>Target</th>
+          <th>Frequency</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat="q in c.filteredQuotas">
+          <td>{{q.name}}</td>
+          <td>{{q.quotaMetric}}</td>
+          <td>{{q.periodName}}</td>
+          <td>{{q.targetDisplay}}</td>
+          <td>{{q.distributionMethod}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div-->
+
+</div>]]></template>
+    </sp_widget>
+</record_update>

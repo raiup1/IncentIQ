@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update sys_domain="global" table="sys_nlu_intent">
+    <sys_nlu_intent action="INSERT_OR_UPDATE">
+        <confidence_threshold>0.6</confidence_threshold>
+        <description>Handles user queries related to incentives, payouts, plan creation, and forecasting.</description>
+        <enable>true</enable>
+        <model display_value="IncentNow Copilot Model">ea684d243bd80310ffa00e9693e45a5a</model>
+        <name>IncentNow Copilot Intent</name>
+        <origin/>
+        <override_confidence_threshold>false</override_confidence_threshold>
+        <primary_intent/>
+        <status>draft</status>
+        <sys_class_name>sys_nlu_intent</sys_class_name>
+        <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+        <sys_created_on>2026-04-13 18:03:44</sys_created_on>
+        <sys_domain>global</sys_domain>
+        <sys_domain_path>/</sys_domain_path>
+        <sys_id>edf805a43bd80310ffa00e9693e45a3d</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>IncentNow Copilot Intent</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_nlu_intent_edf805a43bd80310ffa00e9693e45a3d</sys_update_name>
+        <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
+        <sys_updated_on>2026-04-13 18:03:44</sys_updated_on>
+    </sys_nlu_intent>
+</record_update>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element db_object_id="f6d8c7683b233250ffa00e9693e45a50" label="Quota" max_length="40" name="x_ctans_incentnow_quota" type="collection">
+        <element attributes="encode_utf8=false" label="Fiscal Year" mandatory="true" max_length="32" name="fiscal_year" reference="x_ctans_incentnow_fiscal_calendar" reference_qual="active=true^EQ" reference_qual_condition="active=true^EQ" type="reference"/>
+        <element label="Domain" max_length="32" name="sys_domain" type="domain_id"/>
+        <element attributes="edge_encryption_enabled=true" choice="1" label="Quota Frequency" mandatory="true" max_length="40" name="quota_frequency" type="string">
+            <choice>
+                <element inactive_on_update="false" label="Annually" sequence="0" value="annually"/>
+                <element inactive_on_update="false" label="Monthly" sequence="1" value="monthly"/>
+                <element inactive_on_update="false" label="Quarterly" sequence="2" value="quarterly"/>
+            </choice>
+        </element>
+        <element attributes="edge_encryption_enabled=true" choice="1" default="draft" label="Status" mandatory="true" max_length="40" name="status" type="string">
+            <choice>
+                <element inactive_on_update="false" label="Active" sequence="2" value="active"/>
+                <element inactive_on_update="false" label="Draft" sequence="0" value="draft"/>
+                <element inactive_on_update="false" label="Inactive" sequence="3" value="inactive"/>
+                <element inactive_on_update="false" label="Pending Approval" sequence="1" value="pending_approval"/>
+            </choice>
+        </element>
+        <element attributes="edge_encryption_enabled=true" label="Description" max_length="400" name="description" type="string"/>
+        <element attributes="encode_utf8=false, tree_picker=true" label="Business Unit" max_length="32" name="business_unit" reference="business_unit" reference_qual="javascript:new IncentNowAccessUtils().getUserBusinessUnitQuery(gs.getUserName());" type="reference" use_reference_qualifier="advanced"/>
+        <element attributes="edge_encryption_enabled=true" label="Name" mandatory="true" max_length="40" name="name" type="string"/>
+        <element attributes="edge_encryption_enabled=true" choice="1" label="Quota Metric" mandatory="true" max_length="40" name="quota_metric" type="string">
+            <choice>
+                <element inactive_on_update="false" label="Currency" sequence="0" value="currency"/>
+                <element inactive_on_update="false" label="Number" sequence="1" value="number"/>
+            </choice>
+        </element>
+        <element label="Target Value" mandatory="true" max_length="15" name="target_value" type="decimal"/>
+        <index name="index">
+            <element name="business_unit"/>
+        </index>
+        <index name="index2">
+            <element name="fiscal_year"/>
+        </index>
+        <index name="index3">
+            <element name="sys_domain"/>
+        </index>
+    </element>
+</database>

@@ -1,0 +1,2598 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <client_script><![CDATA[api.controller = function(spUtil) {
+  var c = this;
+
+  /* ---- View state: 'main' | 'addBU' | 'addUser' | 'editBU' ---- */
+  c.view = 'main';
+  /* ---- Tab state (within main view) ---- */
+  c.tab = 'hierarchy';
+  /* ---- Selection state ---- */
+  c.selectedUnit = null;
+  c.selectedUser = null;
+  c.teamSearch   = '';
+  /* ---- Form models ---- */
+  c.newBU   = {};
+  c.newUser = {};
+  c.editBU  = {};
+  c.editUser = {};
+	c.orgMismatch = false;
+	c.orgMismatchMessage = '';
+	
+	c.openPhotoUpload = function() {
+			var fileInput = document.getElementById('userPhotoUpload');
+			if (fileInput) {
+					fileInput.click();
+			}
+	};
+	
+	c.openEditPhotoUpload = function() {
+			var input = document.getElementById('editPhotoUpload');
+			if (input) {
+					input.click();
+			}
+	};
+	c.uploadPhoto = function(files) {
+			if (!files || !files.length) {
+					return;
+			}
+			var file = files[0]
+			c.newUser.photoName = file.name;
+			var reader = new FileReader();
+			reader.onload = function(e) {
+					c.$apply(function() {
+							c.newUser.photo = e.target.result;
+					});
+			};
+			reader.readAsDataURL(file);
+	};
+	
+	c.onBusinessUnitChange = function() {
+
+    c.orgMismatch = false;
+    c.orgMismatchMessage = '';
+
+    c.data.units.forEach(function(unit) {
+
+        if (unit.sys_id == c.newUser.unit) {
+
+            if (
+                c.newUser.selectedUserCompany &&
+                unit.companyId &&
+                c.newUser.selectedUserCompany != unit.companyId
+            ) {
+
+                c.orgMismatch = true;
+                c.orgMismatchMessage =
+                    'Business Unit and User are mapped to different Orgs';
+
+                // Clear Business Unit
+                c.newUser.unit = '';
+
+                // Keep company from selected user
+                c.newUser.company = c.newUser.selectedUserCompany;
+
+                alert(c.orgMismatchMessage);
+
+                return;
+            }
+
+            // Valid match
+            c.newUser.company = unit.companyId;
+        }
+    });
+};
+
+  /*================================================================
+     NAVIGATION
+  ================================================================ */
+  c.goTo = function(view) {
+		
+    if (view === 'addBU') {
+      c.newBU = {
+				type: 'Business Unit',
+				company: ''
+			};
+    }
+    if (view === 'addUser') {
+      // Req 1: Active checked by default
+      c.newUser = { active: true };
+    }
+    if (view === 'editUser') {
+      // editUser is populated by loadEditUser() called alongside goTo
+    }
+    if (view === 'editBU' && c.selectedUnit) {
+			
+				c.editBU = {
+						sys_id : c.selectedUnit.sys_id,
+						name   : c.selectedUnit.name,
+						head 	 : c.selectedUnit.head,
+						desc   : c.selectedUnit.desc || '',
+						parent : c.selectedUnit.parent || '',
+						type   : 'Business Unit',
+						company: c.selectedUnit.companyId || ''
+				};
+		}
+    c.view = view;
+  };
+
+  /* ================================================================
+     SELECTION
+  ================================================================ */
+  c.selectUnit = function(unit) {
+    c.selectedUnit = unit;
+    unit.unitMembers = (c.data.members || []).filter(function(m) {
+      return m.unitId === unit.sys_id;
+    });
+  };
+
+  c.selectUser = function(user) {
+    c.selectedUser = user;
+  };
+
+  /* ================================================================
+     CREATE BUSINESS UNIT
+  ================================================================ */
+  c.createBU = function() {
+    if (!c.newBU.name) { return; }
+    c.server.get({
+      action : 'createBU',
+      name   : c.newBU.name,
+      type   : c.newBU.type   || 'Business Unit',
+      desc   : c.newBU.desc   || '',
+      parent : c.newBU.parent || '',
+      head   : c.newBU.head   || '',
+			company : c.newBU.company || ''
+    }).then(function(r) {
+      if (r.data.success) {
+        c.data         = r.data;
+        c.selectedUnit = null;
+        c.view         = 'main';
+      }
+    });
+  };
+	
+	c.onParentBUChange = function () {
+
+    if (!c.newBU.parent)
+        return;
+
+    c.server.get({
+        action: 'getBUDetails',
+        sys_id: c.newBU.parent
+    }).then(function (res) {
+
+        var bu = res.data && res.data.buDetails;
+        if (!bu) return;
+
+        // ALWAYS update on change
+        c.newBU.head = bu.head || '';
+        c.newBU.company = bu.company || '';
+    });
+};
+	c.onEditParentBUChange = function() {
+
+    if (!c.editBU.parent)
+        return;
+
+    c.server.get({
+        action: 'getBUDetails',
+        sys_id: c.editBU.parent
+    }).then(function(res) {
+
+        var bu = res.data && res.data.buDetails;
+        if (!bu) return;
+
+        c.editBU.head = bu.head || '';
+        c.editBU.company = bu.company || '';
+    });
+};
+	
+	c.onUserChange = function() {
+    if (!c.newUser.user)
+        return;
+
+    c.server.get({
+        action: 'getUserDetails',
+        userSysId: c.newUser.user
+    }).then(function(response) {
+
+        var d = (response.data && response.data.userDetails) || {};
+
+        c.newUser.firstName = d.firstName || '';
+        c.newUser.lastName  = d.lastName || '';
+        c.newUser.email     = d.email || '';
+
+        c.newUser.manager   = d.manager || '';
+        c.newUser.location  = d.location || '';
+        c.newUser.company = d.company || '';
+				c.newUser.selectedUserCompany = d.company || '';
+				c.newUser.department = d.department || '';
+				c.newUser.departmentName = d.departmentName || '';
+
+        c.newUser.mobilePhone   = d.mobilePhone || '';
+        c.newUser.businessPhone = d.businessPhone || '';
+			
+			if (c.newUser.unit) {
+
+					c.data.units.forEach(function(unit) {
+
+							if (
+									unit.sys_id == c.newUser.unit &&
+									unit.companyId &&
+									d.company &&
+									unit.companyId != d.company
+							) {
+
+									c.newUser.unit = '';
+									c.newUser.company = d.company;
+
+									alert('Business Unit and User are mapped to different Orgs');
+							}
+					});
+			}
+			
+    });
+};
+
+  /* ================================================================
+     EDIT BUSINESS UNIT — Req 2
+  ================================================================ */
+  c.updateBU = function() {
+    if (!c.editBU.name) {
+      alert('Unit Name is required.');
+      return;
+    }
+    c.server.get({
+      action  : 'updateBU',
+      sys_id  : c.editBU.sys_id,
+      name    : c.editBU.name,
+      desc    : c.editBU.desc   || '',
+      parent  : c.editBU.parent || '',
+      head    : c.editBU.head   || '',
+			company : c.editBU.company || ''
+    }).then(function(r) {
+      if (r.data.success) {
+        c.data         = r.data;
+        c.selectedUnit = null;
+        c.view         = 'main';
+      }
+    });
+  };
+	
+	
+	c.showDeleteMessage = function() {
+			spUtil.addErrorMessage('This Business Unit cannot be deleted from the portal. Navigate to the ServiceNow Application view to perform the deletion.');
+	};
+	
+	c.deleteBU = function(unit) {
+
+			if (!unit)
+					return;
+
+			if (!confirm('Are you sure you want to delete this Business Unit?'))
+					return;
+
+			c.server.get({
+					action : 'deleteBU',
+					sys_id : unit.sys_id
+			}).then(function(r) {
+
+					if (r.data.success) {
+
+							c.data = r.data;
+							c.selectedUnit = null;
+							c.view = 'main';
+					}
+			});
+	};
+	
+	c.loadEditBU = function(unit) {
+
+			if (!unit) return;
+			c.editBU = {
+					sys_id: unit.sys_id,
+					name: unit.name,
+					desc: unit.desc,
+					type: unit.type || 'Business Unit',
+					parent: unit.parent || '',
+					head: unit.head || '',
+					company: unit.companyId || ''
+			};
+
+	};
+
+  /* ================================================================
+     CREATE TEAM MEMBER
+  ================================================================ */
+  c.createUser = function() {
+		
+		if (c.orgMismatch) {
+				spUtil.addErrorMessage('Business Unit and User are mapped to different Orgs. Selected user belongs to a different company than the selected Business Unit.');
+				return;
+		}
+		
+    if (!c.newUser.user ||
+				!c.newUser.role ||
+				!c.newUser.unit) {
+      spUtil.addErrorMessage('Please fill in all mandatory fields.');
+      return;
+    }
+    c.server.get({
+      action         : 'createUser',
+      user		       : c.newUser.user,
+      externalUserId : c.newUser.externalUserId,
+      firstName      : c.newUser.firstName,
+      lastName       : c.newUser.lastName,
+      title          : c.newUser.title         || '',
+      manager        : c.newUser.manager       || '',
+      department     : c.newUser.department    || '',
+      email          : c.newUser.email         || '',
+      role           : c.newUser.role,
+      unit           : c.newUser.unit,
+      businessPhone  : c.newUser.businessPhone || '',
+      mobilePhone    : c.newUser.mobilePhone   || '',
+      location       : c.newUser.location      || '',
+      password       : c.newUser.password      || '',
+      active         : c.newUser.active        ? true : false,
+      //newHire        : c.newUser.newHire       ? true : false,
+			passwordReset : c.newUser.passwordReset ? true : false,
+			lockedOut     : c.newUser.lockedOut ? true : false,
+			photo         : c.newUser.photo || '',
+			company       : c.newUser.company || ''
+    }).then(function(r) {
+      if (r.data.success) {
+        c.data         = r.data;
+        c.selectedUser = null;
+        c.view         = 'main';
+
+
+      }
+    });
+  };
+
+  /* ================================================================
+     LOAD EDIT USER — pre-populate form from team card
+  ================================================================ */
+  c.loadEditUser = function(member) {
+		
+		console.log('MEMBER', member);
+		console.log('EXT ID', member.externalUserId);
+    c.editUser = {
+      sys_id        : member.sys_id,
+			user          : member.user,
+			userName      : member.userName,
+			externalUserId : member.externalUserId,
+      firstName     : member.name ? member.name.split(' ')[0] : '',
+      lastName      : member.name ? member.name.split(' ').slice(1).join(' ') : '',
+      title         : member.title       || '',
+      email         : member.email       || '',
+      role          : member.role        || '',
+      unit          : member.unitId      || '',
+      manager       : member.manager     || '',
+	    department    : member.department || '',
+			businessPhone : member.businessPhone || '',
+			mobilePhone   : member.mobilePhone || '',
+			location      : member.location || '',
+			passwordReset  : member.passwordReset,
+			lockedOut      : member.lockedOut,
+			photo          : member.photo || '',
+			company        : member.company || '',
+			active 				: member.active
+    };
+  };
+
+  /* ================================================================
+     UPDATE TEAM MEMBER
+  ================================================================ */
+  c.updateUser = function() {
+    if (!c.editUser.firstName || !c.editUser.lastName ||
+        !c.editUser.role || !c.editUser.unit) {
+      alert('Please fill in all mandatory fields: First Name, Last Name, Role, Business Unit.');
+      return;
+    }
+    c.server.get({
+      action        : 'updateUser',
+      sys_id        : c.editUser.sys_id,
+			externalUserId : c.editUser.externalUserId || '',
+      firstName     : c.editUser.firstName,
+      lastName      : c.editUser.lastName,
+      title         : c.editUser.title         || '',
+      email         : c.editUser.email         || '',
+      role          : c.editUser.role,
+      unit          : c.editUser.unit,
+      manager       : c.editUser.manager       || '',
+      department    : c.editUser.department    || '',
+      businessPhone : c.editUser.businessPhone || '',
+      mobilePhone   : c.editUser.mobilePhone   || '',
+      location      : c.editUser.location      || '',
+			active         : c.editUser.active ? true : false,
+			passwordReset  : c.editUser.passwordReset ? true : false,
+			lockedOut      : c.editUser.lockedOut ? true : false,
+			photo          : c.editUser.photo || '',
+			company        : c.editUser.company || ''
+    }).then(function(r) {
+      if (r.data.success) {
+        c.data         = r.data;
+        c.selectedUser = null;
+        c.view         = 'main';
+        c.tab          = 'team';
+      }
+    });
+  };
+	window.handleEditPhotoSelect = function(event) {
+
+			var scope = angular.element(document.querySelector('[ng-controller]')).scope();
+			var c = scope.c;
+			var files = event.target.files;
+			if (!files || !files.length) {
+					return;
+			}
+			var file = files[0];
+			var reader = new FileReader();
+			reader.onload = function(e) {
+					scope.$apply(function() {
+							c.editUser.photo = e.target.result;
+					});
+			};
+			reader.readAsDataURL(file);
+	};
+};]]></client_script>
+        <controller_as>c</controller_as>
+        <css>.org-wrap {
+  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #f1f5f9;
+  min-height: 100vh;
+  color: #0f172a;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+.org-wrap *, .org-wrap *::before, .org-wrap *::after {
+  box-sizing: border-box;
+}
+
+.read-only-form input,
+.read-only-form textarea,
+.read-only-form select {
+  pointer-events: none;
+  background: #f8fafc;
+  opacity: 0.8;
+}
+
+.read-only-form input[type="checkbox"] {
+  pointer-events: none;
+}
+
+.read-only-form button.org-btn-solid {
+  display: none;
+}
+
+
+
+/* ----- HEADER ----- */
+.org-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+.org-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+/* ----- BUTTONS ----- */
+.org-btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 16px;
+  background: #ffffff;
+  border: 1.5px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s, border-color 0.15s;
+}
+.org-btn-ghost:hover { background: #f9fafb; border-color: #9ca3af; }
+
+.org-btn-solid {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 16px;
+  background: #0f172a;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #ffffff;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s;
+}
+.org-btn-solid:hover { background: #1e293b; }
+
+.org-edit-btn {
+  padding: 6px 14px;
+  background: #ffffff;
+  border: 1.5px solid #d1d5db;
+  border-radius: 7px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+  cursor: pointer;
+  font-family: inherit;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+.org-edit-btn:hover { background: #f9fafb; }
+
+.org-delete-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 14px;
+  background: #0f172a;
+  border: none;
+  border-radius: 7px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #ffffff;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s;
+}
+.org-delete-btn:hover { background: #1e293b; }
+
+/* ----- SUMMARY CARDS ----- */
+.org-cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+/* ----- TABS ----- */
+.org-tabs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 20px;
+}
+.org-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 16px;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #64748b;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+}
+.org-tab:hover { background: #f8fafc; color: #374151; }
+.org-tab--active {
+  background: #0f172a !important;
+  color: #ffffff !important;
+  border-color: #0f172a !important;
+}
+.org-tab--active svg { stroke: #ffffff; }
+
+/* ----- BODY LAYOUT ----- */
+.org-body {
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+}
+
+/* ----- LEFT PANEL ----- */
+.org-panel-left {
+  width: 52%;
+  flex-shrink: 0;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+.org-panel-heading {
+  font-size: 15px;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 3px;
+}
+.org-panel-sub {
+  font-size: 13px;
+  color: #94a3b8;
+  margin-bottom: 16px;
+}
+.org-tree-scroll {
+  max-height: 520px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+.org-tree-scroll::-webkit-scrollbar { width: 5px; }
+.org-tree-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
+/* ----- TREE NODES ----- */
+.org-tree-item { margin-bottom: 4px; }
+.org-node {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 13px;
+  border-radius: 9px;
+  cursor: pointer;
+  border: 1.5px solid transparent;
+  margin-bottom: 3px;
+  transition: all 0.13s ease;
+}
+.org-node--root  { background: #eff4ff; border-color: #dde6ff; }
+.org-node--root:hover  { background: #e5edff; border-color: #c7d5fe; }
+.org-node--child { background: #f8fafc; border-color: #f1f5f9; }
+.org-node--child:hover { background: #eff4ff; border-color: #dde6ff; }
+.org-node--selected {
+  border-color: #6366f1 !important;
+  background: #eef2ff !important;
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
+}
+.org-node-l {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+  overflow: hidden;
+}
+.org-node-r {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-shrink: 0;
+  margin-left: 10px;
+}
+.org-node-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f172a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.org-node-desc { font-size: 12px; color: #94a3b8; margin-top: 1px; }
+.org-caret {
+  display: flex;
+  align-items: center;
+  color: #94a3b8;
+  flex-shrink: 0;
+  width: 16px;
+}
+.org-caret-spacer { width: 16px; flex-shrink: 0; }
+.org-icon { flex-shrink: 0; }
+.org-icon--bu   { color: #6366f1; }
+.org-icon--team { color: #8b5cf6; }
+.org-children {
+  margin-left: 28px;
+  padding-left: 14px;
+  border-left: 2px solid #dde6ff;
+  margin-top: 3px;
+}
+.org-children--l3 { border-left-color: #e8e0ff; margin-left: 24px; }
+
+/* Badges */
+.org-badge-count {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 2px 9px;
+  font-size: 12px;
+  color: #475569;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.org-mgr-label {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 12px;
+  color: #64748b;
+  white-space: nowrap;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.org-role-pill {
+  display: inline-block;
+  background: #f0f4ff;
+  border: 1px solid #c7d2fe;
+  border-radius: 20px;
+  padding: 2px 9px;
+  font-size: 12px;
+  color: #4f46e5;
+  font-weight: 500;
+  white-space: nowrap;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ----- RIGHT PANEL ----- */
+.org-panel-right {
+  flex: 1;
+  min-width: 0;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 22px 24px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+.org-panel-right--empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 260px;
+}
+.org-empty { text-align: center; color: #94a3b8; }
+.org-empty p { margin-top: 12px; font-size: 14px; }
+
+.org-detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding-bottom: 16px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid #f1f5f9;
+}
+.org-detail-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.org-detail-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+}
+.org-detail-row { margin-bottom: 18px; }
+.org-detail-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.org-detail-val { font-size: 14px; color: #374151; }
+.org-detail-val--bold { font-weight: 600; color: #0f172a; }
+.org-person-row { display: flex; align-items: center; gap: 10px; }
+.org-pill {
+  display: inline-block;
+  border-radius: 6px;
+  padding: 3px 12px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.org-pill--dark { background: #0f172a; color: #ffffff; }
+.org-count-badge {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 1px 8px;
+  font-size: 12px;
+  color: #475569;
+  font-weight: 500;
+}
+
+/* ----- AVATARS ----- */
+.org-av {
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: #ffffff;
+  flex-shrink: 0;
+}
+.org-av--sm { width: 30px; height: 30px; font-size: 11px; }
+.org-av--lg { width: 44px; height: 44px; font-size: 15px; }
+
+/* =====================================================
+   TEAM DIRECTORY — fixed alignment, no horizontal scroll
+   ===================================================== */
+.org-team-wrap {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 20px 24px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  width: 100%;
+  overflow: hidden;       /* prevent any child from causing overflow */
+}
+.org-team-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.org-search-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 7px 12px;
+  background: #f8fafc;
+  width: 280px;
+  flex-shrink: 0;
+}
+.org-search-input {
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 13px;
+  color: #374151;
+  font-family: inherit;
+  width: 100%;
+  min-width: 0;
+}
+.org-search-input::placeholder { color: #cbd5e1; }
+
+/* Grid: 3 equal columns, no overflow */
+.org-team-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  width: 100%;
+}
+
+/* Card: constrained, no overflow */
+.org-team-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 18px;
+  background: #ffffff;
+  transition: box-shadow 0.15s;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;           /* allow card to shrink within grid cell */
+  overflow: hidden;       /* clip any overflowing content inside card */
+}
+.org-team-card:hover { box-shadow: 0 4px 14px rgba(0,0,0,0.08); }
+
+.org-team-card-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  min-width: 0;
+  overflow: hidden;
+}
+.org-team-card-top .org-edit-btn {
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+/* Info block: truncate long text */
+.org-team-info {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+.org-team-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.org-team-title-text {
+  font-size: 13px;
+  color: #475569;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.org-team-email {
+  font-size: 12px;
+  color: #94a3b8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.org-team-card-bottom {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 8px;
+  border-top: 1px solid #f1f5f9;
+  padding-top: 12px;
+  min-width: 0;
+  overflow: hidden;
+}
+.org-team-meta-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  overflow: hidden;
+  flex: 1;
+}
+.org-team-reports {
+  font-size: 12px;
+  color: #64748b;
+  margin-top: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.org-unit-pill {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 3px 9px;
+  font-size: 12px;
+  color: #475569;
+  font-weight: 500;
+  white-space: nowrap;
+  flex-shrink: 0;
+  align-self: flex-end;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ============================================================
+   INLINE FORM PAGE STYLES
+============================================================ */
+.org-page-topbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e2e8f0;
+}
+.org-back-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  cursor: pointer;
+  color: #374151;
+  transition: background 0.15s, border-color 0.15s;
+  flex-shrink: 0;
+}
+.org-back-btn:hover { background: #f1f5f9; border-color: #94a3b8; }
+.org-page-topbar-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f172a;
+}
+.org-form-page {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  overflow: hidden;
+}
+.org-form-page-heading {
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f172a;
+  padding: 24px 28px 4px;
+}
+.org-form-page-sub {
+  font-size: 13px;
+  color: #94a3b8;
+  padding: 0 28px 20px;
+  border-bottom: 1px solid #f1f5f9;
+}
+.org-form-section {
+  padding: 24px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.org-form-page-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 16px 28px 24px;
+  border-top: 1px solid #f1f5f9;
+}
+.org-row2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+.org-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.org-field--full { margin-bottom: 18px; }
+.org-field label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+}
+.org-req { color: #ef4444; }
+.org-input,
+.org-select,
+.org-textarea {
+  padding: 9px 13px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #0f172a;
+  background: #ffffff;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  font-family: inherit;
+  width: 100%;
+}
+.org-input:focus,
+.org-select:focus,
+.org-textarea:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+}
+.org-input::placeholder,
+.org-textarea::placeholder { color: #cbd5e1; }
+.org-textarea { min-height: 90px; resize: vertical; }
+.org-select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 32px;
+}
+
+/* pt-scorecard used in org cards */
+.pt-scorecard {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 1rem;
+  padding: 20px 22px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+.pt-scorecard-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+.pt-scorecard-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #6b7280;
+}
+.pt-scorecard-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 6px;
+}
+.pt-scorecard-period {
+  font-size: 12px;
+  color: #9ca3af;
+}</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description>Business Units and team member management with hierarchical view</description>
+        <docs/>
+        <field_list/>
+        <has_preview>false</has_preview>
+        <id>organization_management</id>
+        <internal>false</internal>
+        <link><![CDATA[function link(scope, element, attrs, controller) {
+  
+}]]></link>
+        <name>Organization Management</name>
+        <option_schema/>
+        <public>false</public>
+        <roles>x_ctans_incentnow.user,x_ctans_incentnow.admin</roles>
+        <script><![CDATA[(function() {
+
+	
+	data.isIncentNowAdmin = new x_ctans_incentnow.IncentNowPortalUtils().hasExactRole('x_ctans_incentnow.admin');
+	//gs.addInfoMessage(data.isIncentNowAdmin);
+  function buildData(data) {
+    data.units     = [];
+    data.members   = [];
+    data.rootUnits = [];
+    data.rootUsers = [];
+		
+		data.sysUsers = [];
+
+		var sys = new GlideRecordSecure('sys_user');
+		sys.addActiveQuery();
+		sys.orderBy('name');
+		sys.query();
+
+		while (sys.next()) {
+				data.sysUsers.push({
+						sys_id: sys.getUniqueValue(),
+						name  : sys.getDisplayValue()
+				});
+		}
+
+    var unitMap  = {};
+    var userMap  = {};
+    var maxLevel = 0;
+    var topLevel = 0;
+
+    /* -------- BUSINESS UNITS (business_unit table) -------- */
+    var bu = new GlideRecordSecure('business_unit');
+    bu.query();
+    while (bu.next()) {
+      var lvl = parseInt(bu.getValue('hierarchy_level') || '0');
+      if (lvl > maxLevel) { maxLevel = lvl; }
+      if (!bu.getValue('parent')) { topLevel++; }
+
+      var unit = {
+        sys_id      : bu.getUniqueValue(),
+        name        : bu.getDisplayValue('name'),
+        desc        : bu.getDisplayValue('description'),
+        parent      : bu.getValue('parent'),
+        level       : lvl,
+        head : bu.getValue('bu_head'),
+				headName : bu.getDisplayValue('bu_head'),
+        memberCount : 0,
+        children    : [],
+        expanded    : false,
+				company : bu.getDisplayValue('company'),
+				companyId : bu.getValue('company')
+      };
+      unitMap[unit.sys_id] = unit;
+      data.units.push(unit);
+    }
+
+    // Build parent → child tree
+    data.units.forEach(function(u) {
+      if (u.parent && unitMap[u.parent]) {
+        unitMap[u.parent].children.push(u);
+      }
+    });
+    data.rootUnits = data.units.filter(function(u) { return !u.parent; });
+		
+		
+		data.businessUnits = [];
+		function addChildren(parent, level) {
+
+				parent.children.sort(function(a, b) {
+						return a.name.localeCompare(b.name);
+				});
+
+				parent.children.forEach(function(child) {
+
+						data.businessUnits.push({
+								id: child.sys_id,
+								name: child.name,
+								label: '\u2003\u2003\u2003'.repeat(level) + child.name,
+								companyId: child.companyId
+						});
+
+						addChildren(child, level + 1);
+				});
+		}
+
+		data.rootUnits.sort(function(a, b) {
+				return a.name.localeCompare(b.name);
+		});
+
+		data.rootUnits.forEach(function(root) {
+
+				data.businessUnits.push({
+						id: root.sys_id,
+						name: root.name,
+						label: root.name,
+						companyId: root.companyId
+				});
+
+				addChildren(root, 1);
+		});
+		
+		
+		
+		/* -------- DEPARTMENTS -------- */
+			data.departments = [];
+
+			var deptGR = new GlideRecordSecure('cmn_department');
+			deptGR.orderBy('name');
+			deptGR.query();
+
+			while (deptGR.next()) {
+
+			data.departments.push({
+					sys_id : deptGR.getUniqueValue(),
+					name   : deptGR.getDisplayValue('name')
+			});
+
+			}
+
+			/* -------- LOCATIONS -------- */
+		data.locations = [];
+
+		var locGR = new GlideRecordSecure('cmn_location');
+		locGR.orderBy('name');
+		locGR.query();
+
+		while (locGR.next()) {
+
+		data.locations.push({
+				sys_id : locGR.getUniqueValue(),
+				name   : locGR.getDisplayValue('name')
+		});
+		}
+
+
+		/* -------- COMPANIES -------- */
+		data.companies = [];
+
+		var compGR = new GlideRecordSecure('core_company');
+		compGR.orderBy('name');
+		compGR.query();
+
+		while (compGR.next()) {
+
+				data.companies.push({
+						sys_id : compGR.getUniqueValue(),
+						name   : compGR.getDisplayValue('name')
+				});
+		}
+
+		/* -------- EXTERNAL USERS -------- */
+		
+		var externalUsers = [];
+
+		var ga = new GlideAggregate('x_ctans_incentnow_data_lake');
+		ga.addAggregate('COUNT', 'user_id');
+		ga.groupBy('user_id');
+		ga.query();
+
+		while (ga.next()) {
+				var userId = ga.getValue('user_id');
+
+				if (userId) {
+						externalUsers.push({
+								value: userId,
+								label: userId
+						});
+				}
+		}
+
+		data.externalUsers = externalUsers;
+		
+    /* -------- SALES USERS (x_ctans_incentnow_sales_user) -------- */
+    //var usr = new GlideRecordSecure('x_ctans_incentnow_sales_user');
+		var usr = new GlideRecordSecure('x_ctans_incentnow_user_profile');
+    usr.query();
+    while (usr.next()) {
+
+    var userRec = new GlideRecordSecure('sys_user');
+		if (userRec.get(usr.getValue('user'))) {
+
+    var first = userRec.getValue('first_name') || '';
+		var last  = userRec.getValue('last_name') || '';
+
+		var fullName = (first + ' ' + last).trim();
+
+    var unitId = usr.getValue('business_unit');
+
+    var user = {
+        sys_id      : usr.getUniqueValue(),
+        userSysId   : userRec.getUniqueValue(),
+				user        : userRec.getUniqueValue(),
+				userName    : userRec.getDisplayValue(),
+				externalUserId : usr.getDisplayValue('external_user_id'),
+        name				: fullName || userRec.getValue('user_name') || 'Unknown User',
+        email       : userRec.getValue('email'),
+        role        : usr.getValue('role'),
+        roleLabel   : usr.getDisplayValue('role'),
+        manager     : userRec.getValue('manager'),
+        managerName : userRec.getDisplayValue('manager'),
+        mobilePhone : userRec.getValue('mobile_phone'),
+				businessPhone : userRec.getValue('phone'),
+				department 	: userRec.getValue('department'),
+        location    : userRec.getValue('location'),
+        company     : userRec.getValue('company'),
+        companyName : userRec.getDisplayValue('company'),
+        photo       : userRec.getValue('photo'),
+        unit        : usr.getDisplayValue('business_unit'),
+        unitId      : unitId,
+        orgLevel    : 0,
+        reports     : [],
+        initials    : fullName.substring(0,2).toUpperCase(),
+
+        active 			: userRec.getValue('active') == '1' || userRec.active == 'true'
+    };
+			
+
+
+    userMap[user.userSysId] = user;
+			
+		gs.info('USER PROFILE SYS_ID: ' + usr.getUniqueValue());
+gs.info('EXT USER ID: ' + usr.getValue('external_user_id'));
+gs.info('EXT USER DISPLAY: ' + usr.getDisplayValue('external_user_id'));
+
+    data.members.push(user);
+
+    if (unitId && unitMap[unitId]) {
+        unitMap[unitId].memberCount++;
+    }
+}
+
+    // Build manager → direct reports tree
+    data.members.forEach(function(u) {
+      if (u.manager && userMap[u.manager]) {
+        userMap[u.manager].reports.push(u);
+      }
+    });
+	}
+    data.rootUsers = data.members.filter(function(u) { return !u.manager; });
+		
+		/* -------- ROLES -------- */
+		data.roles = [];
+
+		var roleChoices = new GlideChoiceList();
+		roleChoices = GlideChoiceList.getChoiceList(
+				//'x_ctans_incentnow_sales_user',
+				'x_ctans_incentnow_user_profile',
+				'role'
+		);
+
+		for (var i = 0; i < roleChoices.getSize(); i++) {
+				var choice = roleChoices.getChoice(i);
+
+				data.roles.push({
+						value: choice.getValue(),
+						label: choice.getLabel()
+				});
+		}
+
+    // Assign orgLevel via BFS from root users
+    var queue = data.rootUsers.map(function(u) { return { user: u, lvl: 0 }; });
+    while (queue.length > 0) {
+      var item = queue.shift();
+      item.user.orgLevel = item.lvl;
+      (item.user.reports || []).forEach(function(r) {
+        queue.push({ user: r, lvl: item.lvl + 1 });
+      });
+    }
+
+    /* -------- MANAGERS count from x_ctans_incentnow_sales_user (manager field not empty) -------- */
+    //var mgAgg = new GlideAggregate('x_ctans_incentnow_sales_user');
+		var mgAgg = new GlideAggregate('x_ctans_incentnow_user_profile');
+    mgAgg.addAggregate('COUNT');
+    mgAgg.addNotNullQuery('manager');
+    mgAgg.query();
+    data.teams = mgAgg.next() ? parseInt(mgAgg.getAggregate('COUNT')) : 0;
+
+    /* -------- Org Depth — calculate from parent-child tree, not hierarchy_level field -------- */
+    function calcDepth(unitSysId, visited) {
+      if (visited[unitSysId] !== undefined) return visited[unitSysId];
+      var u = unitMap[unitSysId];
+      if (!u) { visited[unitSysId] = 1; return 1; }
+      if (!u.parent || !unitMap[u.parent]) {
+        visited[unitSysId] = 1;
+      } else {
+        visited[unitSysId] = calcDepth(u.parent, visited) + 1;
+      }
+      return visited[unitSysId];
+    }
+
+    var depthVisited = {};
+    var treeDepth = 0;
+    data.units.forEach(function(u) {
+      var d = calcDepth(u.sys_id, depthVisited);
+      if (d > treeDepth) { treeDepth = d; }
+    });
+
+    /* -------- Summary stats -------- */
+    data.topUnits = topLevel;
+    data.depth    = treeDepth || 1;
+    data.success  = true;
+  }
+
+  /* ================================================================
+     ACTION ROUTER
+  ================================================================ */
+  var action = input && input.action;
+	
+
+  if (action === 'updateUser') {
+
+			var updUser = new GlideRecordSecure('x_ctans_incentnow_user_profile');
+
+			if (updUser.get(input.sys_id)) {
+
+					// Update sys_user fields
+					var sysUser = new GlideRecordSecure('sys_user');
+
+						if (updUser.getValue('user') && sysUser.get(updUser.getValue('user'))) {
+
+								if (input.firstName !== undefined)
+										sysUser.setValue('first_name', input.firstName);
+
+								if (input.lastName !== undefined)
+										sysUser.setValue('last_name', input.lastName);
+
+								if (input.email !== undefined)
+										sysUser.setValue('email', input.email);
+
+								if (input.mobilePhone !== undefined)
+										sysUser.setValue('mobile_phone', input.mobilePhone);
+							
+								if (input.businessPhone !== undefined)
+										sysUser.setValue('phone', input.businessPhone);
+
+								if (input.location !== undefined)
+										sysUser.setValue('location', input.location);
+
+								if (input.company !== undefined)
+										sysUser.setValue('company', input.company);
+
+								if (input.manager !== undefined)
+										sysUser.setValue('manager', input.manager);
+
+								if (input.department !== undefined)
+										sysUser.setValue('department', input.department);
+
+								if (input.photo !== undefined)
+										sysUser.setValue('photo', input.photo);
+
+								sysUser.update();
+						}
+				
+
+					// Update User Profile fields
+				
+				var sysUserGR = updUser.user.getRefRecord();
+
+				if (sysUserGR.isValidRecord()) {
+
+						if (input.location !== undefined)
+								sysUserGR.setValue('location', input.location);
+
+						if (input.manager !== undefined)
+								sysUserGR.setValue('manager', input.manager);
+
+						if (input.department !== undefined)
+								sysUserGR.setValue('department', input.department);
+
+						sysUserGR.update();
+				}
+				
+					if (input.role !== undefined)
+							updUser.setValue('role', input.role);
+
+					if (input.unit !== undefined)
+							updUser.setValue('business_unit', input.unit);
+
+					if (input.externalUserId !== undefined)
+							updUser.setValue('external_user_id', input.externalUserId);
+
+					if (input.active !== undefined)
+							updUser.setValue('active', input.active ? true : false);
+				
+					if (input.location !== undefined)
+    					updUser.setValue('location', input.location);
+				
+					if (input.manager !== undefined)
+    					updUser.setValue('manager', input.manager);
+				
+					if (input.company !== undefined)
+   					 	updUser.setValue('company', input.company);
+
+					updUser.update();
+			}
+
+			buildData(data);
+	}else if (action === 'updateBU') {
+    var updBU = new GlideRecordSecure('business_unit');
+    if (updBU.get(input.sys_id)) {
+      updBU.setValue('name', input.name);
+      if (input.desc   !== undefined) { updBU.setValue('description', input.desc);   }
+      if (input.parent !== undefined) { updBU.setValue('parent',      input.parent); }
+      if (input.head   !== undefined) { updBU.setValue('bu_head',     input.head);   }
+			if (input.company !== undefined) { updBU.setValue('company', input.company);}
+      updBU.update();
+    }
+    buildData(data);
+
+  } else if (action === 'createBU') {
+    var newBU = new GlideRecordSecure('business_unit');
+    newBU.initialize();
+    newBU.setValue('name', input.name);
+    newBU.setValue('description', input.desc || '');
+    if (input.parent) { newBU.setValue('parent',  input.parent); }
+    if (input.head)   { newBU.setValue('bu_head', input.head);   }
+		if (input.company) { newBU.setValue('company', input.company);}
+    newBU.insert();
+    buildData(data);
+
+  } else if (action === 'getUserDetails') {
+
+			data.userDetails = {};
+
+			if (input.userSysId) {
+
+					var u = new GlideRecordSecure('sys_user');
+
+					if (u.get(input.userSysId)) {
+
+							data.userDetails = {
+									firstName    : u.getValue('first_name'),
+									lastName     : u.getValue('last_name'),
+									email        : u.getValue('email'),
+									manager      : u.getValue('manager'),
+									managerName  : u.getDisplayValue('manager'),
+									location     : u.getValue('location'),
+									locationName : u.getDisplayValue('location'),
+									department      : u.getValue('department'),
+									departmentName  : u.getDisplayValue('department'),
+									company      : u.getValue('company'),
+									companyName  : u.getDisplayValue('company'),
+									mobilePhone  : u.getValue('mobile_phone'),
+									businessPhone: u.getValue('phone'),
+									active       : u.getValue('active') == '1'
+							};
+					}
+			}
+
+			data.success = true;
+			return;
+	}	else if (action === 'createUser') {
+
+			var profile = new GlideRecordSecure('x_ctans_incentnow_user_profile');
+			profile.initialize();
+
+			profile.setValue('user', input.user || input.userName);
+
+			if (input.externalUserId)
+					profile.setValue('external_user_id', input.externalUserId);
+
+			if (input.role)
+					profile.setValue('role', input.role);
+
+			if (input.unit)
+					profile.setValue('business_unit', input.unit);
+			
+			if (input.company)
+        profile.setValue('company', input.company);
+
+			profile.setValue('active', input.active ? true : false);
+
+			profile.insert();
+		
+			// Update sys_user company
+		
+			var sysUser = new GlideRecordSecure('sys_user');
+			if (sysUser.get(input.user)) {
+
+					if (input.company)
+							sysUser.setValue('company', input.company);
+
+					sysUser.update();
+			}
+
+			buildData(data);
+	}
+	else if (action === 'getBUDetails') {
+
+    data.buDetails = {};
+
+    if (input.sys_id) {
+
+        var bu = new GlideRecordSecure('business_unit');
+
+        if (bu.get(input.sys_id)) {
+
+            data.buDetails = {
+                head: bu.getValue('bu_head'),
+                company: bu.getValue('company')
+            };
+        }
+    }
+
+    data.success = true;
+    return;
+	}else if (action === 'deleteBU') {
+
+    var buGR = new GlideRecordSecure('business_unit');
+
+    if (!buGR.get(input.sys_id)) {
+        gs.info('BU NOT FOUND');
+        return;
+    }
+
+    // Check children first
+    var childGR = new GlideRecordSecure('business_unit');
+    childGR.addQuery('parent', input.sys_id);
+    childGR.query();
+
+    if (childGR.hasNext()) {
+        gs.addErrorMessage('Cannot delete: Child Business Units exist');
+        return;
+    }
+
+    // Check ACL permission safely
+    if (!buGR.canDelete()) {
+        gs.addErrorMessage('You are not allowed to delete this Business Unit');
+        return;
+    }
+
+    var deleted = buGR.deleteRecord();
+
+    gs.info('DELETE RESULT: ' + deleted);
+
+    buildData(data);
+}else {
+			buildData(data);
+		}
+
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>karan.kumar</sys_created_by>
+        <sys_created_on>2026-03-17 03:45:36</sys_created_on>
+        <sys_id>715187273b6ffa50ffa00e9693e45a62</sys_id>
+        <sys_mod_count>256</sys_mod_count>
+        <sys_name>Organization Management</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sp_widget_715187273b6ffa50ffa00e9693e45a62</sys_update_name>
+        <sys_updated_by>shroin.mandal</sys_updated_by>
+        <sys_updated_on>2026-06-16 12:14:26</sys_updated_on>
+        <template><![CDATA[<div class="org-wrap">
+
+  <div ng-show="c.view === 'main'">
+
+    <!-- HEADER -->
+    <div class="org-header">
+      <div class="org-header-text">
+        <h1>Organization</h1>
+        <p>Manage business units, teams, and reporting hierarchies</p>
+      </div>
+      <div class="org-header-actions" ng-if="c.data.isIncentNowAdmin==true">
+        <button class="org-btn-ghost" ng-click="c.goTo('addBU')">+ Add Business Unit</button>
+        <button class="org-btn-solid" ng-click="c.goTo('addUser')">+ Add Team Member</button>
+      </div>
+    </div>
+
+    <!-- SUMMARY CARDS — Dashboard-consistent style -->
+    <div class="org-cards">
+      <div class="pt-scorecard">
+        <div class="pt-scorecard-top"><span class="pt-scorecard-label">Business Units</span></div>
+        <div class="pt-scorecard-value">{{c.data.topUnits}}</div>
+        <div class="pt-scorecard-period">Top-Level Units</div>
+      </div>
+     <div class="pt-scorecard">
+  <div class="pt-scorecard-top"><span class="pt-scorecard-label">Managers</span></div>
+  <div class="pt-scorecard-value">{{c.data.teams}}</div>
+  <div class="pt-scorecard-period">Total Managers</div>
+</div>
+      <div class="pt-scorecard">
+        <div class="pt-scorecard-top"><span class="pt-scorecard-label">Team Members</span></div>
+        <div class="pt-scorecard-value">{{c.data.members.length}}</div>
+        <div class="pt-scorecard-period">Total Headcount</div>
+      </div>
+      <div class="pt-scorecard">
+        <div class="pt-scorecard-top"><span class="pt-scorecard-label">Org Depth</span></div>
+        <div class="pt-scorecard-value">{{c.data.depth}}</div>
+        <div class="pt-scorecard-period">Hierarchy Levels</div>
+      </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="org-tabs">
+      <button class="org-tab" ng-class="{'org-tab--active': c.tab=='hierarchy'}" ng-click="c.tab='hierarchy'">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+        Business Unit Hierarchy
+      </button>
+      <button class="org-tab" ng-class="{'org-tab--active': c.tab=='reporting'}" ng-click="c.tab='reporting'">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="3"/><path d="M12 8v3M9 14H6a2 2 0 0 0-2 2v2M18 14h-3M9 14h6M9 14a2 2 0 0 0-2 2v2M15 14a2 2 0 0 1 2 2v2"/></svg>
+        Reporting Structure
+      </button>
+      <button class="org-tab" ng-class="{'org-tab--active': c.tab=='team'}" ng-click="c.tab='team'">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Team Directory
+      </button>
+    </div>
+
+    <!-- ===== BUSINESS UNIT HIERARCHY TAB ===== -->
+    <div class="org-body" ng-show="c.tab=='hierarchy'">
+      <div class="org-panel-left">
+        <div class="org-panel-heading">Organization Structure</div>
+        <div class="org-panel-sub">Click on any unit to view details</div>
+        <div class="org-tree-scroll">
+
+          <div class="org-tree-item" ng-repeat="unit in c.data.rootUnits">
+            <div class="org-node org-node--root"
+                 ng-class="{'org-node--selected': c.selectedUnit && c.selectedUnit.sys_id === unit.sys_id}"
+                 ng-click="unit.expanded=!unit.expanded; c.selectUnit(unit)">
+              <div class="org-node-l">
+                <span class="org-caret" ng-if="unit.children && unit.children.length">
+                  <svg ng-if="!unit.expanded" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+                  <svg ng-if="unit.expanded" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                </span>
+                <span class="org-caret-spacer" ng-if="!unit.children || !unit.children.length"></span>
+                <svg class="org-icon org-icon--bu" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+                <div>
+                  <div class="org-node-name">{{unit.name}}</div>
+                  <div class="org-node-desc" ng-if="unit.desc">{{unit.desc}}</div>
+                </div>
+              </div>
+              <div class="org-node-r">
+                <span class="org-mgr-label" ng-if="unit.manager">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+                  {{unit.manager}}
+                </span>
+                <span class="org-badge-count">{{unit.memberCount || 0}} member{{unit.memberCount !== 1 ? 's' : ''}}</span>
+              </div>
+            </div>
+            <!-- Level 2 -->
+            <div class="org-children" ng-if="unit.expanded && unit.children && unit.children.length">
+              <div ng-repeat="sub in unit.children" class="org-tree-item">
+                <div class="org-node org-node--child"
+                     ng-class="{'org-node--selected': c.selectedUnit && c.selectedUnit.sys_id === sub.sys_id}"
+                     ng-click="sub.expanded=!sub.expanded; c.selectUnit(sub)">
+                  <div class="org-node-l">
+                    <span class="org-caret" ng-if="sub.children && sub.children.length">
+                      <svg ng-if="!sub.expanded" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+                      <svg ng-if="sub.expanded" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                    </span>
+                    <span class="org-caret-spacer" ng-if="!sub.children || !sub.children.length"></span>
+                    <svg class="org-icon org-icon--team" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    <div>
+                      <div class="org-node-name">{{sub.name}}</div>
+                      <div class="org-node-desc" ng-if="sub.desc">{{sub.desc}}</div>
+                    </div>
+                  </div>
+                  <div class="org-node-r">
+                    <span class="org-mgr-label" ng-if="sub.manager">
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+                      {{sub.manager}}
+                    </span>
+                    <span class="org-badge-count">{{sub.memberCount || 0}} member{{sub.memberCount !== 1 ? 's' : ''}}</span>
+                  </div>
+                </div>
+                <!-- Level 3 -->
+                <div class="org-children org-children--l3" ng-if="sub.expanded && sub.children && sub.children.length">
+                  <div ng-repeat="gsub in sub.children"
+                       class="org-node org-node--child"
+                       ng-class="{'org-node--selected': c.selectedUnit && c.selectedUnit.sys_id === gsub.sys_id}"
+                       ng-click="c.selectUnit(gsub)">
+                    <div class="org-node-l">
+                      <span class="org-caret-spacer"></span>
+                      <svg class="org-icon org-icon--team" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                      <div>
+                        <div class="org-node-name">{{gsub.name}}</div>
+                        <div class="org-node-desc" ng-if="gsub.desc">{{gsub.desc}}</div>
+                      </div>
+                    </div>
+                    <div class="org-node-r">
+                      <span class="org-mgr-label" ng-if="gsub.manager">
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+                        {{gsub.manager}}
+                      </span>
+                      <span class="org-badge-count">{{gsub.memberCount || 0}} member{{gsub.memberCount !== 1 ? 's' : ''}}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Right detail: BU -->
+      <div class="org-panel-right" ng-if="c.selectedUnit">
+        <div class="org-detail-header">
+          <h2 class="org-detail-title">{{c.selectedUnit.name}}</h2>
+          
+          <div class="org-detail-actions">
+            <button class="org-edit-btn"
+                    ng-click="c.loadEditBU(c.selectedUnit); c.goTo('editBU')">
+              Edit
+            </button>
+
+            <button class="btn org-delete-btn"
+                    ng-if="c.data.isIncentNowAdmin"
+                    ng-click="c.showDeleteMessage()">
+                Delete
+            </button>
+          </div>
+       
+        </div>
+        <div class="org-detail-row">
+          <div class="org-detail-label">Description</div>
+          <div class="org-detail-val org-detail-val--bold">{{c.selectedUnit.desc || c.selectedUnit.name}}</div>
+        </div>
+        <div class="org-detail-row">
+          <div class="org-detail-label">Unit Type</div>
+          <span class="org-pill org-pill--dark">business unit</span>
+        </div>
+        <div class="org-detail-row">
+          <div class="org-detail-label">Hierarchy Level</div>
+          <div class="org-detail-val org-detail-val--bold">Level {{c.selectedUnit.level}}</div>
+        </div>
+        <div class="org-detail-row" ng-if="c.selectedUnit.manager">
+          <div class="org-detail-label">Unit Head</div>
+          <div class="org-person-row">
+            <div class="org-av org-av--sm">{{c.selectedUnit.manager.substring(0,2).toUpperCase()}}</div>
+            <div class="org-detail-val org-detail-val--bold">{{c.selectedUnit.manager}}</div>
+          </div>
+        </div>
+        <div class="org-detail-row">
+          <div class="org-detail-label">Team Members <span class="org-count-badge">{{c.selectedUnit.memberCount || 0}}</span></div>
+          <div ng-if="c.selectedUnit.unitMembers && c.selectedUnit.unitMembers.length">
+            <div ng-repeat="um in c.selectedUnit.unitMembers" class="org-person-row" style="margin-bottom:8px;">
+              <div class="org-av org-av--sm">{{um.initials}}</div>
+              <div>
+                <div class="org-detail-val org-detail-val--bold">{{um.name}}</div>
+                <div class="org-detail-val" style="font-size:12px;color:#64748b;">{{um.title}}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="org-panel-right org-panel-right--empty" ng-if="!c.selectedUnit">
+        <div class="org-empty">
+          <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.5"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+          <p>Select a unit to view details</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== REPORTING STRUCTURE TAB ===== -->
+    <div class="org-body" ng-show="c.tab=='reporting'">
+      <div class="org-panel-left">
+        <div class="org-panel-heading">Reporting Hierarchy</div>
+        <div class="org-panel-sub">Manager and direct report relationships</div>
+        <div class="org-tree-scroll">
+
+          <div class="org-tree-item" ng-repeat="u in c.data.rootUsers">
+            <div class="org-node org-node--root"
+                 ng-class="{'org-node--selected': c.selectedUser && c.selectedUser.sys_id === u.sys_id}"
+                 ng-click="u.expanded=!u.expanded; c.selectUser(u)">
+              <div class="org-node-l">
+                <span class="org-caret" ng-if="u.reports && u.reports.length">
+                  <svg ng-if="!u.expanded" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+                  <svg ng-if="u.expanded" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                </span>
+                <span class="org-caret-spacer" ng-if="!u.reports || !u.reports.length"></span>
+                <div class="org-av org-av--sm">{{u.initials}}</div>
+                <div>
+                  <div class="org-node-name">{{u.name}}</div>
+                </div>
+              </div>
+              <div class="org-node-r">
+                <span class="org-role-pill" ng-if="u.role">{{u.roleLabel || u.role}}</span>
+                <span class="org-badge-count" ng-if="u.reports && u.reports.length">{{u.reports.length}} report{{u.reports.length !== 1 ? 's' : ''}}</span>
+              </div>
+            </div>
+            <!-- Level 2 -->
+            <div class="org-children" ng-if="u.expanded && u.reports && u.reports.length">
+              <div ng-repeat="r in u.reports" class="org-tree-item">
+                <div class="org-node org-node--child"
+                     ng-class="{'org-node--selected': c.selectedUser && c.selectedUser.sys_id === r.sys_id}"
+                     ng-click="r.expanded=!r.expanded; c.selectUser(r)">
+                  <div class="org-node-l">
+                    <span class="org-caret" ng-if="r.reports && r.reports.length">
+                      <svg ng-if="!r.expanded" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+                      <svg ng-if="r.expanded" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                    </span>
+                    <span class="org-caret-spacer" ng-if="!r.reports || !r.reports.length"></span>
+                    <div class="org-av org-av--sm">{{r.initials}}</div>
+                    <div>
+                      <div class="org-node-name">{{r.name}}</div>
+                      <div class="org-node-desc">{{r.title}}</div>
+                    </div>
+                  </div>
+                  <div class="org-node-r">
+                    <span class="org-role-pill" ng-if="r.role">{{r.roleLabel || r.role}}</span>
+                    <span class="org-badge-count" ng-if="r.reports && r.reports.length">{{r.reports.length}} report{{r.reports.length !== 1 ? 's' : ''}}</span>
+                  </div>
+                </div>
+                <!-- Level 3 -->
+                <div class="org-children org-children--l3" ng-if="r.expanded && r.reports && r.reports.length">
+                  <div ng-repeat="rr in r.reports"
+                       class="org-node org-node--child"
+                       ng-class="{'org-node--selected': c.selectedUser && c.selectedUser.sys_id === rr.sys_id}"
+                       ng-click="c.selectUser(rr)">
+                    <div class="org-node-l">
+                      <span class="org-caret-spacer"></span>
+                      <div class="org-av org-av--sm">{{rr.initials}}</div>
+                      <div>
+                        <div class="org-node-name">{{rr.name}}</div>
+                        <div class="org-node-desc">{{rr.title}}</div>
+                      </div>
+                    </div>
+                    <div class="org-node-r">
+                      <span class="org-role-pill" ng-if="rr.role">{{rr.roleLabel || rr.role}}</span>
+                      <span class="org-badge-count" ng-if="rr.reports && rr.reports.length">{{rr.reports.length}} report{{rr.reports.length !== 1 ? 's' : ''}}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Right detail: User -->
+      <div class="org-panel-right" ng-if="c.selectedUser">
+        <div class="org-detail-header">
+          <h2 class="org-detail-title">{{c.selectedUser.name}}</h2>
+          <button class="org-edit-btn"
+                  ng-click="c.goTo('editUser'); c.loadEditUser(c.selectedUser)">
+            Edit
+          </button>
+        </div>
+        <div class="org-detail-row">
+          <div class="org-detail-label">Email</div>
+          <div class="org-detail-val">{{c.selectedUser.email}}</div>
+        </div>
+        <div class="org-detail-row">
+          <div class="org-detail-label">Role</div>
+          <span class="org-pill org-pill--dark">{{c.selectedUser.role}}</span>
+        </div>
+        <div class="org-detail-row">
+          <div class="org-detail-label">Business Unit</div>
+          <div class="org-detail-val org-detail-val--bold">{{c.selectedUser.unit}}</div>
+        </div>
+        <div class="org-detail-row">
+          <div class="org-detail-label">Org Level</div>
+          <div class="org-detail-val org-detail-val--bold">Level {{c.selectedUser.orgLevel || 0}}</div>
+        </div>
+        <div class="org-detail-row" ng-if="c.selectedUser.reports && c.selectedUser.reports.length">
+          <div class="org-detail-label">Direct Reports <span class="org-count-badge">{{c.selectedUser.reports.length}}</span></div>
+          <div ng-repeat="dr in c.selectedUser.reports" class="org-person-row" style="margin-bottom:10px;margin-top:4px;">
+            <div class="org-av org-av--sm">{{dr.initials}}</div>
+            <div>
+              <div class="org-detail-val org-detail-val--bold">{{dr.name}}</div>
+              <div class="org-detail-val" style="font-size:12px;color:#64748b;">{{dr.title}}</div>
+            </div>
+          </div>
+        </div>
+        <div class="org-detail-row" ng-if="c.selectedUser.managerName">
+          <div class="org-detail-label">Reports To</div>
+          <div class="org-detail-val org-detail-val--bold">{{c.selectedUser.managerName}}</div>
+        </div>
+      </div>
+      <div class="org-panel-right org-panel-right--empty" ng-if="!c.selectedUser">
+        <div class="org-empty">
+          <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          <p>Select a person to view details</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== TEAM DIRECTORY TAB ===== -->
+    <div ng-show="c.tab=='team'" class="org-team-wrap">
+      <div class="org-team-header">
+        <div class="org-panel-heading" style="margin:0;">Team Directory</div>
+        <div class="org-search-box">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input type="text" ng-model="c.teamSearch" placeholder="Search by name, email, or title..." class="org-search-input"/>
+        </div>
+      </div>
+      <div class="org-team-grid">
+        <div class="org-team-card" ng-repeat="m in c.data.members | filter: c.teamSearch">
+          <div class="org-team-card-top">
+            <div class="org-av org-av--lg">{{m.initials}}</div>
+            <div class="org-team-info">
+              <div class="org-team-name">{{m.name}}</div>
+              <div class="org-team-title-text">{{m.title}}</div>
+              <div class="org-team-email">{{m.email}}</div>
+            </div>
+            <button class="org-edit-btn" ng-click="c.goTo('editUser'); c.loadEditUser(m)">Edit</button>
+          </div>
+          <div class="org-team-card-bottom">
+            <div class="org-team-meta-left">
+              <span class="org-role-pill">{{m.roleLabel || m.role}}</span>
+              <div class="org-team-reports" ng-if="m.reports && m.reports.length">{{m.reports.length}} direct report{{m.reports.length !== 1 ? 's' : ''}}</div>
+              <div class="org-team-reports" ng-if="m.managerName">Reports to: {{m.managerName}}</div>
+            </div>
+            <span class="org-unit-pill" ng-if="m.unit">{{m.unit}}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end ng-show main -->
+
+
+  <!-- ============================================================
+       VIEW: ADD BUSINESS UNIT
+  ============================================================ -->
+  <div ng-show="c.view === 'addBU'">
+
+    <div class="org-page-topbar">
+      <button class="org-back-btn" ng-click="c.goTo('main')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 8 8 12 12 16"/><line x1="16" y1="12" x2="8" y2="12"/></svg>
+      </button>
+      <span class="org-page-topbar-title">Add Business Unit</span>
+    </div> 
+
+    <div class="org-form-page">
+      <div class="org-form-page-heading">Add Business Unit</div>
+      <div class="org-form-page-sub">Create a new business unit in your organization</div>
+
+      <div class="org-form-section">
+        <div class="org-row2">
+          <div class="org-field">
+            <label>Unit Name <span class="org-req">*</span></label>
+            <input type="text" ng-model="c.newBU.name" placeholder="e.g., Sales Organization" class="org-input"/>
+          </div>
+          <div class="org-field">
+            <label>Unit Type <span class="org-req">*</span></label>
+            <!-- Req 2: Removed Team and Sub-team options -->
+            <select ng-model="c.newBU.type" class="org-select">
+              <option value="Business Unit">Business Unit</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="org-field org-field--full">
+          <label>Description</label>
+          <textarea ng-model="c.newBU.desc" placeholder="Describe the unit's purpose and scope..." class="org-textarea"></textarea>
+        </div>
+
+        <div class="org-row2">
+          <div class="org-field">
+            <label>Parent Unit</label>
+            <select ng-model="c.newBU.parent"
+                    ng-change="c.onParentBUChange()"
+                    class="org-select">
+              <option value="">None (Top Level)</option>
+              <option ng-repeat="u in c.data.businessUnits"
+                      value="{{u.id}}">
+                {{u.label}}
+              </option>
+            </select>
+          </div>
+          <div class="org-field">
+            <label>Unit Head</label>
+            <select ng-model="c.newBU.head" class="org-select">
+              <option value="">Select a team member</option>
+              <option ng-repeat="u in c.data.sysUsers" value="{{u.sys_id}}">{{u.name}}</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="org-field">
+          <label>Company <span class="org-req">*</span></label>
+          <select ng-model="c.newBU.company" class="org-select">
+            <option value="">Select company</option>
+
+            <option ng-repeat="comp in c.data.companies"
+                    value="{{comp.sys_id}}">
+              {{comp.name}}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <div class="org-form-page-footer">
+        <button class="org-btn-ghost" ng-click="c.goTo('main')">Cancel</button>
+        <button class="org-btn-solid" ng-click="c.createBU()">Create Business Unit</button>
+      </div>
+    </div>
+
+  </div><!-- end addBU view -->
+
+
+  <!-- ============================================================
+       VIEW: ADD TEAM MEMBER
+       Req 3: Fields mapped to x_ctans_incentnow_sales_user backend
+  ============================================================ -->
+  <div ng-show="c.view === 'addUser'">
+
+    <div class="org-page-topbar">
+      <button class="org-back-btn" ng-click="c.goTo('main')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 8 8 12 12 16"/><line x1="16" y1="12" x2="8" y2="12"/></svg>
+      </button>
+      <span class="org-page-topbar-title">Add Team Member</span>
+    </div>
+
+    <div class="org-form-page">
+      <div class="org-form-page-heading">Add Team Member</div>
+      <div class="org-form-page-sub">Add a new team member to your organization. Fields marked <span class="org-req">*</span> are mandatory.</div>
+
+      <div class="org-form-section">
+
+        <!-- Row 1: User ID (user_name) + External User ID (external_user_id) -->
+        <div class="org-row2">
+          <div class="org-field">
+            <div class="form-group">
+                <label>User <span class="required">*</span></label>
+
+                <select class="org-select"
+                        ng-model="c.newUser.user"
+                        ng-change="c.onUserChange()">
+
+                    <option value="">Select User</option>
+
+                    <option ng-repeat="u in c.data.sysUsers"
+                            value="{{u.sys_id}}">
+                        {{u.name}}
+                    </option>
+
+                </select>
+            </div>
+          </div>
+          <div class="org-field">
+            <label>External User ID <span class="org-req"></span></label>
+            <!--input type="text" ng-model="c.newUser.externalUserId" placeholder="e.g., EXT-001" class="org-input"/-->
+            
+            <select ng-model="c.newUser.externalUserId"
+                class="org-select">
+
+            <option value="">Select External User ID</option>
+
+            <option ng-repeat="u in c.data.externalUsers"
+                    value="{{u.value}}">
+                {{u.label}}
+            </option>
+
+        </select>
+          </div>
+        </div>
+
+        <!-- Row 2: First Name + Last Name -->
+        <div class="org-row2">
+          <div class="org-field">
+            <label>First Name <span class="org-req">*</span></label>
+            <input type="text"
+               class="form-control"
+               ng-model="c.newUser.firstName"
+               readonly>
+          </div>
+          <div class="org-field">
+            <label>Last Name <span class="org-req">*</span></label>
+            <input type="text"
+             class="form-control"
+             ng-model="c.newUser.lastName"
+             readonly>
+          </div>
+        </div>
+
+        <!-- Row 3: Title + Manager -->
+        <div class="org-row2">
+          <div class="org-field">
+            <label>Location</label>
+            <select ng-model="c.newUser.location" class="org-select">
+              <option value="">Select location</option>
+              <option ng-repeat="l in c.data.locations"
+                      value="{{l.sys_id}}">
+                {{l.name}}
+              </option>
+            </select>
+          </div>
+          <div class="org-field">
+            <label>Manager</label>
+            <select ng-model="c.newUser.manager" class="org-select">
+              <option value="">-- None --</option>
+              <option ng-repeat="u in c.data.sysUsers"
+                      value="{{u.sys_id}}">
+                  {{u.name}}
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Row 4: Department + Email -->
+        <div class="org-row2">
+          <div class="org-field">
+                <label>Department</label>
+
+                <select ng-model="c.newUser.department" class="org-select">
+                  <option value="">Select department</option>
+                    <option ng-repeat="d in c.data.departments"
+                            value="{{d.sys_id}}">
+                      {{d.name}}
+                    </option>
+                </select>
+              </div>
+
+          <div class="org-field">
+            <label>Email</label>
+            <input type="email" ng-model="c.newUser.email" placeholder="john.smith@company.com" class="org-input"/>
+          </div>
+        </div>
+
+        <!-- Row 5: Role (mandatory) + Business Unit (mandatory) -->
+        <div class="org-row2">
+          <div class="org-field">
+            <label>Role <span class="org-req">*</span></label>
+            <select ng-model="c.newUser.role" class="org-select">
+              <option ng-repeat="r in c.data.roles" value="{{r.value}}">
+                {{r.label}}
+              </option>
+            </select>
+          </div>
+          <div class="org-field">
+            <label>Business Unit <span class="org-req">*</span></label>
+            <select ng-model="c.newUser.unit" ng-change="c.onBusinessUnitChange()" class="org-select">
+              <option value="">Select business unit</option>
+              <option ng-repeat="u in c.data.businessUnits"
+                      value="{{u.id}}">
+                {{u.label}}
+              </option>
+            </select>
+          </div>
+        </div>
+
+
+        <!-- Row 7: Business Phone + Mobile Phone -->
+        <div class="org-row2">
+          <div class="org-field">
+            <label>Business Phone</label>
+            <input type="text" ng-model="c.newUser.businessPhone" placeholder="+1-555-0100" class="org-input"/>
+          </div>
+          <div class="org-field">
+            <label>Mobile Phone</label>
+            <input type="text" ng-model="c.newUser.mobilePhone" placeholder="+1-555-0200" class="org-input"/>
+          </div>
+        </div>
+
+        <!-- Row 8: Location + Password -->
+        
+        
+        <!-- Row: Company + Photo -->
+        <div class="org-row2">
+          <div class="org-field">
+            <label>Company <span class="org-req">*</span></label>
+            <select ng-model="c.newUser.company" class="org-select">
+              <option value="">Select company</option>
+
+              <option ng-repeat="comp in c.data.companies"
+                      value="{{comp.sys_id}}">
+                {{comp.name}}
+              </option>
+            </select>
+          </div>
+
+          <div class="org-field">
+            <label>Photo</label>
+
+            <!-- Hidden File Input -->
+            <input type="file"
+                   id="userPhotoUpload"
+                   accept="image/*"
+                   style="display:none;"
+                   onchange="angular.element(this).scope().c.uploadPhoto(this.files)"/>
+
+            <!-- Custom Button -->
+            <button type="button"
+                    class="org-btn-ghost"
+                    ng-click="c.openPhotoUpload()">
+              Add Photo
+            </button>
+
+            <!-- Uploaded File Name -->
+            <div ng-if="c.newUser.photoName"
+                 style="margin-top:8px;font-size:12px;color:#64748b;">
+              {{c.newUser.photoName}}
+            </div>
+
+            <!-- Preview -->
+            <div ng-if="c.newUser.photo"
+                 style="margin-top:12px;">
+              <img ng-src="{{c.newUser.photo}}"
+                   style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:1px solid #d1d5db;">
+            </div>
+          </div>
+        </div>
+
+        <!-- Row 9: Active + New Hire checkboxes -->
+        <div class="org-row2">
+          <div class="org-field" style="flex-direction:row;align-items:center;gap:10px;padding-top:8px;">
+            <input type="checkbox" ng-model="c.newUser.active" id="chk_active" style="width:16px;height:16px;cursor:pointer;" ng-init="c.newUser.active=true"/>
+            <label for="chk_active" style="font-size:13px;font-weight:600;color:#374151;margin:0;cursor:pointer;">Active</label>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="org-form-page-footer">
+        <button class="org-btn-ghost" ng-click="c.goTo('main')">Cancel</button>
+        <button class="org-btn-solid" ng-click="c.createUser()">Add Team Member</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ============================================================
+       VIEW: EDIT TEAM MEMBER
+  ============================================================ -->
+  <div ng-show="c.view === 'editUser'">
+
+    <div class="org-page-topbar">
+      <button class="org-back-btn" ng-click="c.goTo('main')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 8 8 12 12 16"/><line x1="16" y1="12" x2="8" y2="12"/></svg>
+      </button>
+      <span class="org-page-topbar-title">Edit Team Member</span>
+    </div>
+
+    <div class="org-form-page" ng-class="{'read-only-form': !c.data.isIncentNowAdmin}">
+      <div class="org-form-page-heading">Edit Team Member</div>
+      <div class="org-form-page-sub">Update the details of this team member. Fields marked <span class="org-req">*</span> are mandatory.</div>
+
+      <div class="org-form-section">
+        
+        <div class="org-row2">
+          <div class="org-field">
+              <label>User</label>
+              <input type="text"
+                     ng-model="c.editUser.userName"
+                     class="org-input"
+                     readonly />
+          </div>
+          <div class="org-field">
+              <label>External User ID</label>
+              <select ng-model="c.editUser.externalUserId" class="org-select"
+                    ng-options="u.value as u.label for u in c.data.externalUsers">
+                <option value="">Select External User ID</option>
+            </select>
+          </div>
+      </div>
+
+        <div class="org-row2">
+          <div class="org-field">
+            <label>First Name <span class="org-req">*</span></label>
+            <input type="text" ng-model="c.editUser.firstName" class="org-input" readonly/>
+          </div>
+          <div class="org-field">
+            <label>Last Name <span class="org-req">*</span></label>
+            <input type="text" ng-model="c.editUser.lastName" class="org-input" readonly/>
+          </div>
+        </div>
+
+        <div class="org-row2">
+          
+    <div class="org-field">
+                <label>Location</label>
+                <select ng-model="c.editUser.location" class="org-select">
+                  <option value="">Select location</option>
+                    <option ng-repeat="l in c.data.locations"
+                            value="{{l.sys_id}}">
+                      {{l.name}}
+                    </option>
+                </select>
+              </div>
+
+
+          <div class="org-field">
+            <label>Email</label>
+            <input type="email" ng-model="c.editUser.email" class="org-input"/>
+          </div>
+        </div>
+
+        <div class="org-row2">
+          <div class="org-field">
+            <label>Role <span class="org-req">*</span></label>
+            <select ng-model="c.editUser.role" class="org-select">
+              <option ng-repeat="r in c.data.roles" value="{{r.value}}">
+                {{r.label}}
+              </option>
+            </select>
+          </div>
+          <div class="org-field">
+            <label>Business Unit <span class="org-req">*</span></label>
+            <select ng-model="c.editUser.unit" class="org-select">
+              <option value="">Select business unit</option>
+              <option ng-repeat="u in c.data.businessUnits"
+                      value="{{u.id}}">
+                {{u.label}}
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <div class="org-row2">
+          <div class="org-field">
+            <label>Manager</label>
+            <select ng-model="c.editUser.manager" class="org-select"
+                    ng-options="u.sys_id as u.name for u in c.data.sysUsers">
+                <option value="">-- Select Manager --</option>
+            </select>
+          </div>
+          <div class="org-field">
+            <label>Department</label>
+
+            <select ng-model="c.editUser.department" class="org-select">
+              <option value="">Select department</option>
+          <option ng-repeat="d in c.data.departments"
+                  value="{{d.sys_id}}">
+            {{d.name}}
+          </option>
+            </select>
+          </div>
+
+        </div>
+
+        <div class="org-row2">
+          <div class="org-field">
+            <label>Business Phone</label>
+            <input type="text" ng-model="c.editUser.businessPhone" class="org-input"/>
+          </div>
+          <div class="org-field">
+            <label>Mobile Phone</label>
+            <input type="text" ng-model="c.editUser.mobilePhone" class="org-input"/>
+          </div>
+        </div>
+        
+        <div class="org-row2">
+        <div class="org-field">
+          <label>Company <span class="org-req">*</span></label>
+          <select ng-model="c.editUser.company" class="org-select">
+            <option value="">Select company</option>
+
+            <option ng-repeat="comp in c.data.companies"
+                    value="{{comp.sys_id}}">
+              {{comp.name}}
+            </option>
+          </select>
+        </div>
+
+        <div class="org-field">
+          <label>Photo</label>
+
+          <!-- Existing / Preview Photo -->
+          <div ng-if="c.editUser.photo" style="margin-bottom:12px;">
+            <img ng-src="{{c.editUser.photo}}"
+                 style="width:90px;height:90px;border-radius:50%;object-fit:cover;border:1px solid #d1d5db;">
+          </div>
+
+          <!-- Hidden File Input -->
+          <input type="file"
+                 id="editPhotoUpload"
+                 accept="image/*"
+                 style="display:none;"
+                 onchange="handleEditPhotoSelect(event)">
+
+          <!-- Button -->
+          <button type="button"
+                  class="org-btn-ghost"
+                  ng-click="c.openEditPhotoUpload()">
+            Change Photo
+          </button>
+        </div>
+      </div>
+
+      <div class="org-row2">
+        <div class="org-field" style="flex-direction:row;align-items:center;gap:10px;padding-top:8px;">
+          <input type="checkbox"
+                 ng-model="c.editUser.active"
+                 id="edit_active"
+                 style="width:16px;height:16px;cursor:pointer;"/>
+          <label for="edit_active"
+                 style="font-size:13px;font-weight:600;color:#374151;margin:0;cursor:pointer;">
+            Active
+          </label>
+        </div>
+      </div>
+
+      <div class="org-form-page-footer">
+        <button class="org-btn-ghost" ng-click="c.goTo('main')">Cancel</button>
+        <button class="org-btn-solid" ng-click="c.updateUser()">Save Changes</button>
+      </div>
+    </div>
+    </div>
+  </div><!-- end editUser view -->
+
+  <!-- ============================================================
+       VIEW: EDIT BUSINESS UNIT
+  ============================================================ -->
+  <div ng-show="c.view === 'editBU'">
+    
+    <div class="org-page-topbar">
+      <button class="org-back-btn" ng-click="c.goTo('main')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 8 8 12 12 16"/><line x1="16" y1="12" x2="8" y2="12"/></svg>
+      </button>
+      <span class="org-page-topbar-title">Edit Business Unit</span>
+    </div>
+
+    <div class="org-form-page" ng-class="{'read-only-form': !c.data.isIncentNowAdmin}">
+      <div class="org-form-page-heading">Edit Business Unit</div>
+      <div class="org-form-page-sub">Update the details of this business unit</div>
+
+      <div class="org-form-section">
+        <div class="org-row2">
+          <div class="org-field">
+            <label>Unit Name <span class="org-req">*</span></label>
+            <input type="text" ng-model="c.editBU.name" placeholder="e.g., Sales Organization" class="org-input"/>
+          </div>
+          <div class="org-field">
+            <label>Unit Type</label>
+            <select ng-model="c.editBU.type" class="org-select">
+              <option value="Business Unit">Business Unit</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="org-field org-field--full">
+          <label>Description</label>
+          <textarea ng-model="c.editBU.desc" placeholder="Describe the unit's purpose and scope..." class="org-textarea"></textarea>
+        </div>
+
+        <div class="org-row2">
+          <div class="org-field">
+            <label>Parent Unit</label>
+            <select ng-model="c.editBU.parent" ng-change="c.onEditParentBUChange()" class="org-select">
+              <option value="">None (Top Level)</option>
+              <option ng-repeat="u in c.data.businessUnits"
+                      value="{{u.id}}">
+                {{u.label}}
+              </option>
+            </select>
+          </div>
+          <div class="org-field">
+            <label>Unit Head</label>
+            <select ng-model="c.editBU.head" class="org-select">
+              <option value="">Select a team member</option>
+              <option ng-repeat="u in c.data.sysUsers" value="{{u.sys_id}}">{{u.name}}</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="org-field">
+          <label>Company <span class="org-req">*</span></label>
+          <select ng-model="c.editBU.company" class="org-select">
+            <option value="">Select company</option>
+
+            <option ng-repeat="comp in c.data.companies"
+                    value="{{comp.sys_id}}">
+              {{comp.name}}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <div class="org-form-page-footer">
+        <button class="org-btn-ghost" ng-click="c.goTo('main')">Cancel</button>
+        <button class="org-btn-solid" ng-click="c.updateBU()">Save Changes</button>
+      </div>
+    </div>
+
+  </div><!-- end editBU view -->
+
+</div><!-- end org-wrap -->]]></template>
+    </sp_widget>
+</record_update>

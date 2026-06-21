@@ -1,0 +1,412 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <client_script><![CDATA[api.controller=function($scope, spUtil,$timeout) {
+
+  var c = this;
+	
+
+  /*c.saveDisplayNames = function(){
+
+    c.data.action = "saveDisplayNames";
+    c.data.quarters = c.data.quarters;
+
+    c.server.update().then(function(){
+			
+      spUtil.addInfoMessage("Display Names Saved");
+    });
+
+  }; */
+	
+	c.saveDisplayNames = function(){
+
+		c.data.action = "saveDisplayNames";
+		c.data.calendar_sys_id = c.data.calId;
+		c.data.quarters = c.data.quarters;
+
+		c.server.update().then(function(res){
+
+			if (res.data && res.data.quarters) {
+				c.data.quarters = res.data.quarters;
+					}
+			c.editMode = false;
+
+			//spUtil.addInfoMessage("Display Names Saved");
+			c.successMessage = "Display Names Saved";
+	
+	$timeout(function(){
+  c.successMessage = "";
+}, 3000);
+			
+
+			});
+
+		};
+	
+};]]></client_script>
+        <controller_as>c</controller_as>
+        <css>.btn-primary&#13;
+{&#13;
+	background: #000000;&#13;
+}&#13;
+.fiscal-container{&#13;
+  border:1px solid #dcdcdc;&#13;
+  padding:20px;&#13;
+  /*margin-top:20px; */&#13;
+  background: #ffffff;&#13;
+}&#13;
+&#13;
+.quarter-box{&#13;
+  border:1px solid #dcdcdc;&#13;
+  padding:10px;&#13;
+  background:#fafafa;&#13;
+  min-height:220px;&#13;
+}&#13;
+&#13;
+.quarter-header{&#13;
+  display:flex;&#13;
+  justify-content:space-between;&#13;
+  align-items:center;&#13;
+  margin-bottom:15px;&#13;
+}&#13;
+&#13;
+.quarter-input{&#13;
+  width:120px;&#13;
+}&#13;
+&#13;
+.month-row{&#13;
+  display:flex;&#13;
+  justify-content:space-between;&#13;
+  align-items:center;&#13;
+  margin-bottom:10px;&#13;
+}&#13;
+&#13;
+.month-input{&#13;
+  width:120px;&#13;
+}&#13;
+&#13;
+.action-buttons{&#13;
+  margin-top:20px;&#13;
+}&#13;
+&#13;
+.edit-toggle{&#13;
+  display:flex;&#13;
+  align-items:center;&#13;
+  margin-bottom:15px;&#13;
+}&#13;
+&#13;
+.toggle-label{&#13;
+  margin-left:10px;&#13;
+  font-weight:600;&#13;
+}&#13;
+&#13;
+/* Switch */&#13;
+&#13;
+.switch {&#13;
+  position: relative;&#13;
+  display: inline-block;&#13;
+  width: 45px;&#13;
+  height: 22px;&#13;
+}&#13;
+&#13;
+.switch input {&#13;
+  opacity: 0;&#13;
+  width: 0;&#13;
+  height: 0;&#13;
+}&#13;
+&#13;
+.slider {&#13;
+  position: absolute;&#13;
+  cursor: pointer;&#13;
+  background-color: #ccc;&#13;
+  border-radius: 22px;&#13;
+  top: 0;&#13;
+  left: 0;&#13;
+  right: 0;&#13;
+  bottom: 0;&#13;
+  transition: .3s;&#13;
+}&#13;
+&#13;
+.slider:before {&#13;
+  position: absolute;&#13;
+  content: "";&#13;
+  height: 18px;&#13;
+  width: 18px;&#13;
+  left: 2px;&#13;
+  bottom: 2px;&#13;
+  background-color: white;&#13;
+  border-radius: 50%;&#13;
+  transition: .3s;&#13;
+}&#13;
+&#13;
+input:checked + .slider {&#13;
+  background-color: #1f8476;&#13;
+}&#13;
+&#13;
+input:checked + .slider:before {&#13;
+  transform: translateX(22px);&#13;
+}&#13;
+&#13;
+.fiscal-header{&#13;
+  display:flex;&#13;
+  justify-content:space-between;&#13;
+  align-items:center;&#13;
+  width:100%;&#13;
+}&#13;
+&#13;
+.panel-title{&#13;
+  margin:0;&#13;
+  flex:1;&#13;
+}&#13;
+&#13;
+/*.edit-toggle{&#13;
+  display:flex;&#13;
+  align-items:center;&#13;
+  gap:10px;&#13;
+}*/&#13;
+&#13;
+.toggle-text{&#13;
+  font-weight:600;&#13;
+  //font-size:13px;&#13;
+}&#13;
+&#13;
+&#13;
+.alert {&#13;
+  text-align: left !important;&#13;
+}</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description/>
+        <docs/>
+        <field_list/>
+        <has_preview>false</has_preview>
+        <id>incentnow-fiscal-period-nd</id>
+        <internal>false</internal>
+        <link><![CDATA[function link(scope, element, attrs, controller) {
+  
+}]]></link>
+        <name>Incentnow Fiscal Period ND</name>
+        <option_schema>[{"name":"table","section":"other","label":"Table","type":"string"},{"name":"sys_id","section":"other","label":"Sys ID","type":"string"},{"name":"calendar_sys_id","section":"other","label":"Calendar Sys ID","type":"string"}]</option_schema>
+        <public>false</public>
+        <roles>x_ctans_incentnow.user,x_ctans_incentnow.admin</roles>
+        <script><![CDATA[(function() {
+  /* populate the 'data' object */
+  /* e.g., data.table = $sp.getValue('table'); */
+	
+		if (input && input.calendar_sys_id) 
+			{
+				//gs.addErrorMessage(" I have come as input "+input.calendar_sys_id);
+  			data.calId = input.calendar_sys_id;
+			} else if (!data.calId) {
+								//gs.addErrorMessage(" I have come as data "+options.calendar_sys_id+ " -- "+ $sp.getParameter("sys_id"));
+				data.calId = options.calendar_sys_id || $sp.getParameter("sys_id") || "";
+			}
+	data.table=options.table || $sp.getParameter('table') || "";
+	data.isApplicationAdmin= gs.getUser().hasRole('x_ctans_incentnow.admin');
+	
+	/*data.quarters = [
+  {
+    name: "Q1 2026",
+    months: ["January","February","March"]
+  },
+  {
+    name: "Q2 2026",
+    months: ["April","May","June"]
+  },
+  {
+    name: "Q3 2026",
+    months: ["July","August","September"]
+  },
+  {
+    name: "Q4 2026",
+    months: ["October","November","December"]
+  }
+]; */
+	
+	isFiscalPeriodExist();
+	function isFiscalPeriodExist()
+	{
+		data.fiscalExist=false;
+		var fiscalPeriod = new GlideRecordSecure("x_ctans_incentnow_fiscal_period");
+		if(fiscalPeriod.get("fiscal_year",data.calId)){
+			data.fiscalExist=true;
+		}
+	}
+	
+	if(input && input.action == "saveDisplayNames"){
+		
+		//gs.addErrorMessage("hello")
+
+	var quarters = input.quarters;
+		//gs.addInfoMessage("JSON.stringify(quarters) "+ input.action + " -- "+input.calendar_sys_id);
+
+	for(var i=0;i<quarters.length;i++){
+
+		var q = quarters[i];
+		//gs.addInfoMessage(JSON.stringify(q));
+
+		// update quarter
+		var gQuarter = new GlideRecordSecure("x_ctans_incentnow_fiscal_period");
+		if(gQuarter.get(q.sys_id)){
+			gQuarter.period_display_name = q.period_display_name;
+			gQuarter.update();
+		}
+
+		// update months
+		for(var j=0;j<q.months.length;j++){
+
+			var m = q.months[j];
+
+			var gMonth = new GlideRecordSecure("x_ctans_incentnow_fiscal_period");
+			if(gMonth.get(m.sys_id)){
+				gMonth.period_display_name = m.period_display_name;
+				gMonth.update();
+			}
+
+		}
+	}
+
+	data.status="saved";
+
+}
+	
+	data.quarters=getFiscalCalendar();
+	
+	function getFiscalCalendar() {
+
+	var quarters = [];
+	var quarterMap = {};
+
+	// GET ALL QUARTERS
+	var q = new GlideRecordSecure("x_ctans_incentnow_fiscal_period");
+	//gs.addErrorMessage("fiscal year "+data.calId);
+	q.addQuery("fiscal_year", data.calId);
+	q.addQuery("period_type", "quarter");
+	q.orderBy("period_number");
+	q.query();
+
+	while(q.next()) {
+
+		var obj = {
+			sys_id: q.getUniqueValue(),
+			name: q.getValue("period_name"),
+			period_display_name: q.getValue("period_display_name"),
+			months: []
+		};
+
+		quarterMap[q.getUniqueValue()] = obj;
+		quarters.push(obj);
+	}
+
+	//  GET ALL MONTHS
+	var m = new GlideRecordSecure("x_ctans_incentnow_fiscal_period");
+	m.addQuery("fiscal_year", data.calId);
+	m.addQuery("period_type", "month");
+	m.orderBy("period_number");
+	m.query();
+
+	while(m.next()) {
+
+		var parent = m.getValue("parent_period");
+
+		if(quarterMap[parent]) {
+
+			quarterMap[parent].months.push({
+				sys_id: m.getUniqueValue(),
+				name: m.getValue("period_name"),
+				period_display_name: m.getValue("period_display_name")
+			});
+
+		}
+	}
+
+	return quarters;
+}
+	
+
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>karan.kumar</sys_created_by>
+        <sys_created_on>2026-03-26 11:43:33</sys_created_on>
+        <sys_id>85c483e63bb37ad05493ddb693e45ac7</sys_id>
+        <sys_mod_count>49</sys_mod_count>
+        <sys_name>Incentnow Fiscal Period ND</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sp_widget_85c483e63bb37ad05493ddb693e45ac7</sys_update_name>
+        <sys_updated_by>karan.kumar</sys_updated_by>
+        <sys_updated_on>2026-06-15 04:54:01</sys_updated_on>
+        <template><![CDATA[<div ng-show="data.quarters && data.quarters.length">
+ <div class="panel-heading">
+  <div class="fiscal-header">
+
+    <h4 class="panel-title">
+      Fiscal Periods - Display Names Configuration
+    </h4>
+
+    <div ng-if="c.data.isApplicationAdmin">
+      <span class="toggle-text">Edit Mode</span>
+
+      <label class="switch">
+        <input type="checkbox" ng-model="c.editMode">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+  </div>
+</div>
+
+  <div class="fiscal-container">
+
+  <div class="row">
+
+    <div class="col-md-3" ng-repeat="q in data.quarters">
+
+      <div class="quarter-box">
+
+        <!-- Quarter -->
+        <div class="quarter-header">
+          <span>{{q.name}}</span>
+          <input type="text" class="form-control quarter-input"  ng-model="q.period_display_name" ng-disabled="!c.editMode">
+        </div>
+
+        <!-- Months -->
+        <div class="month-row" ng-repeat="m in q.months">
+
+          <label>{{m.name}}</label>
+
+          <input type="text" class="form-control month-input" ng-model="m.period_display_name" ng-disabled="!c.editMode">
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- Buttons -->
+  <div class="text-right action-buttons">
+
+    <button class="btn btn-primary"
+            ng-click="c.saveDisplayNames()" ng-if="c.editMode">
+      Save Display Names
+    </button>
+    
+    <div class="alert alert-success" ng-if="c.successMessage">
+  {{c.successMessage}}
+</div>
+
+   <!-- <button class="btn btn-default">
+      Cancel
+    </button> -->
+
+  </div>
+
+</div>
+
+</div>]]></template>
+    </sp_widget>
+</record_update>

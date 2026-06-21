@@ -1,0 +1,1111 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <client_script><![CDATA[api.controller = function() {
+  var c = this;
+
+  c.charts = {};
+  c.chartId = Math.random().toString(36).substr(2, 9);
+  c.productColors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#06b6d4', '#a855f7', '#f97316', '#ec4899', '#14b8a6', '#84cc16', '#e11d48', '#0ea5e9', '#d97706', '#7c3aed', '#059669', '#dc2626', '#2563eb', '#16a34a', '#9333ea', '#c2410c'];
+  // Filter models
+  c.selectedFiscalYear   = '';
+  c.selectedFiscalPeriod = '';
+  c.selectedPlan         = '';
+  c.selectedBusinessUnit = '';
+  c.selectedRep          = '';
+
+  // Filter option lists
+  c.fiscalYears   = [];
+  c.fiscalPeriods = [];
+  c.plans         = [];
+  c.$onInit = function() {
+    c.fiscalYears   = c.data.fiscalYears   || [];
+    c.fiscalPeriods = c.data.fiscalPeriods || [];
+    c.plans         = c.data.plans         || [];
+    c.businessUnits = c.data.businessUnits || [];
+    c.reps          = c.data.reps          || [];
+
+    if (!c.data.monthlyPerformance || !c.data.monthlyPerformance.length) {
+      c.data.fiscalYear    = "";
+      c.data.fiscalPeriod  = "";
+      c.data.plan          = "";
+      c.data.businessUnit  = "";
+      c.data.rep           = "";
+      c.server.update().then(function() {
+        c.fiscalYears   = c.data.fiscalYears   || [];
+        c.fiscalPeriods = c.data.fiscalPeriods || [];
+        c.plans         = c.data.plans         || [];
+        c.businessUnits = c.data.businessUnits || [];
+        c.reps          = c.data.reps          || [];
+        c.waitForDOMAndRender();
+      });
+    } else {
+      c.waitForDOMAndRender();
+    }
+  };
+
+  c.waitForDOMAndRender = function(attempt) {
+    attempt = attempt || 1;
+
+    // Check canvas elements exist
+    var el1 = document.getElementById('salesTrendChart_'        + c.chartId);
+    var el2 = document.getElementById('productChart_'           + c.chartId);
+    var el3 = document.getElementById('teamQuotaChart_'         + c.chartId);
+    var el4 = document.getElementById('incentivesByMonthChart_' + c.chartId);
+    var el5 = document.getElementById('incentiveByPlanChart_'   + c.chartId);
+    var domReady = el1 && el2 && el3 && el4 && el5;
+
+    // Check Chart.js is loaded
+    var chartJsReady = (typeof Chart !== 'undefined');
+
+    if ((!domReady || !chartJsReady) && attempt < 30) {
+      setTimeout(function() { c.waitForDOMAndRender(attempt + 1); }, 200);
+      return;
+    }
+
+    if (!domReady || !chartJsReady) {
+      // Load Chart.js dynamically if still not available
+      if (!chartJsReady) {
+        var script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js';
+        script.onload = function() { c.renderCharts(); };
+        document.head.appendChild(script);
+      }
+      return;
+    }
+
+    c.renderCharts();
+  };
+
+  c.applyFilters = function() {
+    if (c.lastSelectedFY !== c.selectedFiscalYear) {
+      c.selectedFiscalPeriod = "";
+    }
+    c.lastSelectedFY = c.selectedFiscalYear;
+
+    // Pass all 5 filter values to server
+    c.data.fiscalYear    = c.selectedFiscalYear;
+    c.data.fiscalPeriod  = c.selectedFiscalPeriod;
+    c.data.plan          = c.selectedPlan;
+    c.data.businessUnit  = c.selectedBusinessUnit;
+    c.data.rep           = c.selectedRep;
+
+    c.server.update().then(function() {
+      c.fiscalYears   = c.data.fiscalYears   || [];
+      c.fiscalPeriods = c.data.fiscalPeriods || [];
+      c.plans         = c.data.plans         || [];
+      c.businessUnits = c.data.businessUnits || [];
+      c.reps          = c.data.reps          || [];
+
+      c.waitForDOMAndRender();
+    });
+  };
+
+  c.destroyChart = function(key) {
+    if (c.charts[key]) {
+      try { c.charts[key].destroy(); } catch(e) {}
+      delete c.charts[key];
+    }
+  };
+
+  c.renderCharts = function() {
+
+    // Guard: ensure c.data has chart arrays before rendering
+    if (!c.data.monthlyPerformance || !c.data.productData ||
+        !c.data.teamPerformance    || !c.data.incentivesByMonth ||
+        !c.data.incentivePlanData) {
+      return;
+    }
+
+    // ── 1. Sales & Commission Trend (Line) ──
+    var trendCtx = document.getElementById('salesTrendChart_' + c.chartId);
+    c.destroyChart('salesTrend');
+    if (trendCtx) {
+      c.charts.salesTrend = new Chart(trendCtx, {
+        type: 'line',
+        data: {
+          labels: c.data.monthlyPerformance.map(function(m) { return m.month; }),
+          datasets: [
+            {
+              label: 'Sales (Total Credits)',
+              data: c.data.monthlyPerformance.map(function(m) { return m.sales; }),
+              borderColor: '#3b82f6',
+              backgroundColor: 'rgba(59,130,246,0.1)',
+              tension: 0.4,
+              fill: true,
+              pointRadius: 4
+            },
+            {
+              label: 'Commission',
+              data: c.data.monthlyPerformance.map(function(m) { return m.commission; }),
+              borderColor: '#10b981',
+              backgroundColor: 'rgba(16,185,129,0.1)',
+              tension: 0.4,
+              fill: true,
+              pointRadius: 4
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: 'bottom' } },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: { callback: function(v) { return '$' + (v/1000) + 'K'; } }
+            }
+          }
+        }
+      });
+    }
+
+    // ── 2. Product Performance (Pie) ──
+    var productCtx = document.getElementById('productChart_' + c.chartId);
+    c.destroyChart('product');
+    if (productCtx) {
+      c.charts.product = new Chart(productCtx, {
+        type: 'pie',
+        data: {
+          labels: c.data.productData.map(function(p) { return p.name; }),
+          datasets: [{
+            data: c.data.productData.map(function(p) { return p.value; }),
+            backgroundColor: c.productColors
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } }
+        }
+      });
+    }
+
+    // ── 3. Quota Achievement by Team (Bar) ──
+    var teamCtx = document.getElementById('teamQuotaChart_' + c.chartId);
+    c.destroyChart('teamQuota');
+    if (teamCtx) {
+      c.charts.teamQuota = new Chart(teamCtx, {
+        type: 'bar',
+        data: {
+          labels: c.data.teamPerformance.map(function(t) { return t.team; }),
+          datasets: [
+            {
+              label: 'Incentives',
+              data: c.data.teamPerformance.map(function(t) { return t.sales; }),
+              backgroundColor: '#3b82f6'
+            },
+            {
+              label: 'Quota',
+              data: c.data.teamPerformance.map(function(t) { return t.quota; }),
+              backgroundColor: '#94a3b8'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: 'bottom' } },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: { callback: function(v) { return '$' + (v/1000) + 'K'; } }
+            }
+          }
+        }
+      });
+    }
+
+    // ── 4. Incentives by Month (Line) ──
+    var incentMonthCtx = document.getElementById('incentivesByMonthChart_' + c.chartId);
+    c.destroyChart('incentMonth');
+    if (incentMonthCtx) {
+      c.charts.incentMonth = new Chart(incentMonthCtx, {
+        type: 'line',
+        data: {
+          labels: c.data.incentivesByMonth.map(function(m) { return m.month; }),
+          datasets: [{
+            label: 'Total Incentives',
+            data: c.data.incentivesByMonth.map(function(m) { return m.incentive; }),
+            borderColor: '#f59e0b',
+            backgroundColor: 'rgba(245,158,11,0.1)',
+            tension: 0.4,
+            fill: true,
+            pointRadius: 4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: 'bottom' } },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: { callback: function(v) { return '$' + (v/1000) + 'K'; } }
+            }
+          }
+        }
+      });
+    }
+
+    // ── 5. Incentive % by Plan (Pie) ──
+    var incentPlanCtx = document.getElementById('incentiveByPlanChart_' + c.chartId);
+    c.destroyChart('incentPlan');
+    if (incentPlanCtx) {
+      c.charts.incentPlan = new Chart(incentPlanCtx, {
+        type: 'pie',
+        data: {
+          labels: c.data.incentivePlanData.map(function(p) { return p.name; }),
+          datasets: [{
+            data: c.data.incentivePlanData.map(function(p) { return p.value; }),
+            backgroundColor: c.productColors
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } }
+        }
+      });
+    }
+
+  };
+};]]></client_script>
+        <controller_as>c</controller_as>
+        <css>.performance-tracking {
+  .text-muted {
+    color: #6A6A6A;
+  }
+  .panel {
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    border-radius: 1rem;
+    .panel-heading {
+      background-color: white !important;
+      border: none;
+      padding: 0rem 1.5rem !important;
+    }
+    .panel-title {
+      margin-top: 2rem;
+      margin-bottom: -0.5rem;
+      margin-left: 1rem;
+      font-size: 1.6rem;
+      font-weight: 600;
+      border: none;
+    }
+    .panel-body {
+      padding: 2.5rem;
+      .m-b-sm {
+        margin-bottom: 3rem !important;
+      }
+    }
+    .currency {
+      font-weight: 700;
+    }
+  }
+  .performance-metrics {
+    .metric-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid #f0f0f0;
+      &amp;:last-child {
+        border-bottom: none;
+      }
+    }
+  }
+  .product-legend {
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      .legend-color {
+        width: 20px;
+        height: 20px;
+        border-radius: 4px;
+        flex-shrink: 0;
+      }
+      .legend-details {
+        flex: 1;
+      }
+    }
+  }
+  .progress-wrapper {
+    align-items: center;
+    gap: 10px;
+    white-space: nowrap;
+  }
+  .progress-text {
+    display: inline-block;
+  }
+  .progress {
+    background-color: #e0e0e0;
+    margin: 0;
+    height: 0.75rem;
+    width: 9rem;
+    flex: 0 0 160px;
+    display: inline-block;
+    .progress-bar {
+      transition: width 0.3s ease;
+      span {
+        font-size: 12px;
+        font-weight: 600;
+        line-height: 25px;
+      }
+    }
+  }
+  canvas {
+    max-height: 300px;
+  }
+
+  /* ── Pie chart panel — fixed height matching other panels ── */
+  .pie-panel-body {
+    padding: 2rem 2.5rem !important;
+    height: 330px;
+    box-sizing: border-box;
+  }
+
+  /* ── Flex container: canvas left, legend right ── */
+  .pie-chart-wrap {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    height: 100%;
+    gap: 16px;
+  }
+
+  /* ── Canvas takes fixed square on the left ── */
+  .pie-canvas-wrap {
+    flex: 0 0 200px;
+    height: 200px;
+    position: relative;
+
+    canvas {
+      width: 200px !important;
+      height: 200px !important;
+      max-height: 200px;
+    }
+  }
+
+  /* ── Legend scrolls on the right ── */
+  .pie-legend-wrap {
+    flex: 1;
+    overflow-y: auto;
+    max-height: 260px;
+    padding-right: 4px;
+
+    .legend-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 10px;
+
+      .legend-color {
+        width: 14px;
+        height: 14px;
+        border-radius: 3px;
+        flex-shrink: 0;
+        margin-top: 3px;
+      }
+
+      .legend-details {
+        flex: 1;
+        min-width: 0;
+
+        .text-sm {
+          font-size: 12px;
+          font-weight: 600;
+          color: #111827;
+          white-space: normal;
+          word-break: break-word;
+        }
+
+        .text-xs {
+          font-size: 11px;
+          color: #6b7280;
+        }
+      }
+    }
+  }
+}
+
+/* ── Dashboard-consistent Scorecard styles for Performance Tracking ── */
+.pt-scorecard {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 1rem;
+  padding: 20px 22px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  margin-bottom: 16px;
+
+  .pt-scorecard-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+  }
+
+  .pt-scorecard-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: #6b7280;
+    line-height: 1.4;
+  }
+
+  .pt-scorecard-icon {
+    font-size: 14px;
+    color: #9ca3af;
+    margin-top: 2px;
+  }
+
+  .pt-scorecard-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 8px;
+    line-height: 1.2;
+  }
+
+  .pt-scorecard-trend {
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .pt-scorecard-period {
+    color: #9ca3af;
+    margin-left: 2px;
+  }
+}
+
+.table .label.label-default {
+  background-color: transparent !important;
+  color: #000 !important;
+  border: 0.5px solid #e9e1e1 !important;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+.label-warning {
+  background-color: #ECEEF2;
+  color: black;
+}</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description>Detailed analytics, sales metrics, and performance reports</description>
+        <docs/>
+        <field_list/>
+        <has_preview>false</has_preview>
+        <id>performance_tracking</id>
+        <internal>false</internal>
+        <link><![CDATA[function link(scope, element, attrs, controller) {
+  
+}]]></link>
+        <name>Performance Tracking</name>
+        <option_schema/>
+        <public>false</public>
+        <roles>x_ctans_incentnow.user</roles>
+        <script><![CDATA[(function() {
+
+  // Read all 5 filter values
+  var fiscalYear      = input && input.fiscalYear     ? input.fiscalYear     : "";
+  var fiscalPeriod    = input && input.fiscalPeriod   ? input.fiscalPeriod   : "";
+  var planFilter      = input && input.plan           ? input.plan           : "";
+  var buFilter        = input && input.businessUnit   ? input.businessUnit   : "";
+  var repFilter       = input && input.rep            ? input.rep            : "";
+
+  /* ===================== HELPERS ===================== */
+
+  var MONTH_MAP = {
+    "January":"Jan","February":"Feb","March":"Mar","April":"Apr",
+    "May":"May","June":"Jun","July":"Jul","August":"Aug",
+    "September":"Sep","October":"Oct","November":"Nov","December":"Dec"
+  };
+
+  var MONTH_ORDER_FULL  = ["January","February","March","April","May","June",
+                           "July","August","September","October","November","December"];
+  var MONTH_ORDER_SHORT = ["Jan","Feb","Mar","Apr","May","Jun",
+                           "Jul","Aug","Sep","Oct","Nov","Dec"];
+
+  function getMonthShort(fiscalPeriodDisplay) {
+    var first = fiscalPeriodDisplay ? fiscalPeriodDisplay.split(" ")[0] : "";
+    return MONTH_MAP[first] || first;
+  }
+
+  // Resolve fiscal calendar sys_id for exact reference match
+  var fiscalYearSysId = "";
+  if (fiscalYear) {
+    var fyLookup = new GlideRecordSecure("x_ctans_incentnow_fiscal_calendar");
+    fyLookup.addQuery("fiscal_year_name", fiscalYear);
+    fyLookup.query();
+    if (fyLookup.next()) {
+      fiscalYearSysId = fyLookup.getUniqueValue();
+    }
+  }
+
+  // Apply all active filters to a GlideRecord
+  function applyFilters(gr) {
+    gr.addQuery("period_type", "Month");
+    if (fiscalYearSysId) {
+      gr.addQuery("fiscal_year", fiscalYearSysId);
+    }
+    if (fiscalPeriod) {
+      /* Match metric_report records whose fiscal_period sys_id equals
+         the selected period OR whose fiscal_period parent equals it
+         (handles quarterly selection mapping to month records) */
+      var fpMatchGR = new GlideRecordSecure("x_ctans_incentnow_fiscal_period");
+      fpMatchGR.addQuery("sys_id", fiscalPeriod);
+      fpMatchGR.query();
+      var fpPeriodType = "";
+      var fpStartDate  = "";
+      var fpEndDate    = "";
+      if (fpMatchGR.next()) {
+        fpPeriodType = fpMatchGR.getValue("period_type") || "";
+        fpStartDate  = fpMatchGR.getValue("period_start_date") || "";
+        fpEndDate    = fpMatchGR.getValue("period_end_date") || "";
+      }
+      if (fpPeriodType === "Month") {
+        // Direct match — the selected period is already a month
+        gr.addQuery("fiscal_period", fiscalPeriod);
+      } else {
+        // Quarter or other — find all month periods within its date range
+        var childPeriods = new GlideRecordSecure("x_ctans_incentnow_fiscal_period");
+        childPeriods.addQuery("period_type", "Month");
+        if (fpStartDate) { childPeriods.addQuery("period_start_date", ">=", fpStartDate); }
+        if (fpEndDate)   { childPeriods.addQuery("period_end_date",   "<=", fpEndDate);   }
+        childPeriods.query();
+        var childIds = [];
+        while (childPeriods.next()) {
+          childIds.push(childPeriods.getUniqueValue());
+        }
+        if (childIds.length > 0) {
+          gr.addQuery("fiscal_period", "IN", childIds.join(","));
+        } else {
+          // Fallback: direct match
+          gr.addQuery("fiscal_period", fiscalPeriod);
+        }
+      }
+    }
+    if (planFilter) {
+      gr.addQuery("plan.plan_name", "CONTAINS", planFilter);
+    }
+    if (buFilter) {
+      gr.addQuery("business_unit.name", "CONTAINS", buFilter);
+    }
+    if (repFilter) {
+      gr.addQuery("user.name", "CONTAINS", repFilter);
+    }
+  }
+
+  /* =====================================================================
+     FIX 1: FISCAL YEARS — query fiscal_calendar table directly
+     so ALL active calendars appear, not just ones with metric_report data
+  ===================================================================== */
+
+  data.fiscalYears = [];
+  var calGR = new GlideRecordSecure("x_ctans_incentnow_fiscal_calendar");
+  calGR.addQuery("active", true);
+  calGR.orderBy("fiscal_year_name");
+  calGR.query();
+  while (calGR.next()) {
+    var fyName = calGR.getDisplayValue("fiscal_year_name") || calGR.getValue("fiscal_year_name") || "";
+    if (fyName && data.fiscalYears.indexOf(fyName) === -1) {
+      data.fiscalYears.push(fyName);
+    }
+  }
+
+  /* =====================================================================
+     FIX 2: FISCAL PERIODS — filter by selected fiscal year
+     so only periods belonging to that year are shown
+  ===================================================================== */
+
+  data.fiscalPeriods = [];
+  var periodMap = {};
+
+  var fpGR = new GlideRecordSecure("x_ctans_incentnow_fiscal_period");
+  if (fiscalYearSysId) {
+    fpGR.addQuery("fiscal_year", fiscalYearSysId);
+  }
+  fpGR.orderBy("period_start_date");
+  fpGR.query();
+
+  while (fpGR.next()) {
+    /* Use sys_id as value and display name as label so filtering is exact */
+    var fpSysId   = fpGR.getUniqueValue();
+    var fpDisplay = fpGR.getDisplayValue("period_display_name")
+                    || fpGR.getDisplayValue("name")
+                    || fpGR.getValue("period_name")
+                    || fpSysId;
+    if (fpSysId && !periodMap[fpSysId]) {
+      periodMap[fpSysId] = true;
+      data.fiscalPeriods.push({ id: fpSysId, name: fpDisplay });
+    }
+  }
+
+  /* =====================================================================
+     FIX 3: PLANS — filter by selected fiscal year
+     so only plans belonging to that year are shown
+  ===================================================================== */
+
+  data.plans         = [];
+  data.businessUnits = [];
+  data.reps          = [];
+
+  var planSet = [];
+  var buSet   = [];
+  var repSet  = [];
+
+  /* Plans come from x_ctans_incentnow_plan table filtered by fiscal_period year
+     Image 2 shows plan table has fiscal_period field referencing FY 2026 etc. */
+  var planGR = new GlideRecordSecure("x_ctans_incentnow_plan");
+  if (fiscalPeriod) {
+    /* fiscal_period on plan table is a reference field — filter by sys_id */
+    planGR.addQuery("fiscal_period", fiscalPeriod);
+  }
+  planGR.orderBy("plan_name");
+  planGR.query();
+  while (planGR.next()) {
+    var pl = planGR.getDisplayValue("plan_name") || planGR.getValue("plan_name") || "";
+    if (pl && planSet.indexOf(pl) === -1) planSet.push(pl);
+  }
+
+  /* Business Units — query business_unit table directly so all 5 show up */
+  var buGR = new GlideRecordSecure("business_unit");
+  buGR.orderBy("name");
+  buGR.query();
+  while (buGR.next()) {
+    var buName = buGR.getDisplayValue("name") || buGR.getValue("name") || "";
+    if (buName && buSet.indexOf(buName) === -1) buSet.push(buName);
+  }
+
+  /* Reps come from metric_report */
+  var grOpts = new GlideRecordSecure("x_ctans_incentnow_metric_report");
+  grOpts.addQuery("period_type", "Month");
+  if (fiscalYearSysId) {
+    grOpts.addQuery("fiscal_year", fiscalYearSysId);
+  }
+  grOpts.query();
+  while (grOpts.next()) {
+    var us = grOpts.getDisplayValue("user");
+    if (us && repSet.indexOf(us) === -1) repSet.push(us);
+  }
+
+  data.plans         = planSet;
+  data.businessUnits = buSet;
+  data.reps          = repSet;
+
+  /* ===================== SINGLE FILTERED PASS — all chart accumulators ===================== */
+
+  var totalCommission = 0;
+  var totalQuota      = 0;
+  var totalAttainment = 0;
+  var attainCount     = 0;
+  var totalCredits    = 0;
+  var recordCount     = 0;
+  var uniquePlans     = {};
+  var uniqueUsers     = {};
+
+  // Chart 1 – Sales & Commission Trend
+  var monthSalesMap      = {};
+  var monthCommissionMap = {};
+  MONTH_ORDER_SHORT.forEach(function(m) { monthSalesMap[m] = 0; monthCommissionMap[m] = 0; });
+
+  // Chart 2 – Product Performance pie
+  var productMap = {};
+
+  // Chart 3 – Quota Achievement by Team
+  var teamSalesMap = {};
+  var teamQuotaMap = {};
+  var teamRepsMap  = {};
+  var teamUsersMap = {};
+
+  // Chart 4 – Incentives by Month
+  var monthIncentMap = {};
+  MONTH_ORDER_SHORT.forEach(function(m) { monthIncentMap[m] = 0; });
+
+  // Chart 5 – Incentive % by Plan
+  var planIncentMap  = {};
+  var grandPlanTotal = 0;
+
+  var grMer = new GlideRecordSecure('x_ctans_incentnow_metric_report');
+  applyFilters(grMer);
+  grMer.query();
+
+  while (grMer.next()) {
+    var fpDisp   = grMer.getDisplayValue('fiscal_period');
+    var mon      = getMonthShort(fpDisp);
+    var comm     = parseFloat(grMer.getValue('total_commission') || 0);
+    var credits  = parseFloat(grMer.getValue('total_credits')    || 0);
+    var quota    = parseFloat(grMer.getValue('target_quota')     || 0);
+    var att      = parseFloat(grMer.getValue('quota_attainment') || 0);
+    var planName = grMer.getDisplayValue('plan')          || 'Unknown';
+    var buName   = grMer.getDisplayValue('business_unit') || 'Other';
+    var userId   = grMer.getValue('user')                 || '';
+
+    totalCommission += comm;
+    totalCredits    += credits;
+    totalQuota      += quota;
+    if (!isNaN(att) && att > 0) { totalAttainment += att; attainCount++; }
+    recordCount++;
+    if (planName) uniquePlans[planName] = true;
+    if (userId)   uniqueUsers[userId]   = true;
+
+    if (monthSalesMap.hasOwnProperty(mon)) {
+      monthSalesMap[mon]      += credits;
+      monthCommissionMap[mon] += comm;
+    }
+
+    if (!productMap[planName]) productMap[planName] = 0;
+    productMap[planName] += credits;
+
+    if (!teamSalesMap[buName]) { teamSalesMap[buName] = 0; teamQuotaMap[buName] = 0; teamUsersMap[buName] = {}; }
+    teamSalesMap[buName] += credits;
+    teamQuotaMap[buName] += quota;
+    if (userId) teamUsersMap[buName][userId] = true;
+
+    if (monthIncentMap.hasOwnProperty(mon)) {
+      monthIncentMap[mon] += comm;
+    }
+
+    if (!planIncentMap[planName]) planIncentMap[planName] = 0;
+    planIncentMap[planName] += comm;
+    grandPlanTotal          += comm;
+  }
+
+  /* ===================== KEY METRICS (STATS) ===================== */
+
+  var planCount      = Object.keys(uniquePlans).length  || 1;
+  var buCount        = Object.keys(teamSalesMap).length || 1;
+  var repCount       = Object.keys(uniqueUsers).length  || 1;
+  var avgCommPerPlan = totalCommission / planCount;
+  var avgCommByBU    = totalCommission / buCount;
+  var avgCommByRep   = totalCommission / repCount;
+
+  function fmtK(val) {
+    if (val >= 1000000) return '$' + (val / 1000000).toFixed(1) + 'M';
+    if (val >= 1000)    return '$' + (val / 1000).toFixed(1) + 'K';
+    return '$' + val.toFixed(0);
+  }
+
+  data.keyMetrics = [
+    { title: 'Total Incentives',          value: fmtK(totalCommission), change: '+18.2%', icon: 'fa-dollar',       trend: 'up' },
+    { title: 'Avg.Incentives Per Plan $', value: fmtK(avgCommPerPlan),  change: '+12.5%', icon: 'fa-check-circle', trend: 'up' },
+    { title: 'Avg.Incentives By BU $',    value: fmtK(avgCommByBU),     change: '+2',     icon: 'fa-clock-o',      trend: 'up' },
+    { title: 'Avg. Incentives By Rep $',  value: fmtK(avgCommByRep),    change: '+8.5%',  icon: 'fa-line-chart',   trend: 'up' }
+  ];
+
+  data.stats = data.keyMetrics;
+
+  /* ===================== CHART 1 ===================== */
+
+  var hasMonthData = MONTH_ORDER_SHORT.some(function(m) {
+    return monthSalesMap[m] > 0 || monthCommissionMap[m] > 0;
+  });
+
+  data.monthlyPerformance = hasMonthData
+    ? MONTH_ORDER_SHORT
+        .filter(function(m) { return !fiscalPeriod || monthSalesMap[m] > 0 || monthCommissionMap[m] > 0; })
+        .map(function(m) { return { month: m, sales: monthSalesMap[m], commission: monthCommissionMap[m] }; })
+    : [
+        { month: 'Jan', sales: 0, commission: 0 },
+        { month: 'Feb', sales: 0, commission: 0 },
+        { month: 'Mar', sales: 0, commission: 0 }
+      ];
+
+  /* ===================== CHART 2 ===================== */
+
+  var productNames = Object.keys(productMap);
+  var productGrand = productNames.reduce(function(s, n) { return s + productMap[n]; }, 0);
+
+  data.productData = productNames.length > 0
+    ? productNames.map(function(n) {
+        var pct = productGrand > 0 ? parseFloat(((productMap[n] / productGrand) * 100).toFixed(1)) : 0;
+        return {
+          name:         n,
+          value:        pct,
+          sales:        productMap[n],
+          salesDisplay: (productMap[n] / 1000).toFixed(0)
+        };
+      })
+    : [{ name: 'No Data', value: 100, sales: 0, salesDisplay: '0' }];
+
+  /* ===================== CHART 3 ===================== */
+
+  var buNames = Object.keys(teamSalesMap);
+  buNames.forEach(function(bu) {
+    var uniqueUserIds = Object.keys(teamUsersMap[bu] || {});
+    var uniqueCount = 0;
+    uniqueUserIds.forEach(function(uid) {
+      var grUser = new GlideRecordSecure("x_ctans_incentnow_user_profile");
+      if (grUser.get('user',uid)) { uniqueCount++; }
+    });
+    teamRepsMap[bu] = uniqueCount > 0 ? uniqueCount : uniqueUserIds.length;
+  });
+
+  data.teamPerformance = buNames.length > 0
+    ? buNames.map(function(bu) {
+        var s = teamSalesMap[bu];
+        var q = teamQuotaMap[bu] > 0 ? teamQuotaMap[bu] : 1;
+        return {
+          team:         bu,
+          sales:        s,
+          quota:        q,
+          reps:         teamRepsMap[bu],
+          salesDisplay: (s / 1000).toFixed(0),
+          quotaDisplay: (q / 1000).toFixed(0),
+          achievement:  parseFloat(((s / q) * 100).toFixed(1))
+        };
+      })
+    : [];
+
+  /* ===================== CHART 4 ===================== */
+
+  var hasIncentData = MONTH_ORDER_SHORT.some(function(m) { return monthIncentMap[m] > 0; });
+
+  data.incentivesByMonth = hasIncentData
+    ? MONTH_ORDER_SHORT
+        .filter(function(m) { return !fiscalPeriod || monthIncentMap[m] > 0; })
+        .map(function(m) { return { month: m, incentive: monthIncentMap[m] }; })
+    : [{ month: 'Jan', incentive: 0 }];
+
+  /* ===================== CHART 5 ===================== */
+
+  var planNames = Object.keys(planIncentMap);
+
+  data.incentivePlanData = planNames.length > 0
+    ? planNames.map(function(p) {
+        return {
+          name:  p,
+          value: grandPlanTotal > 0 ? parseFloat(((planIncentMap[p] / grandPlanTotal) * 100).toFixed(1)) : 0
+        };
+      })
+    : [{ name: 'No Data', value: 100 }];
+
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>karan.kumar</sys_created_by>
+        <sys_created_on>2026-03-17 04:29:42</sys_created_on>
+        <sys_id>b08b0b6f3baffa50ffa00e9693e45ae0</sys_id>
+        <sys_mod_count>55</sys_mod_count>
+        <sys_name>Performance Tracking</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sp_widget_b08b0b6f3baffa50ffa00e9693e45ae0</sys_update_name>
+        <sys_updated_by>karan.kumar</sys_updated_by>
+        <sys_updated_on>2026-06-12 08:38:55</sys_updated_on>
+        <template><![CDATA[<div class="performance-tracking">
+
+  <!-- Header -->
+  <div class="m-b-md">
+    <h1>Performance Tracking</h1>
+    <p>Detailed analytics and sales metrics</p>
+  </div>
+  <br>
+
+  <!-- FILTER SECTION -->
+  <div class="row m-b-lg">
+    <div class="col-sm-2">
+      <label>Fiscal Year</label>
+      <select class="form-control select-radius" ng-model="c.selectedFiscalYear" ng-change="c.applyFilters()">
+        <option value="">All</option>
+        <option ng-repeat="fy in c.fiscalYears" value="{{fy}}">{{fy}}</option>
+      </select>
+    </div>
+    <div class="col-sm-2">
+      <label>Fiscal Period</label>
+      <select class="form-control select-radius" ng-model="c.selectedFiscalPeriod" ng-change="c.applyFilters()">
+        <option value="">All</option>
+        <option ng-repeat="fp in c.fiscalPeriods" value="{{fp.id}}">{{fp.name}}</option>
+      </select>
+    </div>
+    <div class="col-sm-2">
+      <label>Plan</label>
+      <select class="form-control select-radius" ng-model="c.selectedPlan" ng-change="c.applyFilters()">
+        <option value="">All</option>
+        <option ng-repeat="pl in c.plans" value="{{pl}}">{{pl}}</option>
+      </select>
+    </div>
+    <div class="col-sm-3">
+      <label>Business Unit</label>
+      <select class="form-control select-radius" ng-model="c.selectedBusinessUnit" ng-change="c.applyFilters()">
+        <option value="">All</option>
+        <option ng-repeat="bu in c.businessUnits" value="{{bu}}">{{bu}}</option>
+      </select>
+    </div>
+    <div class="col-sm-3">
+      <label>Representative</label>
+      <select class="form-control select-radius" ng-model="c.selectedRep" ng-change="c.applyFilters()">
+        <option value="">All</option>
+        <option ng-repeat="rep in c.reps" value="{{rep}}">{{rep}}</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Key Metrics — Dashboard-consistent scorecard style -->
+  <div class="row m-b-lg">
+    <div class="col-sm-3" ng-repeat="stat in c.data.stats">
+      <div class="pt-scorecard">
+        <div class="pt-scorecard-top">
+          <span class="pt-scorecard-label">{{stat.title}}</span>
+          <i class="fa {{stat.icon}} pt-scorecard-icon"></i>
+        </div>
+        <div class="pt-scorecard-value">{{stat.value}}</div>
+        <div class="pt-scorecard-trend">
+          <i class="fa fa-arrow-up text-success"></i>
+          <span class="text-success">{{stat.change}}</span>
+          <span class="pt-scorecard-period">vs Last Period</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts Row 1: Incentives vs Credits Trend (Monthly) + Plan Performance -->
+  <div class="row m-b-lg">
+
+    <!-- Incentives vs Credits Trend (Monthly) -->
+    <div class="col-md-6">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">Incentives vs Credits Trend(Monthly)</h3>
+        </div>
+        <div class="panel-body" style="height: 330px;">
+          <canvas id="salesTrendChart_{{c.chartId}}"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Plan Performance (renamed from Product Performance) -->
+    <div class="col-md-6">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">Plan Performance</h3>
+        </div>
+        <div class="panel-body pie-panel-body">
+          <div class="pie-chart-wrap">
+            <div class="pie-canvas-wrap">
+              <canvas id="productChart_{{c.chartId}}"></canvas>
+            </div>
+            <div class="pie-legend-wrap">
+              <div ng-repeat="product in c.data.productData" class="legend-item m-b-sm">
+                <div class="legend-color" ng-style="{backgroundColor: c.productColors[$index]}"></div>
+                <div class="legend-details">
+                  <div class="text-sm"><strong>{{product.name}}</strong></div>
+                  <div class="text-xs text-muted">{{product.salesDisplay}}K ({{product.value}}%)</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Charts Row 2: Quota Achievement by Team (full width) -->
+  <div class="panel panel-default m-b-lg">
+    <div class="panel-heading">
+      <h3 class="panel-title">Quota Achievement by Team</h3>
+    </div>
+    <div class="panel-body" style="height: 330px;">
+      <canvas id="teamQuotaChart_{{c.chartId}}"></canvas>
+    </div>
+  </div>
+
+  <!-- Charts Row 3: Incentives by Month + Incentive % by Plan -->
+  <div class="row m-b-lg">
+
+    <!-- Incentives by Month -->
+    <div class="col-md-6">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">Incentives by Month</h3>
+        </div>
+        <div class="panel-body" style="height: 330px;">
+          <canvas id="incentivesByMonthChart_{{c.chartId}}"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Incentive Percentage by Plan -->
+    <div class="col-md-6">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">Incentive Percentage by Plan</h3>
+        </div>
+        <div class="panel-body pie-panel-body">
+          <div class="pie-chart-wrap">
+            <div class="pie-canvas-wrap">
+              <canvas id="incentiveByPlanChart_{{c.chartId}}"></canvas>
+            </div>
+            <div class="pie-legend-wrap">
+              <div ng-repeat="plan in c.data.incentivePlanData" class="legend-item m-b-sm">
+                <div class="legend-color" ng-style="{backgroundColor: c.productColors[$index]}"></div>
+                <div class="legend-details">
+                  <div class="text-sm"><strong>{{plan.name}}</strong></div>
+                  <div class="text-xs text-muted">{{plan.value}}%</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Team Performance Cards -->
+  <div class="row m-b-lg">
+    <div class="col-md-4" ng-repeat="team in c.data.teamPerformance">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">{{team.team}} Team</h3>
+        </div>
+        <div class="panel-body">
+          <div class="performance-metrics">
+            <div class="metric-row">
+              <span class="text-muted">Total Credits</span>
+              <strong>{{team.salesDisplay}}K</strong>
+            </div>
+            <div class="metric-row">
+              <span class="text-muted">Quota</span>
+              <strong>{{team.quotaDisplay}}K</strong>
+            </div>
+            <div class="metric-row">
+              <span class="text-muted">Representatives</span>
+              <strong>{{team.reps}}</strong>
+            </div>
+          </div>
+          <div class="m-t-md">
+            <div class="clearfix m-b-xs">
+              <span class="text-muted">Achievement</span>
+              <span class="pull-right" ng-class="team.achievement >= 100 ? 'text-success' : 'text-warning'">
+                <strong>{{team.achievement}}%</strong>
+              </span>
+            </div>
+            <div class="progress" style="height: 25px; margin-bottom: 0;">
+              <div class="progress-bar"
+                   ng-class="team.achievement >= 100 ? 'progress-bar-success' : 'progress-bar-warning'"
+                   role="progressbar"
+                   ng-style="{width: (team.achievement > 100 ? 100 : team.achievement) + '%'}">
+                <span>{{team.achievement}}%</span>
+              </div>
+            </div>
+          </div>
+          <div class="m-t-md p-t-md" style="border-top: 1px solid #e0e0e0;">
+            <div class="text-sm text-muted">
+              <i class="fa" ng-class="team.achievement >= 100 ? 'fa-arrow-up text-success' : 'fa-arrow-down text-warning'"></i>
+              <span ng-if="team.achievement >= 100">{{team.achievement - 100 | number:1}}% above quota</span>
+              <span ng-if="team.achievement < 100">{{100 - team.achievement | number:1}}% to quota</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>]]></template>
+    </sp_widget>
+</record_update>

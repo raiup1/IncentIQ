@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>package_private</access>
+        <active>true</active>
+        <api_name>x_ctans_incentnow.IncentNowUtils</api_name>
+        <caller_access/>
+        <client_callable>false</client_callable>
+        <description/>
+        <mobile_callable>false</mobile_callable>
+        <name>IncentNowUtils</name>
+        <sandbox_callable>false</sandbox_callable>
+        <script><![CDATA[var IncentNowUtils = Class.create();
+IncentNowUtils.prototype = {
+    initialize: function() {
+    },
+	
+ getQuotaByUserBusinessUnit: function(userId) {
+        // Always enforce active quotas
+        var query = 'active=true';
+
+        if (!userId) {
+            return query;
+        }
+
+        var userGR = new GlideRecordSecure('x_ctans_incentnow_user_profile');
+        if (userGR.get(userId) && userGR.business_unit) {
+            query += '^business_unit=' + userGR.business_unit;
+        }
+
+        return query;
+    },
+
+	getUserByQuotaBusinessUnit: function(quotaId) {
+
+    // Start with base condition (optional if you have active on user)
+    var query = 'active=true';
+
+    if (!quotaId) {
+        return query;
+    }
+
+    var quotaGR = new GlideRecordSecure('x_ctans_incentnow_quota');
+    if (quotaGR.get(quotaId) && quotaGR.business_unit) {
+        query += '^business_unit=' + quotaGR.business_unit;
+    }
+
+    return query;
+},
+
+getUserByPlanBusinessUnit: function(planId) {
+
+    // base query (optional if user has active)
+    var query = 'active=true';
+
+    if (!planId) {
+        return query;
+    }
+
+    var planGR = new GlideRecordSecure('x_ctans_incentnow_plan');
+    if (planGR.get(planId) && planGR.business_unit) {
+        query += '^business_unit=' + planGR.business_unit;
+    }
+
+    return query;
+},
+
+getPlanByUserBusinessUnit: function(userId) {
+
+    // base query (optional if plan has active)
+    var query = 'active=true';
+
+    if (!userId) {
+        return query;
+    }
+
+    var userGR = new GlideRecordSecure('x_ctans_incentnow_user_profile');
+    if (userGR.get(userId) && userGR.business_unit) {
+        query += '^business_unit=' + userGR.business_unit;
+    }
+
+    return query;
+},
+    type: 'IncentNowUtils'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>upma.rai</sys_created_by>
+        <sys_created_on>2026-04-17 08:37:05</sys_created_on>
+        <sys_id>e98da7e13b1c0f10ffa00e9693e45aa5</sys_id>
+        <sys_mod_count>6</sys_mod_count>
+        <sys_name>IncentNowUtils</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_script_include_e98da7e13b1c0f10ffa00e9693e45aa5</sys_update_name>
+        <sys_updated_by>upma.rai</sys_updated_by>
+        <sys_updated_on>2026-06-03 08:00:05</sys_updated_on>
+    </sys_script_include>
+</record_update>

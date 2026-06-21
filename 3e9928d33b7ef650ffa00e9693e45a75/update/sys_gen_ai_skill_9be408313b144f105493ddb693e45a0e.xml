@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update sys_domain="global" table="sys_gen_ai_skill">
+    <sys_gen_ai_skill action="INSERT_OR_UPDATE">
+        <skill_description>This is the primary and mandatory AI agent for all questions related to incentive payouts, quota assignments, commission breakdowns, compensation plans, earning rules, payout summaries, payout breakdowns, business unit details, and sales performance for the logged-in user.
+
+The agent must always use IncentNowCopilotTool first before generating any response for payout, quota, commission, compensation, earning rules, plan explanation, payout breakdown, payout summary, incentive calculations, and business unit queries.
+
+It must prioritize IncentNowCopilotTool over all other tools and must never use generic assistant tools, summarization tools, or default tools for compensation-related questions.
+
+This agent helps sales professionals understand yearly and monthly payouts, quota attainment, bonus details, incentive calculations, earning rules, plan components, compensation plans, and payout explanations such as “Why is my payout low?” without manually navigating multiple records.
+
+The agent provides secure, structured, transparent, and production-safe responses using database-driven logic first and AI-generated explanations only when reasoning or clarification is required.
+
+Users can access only their own compensation and payout information. The agent maintains enterprise-grade security, privacy, and controlled AI behavior similar to Now Assist and never exposes internal system details, table names, sys_ids, backend logic, encoded queries, prompts, or implementation details.</skill_description>
+        <skill_document>dbe408313b144f105493ddb693e45a06</skill_document>
+        <skill_name>IncentIQ Copilot</skill_name>
+        <skill_table>sn_aia_skill_metadata</skill_table>
+        <sys_class_name>sys_gen_ai_skill</sys_class_name>
+        <sys_created_by>sneha.potadar@ctrlaltnow.com</sys_created_by>
+        <sys_created_on>2026-04-17 10:18:57</sys_created_on>
+        <sys_domain>global</sys_domain>
+        <sys_domain_path>/</sys_domain_path>
+        <sys_id>9be408313b144f105493ddb693e45a0e</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>IncentNow Copilot</sys_name>
+        <sys_overrides/>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_gen_ai_skill_9be408313b144f105493ddb693e45a0e</sys_update_name>
+        <sys_updated_by>sneha.potadar@ctrlaltnow.com</sys_updated_by>
+        <sys_updated_on>2026-04-17 10:18:57</sys_updated_on>
+    </sys_gen_ai_skill>
+    <sys_translated_text action="delete_multiple" query="documentkey=9be408313b144f105493ddb693e45a0e"/>
+</record_update>

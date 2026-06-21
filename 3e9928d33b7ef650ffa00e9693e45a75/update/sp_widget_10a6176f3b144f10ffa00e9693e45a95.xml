@@ -1,0 +1,341 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>sp_platform</category>
+        <client_script><![CDATA[api.controller = function($scope, spUtil, $location, $window, mandatoryValidator) {
+    var c = this;
+
+  	c.save = function() {
+			
+			console.log("BUTTON CLICKED");
+
+			var result = mandatoryValidator.validate(c.data.f);
+
+			if (!result.valid) {
+					spUtil.addErrorMessage(result.message);
+					return;
+			}
+
+			// ]]>🔥<![CDATA[ CHANGE ACTION NAME
+			c.data.action = "generate";
+
+			c.data.form = { _fields: c.data.f._fields };
+			
+			console.log("Sending request to server...");
+
+			c.server.get({
+					action: "generate",
+					form: { _fields: c.data.f._fields }
+			}).then(function(response) {
+				
+				console.log("Response received:", response);
+
+					var res = response.data;
+
+					// ❌ ERROR
+					if (res.valid === false) {
+							spUtil.addErrorMessage(res.message);
+							return;
+					}
+
+					// ✅ EXISTING
+					if (res.exists) {
+							spUtil.addInfoMessage("Statement already exists. Redirecting...");
+					} 
+					// ✅ NEW
+					else {
+							spUtil.addInfoMessage("Statement generated successfully");
+					}
+
+					var url = "?id=incentive_statement_view&statement_id=" + res.sys_id;
+
+					setTimeout(function() {
+							
+							$location.url(url);
+					}, 100);
+
+			});
+	};
+
+    c.goBack = function () {
+        const prev = sessionStorage.getItem('prevPage');
+        if (prev) {
+					
+            $location.url(prev);
+        } else {
+            window.history.back();
+        }
+    };
+};]]></client_script>
+        <controller_as>c</controller_as>
+        <css>
+.footer-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.fiscal-pill {
+  background-color: #050521; /* same dark color */
+  color: #fff;
+  border: none;
+  border-radius: 5px; /* makes it fully rounded */
+  padding: 8px 18px;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.fiscal-pill:hover {
+  background-color: #0a0a3a;
+}
+
+/*.back-btn {
+  background: #f5f5f5;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 14px;
+} */
+
+.back-btn:hover {
+  background: #e0e0e0;
+}
+
+.panel-heading {
+  display: flex;
+  align-items: center;   /* vertically center */
+  gap: 10px;             /* space between button &amp; text */
+}
+
+.back-btn {
+  border: none;
+  background: transparent;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.panel-heading h4 {
+  margin: 0;  /* removes default spacing issue */
+}
+
+
+/* MAIN CARD */
+.modern-card {
+  border-radius: 14px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 4px rgba(0,0,0,0.06);
+  overflow: hidden;
+  transition: all 0.25s ease;
+}
+
+/* hover effect */
+.modern-card:hover {
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+}
+
+/* HEADER */
+.modern-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(to right, #f9fafb, #f3f4f6);
+  border-bottom: 1px solid #e5e7eb;
+  padding: 14px 18px;
+}
+
+/* TITLE */
+.modern-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+/* BACK BUTTON */
+.back-btn {
+  background: #f3f4f6;
+  border: none;
+  border-radius: 8px;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.back-btn img {
+  width: 20px;
+  height: 20px;
+}
+
+.back-btn:hover {
+  background: #e5e7eb;
+}
+
+/* BODY */
+.modern-body {
+  padding: 20px;
+  background: #ffffff;
+}
+
+/* FOOTER */
+.modern-footer {
+  display: flex;
+  justify-content: flex-end;
+  //background: #fafafa;
+  border-top: 1px solid #e5e7eb;
+  padding: 12px 18px;
+}
+
+/* BUTTON */
+.modern-btn {
+  border-radius: 8px;
+  padding: 8px 18px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  background: #000000;
+}
+
+.modern-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+}</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description/>
+        <docs/>
+        <field_list/>
+        <has_preview>true</has_preview>
+        <id>incentnow-form-statement</id>
+        <internal>false</internal>
+        <link><![CDATA[function link(){
+	
+}]]></link>
+        <name>IncentNow Form Statement</name>
+        <option_schema>[{"name":"disableUIActions","section":"Behavior","label":"Disable UI Actions on Form","type":"boolean"},{"name":"showFormView","section":"Behavior","label":"Display current form view","type":"boolean"},{"name":"omitHeaderOptions","section":"Behavior","label":"Omit header options icon","type":"boolean"},{"name":"table","section":"other","label":"Table","type":"string"},{"name":"view","section":"other","label":"View","type":"string"},{"name":"sys_id","section":"other","label":"Sys ID","type":"string"}]</option_schema>
+        <public>false</public>
+        <roles>x_ctans_incentnow.user,x_ctans_incentnow.admin</roles>
+        <script><![CDATA[(function() {
+
+    // ✅ HARDCODE TABLE
+    data.table = "x_ctans_incentnow_incentive_statement";
+
+    data.sys_id = (input && input.sys_id) || $sp.getParameter('sys_id') || "-1";
+    data.view   = "portal_view";
+
+    data.f = $sp.getForm(data.table, data.sys_id, '', data.view);
+		if (data.f._fields.fiscal_period) {
+    data.f._fields.fiscal_period.attributes =
+        (data.f._fields.fiscal_period.attributes || '') +
+        ',ref_ac_order_by=period_number';
+}
+    data.f = new x_ctans_incentnow.IncentNowPortalUtils().applyPlaceholders(data.f);
+
+    data.table_label = "Incentive Statement";
+    data.fetchButtonName = "Generate Statement";
+
+    // ================= SAVE =================
+		 if (input && input.action == "generate") {
+
+				if (!input.form || !input.form._fields) {
+						data.valid = false;
+						data.message = "Form data missing";
+						return;
+				}
+
+				var fields = input.form._fields;
+
+				// ✅ SAFE EXTRACTION (IMPORTANT)
+				var user   = fields.user && fields.user.value;
+				var plan   = fields.plan && fields.plan.value;
+				var period = fields.fiscal_period && fields.fiscal_period.value;
+			 	var year = fields.fiscal_year && fields.fiscal_year.value;
+
+				if (!user || !plan || !period || !year) {
+						data.valid = false;
+						data.message = "Missing required fields";
+						return;
+				}
+
+				// ===============================
+				// ]]>🔍<![CDATA[ STEP 1: CHECK IF EXISTS
+				// ===============================
+				var dupGR = new GlideRecordSecure('x_ctans_incentnow_incentive_statement');
+				dupGR.addQuery('user', user);
+				dupGR.addQuery('fiscal_period', period);
+			 	dupGR.addQuery('fiscal_year', year);
+				dupGR.setLimit(1);
+				dupGR.query();
+
+				if (dupGR.next()) {
+						data.exists = true;
+						data.sys_id = dupGR.getUniqueValue();
+						return;
+				}
+
+				// ===============================
+				// ⚙️ STEP 2: CREATE + PROCESS
+				// ===============================
+				var statementGR = new GlideRecordSecure('x_ctans_incentnow_incentive_statement');
+				statementGR.initialize();
+
+				statementGR.setValue('user', user);
+				statementGR.setValue('plan', plan);
+				statementGR.setValue('fiscal_period', period);
+			  statementGR.setValue('fiscal_year', year);
+			 
+			 	statementGR.user.getRefRecord();
+				statementGR.plan.getRefRecord();
+				statementGR.fiscal_period.getRefRecord();
+
+				try {
+						var processor = new IncentNowStatementProcessor();
+						var result = processor.process(statementGR);
+
+						if (!result || !result.valid) {
+								data.valid = false;
+								data.message = result.message || "Processing failed";
+								return;
+						}
+
+						data.valid = true;
+						data.exists = false;
+						data.sys_id = result.record.getUniqueValue();
+						data.total = result.total;
+
+				} catch (e) {
+						data.valid = false;
+						data.message = "Error: " + e.message;
+				}
+		}
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>shroin.mandal</sys_created_by>
+        <sys_created_on>2026-04-23 12:04:28</sys_created_on>
+        <sys_id>10a6176f3b144f10ffa00e9693e45a95</sys_id>
+        <sys_mod_count>47</sys_mod_count>
+        <sys_name>IncentNow Form Statement</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sp_widget_10a6176f3b144f10ffa00e9693e45a95</sys_update_name>
+        <sys_updated_by>upma.rai</sys_updated_by>
+        <sys_updated_on>2026-06-18 14:44:06</sys_updated_on>
+        <template><![CDATA[<div>
+  <div class="panel panel-default modern-card">   
+    <!-- BODY -->
+    <div class="panel-body modern-body">
+      <form>
+        <sp-model form_model="data.f"></sp-model>
+      </form>
+    </div>   
+    <div class="panel-footer footer-actions modern-footer">
+      <button class="btn btn-primary modern-btn"
+              ng-click="c.save()">
+        {{data.fetchButtonName}}
+      </button>
+    </div>
+  </div>
+</div>]]></template>
+    </sp_widget>
+</record_update>

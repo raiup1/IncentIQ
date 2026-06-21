@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sn_mcp_ai_skill_tool_definition">
+    <sn_mcp_ai_skill_tool_definition action="INSERT_OR_UPDATE">
+        <category>ai_skill</category>
+        <description>Classifies user questions into business intents for IncentNow Copilot such as payout, quota, statement, plan, lookup rules, earning rules, YTD payout, and compensation explanations. This skill only returns the intent name and does not generate business responses.</description>
+        <label>IncentNow Intent Classifier</label>
+        <name>x_ctans_incentnow.incentnow_intent_classifier</name>
+        <servers/>
+        <sys_class_name>sn_mcp_ai_skill_tool_definition</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2026-04-23 07:01:13</sys_created_on>
+        <sys_id>9e31da2f3b180f10ffa00e9693e45ae6</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>IncentNow Intent Classifier</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sn_mcp_ai_skill_tool_definition_9e31da2f3b180f10ffa00e9693e45ae6</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2026-04-23 07:01:13</sys_updated_on>
+        <tool/>
+    </sn_mcp_ai_skill_tool_definition>
+</record_update>

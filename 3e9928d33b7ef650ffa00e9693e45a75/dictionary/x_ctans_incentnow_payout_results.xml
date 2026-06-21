@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element db_object_id="2a0b33333b9003505493ddb693e45a09" label="Payout Results" max_length="40" name="x_ctans_incentnow_payout_results" type="collection">
+        <element attributes="edge_encryption_enabled=true" label="Operator" max_length="40" name="operator" type="string"/>
+        <element attributes="encode_utf8=false" label="Plan" max_length="32" name="plan" reference="x_ctans_incentnow_plan" type="reference"/>
+        <element label="Input 2 Value" max_length="15" name="input2_value" type="decimal"/>
+        <element attributes="edge_encryption_enabled=true" label="Input 1" max_length="100" name="input_1" type="string"/>
+        <element attributes="encode_utf8=false" label="Fiscal Period" max_length="32" name="fiscal_period" reference="x_ctans_incentnow_fiscal_period" type="reference"/>
+        <element attributes="encode_utf8=false" label="User" max_length="32" name="user" reference="x_ctans_incentnow_user_profile" type="reference"/>
+        <element attributes="edge_encryption_enabled=true" choice="1" choice_field="input1_type" choice_table="x_ctans_incentnow_payout_summary" label="Input 1 Type" max_length="40" name="input1_type" type="string">
+            <choice>
+                <element inactive_on_update="false" label="Data Gathering Step" sequence="0" value="data_step"/>
+                <element inactive_on_update="false" label="Earning Rule" sequence="1" value="earning_rule"/>
+                <element inactive_on_update="false" label="Payout Summary Step" sequence="2" value="payout_step"/>
+            </choice>
+        </element>
+        <element attributes="encode_utf8=false" label="Payout Summary Rule" max_length="32" name="payout_summary_rule" reference="x_ctans_incentnow_payout_summary" type="reference"/>
+        <element attributes="edge_encryption_enabled=true" choice="1" choice_field="payout_type" choice_table="x_ctans_incentnow_payout_summary" label="Payout Type" max_length="40" name="payout_type" type="string">
+            <choice>
+                <element inactive_on_update="false" label="Intermediate Step" sequence="0" value="intermediate_step"/>
+                <element inactive_on_update="false" label="Payable" sequence="1" value="payable"/>
+            </choice>
+        </element>
+        <element attributes="ignore_filter_on_new=true" default="javascript:global.getNextObjNumberPadded();" label="Number" max_length="40" name="number" type="string"/>
+        <element label="Payout Value" max_length="15" name="payout_value" type="decimal"/>
+        <element attributes="edge_encryption_enabled=true" choice="1" choice_field="output_unit" choice_table="x_ctans_incentnow_payout_summary" label="Rate Unit" max_length="40" name="rate_unit" type="string">
+            <choice>
+                <element inactive_on_update="false" label="Number" sequence="1" value="number"/>
+                <element inactive_on_update="false" label="Currency" sequence="0" value="currency"/>
+                <element inactive_on_update="false" label="Percentage" sequence="2" value="percentage"/>
+            </choice>
+        </element>
+        <element label="Domain" max_length="32" name="sys_domain" type="domain_id"/>
+        <element label="Step Number" max_length="40" name="step_number" type="integer"/>
+        <element attributes="edge_encryption_enabled=true" label="Formula" max_length="100" name="formula" type="string"/>
+        <element label="Input 1 Value" max_length="15" name="input1_value" type="decimal"/>
+        <element attributes="edge_encryption_enabled=true" choice="1" choice_field="input2_type" choice_table="x_ctans_incentnow_payout_summary" label="Input 2 Type" max_length="40" name="input2_type" type="string">
+            <choice>
+                <element inactive_on_update="false" label="Earning Rule" sequence="1" value="earning_rule"/>
+                <element inactive="true" inactive_on_update="true" label="Choice 1" sequence="0" value="Choice 1"/>
+                <element inactive="true" inactive_on_update="true" label="Choice 2" sequence="1" value="Choice 2"/>
+                <element inactive="true" inactive_on_update="true" label="Choice 3" sequence="2" value="Choice 3"/>
+                <element inactive_on_update="false" label="Payout Summary Step" sequence="2" value="payout_step"/>
+                <element inactive_on_update="false" label="Data Gathering Step" sequence="0" value="data_step"/>
+            </choice>
+        </element>
+        <element attributes="edge_encryption_enabled=true" label="Input 2" max_length="100" name="input_2" type="string"/>
+        <element attributes="encode_utf8=false" label="Statement ID" max_length="32" name="statement_id" reference="x_ctans_incentnow_incentive_statement" type="reference"/>
+        <index name="index">
+            <element name="fiscal_period"/>
+        </index>
+        <index name="index2">
+            <element name="payout_summary_rule"/>
+        </index>
+        <index name="index3">
+            <element name="plan"/>
+        </index>
+        <index name="index4">
+            <element name="statement_id"/>
+        </index>
+        <index name="index5">
+            <element name="sys_domain"/>
+        </index>
+        <index name="index6">
+            <element name="user"/>
+        </index>
+    </element>
+</database>

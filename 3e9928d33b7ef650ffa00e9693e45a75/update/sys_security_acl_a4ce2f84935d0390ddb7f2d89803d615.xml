@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_security_acl">
+    <sys_security_acl action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <admin_overrides>true</admin_overrides>
+        <advanced>false</advanced>
+        <applies_to/>
+        <condition/>
+        <controlled_by_refs/>
+        <decision_type>allow</decision_type>
+        <description/>
+        <local_or_existing>Existing</local_or_existing>
+        <name>incentnow_compensation_assistant_for_default.10ceeb84935d0390ddb7f2d89803d6ed</name>
+        <operation display_value="execute">execute</operation>
+        <script/>
+        <security_attribute display_value="UserIsAuthenticated">239bdf0c47d23110ba46ff58936d4330</security_attribute>
+        <sys_class_name>sys_security_acl</sys_class_name>
+        <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+        <sys_created_on>2026-06-01 09:53:56</sys_created_on>
+        <sys_id>a4ce2f84935d0390ddb7f2d89803d615</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>incentnow_compensation_assistant_for_default.10ceeb84935d0390ddb7f2d89803d6ed</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_security_acl_a4ce2f84935d0390ddb7f2d89803d615</sys_update_name>
+        <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
+        <sys_updated_on>2026-06-01 09:53:56</sys_updated_on>
+        <type display_value="gen_ai_skill">0d986410ffdd2210c0e9ffffffffffc9</type>
+    </sys_security_acl>
+</record_update>

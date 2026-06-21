@@ -1,0 +1,447 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>package_private</access>
+        <active>true</active>
+        <api_name>x_ctans_incentnow.IncentNowEarningRuleEngine</api_name>
+        <caller_access/>
+        <client_callable>false</client_callable>
+        <description/>
+        <mobile_callable>false</mobile_callable>
+        <name>IncentNowEarningRuleEngine</name>
+        <sandbox_callable>false</sandbox_callable>
+        <script><![CDATA[var IncentNowEarningRuleEngine = Class.create();
+IncentNowEarningRuleEngine.prototype = {
+
+    initialize: function() {
+        this.LOG = 'IncentNowEarningRuleEngine | ';
+        this.formatter = new IncentNowSystemConfigUtil();
+        this.UNITS = {
+            CURRENCY: 'currency',
+            NUMBER: 'number'
+        };
+    },
+
+    calculateMetrics: function(userGR, fiscalPeriodGR, planGR, statementId) {
+
+        if (!userGR || !fiscalPeriodGR || !fiscalPeriodGR.isValidRecord()) {
+            gs.error(this.LOG + 'Invalid Inputs');
+            return [];
+        }
+        if (fiscalPeriodGR.getValue('period_type') != 'month') {
+            gs.info('Skipping earning calculation for non-month period');
+            return [];
+        }
+        var quotaObj = this.getQuotaTarget(userGR, fiscalPeriodGR);
+
+        var startDate = fiscalPeriodGR.period_start_date;
+        var endDate = fiscalPeriodGR.period_end_date;
+
+        var results = [];
+
+        var ruleGR = new GlideRecordSecure('x_ctans_incentnow_earning_rule');
+        ruleGR.addQuery('plan', planGR.sys_id);
+        ruleGR.addQuery('active', true);
+        ruleGR.query();
+
+        while (ruleGR.next()) {
+            //   var field = ruleGR.field.data_lake_field_name.element.toString();
+            var aggType = ruleGR.aggregation.toString();
+            var encoded = ruleGR.rule_condition_query;
+
+            gs.info(this.LOG + 'Processing Rule: ' + ruleGR.rule_name);
+
+            var totalCredit = 0;
+            var count = 0;
+            var min = null;
+            var max = null;
+
+            var transactions = []; // store tx details temporarily
+
+            var sourceConfig = this.getSourceConfig(ruleGR, userGR);
+
+            if (!sourceConfig.isValid) {
+                gs.error(this.LOG + sourceConfig.errorMessage);
+                continue;
+            }
+
+            var sourceGR = new GlideRecordSecure(sourceConfig.tableName);
+            gs.info(this.LOG + 'SourceTable: ' + sourceConfig.tableName);
+
+            for (var q = 0; q < sourceConfig.baseQueries.length; q++) {
+                sourceGR.addQuery(
+                    sourceConfig.baseQueries[q].field,
+                    sourceConfig.baseQueries[q].operator,
+                    sourceConfig.baseQueries[q].value
+                );
+            }
+
+            sourceGR.addQuery(sourceConfig.userField, sourceConfig.userOperator, sourceConfig.userValue);
+            sourceGR.addQuery(sourceConfig.dateField, '>=', startDate);
+            sourceGR.addQuery(sourceConfig.dateField, '<=', endDate);
+
+            if (encoded)
+                sourceGR.addEncodedQuery(encoded);
+
+            sourceGR.query();
+
+            while (sourceGR.next()) {
+
+                var amount = parseFloat(sourceGR.getValue(sourceConfig.amountField)) || 0;
+                //	gs.info(this.LOG + 'Amount: ' + amount);
+
+                var credit = amount;
+
+                var creditJSON = sourceConfig.isExternal ?
+                    sourceGR.getValue('raw_payload') :
+                    JSON.stringify({
+                        source_system: 'Internal',
+                        source_table: sourceConfig.tableName,
+                        source_record: sourceGR.getUniqueValue(),
+                        display_value: sourceGR.getDisplayValue()
+                    });
+
+                transactions.push({
+                    data_lake_id: sourceConfig.isExternal ? sourceGR.getUniqueValue() : '',
+                    amount: amount,
+                    credit: credit,
+                    creditJSON: creditJSON
+                });
+
+                totalCredit += credit;
+                count++;
+
+                if (min === null || credit < min)
+                    min = credit;
+
+                if (max === null || credit > max)
+                    max = credit;
+            }
+
+            /* determine rule credit based on aggregation */
+
+            var creditvalue = 0;
+            var unit = this.UNITS.NUMBER; // default
+            switch (aggType) {
+
+                case 'sum':
+                    creditvalue = totalCredit;
+                    unit = this.UNITS.CURRENCY;
+                    break;
+
+                case 'count':
+                    creditvalue = count;
+                    unit = this.UNITS.NUMBER;
+                    break;
+
+                case 'min':
+                    creditvalue = min || 0;
+                    unit = this.UNITS.CURRENCY;
+                    break;
+
+                case 'max':
+                    creditvalue = max || 0;
+                    unit = this.UNITS.CURRENCY;
+                    break;
+
+                case 'avg':
+                    creditvalue = count > 0 ? totalCredit / count : 0;
+                    unit = this.UNITS.CURRENCY;
+                    break;
+            }
+
+            gs.info(this.LOG + 'Rule Result -> ' + creditvalue);
+
+            var creditRec = new GlideRecordSecure('x_ctans_incentnow_credit_results');
+            creditRec.addQuery('user', userGR.sys_id);
+            creditRec.addQuery('plan', planGR.sys_id);
+            creditRec.addQuery('fiscal_period', fiscalPeriodGR.sys_id);
+            creditRec.addQuery('earning_rule', ruleGR.sys_id);
+            creditRec.query();
+
+            if (creditRec.next()) {
+
+                // UPDATE existing record
+                creditRec.credit_value = creditvalue;
+                creditRec.source_object = ruleGR.source_object;
+                creditRec.aggregation_type = ruleGR.aggregation;
+                creditRec.count = count;
+                creditRec.target_quota = quotaObj.value;
+                creditRec.statement_id = statementId;
+                creditRec.update();
+
+            } else {
+
+                // INSERT new record
+                creditRec.initialize();
+                creditRec.user = userGR.sys_id;
+                creditRec.plan = planGR.sys_id;
+                creditRec.fiscal_period = fiscalPeriodGR.sys_id;
+                creditRec.earning_rule = ruleGR.getUniqueValue();
+                creditRec.credit_value = creditvalue;
+                creditRec.source_object = ruleGR.source_object;
+                creditRec.aggregation_type = ruleGR.aggregation;
+                creditRec.count = count;
+                creditRec.target_quota = quotaObj.value;
+                creditRec.statement_id = statementId;
+                creditRec.insert();
+            }
+
+            var creditSysId = creditRec.sys_id.toString();
+            var oldTx = new GlideRecordSecure('x_ctans_incentnow_earning_credit_transaction');
+            oldTx.addQuery('earning_credit_result', creditSysId);
+            oldTx.deleteMultiple();
+
+            /* insert transaction audit rows */
+
+            for (var i = 0; i < transactions.length; i++) {
+
+                var tx = new GlideRecordSecure('x_ctans_incentnow_earning_credit_transaction');
+                tx.initialize();
+                tx.data_lake_id = transactions[i].data_lake_id;
+                tx.transaction_amount = transactions[i].amount;
+                tx.transaction_credit = transactions[i].credit;
+                tx.transaction_rec_json = transactions[i].creditJSON;
+                tx.earning_credit_result = creditSysId;
+                tx.insert();
+            }
+
+            results.push({
+                rule: ruleGR.rule_name.toString(),
+                rule_sysID: ruleGR.getUniqueValue(),
+                aggregation_type: ruleGR.aggregation.getDisplayValue(),
+                credit: creditvalue,
+                unit: unit,
+                quota: quotaObj.value,
+                quota_display: quotaObj.display_value,
+                object: ruleGR.getDisplayValue('source_object'),
+                object_value: ruleGR.getValue('source_object'),
+                field: ruleGR.getDisplayValue('field'),
+                field_name: ruleGR.getValue('field'), // actual data lake field
+                condition: ruleGR.getValue('condition_query_display'), // Earning Rule Condition
+                earning_level: ruleGR.earning_level.getDisplayValue()
+            });
+        }
+
+        return results;
+    },
+
+    getSourceConfig: function(ruleGR, userGR) {
+
+        var dataSourceSystem = ruleGR.source_object.data_source_system.toString();
+        gs.info(this.LOG + 'DataSourceSystem: ' + dataSourceSystem);
+
+        var config = {
+            isValid: true,
+            errorMessage: '',
+            isExternal: dataSourceSystem == 'External',
+            tableName: '',
+            amountField: '',
+            userField: '',
+            userOperator: '=',
+            userValue: '',
+            dateField: '',
+            baseQueries: []
+        };
+
+        if (dataSourceSystem == 'External') {
+
+            config.tableName = 'x_ctans_incentnow_data_lake';
+            config.amountField = ruleGR.field.data_lake_field_name.element.toString();
+            config.userField = 'user_id';
+            config.dateField = 'transaction_date';
+
+            config.baseQueries.push({
+                field: 'processing_status',
+                operator: '=',
+                value: 'processed'
+            });
+
+            config.baseQueries.push({
+                field: 'data_model_object',
+                operator: '=',
+                value: ruleGR.getValue('source_object')
+            });
+
+            if (ruleGR.getValue('earning_level') == 'manager_rollup') {
+                config.userOperator = 'IN';
+                config.userValue = this.getUsersUnderManager(userGR.getValue('user'));
+            } else {
+                config.userValue = userGR.external_user_id.toString();
+            }
+
+        } else if (dataSourceSystem == 'Internal') {
+
+            config.tableName = ruleGR.source_object.object_table.name.toString();
+
+            if (!config.tableName) {
+                config.isValid = false;
+                config.errorMessage = 'Internal source object table is not configured for rule: ' +
+                    ruleGR.getDisplayValue('rule_name');
+                return config;
+            }
+
+            var mappedFields = this.getInternalMappedFields(ruleGR.getValue('source_object'));
+            gs.info(this.LOG + 'mappedFields.userField:  ' + mappedFields.userField + ' mappedFields.transactionDateField: ' + mappedFields.transactionDateField + ' amount' + ruleGR.field.source_field_name.toString());
+
+            if (!mappedFields.userField || !mappedFields.transactionDateField) {
+                config.isValid = false;
+                config.errorMessage = 'User ID or Transaction Date mapping missing for source object: ' +
+                    ruleGR.getDisplayValue('source_object');
+                return config;
+            }
+
+            config.amountField = ruleGR.field.source_field_name.toString();
+            config.userField = mappedFields.userField;
+            config.dateField = mappedFields.transactionDateField;
+
+            if (ruleGR.earning_level == 'manager_rollup') {
+                config.userOperator = 'IN';
+				config.userValue = this.getInternalUsersUnderManager(userGR.getValue('user'));
+            } else {
+                config.userValue = userGR.user.toString();
+                gs.info(this.LOG + 'config.userValue:  ' + config.userValue);
+            }
+
+        } else {
+            config.isValid = false;
+            config.errorMessage = 'Invalid Data Source System for rule: ' +
+                ruleGR.getDisplayValue('rule_name');
+        }
+
+        if (!config.amountField) {
+            config.isValid = false;
+            config.errorMessage = 'Amount/Credit field mapping is missing for rule: ' +
+                ruleGR.getDisplayValue('rule_name');
+        }
+
+        return config;
+    },
+
+    getInternalMappedFields: function(sourceObjectSysId) {
+        var result = {
+            userField: '',
+            transactionDateField: ''
+        };
+
+        var mapGR = new GlideRecordSecure('x_ctans_incentnow_metadata_mapping');
+        mapGR.addQuery('data_model_object_id', sourceObjectSysId);
+        mapGR.addQuery('active', true);
+        mapGR.query();
+
+        while (mapGR.next()) {
+            var lakeColumnName = mapGR.data_lake_field_name.element.toString();
+            var lakeColumnLabel = mapGR.data_lake_field_name.column_label.toString();
+            var sourceField = mapGR.getValue('source_field_name');
+
+            if (lakeColumnName == 'user_id' || lakeColumnLabel == 'User ID') {
+                result.userField = sourceField;
+            }
+
+            if (lakeColumnName == 'transaction_date' || lakeColumnLabel == 'Transaction Date') {
+                result.transactionDateField = sourceField;
+            }
+        }
+
+        return result;
+    },
+
+    getQuotaTarget: function(userGR, fiscalPeriodGR) {
+
+        var quotaTarget = 0;
+
+        // Step 1: Get user's quota assignment
+        var assignmentGR = new GlideRecordSecure('x_ctans_incentnow_user_quota_assignment');
+        assignmentGR.addQuery('user', userGR.sys_id);
+        assignmentGR.addQuery('quota.status', 'active');
+        assignmentGR.query();
+
+        if (assignmentGR.next()) {
+
+            var quotaSysId = assignmentGR.quota.toString();
+            gs.info(this.LOG + 'Quota: ' + quotaSysId);
+
+            // Step 2: Get quota target for the fiscal period
+            var quotaPeriodGR = new GlideRecordSecure('x_ctans_incentnow_quota_period');
+            quotaPeriodGR.addQuery('quota', quotaSysId);
+            quotaPeriodGR.addQuery('fiscal_period', fiscalPeriodGR.sys_id);
+            quotaPeriodGR.query();
+
+            if (quotaPeriodGR.next()) {
+
+                if (quotaPeriodGR.target_value) {
+                    quotaTarget = parseFloat(quotaPeriodGR.target_value) || 0;
+                    gs.info(this.LOG + 'Target Quota: ' + quotaTarget);
+                }
+            }
+        }
+
+        return {
+
+            value: quotaTarget,
+            display_value: this.formatter.formatCurrency(quotaTarget)
+        };
+    },
+   getUsersUnderManager: function(managerSysUserId) {
+
+    var users = [];
+
+    if (!managerSysUserId)
+        return '';
+
+    var userProfile = new GlideRecordSecure('x_ctans_incentnow_user_profile');
+    userProfile.addQuery('user.manager', managerSysUserId);
+    userProfile.addQuery('active', true);
+    userProfile.query();
+
+    while (userProfile.next()) {
+        var externalId = userProfile.getValue('external_user_id');
+        if (externalId)
+            users.push(externalId);
+    }
+
+    gs.info(this.LOG + 'External Reportees: ' + users.join(','));
+    return users.join(',');
+},
+
+  getInternalUsersUnderManager: function(managerSysUserId) {
+
+    var users = [];
+
+    if (!managerSysUserId)
+        return '';
+
+    var userProf = new GlideRecordSecure('x_ctans_incentnow_user_profile');
+    userProf.addQuery('user.manager', managerSysUserId);
+    userProf.addQuery('active', true);
+    userProf.query();
+
+    while (userProf.next()) {
+        var sysUserId = userProf.getValue('user');
+        if (sysUserId)
+            users.push(sysUserId);
+    }
+
+    gs.info(this.LOG + 'Internal Reportees: ' + users.join(','));
+    return users.join(',');
+},
+
+    formatWithUnit: function(value, unit) {
+        return this.formatter.format(value, unit);
+    },
+
+    type: 'IncentNowEarningRuleEngine'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>upma.rai</sys_created_by>
+        <sys_created_on>2026-03-06 19:21:05</sys_created_on>
+        <sys_id>be4ce9d03bef7e105493ddb693e45aea</sys_id>
+        <sys_mod_count>104</sys_mod_count>
+        <sys_name>IncentNowEarningRuleEngine</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_script_include_be4ce9d03bef7e105493ddb693e45aea</sys_update_name>
+        <sys_updated_by>upma.rai</sys_updated_by>
+        <sys_updated_on>2026-06-12 12:10:14</sys_updated_on>
+    </sys_script_include>
+</record_update>

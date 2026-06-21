@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <client_script><![CDATA[api.controller=function($window,$location) {
+  /* widget controller */
+  var c = this;
+	//alert(window.location.origin.toString().indexOf('ping-now.com')>=0);
+	
+	c.goBack = function() {
+    //$window.history.back();
+		$location.url('?id=incentive_statements');
+  };
+};]]></client_script>
+        <controller_as>c</controller_as>
+        <css>.headd {
+	  font-size: 2.6rem;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.ip-header {
+	  padding: 1rem;
+    margin-bottom: 2rem;
+}
+.admin-page-topbar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  //margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.admin-back-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  cursor: pointer;
+  color: #374151;
+  flex-shrink: 0;
+  transition: background 0.15s, border-color 0.15s;
+}
+.admin-back-btn:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+}
+
+
+
+
+
+</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description/>
+        <docs/>
+        <field_list/>
+        <has_preview>false</has_preview>
+        <id>incentnow-generate-statements</id>
+        <internal>false</internal>
+        <link><![CDATA[function link(scope, element, attrs, controller) {
+  
+}]]></link>
+        <name>Incentnow Generate Statements</name>
+        <option_schema/>
+        <public>false</public>
+        <roles>x_ctans_incentnow.admin,x_ctans_incentnow.user</roles>
+        <script><![CDATA[(function() {
+  /* populate the 'data' object */
+  /* e.g., data.table = $sp.getValue('table'); */
+	data.incentnowAdForm= $sp.getWidget('incentnow-form-statement',{table:"x_ctans_incentnow_incentive_statement",view:"portal_view"});
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>shroin.mandal</sys_created_by>
+        <sys_created_on>2026-04-18 06:11:55</sys_created_on>
+        <sys_id>6de5140e3bd8cf10ffa00e9693e45aeb</sys_id>
+        <sys_mod_count>38</sys_mod_count>
+        <sys_name>Incentnow Generate Statements</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sp_widget_6de5140e3bd8cf10ffa00e9693e45aeb</sys_update_name>
+        <sys_updated_by>karan.kumar</sys_updated_by>
+        <sys_updated_on>2026-05-18 11:04:29</sys_updated_on>
+        <template><![CDATA[<div class="ip-container">
+   <!-- HEADER -->
+   <div class="ip-header">
+      <div class="ip-header-text">
+          <div class="admin-page-topbar">
+                <button class="admin-back-btn" ng-click="c.goBack()">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <circle cx="12" cy="12" r="10"/>
+                    <polyline points="12 8 8 12 12 16"/>
+                    <line x1="16" y1="12" x2="8" y2="12"/>
+                  </svg>
+                </button>
+                <span class="admin-page-topbar-title headd">Generate Statement</span>
+          </div>
+         <p>Build a comprehensive incentive plan with earning and commission rules</p>
+      </div>
+      <!-- <button class="ip-save-btn">Save Plan</button> -->
+   </div>
+  </div>
+   <div id="basic" class="ip-tab-panel" ng-class="{'active': c.activeStep=='basic'}">
+      <!-- MAIN CONTENT -->
+      <div class="ip-main">
+        <sp-widget widget="data.incentnowAdForm"></sp-widget>
+     </div>
+</div>]]></template>
+    </sp_widget>
+</record_update>

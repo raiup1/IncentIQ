@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="m2m_sp_widget_dependency">
+    <m2m_sp_widget_dependency action="INSERT_OR_UPDATE">
+        <sp_dependency display_value="chartminincentiq">63170c7f3b994350a4cbaddc73e45a43</sp_dependency>
+        <sp_widget display_value="Performance Tracking">b08b0b6f3baffa50ffa00e9693e45ae0</sp_widget>
+        <sys_class_name>m2m_sp_widget_dependency</sys_class_name>
+        <sys_created_by>karan.kumar</sys_created_by>
+        <sys_created_on>2026-06-12 08:39:14</sys_created_on>
+        <sys_id>b5270c7f3b994350a4cbaddc73e45ac4</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>chartminincentiq.Performance Tracking</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>m2m_sp_widget_dependency_b5270c7f3b994350a4cbaddc73e45ac4</sys_update_name>
+        <sys_updated_by>karan.kumar</sys_updated_by>
+        <sys_updated_on>2026-06-12 08:39:14</sys_updated_on>
+    </m2m_sp_widget_dependency>
+</record_update>

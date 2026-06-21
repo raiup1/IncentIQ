@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="m2m_sp_dependency_js_include">
+    <m2m_sp_dependency_js_include action="INSERT_OR_UPDATE">
+        <order>100</order>
+        <sp_dependency display_value="chartincentiq">7e5684fb3b994350a4cbaddc73e45ab7</sp_dependency>
+        <sp_js_include display_value="https://cdn.jsdelivr.net/npm/chart.js">a6768cfb3b994350a4cbaddc73e45a5a</sp_js_include>
+        <sys_class_name>m2m_sp_dependency_js_include</sys_class_name>
+        <sys_created_by>karan.kumar</sys_created_by>
+        <sys_created_on>2026-06-12 08:36:53</sys_created_on>
+        <sys_id>1f96003f3b994350a4cbaddc73e45a89</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>chart.https://cdn.jsdelivr.net/npm/chart.js</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>m2m_sp_dependency_js_include_1f96003f3b994350a4cbaddc73e45a89</sys_update_name>
+        <sys_updated_by>karan.kumar</sys_updated_by>
+        <sys_updated_on>2026-06-12 08:36:53</sys_updated_on>
+    </m2m_sp_dependency_js_include>
+</record_update>

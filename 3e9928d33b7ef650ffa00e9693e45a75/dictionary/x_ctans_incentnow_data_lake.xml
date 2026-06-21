@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element db_object_id="d29baf0e3b0bb650ffa00e9693e45a42" extends="sys_import_set_row" label="Data Lake" max_length="40" name="x_ctans_incentnow_data_lake" type="collection">
+        <element label="Column 93" max_length="40" name="column_93" type="glide_date_time"/>
+        <element attributes="encode_utf8=false" label="Data Model Object" mandatory="true" max_length="32" name="data_model_object" reference="x_ctans_incentnow_data_model_object" type="reference"/>
+        <element label="Domain" max_length="32" name="sys_domain" type="domain_id"/>
+        <element label="Column 62" max_length="20" name="column_62" type="decimal"/>
+        <element label="Column 67" max_length="20" name="column_67" type="decimal"/>
+        <element attributes="omit_sys_original=true" label="Column 99" max_length="20" name="column_99" type="currency"/>
+        <element label="Column 41" max_length="100" name="column_41" type="string"/>
+        <element label="Column 80" max_length="20" name="column_80" type="decimal"/>
+        <element label="Column 60" max_length="40" name="column_60" type="integer"/>
+        <element attributes="edge_encryption_enabled=true,json_view=true" label="Raw Payload" max_length="10000" name="raw_payload" type="string"/>
+        <element label="Column 57" max_length="40" name="column_57" type="integer"/>
+        <element label="Column 03" max_length="100" name="column_03" type="string"/>
+        <element label="Column 07" max_length="100" name="column_07" type="string"/>
+        <element label="Column 54" max_length="40" name="column_54" type="integer"/>
+        <element label="Column 28" max_length="100" name="column_28" type="string"/>
+        <element label="Column 17" max_length="100" name="column_17" type="string"/>
+        <element label="Column 69" max_length="20" name="column_69" type="decimal"/>
+        <element label="Column 87" max_length="40" name="column_87" type="glide_date_time"/>
+        <element label="Column 55" max_length="40" name="column_55" type="integer"/>
+        <element label="Column 51" max_length="40" name="column_51" type="integer"/>
+        <element label="Column 40" max_length="100" name="column_40" type="string"/>
+        <element label="Column 58" max_length="40" name="column_58" type="integer"/>
+        <element label="Column 35" max_length="100" name="column_35" type="string"/>
+        <element attributes="ignore_filter_on_new=true" default="javascript:global.getNextObjNumberPadded();" display="true" label="Number" max_length="40" name="number" type="string"/>
+        <element label="Column 74" max_length="20" name="column_74" type="decimal"/>
+        <element label="Column 73" max_length="20" name="column_73" type="decimal"/>
+        <element label="Column 89" max_length="40" name="column_89" type="glide_date_time"/>
+        <element label="Column 72" max_length="20" name="column_72" type="decimal"/>
+        <element label="Column 19" max_length="100" name="column_19" type="string"/>
+        <element label="Column 49" max_length="100" name="column_49" type="string"/>
+        <element label="Column 32" max_length="100" name="column_32" type="string"/>
+        <element label="Column 81" max_length="40" name="column_81" type="glide_date_time"/>
+        <element attributes="omit_sys_original=true" label="Column 98" max_length="20" name="column_98" type="currency"/>
+        <element label="Column 18" max_length="100" name="column_18" type="string"/>
+        <element label="Column 39" max_length="100" name="column_39" type="string"/>
+        <element label="Column 20" max_length="100" name="column_20" type="string"/>
+        <element label="Column 43" max_length="100" name="column_43" type="string"/>
+        <element label="Column 65" max_length="20" name="column_65" type="decimal"/>
+        <element label="Column 06" max_length="100" name="column_06" type="string"/>
+        <element label="Column 22" max_length="100" name="column_22" type="string"/>
+        <element label="Column 10" max_length="100" name="column_10" type="string"/>
+        <element attributes="edge_encryption_enabled=true" choice="1" default="Raw" label="Processing Status" max_length="40" name="processing_status" type="string">
+            <choice>
+                <element inactive_on_update="false" label="Error" sequence="2" value="error"/>
+                <element inactive_on_update="false" label="Raw" sequence="0" value="raw"/>
+                <element inactive_on_update="false" label="Processed" sequence="1" value="processed"/>
+            </choice>
+        </element>
+        <element label="Column 68" max_length="20" name="column_68" type="decimal"/>
+        <element label="Column 25" max_length="100" name="column_25" type="string"/>
+        <element label="Column 05" max_length="100" name="column_05" type="string"/>
+        <element label="Column 78" max_length="20" name="column_78" type="decimal"/>
+        <element label="Column 33" max_length="100" name="column_33" type="string"/>
+        <element label="Column 88" max_length="40" name="column_88" type="glide_date_time"/>
+        <element label="Column 66" max_length="20" name="column_66" type="decimal"/>
+        <element label="Column 01" max_length="100" name="column_01" type="string"/>
+        <element label="Column 94" max_length="40" name="column_94" type="glide_date_time"/>
+        <element label="Column 59" max_length="40" name="column_59" type="integer"/>
+        <element label="Column 29" max_length="100" name="column_29" type="string"/>
+        <element label="Column 31" max_length="100" name="column_31" type="string"/>
+        <element label="Column 84" max_length="40" name="column_84" type="glide_date_time"/>
+        <element label="Column 44" max_length="100" name="column_44" type="string"/>
+        <element label="Column 77" max_length="20" name="column_77" type="decimal"/>
+        <element label="Column 92" max_length="40" name="column_92" type="glide_date_time"/>
+        <element label="Column 04" max_length="100" name="column_04" type="string"/>
+        <element label="Column 45" max_length="100" name="column_45" type="string"/>
+        <element label="Column 47" max_length="100" name="column_47" type="string"/>
+        <element label="Column 50" max_length="100" name="column_50" type="string"/>
+        <element label="Column 14" max_length="100" name="column_14" type="string"/>
+        <element label="Column 09" max_length="100" name="column_09" type="string"/>
+        <element attributes="omit_sys_original=true" label="Column 97" max_length="20" name="column_97" type="currency"/>
+        <element label="Column 11" max_length="100" name="column_11" type="string"/>
+        <element label="Column 76" max_length="20" name="column_76" type="decimal"/>
+        <element label="Column 75" max_length="20" name="column_75" type="decimal"/>
+        <element label="Column 70" max_length="20" name="column_70" type="decimal"/>
+        <element label="Column 71" max_length="20" name="column_71" type="decimal"/>
+        <element label="Column 23" max_length="100" name="column_23" type="string"/>
+        <element label="Column 38" max_length="100" name="column_38" type="string"/>
+        <element label="Column 16" max_length="100" name="column_16" type="string"/>
+        <element label="Column 15" max_length="100" name="column_15" type="string"/>
+        <element label="Column 63" max_length="20" name="column_63" type="decimal"/>
+        <element label="Column 48" max_length="100" name="column_48" type="string"/>
+        <element label="Column 64" max_length="20" name="column_64" type="decimal"/>
+        <element attributes="omit_sys_original=true" label="Column 96" max_length="20" name="column_96" type="currency"/>
+        <element attributes="omit_sys_original=true" label="Column 100" max_length="20" name="column_100" type="currency"/>
+        <element label="Column 37" max_length="100" name="column_37" type="string"/>
+        <element label="Column 91" max_length="40" name="column_91" type="glide_date_time"/>
+        <element label="Column 42" max_length="100" name="column_42" type="string"/>
+        <element label="Column 79" max_length="20" name="column_79" type="decimal"/>
+        <element label="Column 52" max_length="40" name="column_52" type="integer"/>
+        <element label="Column 82" max_length="40" name="column_82" type="glide_date_time"/>
+        <element label="Column 36" max_length="100" name="column_36" type="string"/>
+        <element label="Column 24" max_length="100" name="column_24" type="string"/>
+        <element label="Column 30" max_length="100" name="column_30" type="string"/>
+        <element label="Column 12" max_length="100" name="column_12" type="string"/>
+        <element label="Column 83" max_length="40" name="column_83" type="glide_date_time"/>
+        <element label="Column 53" max_length="40" name="column_53" type="integer"/>
+        <element label="Column 95" max_length="40" name="column_95" type="glide_date_time"/>
+        <element label="Column 90" max_length="40" name="column_90" type="glide_date_time"/>
+        <element label="Column 86" max_length="40" name="column_86" type="glide_date_time"/>
+        <element label="Column 27" max_length="100" name="column_27" type="string"/>
+        <element label="Column 13" max_length="100" name="column_13" type="string"/>
+        <element label="Column 21" max_length="100" name="column_21" type="string"/>
+        <element label="Column 56" max_length="40" name="column_56" type="integer"/>
+        <element label="Column 26" max_length="100" name="column_26" type="string"/>
+        <element label="Column 61" max_length="20" name="column_61" type="decimal"/>
+        <element label="Column 34" max_length="100" name="column_34" type="string"/>
+        <element attributes="encode_utf8=false" label="User ID" mandatory="true" max_length="32" name="user_id" type="string"/>
+        <element label="Column 46" max_length="100" name="column_46" type="string"/>
+        <element label="Column 08" max_length="100" name="column_08" type="string"/>
+        <element label="Column 85" max_length="40" name="column_85" type="glide_date_time"/>
+        <element label="Column 02" max_length="100" name="column_02" type="string"/>
+        <element attributes="edge_encryption_enabled=true" label="Transaction Date" mandatory="true" max_length="40" name="transaction_date" type="glide_date_time"/>
+        <index name="index">
+            <element name="data_model_object"/>
+        </index>
+        <index name="index2">
+            <element name="sys_domain"/>
+        </index>
+        <index name="index3">
+            <element name="user_id"/>
+        </index>
+    </element>
+</database>

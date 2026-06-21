@@ -1,0 +1,1106 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <client_script><![CDATA[api.controller = function() {
+
+var c = this;
+
+c.activeTab="ruleInfo";
+
+c.rule={};
+c.conditions=[];
+c.steps=[];
+
+c.rules=c.data.rules||[];
+
+c.tables=c.data.tables||[];
+c.aggregationTypes=c.data.aggregationTypes||[];
+
+c.fields=[];
+c.results=[];
+c.resultColumns=[];
+
+c.sources=[
+{value:"source_table",label:"Source Table"},
+{value:"lookup_table",label:"Lookup Table"},
+{value:"quota_table",label:"Quota Table"},
+{value:"previous_step",label:"Previous Step"}
+];
+
+c.operators=[
+{value:"=",label:"Is"},
+{value:"!=",label:"Is not"},
+{value:">",label:"Greater than"},
+{value:"<",label:"Less than"}
+];
+
+c.functions=[
+{value:"sum",label:"SUM"},
+{value:"count",label:"COUNT"},
+{value:"divide",label:"DIVIDE"},
+{value:"multiply",label:"MULTIPLY"}
+];
+
+c.returnTypes=[
+{value:"currency",label:"Currency"},
+{value:"number",label:"Number"},
+{value:"percent",label:"Percent"}
+];
+
+c.setTab=function(tab){
+c.activeTab=tab;
+};
+
+c.loadFields=function(){
+
+c.server.get({
+action:"getFields",
+object:c.rule.target_table
+}).then(function(r){
+
+c.fields=r.data.fields||[];
+
+});
+
+};
+
+c.addCondition=function(){
+
+c.conditions.push({
+field:"",
+operator:"=",
+value:"",
+logical_operator:"AND"
+});
+
+};
+
+c.removeCondition=function(i){
+c.conditions.splice(i,1);
+};
+
+c.addStep=function(){
+
+var stepNumber=c.steps.length+1;
+
+c.steps.push({
+steps:"Step "+stepNumber,
+results:"",
+source:"",
+function:"",
+return:""
+});
+
+};
+
+c.removeStep=function(i){
+c.steps.splice(i,1);
+};
+
+c.saveRule=function(){
+
+c.data.action="saveRule";
+c.data.rule=c.rule;
+
+c.server.update().then(function(r){
+
+c.ruleSysId=r.data.ruleSysId;
+
+c.activeTab="conditions";
+
+});
+
+};
+
+c.saveConditions=function(){
+
+c.data.action="saveConditions";
+c.data.rule=c.ruleSysId;
+c.data.conditions=c.conditions;
+
+c.server.update().then(function(){
+
+c.activeTab="steps";
+
+});
+
+};
+
+c.saveSteps=function(){
+
+c.data.action="saveSteps";
+c.data.rule=c.ruleSysId;
+c.data.steps=c.steps;
+
+c.server.update();
+
+};
+
+c.runEngine=function(){
+
+c.data.action="runEngine";
+c.data.rule=c.selectedRule;
+c.data.model=c.selectedModel;
+
+c.server.update().then(function(r){
+
+c.results=r.data.results||[];
+c.resultColumns=r.data.columns||[];
+
+c.activeTab="results";
+
+});
+
+};
+
+};]]></client_script>
+        <controller_as>c</controller_as>
+        <css>html, body {&#13;
+  height: 100%;&#13;
+  margin: 0;&#13;
+  overflow: hidden;&#13;
+  background: #f5f7f9;&#13;
+  font-family: "Segoe UI", Roboto, Arial, sans-serif;&#13;
+  -webkit-font-smoothing: antialiased;&#13;
+}&#13;
+&#13;
+/* ================= LAYOUT ================= */&#13;
+&#13;
+.layout-container {&#13;
+  display: flex;&#13;
+  width: 100%;&#13;
+  min-height: 100%;&#13;
+}&#13;
+&#13;
+/* ================= SIDEBAR ================= */&#13;
+&#13;
+.sidebar {&#13;
+  width: 240px;&#13;
+  min-width: 240px;&#13;
+  flex-shrink: 0;&#13;
+  background: linear-gradient(180deg,#1f2f30,#152122);&#13;
+  padding-top: 20px;&#13;
+  border-right: 1px solid rgba(255,255,255,0.08);&#13;
+  box-shadow: 4px 0 18px rgba(0,0,0,0.15);&#13;
+}&#13;
+&#13;
+.sidebar-header {&#13;
+  font-weight: 600;&#13;
+  padding: 16px 22px;&#13;
+  margin-bottom: 25px;&#13;
+  color: #ffffff;&#13;
+  border-bottom: 1px solid rgba(255,255,255,0.15);&#13;
+  font-size: 18px;&#13;
+  letter-spacing: 0.4px;&#13;
+}&#13;
+&#13;
+/* ================= MENU ================= */&#13;
+&#13;
+.menu {&#13;
+  list-style: none;&#13;
+  padding: 0;&#13;
+  margin: 0;&#13;
+}&#13;
+&#13;
+.menu li {&#13;
+  padding: 13px 22px;&#13;
+  cursor: pointer;&#13;
+  color: #c9d2d4;&#13;
+  border-left: 4px solid transparent;&#13;
+  transition: all 0.25s ease;&#13;
+  font-size: 14px;&#13;
+}&#13;
+&#13;
+.menu li:hover {&#13;
+  background: rgba(255,255,255,0.05);&#13;
+  color: #ffffff;&#13;
+}&#13;
+&#13;
+.menu li.active {&#13;
+  background: #2f4f4f;&#13;
+  color: #7ad3d2;&#13;
+  font-weight: 600;&#13;
+  border-left: 4px solid #7ad3d2;&#13;
+}&#13;
+&#13;
+/* ================= CONTENT ================= */&#13;
+&#13;
+.content-area {&#13;
+  flex: 1;&#13;
+  padding: 40px;&#13;
+  background: #f5f7f9;&#13;
+  overflow-y: auto;&#13;
+}&#13;
+&#13;
+/* ================= CARD ================= */&#13;
+&#13;
+.section-card {&#13;
+  background: rgba(255,255,255,0.75);&#13;
+  backdrop-filter: blur(10px);&#13;
+  border-radius: 14px;&#13;
+  padding: 30px;&#13;
+  border: 1px solid rgba(255,255,255,0.3);&#13;
+  box-shadow: 0 12px 35px rgba(0,0,0,0.08);&#13;
+  transition: all 0.25s ease;&#13;
+}&#13;
+&#13;
+.section-card:hover {&#13;
+  transform: translateY(-2px);&#13;
+  box-shadow: 0 18px 40px rgba(0,0,0,0.12);&#13;
+}&#13;
+&#13;
+.section-title {&#13;
+  font-size: 20px;&#13;
+  font-weight: 600;&#13;
+  margin-bottom: 26px;&#13;
+  color: #2c3e40;&#13;
+}&#13;
+&#13;
+/* ================= TABLES ================= */&#13;
+&#13;
+.preview-table-wrapper,&#13;
+.mapping-table-wrapper {&#13;
+  width: 100%;&#13;
+  max-height: 420px;&#13;
+  overflow-x: auto;&#13;
+  overflow-y: auto;&#13;
+  background: rgba(255,255,255,0.65);&#13;
+  backdrop-filter: blur(8px);&#13;
+  border: 1px solid rgba(255,255,255,0.4);&#13;
+  border-radius: 12px;&#13;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);&#13;
+}&#13;
+&#13;
+.preview-table,&#13;
+.mapping-table {&#13;
+  border-collapse: collapse;&#13;
+  width: 100%;&#13;
+  font-size: 13px;&#13;
+}&#13;
+&#13;
+.preview-table th,&#13;
+.mapping-table th {&#13;
+  background: linear-gradient(135deg,#2f4f4f,#3c6a6a);&#13;
+  color: #ffffff;&#13;
+  padding: 12px;&#13;
+  font-weight: 500;&#13;
+  white-space: nowrap;&#13;
+  position: sticky;&#13;
+  top: 0;&#13;
+  z-index: 2;&#13;
+  letter-spacing: 0.3px;&#13;
+}&#13;
+&#13;
+.preview-table td,&#13;
+.mapping-table td {&#13;
+  padding: 10px;&#13;
+  border-bottom: 1px solid #eef2f5;&#13;
+  color: #2f3b3c;&#13;
+  white-space: nowrap;&#13;
+}&#13;
+&#13;
+.preview-table tbody tr,&#13;
+.mapping-table tbody tr {&#13;
+  transition: all 0.2s ease;&#13;
+}&#13;
+&#13;
+.preview-table tbody tr:hover,&#13;
+.mapping-table tbody tr:hover {&#13;
+  background: rgba(122,211,210,0.08);&#13;
+}&#13;
+&#13;
+/* ================= INPUTS ================= */&#13;
+&#13;
+.form-control,&#13;
+.custom-select,&#13;
+.mapping-table input,&#13;
+.mapping-table select {&#13;
+  border-radius: 8px;&#13;
+  border: 1px solid rgba(0,0,0,0.08);&#13;
+  background: rgba(255,255,255,0.9);&#13;
+  backdrop-filter: blur(4px);&#13;
+  height: 36px;&#13;
+  padding: 6px 10px;&#13;
+  font-size: 13px;&#13;
+  transition: all 0.25s ease;&#13;
+}&#13;
+&#13;
+.form-control:focus,&#13;
+.custom-select:focus,&#13;
+.mapping-table input:focus,&#13;
+.mapping-table select:focus {&#13;
+  border-color: #7ad3d2;&#13;
+  box-shadow: 0 0 0 3px rgba(122,211,210,0.15);&#13;
+  outline: none;&#13;
+}&#13;
+&#13;
+/* ================= BUTTONS ================= */&#13;
+&#13;
+.upload-btn,&#13;
+.add-btn,&#13;
+.save-btn,&#13;
+.run-btn,&#13;
+.page-btn {&#13;
+  background: linear-gradient(135deg,#2f4f4f,#3b6a6a);&#13;
+  color: #ffffff;&#13;
+  padding: 8px 18px;&#13;
+  border-radius: 9px;&#13;
+  border: none;&#13;
+  font-size: 13px;&#13;
+  font-weight: 500;&#13;
+  transition: all 0.25s ease;&#13;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);&#13;
+}&#13;
+&#13;
+.upload-btn:hover,&#13;
+.add-btn:hover,&#13;
+.save-btn:hover,&#13;
+.run-btn:hover,&#13;
+.page-btn:hover {&#13;
+  background: linear-gradient(135deg,#243a3a,#2f5757);&#13;
+  transform: translateY(-2px);&#13;
+  box-shadow: 0 8px 18px rgba(0,0,0,0.2);&#13;
+}&#13;
+&#13;
+.page-btn:disabled {&#13;
+  background: #cfd6da;&#13;
+  cursor: not-allowed;&#13;
+  transform: none;&#13;
+  box-shadow: none;&#13;
+}&#13;
+&#13;
+/* ================= SUCCESS MESSAGE ================= */&#13;
+&#13;
+.success-card {&#13;
+  margin-top: 18px;&#13;
+  padding: 14px;&#13;
+  background: #ecf9f8;&#13;
+  border-left: 5px solid #7ad3d2;&#13;
+  border-radius: 8px;&#13;
+  display: flex;&#13;
+  align-items: center;&#13;
+  font-size: 14px;&#13;
+}&#13;
+&#13;
+.success-icon {&#13;
+  margin-right: 10px;&#13;
+  font-weight: bold;&#13;
+  font-size: 16px;&#13;
+}&#13;
+&#13;
+/* ================= ERROR ================= */&#13;
+&#13;
+.error-card {&#13;
+  margin-top: 18px;&#13;
+  padding: 14px;&#13;
+  background: #fdeaea;&#13;
+  border-left: 5px solid #d94a4a;&#13;
+  border-radius: 8px;&#13;
+  font-size: 14px;&#13;
+}&#13;
+&#13;
+/* ================= PAGINATION ================= */&#13;
+&#13;
+.pagination-controls {&#13;
+  margin-top: 18px;&#13;
+  display: flex;&#13;
+  align-items: center;&#13;
+  gap: 15px;&#13;
+}&#13;
+&#13;
+.page-indicator {&#13;
+  font-weight: 500;&#13;
+  color: #2c3e40;&#13;
+  font-size: 14px;&#13;
+}&#13;
+&#13;
+/* ================= MAPPING TABLE ================= */&#13;
+&#13;
+.mapping-table {&#13;
+  table-layout: fixed;&#13;
+}&#13;
+&#13;
+.mapping-table input,&#13;
+.mapping-table select {&#13;
+  width: 100%;&#13;
+  height: 34px;&#13;
+  font-size: 13px;&#13;
+}&#13;
+&#13;
+/* ================= PRIMARY KEY CHECKBOX ================= */&#13;
+&#13;
+.mapping-table td input[type="checkbox"] {&#13;
+  width: 12px;&#13;
+  height: 12px;&#13;
+  transform: scale(0.8);&#13;
+  cursor: pointer;&#13;
+}&#13;
+&#13;
+.mapping-table td:last-child {&#13;
+  text-align: center;&#13;
+  vertical-align: middle;&#13;
+}&#13;
+.action-row {&#13;
+  margin-top: 18px;&#13;
+  display: flex;&#13;
+  gap: 12px;&#13;
+}</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description/>
+        <docs/>
+        <field_list/>
+        <has_preview>false</has_preview>
+        <id>incentnow_rule_builder</id>
+        <internal>false</internal>
+        <link><![CDATA[function link(scope, element, attrs, controller) {
+  
+}]]></link>
+        <name>IncentNow Rule Builder</name>
+        <option_schema/>
+        <public>false</public>
+        <roles>snc_internal</roles>
+        <script><![CDATA[(function(){
+
+data.tables=[];
+data.aggregationTypes=[];
+data.rules=[];
+
+/* RULE LIST */
+
+var ruleGR=new GlideRecordSecure("x_ctans_incentnow_rule_master");
+ruleGR.query();
+
+while(ruleGR.next()){
+
+data.rules.push({
+value:ruleGR.getUniqueValue(),
+label:ruleGR.getDisplayValue("rule_name")
+});
+
+}
+
+/* DATA MODEL OBJECTS */
+
+var tableGR=new GlideRecordSecure("x_ctans_incentnow_data_model_object");
+tableGR.query();
+
+while(tableGR.next()){
+
+data.tables.push({
+value:tableGR.getUniqueValue(),
+label:tableGR.getDisplayValue()
+});
+
+}
+
+/* LOAD FIELDS */
+
+if(input && input.action=="getFields"){
+
+data.fields=[];
+
+var mapGR=new GlideRecordSecure("x_ctans_incentnow_metadata_mapping");
+mapGR.addQuery("data_model_object_id",input.object);
+mapGR.query();
+
+while(mapGR.next()){
+
+data.fields.push({
+value:mapGR.getValue("data_lake_column_name"),
+label:mapGR.getValue("source_field_name")
+});
+
+}
+
+}
+
+/* SAVE RULE */
+
+if(input && input.action=="saveRule"){
+
+var grMas=new GlideRecordSecure("x_ctans_incentnow_rule_master");
+grMas.initialize();
+
+grMas.rule_name=input.rule.rule_name;
+grMas.target_table=input.rule.target_table;
+grMas.target_field=input.rule.target_field;
+grMas.aggregation_type=input.rule.aggregation_type;
+grMas.rule_type=input.rule.rule_type;
+grMas.split_method=input.rule.split_method;
+grMas.split_percentage=input.rule.split_percentage;
+grMas.description=input.rule.description;
+
+data.ruleSysId=grMas.insert();
+
+}
+
+/* SAVE CONDITIONS */
+
+if(input && input.action=="saveConditions"){
+
+input.conditions.forEach(function(cond){
+
+var grCon=new GlideRecordSecure("x_ctans_incentnow_rule_condition");
+grCon.initialize();
+
+grCon.parent_rule=input.rule;
+grCon.field=cond.field;
+grCon.operator=cond.operator;
+grCon.value=cond.value;
+grCon.logical_operator=cond.logical_operator;
+
+grCon.insert();
+
+});
+
+}
+
+/* SAVE STEPS */
+
+if(input && input.action=="saveSteps"){
+
+var delGR=new GlideRecordSecure("x_ctans_incentnow_rule_set");
+delGR.addQuery("rule",input.rule);
+delGR.deleteMultiple();
+
+input.steps.forEach(function(step){
+
+var grSet=new GlideRecordSecure("x_ctans_incentnow_rule_set");
+grSet.initialize();
+
+grSet.rule=input.rule;
+grSet.steps=step.steps;
+grSet.results=step.results;
+grSet.source=step.source;
+grSet.function=step.function;
+grSet.return=step.return;
+
+grSet.insert();
+
+});
+
+}
+
+/* RUN ENGINE */
+
+	if(input && input.action=="runEngine"){
+
+				data.results=[];
+				data.columns=[];
+
+				var engine=new IncentNowQueryEngine();
+
+				var modelGR=new GlideRecordSecure("x_ctans_incentnow_data_model_object");
+				if(modelGR.get(input.model))
+					{
+						var tableName=modelGR.getValue("table_name");
+
+						var rec=new GlideRecordSecure(tableName);
+						rec.query();
+
+						while(rec.next()){
+
+							var res=engine.runRule(input.rule,rec.getUniqueValue(),tableName);
+
+							var row={};
+							row.record=rec.getDisplayValue();
+
+							for(var step in res.steps){
+
+							row[step]=res.steps[step];
+
+							if(data.columns.indexOf(step)==-1)
+							data.columns.push(step);
+
+							}
+
+							data.results.push(row);
+
+						}
+					}
+
+				
+
+	}
+
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+        <sys_created_on>2026-03-11 17:59:13</sys_created_on>
+        <sys_id>cefa8b3d3b673e105493ddb693e45aec</sys_id>
+        <sys_mod_count>36</sys_mod_count>
+        <sys_name>IncentNow Rule Builder</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sp_widget_cefa8b3d3b673e105493ddb693e45aec</sys_update_name>
+        <sys_updated_by>shroin.mandal</sys_updated_by>
+        <sys_updated_on>2026-06-11 12:38:46</sys_updated_on>
+        <template><![CDATA[<div class="layout-container">
+
+  <div class="sidebar">
+
+    <div class="sidebar-header">
+      IncentNow
+    </div>
+
+    <ul class="menu">
+
+      <li ng-class="{active:c.activeTab==='ruleInfo'}"
+          ng-click="c.setTab('ruleInfo')">
+        Step 1 — Rule Information
+      </li>
+
+      <li ng-class="{active:c.activeTab==='conditions'}"
+          ng-click="c.setTab('conditions')">
+        Step 2 — Rule Conditions
+      </li>
+
+      <li ng-class="{active:c.activeTab==='steps'}"
+          ng-click="c.setTab('steps')">
+        Step 3 — Rule Steps
+      </li>
+
+      <li ng-class="{active:c.activeTab==='run'}"
+          ng-click="c.setTab('run')">
+        Step 4 — Run Calculation
+      </li>
+
+      <li ng-class="{active:c.activeTab==='results'}"
+          ng-click="c.setTab('results')">
+        Step 5 — Results
+      </li>
+
+    </ul>
+
+  </div>
+
+
+  <div class="content-area">
+
+
+<!-- STEP 1 -->
+
+<div ng-show="c.activeTab==='ruleInfo'">
+
+<div class="section-card">
+
+<div class="section-title">
+Step 1 — Rule Information
+</div>
+
+<div class="row">
+
+<div class="col-md-6">
+<label>Rule Name</label>
+<input class="form-control" ng-model="c.rule.rule_name">
+</div>
+
+<div class="col-md-6">
+<label>Target Table</label>
+
+<select class="form-control"
+ng-model="c.rule.target_table"
+ng-options="t.value as t.label for t in c.tables"
+ng-change="c.loadFields()">
+
+<option value="">Select Target Table</option>
+
+</select>
+
+</div>
+
+</div>
+
+
+<div class="row">
+
+<div class="col-md-6">
+
+<label>Target Field</label>
+
+<select class="form-control"
+ng-model="c.rule.target_field"
+ng-options="f.value as f.label for f in c.fields">
+
+<option value="">Select Target Field</option>
+
+</select>
+
+</div>
+
+
+<div class="col-md-6">
+
+<label>Aggregation Type</label>
+
+<select class="form-control"
+ng-model="c.rule.aggregation_type"
+ng-options="a.value as a.label for a in c.aggregationTypes">
+
+<option value="">None</option>
+
+</select>
+
+</div>
+
+</div>
+
+
+<div class="row">
+
+<div class="col-md-6">
+
+<label>Rule Type</label>
+
+<select class="form-control" ng-model="c.rule.rule_type">
+
+<option value="">Select Rule Type</option>
+<option value="direct">Direct Credit</option>
+<option value="indirect">Indirect Credit</option>
+
+</select>
+
+</div>
+
+
+<div class="col-md-6">
+
+<label>Split Method</label>
+
+<input class="form-control" ng-model="c.rule.split_method">
+
+</div>
+
+</div>
+
+
+<div class="row">
+
+<div class="col-md-6">
+
+<label>Split Percentage</label>
+
+<input type="number" class="form-control" ng-model="c.rule.split_percentage">
+
+</div>
+
+</div>
+
+
+<div class="row">
+
+<div class="col-md-12">
+
+<label>Description</label>
+
+<textarea class="form-control" ng-model="c.rule.description"></textarea>
+
+</div>
+
+</div>
+
+
+<button class="save-btn"
+ng-click="c.saveRule()">
+Save & Continue
+</button>
+
+</div>
+
+</div>
+
+
+
+<!-- STEP 2 -->
+
+<div ng-show="c.activeTab==='conditions'">
+
+<div class="section-card">
+
+<div class="section-title">
+Step 2 — Rule Conditions
+</div>
+
+<table class="mapping-table">
+
+<thead>
+
+<tr>
+<th>Field</th>
+<th>Operator</th>
+<th>Value</th>
+<th>Logic</th>
+<th></th>
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr ng-repeat="cond in c.conditions track by $index">
+
+<td>
+
+<select class="form-control"
+ng-model="cond.field"
+ng-options="f.value as f.label for f in c.fields">
+</select>
+
+</td>
+
+<td>
+
+<select class="form-control"
+ng-model="cond.operator"
+ng-options="o.value as o.label for o in c.operators">
+</select>
+
+</td>
+
+<td>
+<input class="form-control" ng-model="cond.value">
+</td>
+
+<td>
+
+<select class="form-control"
+ng-model="cond.logical_operator">
+
+<option value="AND">AND</option>
+<option value="OR">OR</option>
+
+</select>
+
+</td>
+
+<td>
+<button class="page-btn"
+ng-click="c.removeCondition($index)">
+Remove
+</button>
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+<button class="add-btn"
+ng-click="c.addCondition()">
++ Add Condition
+</button>
+
+<button class="save-btn"
+ng-click="c.saveConditions()">
+Save Conditions
+</button>
+
+</div>
+
+</div>
+
+
+
+<!-- STEP 3 -->
+
+<div ng-show="c.activeTab==='steps'">
+
+<div class="section-card">
+
+<div class="section-title">
+Step 3 — Rule Steps
+</div>
+
+<table class="mapping-table">
+
+<thead>
+<tr>
+<th>Steps</th>
+<th>Results</th>
+<th>Source</th>
+<th>Function</th>
+<th>Return</th>
+<th></th>
+</tr>
+</thead>
+
+<tbody>
+
+<tr ng-repeat="step in c.steps track by $index">
+
+<td>
+<input class="form-control"
+ng-model="step.steps"
+readonly>
+</td>
+
+<td>
+<input class="form-control"
+ng-model="step.results">
+</td>
+
+<td>
+<select class="form-control"
+ng-model="step.source"
+ng-options="s.value as s.label for s in c.sources">
+</select>
+</td>
+
+<td>
+<select class="form-control"
+ng-model="step.function"
+ng-options="f.value as f.label for f in c.functions">
+</select>
+</td>
+
+<td>
+<select class="form-control"
+ng-model="step.return"
+ng-options="r.value as r.label for r in c.returnTypes">
+</select>
+</td>
+
+<td>
+<button class="page-btn"
+ng-click="c.removeStep($index)">
+Remove
+</button>
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+<button class="add-btn"
+ng-click="c.addStep()">
++ Add Step
+</button>
+
+<button class="save-btn"
+ng-click="c.saveSteps()">
+Save Steps
+</button>
+
+</div>
+
+</div>
+
+
+
+<!-- STEP 4 -->
+
+<div ng-show="c.activeTab==='run'">
+
+<div class="section-card">
+
+<div class="section-title">
+IncentNow Query Engine
+</div>
+
+<div class="row">
+
+<div class="col-md-6">
+
+<label>Select Rule</label>
+
+<select class="form-control"
+ng-model="c.selectedRule"
+ng-options="r.value as r.label for r in c.rules">
+
+<option value="">Select Rule</option>
+
+</select>
+
+</div>
+
+
+<div class="col-md-6">
+
+<label>Select Data Model</label>
+
+<select class="form-control"
+ng-model="c.selectedModel"
+ng-options="m.value as m.label for m in c.tables">
+
+<option value="">Select Data Model</option>
+
+</select>
+
+</div>
+
+</div>
+
+<br>
+
+<button class="run-btn"
+ng-click="c.runEngine()">
+Run Calculation
+</button>
+
+</div>
+
+</div>
+
+
+
+<!-- STEP 5 -->
+
+<div ng-show="c.activeTab==='results'">
+
+<div class="section-card">
+
+<div class="section-title">
+Execution Results
+</div>
+
+<div class="mapping-table-wrapper">
+
+<table class="mapping-table">
+
+<thead>
+
+<tr>
+
+<th>Record</th>
+
+<th ng-repeat="col in c.resultColumns">
+{{col}}
+</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr ng-repeat="row in c.results">
+
+<td>{{row.record}}</td>
+
+<td ng-repeat="col in c.resultColumns">
+{{row[col]}}
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</div>
+
+
+</div>
+</div>]]></template>
+    </sp_widget>
+</record_update>

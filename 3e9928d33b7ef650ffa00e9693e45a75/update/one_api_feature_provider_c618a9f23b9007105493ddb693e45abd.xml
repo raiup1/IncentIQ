@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="one_api_feature_provider">
+    <one_api_feature_provider action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <feature display_value="0e35e1ba3b5007105493ddb693e45a45">8e18a9f23b9007105493ddb693e45ab9</feature>
+        <feature_service display_value="OneExtendGenericProvider">5233278353111110c271ddeeff7b129b</feature_service>
+        <feature_service_factory><![CDATA[(function() { return new global.OneExtendGenericProvider(); })()]]></feature_service_factory>
+        <name>8a87a5fc3b98c310ffa00e9693e45a39_IncentN</name>
+        <short_description>Auto Generated </short_description>
+        <sys_class_name>one_api_feature_provider</sys_class_name>
+        <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+        <sys_created_on>2026-04-20 20:06:04</sys_created_on>
+        <sys_id>c618a9f23b9007105493ddb693e45abd</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>8a87a5fc3b98c310ffa00e9693e45a39_IncentN</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>one_api_feature_provider_c618a9f23b9007105493ddb693e45abd</sys_update_name>
+        <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
+        <sys_updated_on>2026-04-20 20:06:04</sys_updated_on>
+        <type>FDIH Action</type>
+        <type_document display_value="GlobalToolExecutor">4d9a83679f9202107c0e2305fa0a1c8c</type_document>
+    </one_api_feature_provider>
+</record_update>

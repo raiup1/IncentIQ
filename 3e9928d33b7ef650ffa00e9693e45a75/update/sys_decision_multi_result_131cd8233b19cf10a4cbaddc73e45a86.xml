@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update sys_domain="09ff3d105f231000b12e3572f2b4775d" table="sys_decision_multi_result">
+    <sys_decision_multi_result action="INSERT_OR_UPDATE">
+        <decision_table display_value="">6bfa806b3b55cf10a4cbaddc73e45a03</decision_table>
+        <label>Bonus: $1,000.00</label>
+        <result_elements/>
+        <sys_class_name>sys_decision_multi_result</sys_class_name>
+        <sys_created_by>incentnow.businessgroupadmin</sys_created_by>
+        <sys_created_on>2026-06-11 15:32:21</sys_created_on>
+        <sys_domain>09ff3d105f231000b12e3572f2b4775d</sys_domain>
+        <sys_domain_path/>
+        <sys_id>131cd8233b19cf10a4cbaddc73e45a86</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>Bonus: $1,000.00</sys_name>
+        <sys_overrides/>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_decision_multi_result_131cd8233b19cf10a4cbaddc73e45a86</sys_update_name>
+        <sys_updated_by>incentnow.businessgroupadmin</sys_updated_by>
+        <sys_updated_on>2026-06-11 15:32:21</sys_updated_on>
+    </sys_decision_multi_result>
+    <sys_variable_value action="delete_multiple" query="document_key=131cd8233b19cf10a4cbaddc73e45a86"/>
+    <sys_variable_value action="INSERT_OR_UPDATE">
+        <document>sys_decision_multi_result</document>
+        <document_key>131cd8233b19cf10a4cbaddc73e45a86</document_key>
+        <order>100</order>
+        <sys_class_name>sys_variable_value</sys_class_name>
+        <sys_created_by>incentnow.businessgroupadmin</sys_created_by>
+        <sys_created_on>2026-06-11 15:32:21</sys_created_on>
+        <sys_id>131cd8233b19cf10a4cbaddc73e45a87</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>incentnow.businessgroupadmin</sys_updated_by>
+        <sys_updated_on>2026-06-11 15:32:21</sys_updated_on>
+        <value>1000</value>
+        <variable display_value="">e05b84ab3b55cf10a4cbaddc73e45a57</variable>
+    </sys_variable_value>
+</record_update>

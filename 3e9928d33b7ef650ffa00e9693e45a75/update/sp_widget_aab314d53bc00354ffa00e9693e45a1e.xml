@@ -1,0 +1,2268 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <client_script><![CDATA[api.controller=function($scope,spUtil,$location) {
+  /* widget controller */
+  var c = this;
+	c.pageView = 'main'; // main | assign
+	c.selectedPlanId = '';
+
+	/*c.openAssignPage = function(sysId) {
+		c.selectedPlanId = sysId;
+		c.pageView = 'assign';
+	}; */
+	
+		c.assignWidget = null;
+
+c.openAssignPage = function(sysId) {
+	c.data.action="openassign";
+  c.data.planId = sysId;
+	//alert(sysId);
+  c.server.update().then(function() {
+    c.pageView = 'assign';
+  });
+};
+	
+	$scope.$on('openAssignFullPage', function(e, data) {
+		//alert("on the page "+data.sys_id);
+		c.openAssignPage(data.sys_id);
+	});
+	
+	$scope.$on('assignBackToMain', function() {
+  c.backToMain();
+});
+
+	c.backToMain = function() {
+		c.pageView = 'main';
+	};
+	
+c.setTab = function(tab) {
+    c.data.activeTab = tab;
+  };
+  
+  c.createPlan = function() {
+    // Navigate to plan builder page
+   var url = '?id=create_plan';
+		$location.url(url);
+  };
+  
+  c.editPlan = function(sysId) {
+    var url = '?id=incentive_plan_builder&sys_id=' + sysId;
+		$location.url(url);
+  };
+  
+  c.viewPlan = function(sysId) {
+    var url = '?id=incentive_plan_detail&sys_id=' + sysId;
+		$location.url(url);
+  };
+	
+c.viewMode = 'overview'; // ONLY THIS (remove c.data.viewMode)
+
+c.showOverview = function() {
+  c.viewMode = 'overview';
+  c.data.activeTab = 'overview';
+};
+
+c.showAll = function() {
+  c.viewMode = 'all';
+  c.data.activeTab = 'data-rules'; // default tab
+};
+
+};]]></client_script>
+        <controller_as>c</controller_as>
+        <css>.view-toggle-btns {
+  display: inline-flex;
+  gap: 6px;
+  margin-right: 10px;
+}
+
+.btn-hidden {
+  visibility: hidden;   /* hides visually */
+  pointer-events: none; /* prevents click */
+}
+
+.btn-modern-toggle {
+  border-radius: 6px;
+  padding: 0.8rem 1.6rem;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  font-weight: 500;
+  color:#000000;
+}
+
+.btn-modern-toggle:hover
+{
+	background:#e5e7eb;
+}
+
+//.btn-modern-toggle:hover {
+ // background: #e5e7eb;
+//} 
+
+.header-actions {
+  display: flex;
+  justify-content: flex-end; /* push everything to right */
+  align-items: center;
+  gap: 10px;
+}
+
+.active-toggle {
+  background: #000000;
+  color: #ffffff;
+  border-color: #000000;
+}
+
+.header-modern {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.header-title {
+  font-size: 28px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.header-subtitle {
+  color: #6b7280;
+  margin-top: 4px;
+  font-size: 14px;
+}
+
+/* Button styling similar to Tailwind */
+.btn-modern {
+  border-radius: 6px;
+  padding: 0.8rem 1.6rem;
+  font-weight: 500;
+  background: #000000;
+}
+
+/* MAIN CARD */
+.architecture-modern {
+  border: 2px solid #dbeafe;
+  border-radius: 12px;
+  background: linear-gradient(to right, #eff6ff, #f5f3ff);
+}
+
+/* HEADER */
+.architecture-header {
+  background: transparent;
+  border-bottom: none;
+}
+
+/* PHASE */
+.phase-modern {
+  margin-bottom: 10px;
+}
+
+.phase-title-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.phase-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  margin-right: 12px;
+}
+
+.phase-blue {
+  background: #2563eb;
+}
+
+.phase-purple {
+  background: #7c3aed;
+}
+
+.phase-title {
+  font-weight: 600;
+}
+
+.phase-subtitle {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+/* INNER BOX */
+.phase-box {
+  background: white;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.phase-box-blue {
+  border: 2px solid #93c5fd;
+}
+
+.phase-box-purple {
+  border: 2px solid #c4b5fd;
+}
+
+.phase-box-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.phase-box-header i {
+  margin-right: 6px;
+}
+
+/* LIST */
+.phase-list {
+  font-size: 12px;
+  color: #374151;
+  padding-left: 15px;
+}
+
+.phase-list li {
+  margin-bottom: 4px;
+}
+
+/* ARROW */
+.arrow-modern i {
+  font-size: 24px;   /* increased from 24px */
+  color: #7c3aed;
+  
+}
+
+.arrow-modern {
+  padding-top: 80px; /* adjust vertical alignment */
+}
+
+/* SUMMARY */
+.grand-summary-modern {
+  margin-top: 20px;
+  padding: 15px;
+  border-radius: 10px;
+  border: 2px solid #86efac;
+  background: linear-gradient(to right, #ecfdf5, #d1fae5);
+}
+
+.summary-left {
+  display: flex;
+  align-items: center;
+}
+
+.summary-icon {
+  width: 40px;
+  height: 40px;
+  background: #16a34a;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 10px;
+}
+
+.summary-title {
+  font-weight: 600;
+}
+
+.summary-subtitle {
+  font-size: 12px;
+  color: #166534;
+}
+
+.summary-value-label {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.summary-value {
+  font-size: 24px;
+  font-weight: bold;
+  color: #15803d;
+}
+
+/* Make summary same height as others */
+.full-height {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* Align content inside summary */
+.summary-right {
+  text-align: right;
+  margin-top: 20px;
+}
+
+.tabs-modern {
+  background: #f3f4f6;
+  padding: 4px;
+  border-radius: 10px;
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+/* each tab */
+.tabs-modern li {
+  flex: 1;
+  text-align: center;
+}
+
+/* tab link */
+.tabs-modern li a {
+  display: block;
+  padding: 8px 0;
+  border-radius: 8px;
+  font-weight: 500;
+  color: #374151;
+  transition: all 0.2s ease;
+}
+
+/* hover */
+.tabs-modern li a:hover {
+  background: #e5e7eb;
+}
+
+/* ACTIVE TAB */
+.tabs-modern li.active a {
+  background: white;
+  color: #111827;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.stat-card-modern {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 18px;
+  border: 1px solid #e5e7eb;
+  transition: all 0.25s ease;
+}
+
+/* hover effect like modern UI */
+.stat-card-modern:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  transform: translateY(-2px);
+}
+
+/* title */
+.stat-title {
+  font-size: 13px;
+  color: #6b7280;
+  margin-bottom: 8px;
+}
+
+/* value */
+.stat-value {
+  font-size: 26px;
+  font-weight: 600;
+  color: #111827;
+}
+
+/* subtitle */
+.stat-sub {
+  font-size: 12px;
+  color: #9ca3af;
+  margin-top: 6px;
+}
+
+
+/* PANEL */
+.table-modern {
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+}
+
+/* HEADER */
+.table-header-modern {
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* REMOVE PADDING */
+.p-none {
+  padding: 0 !important;
+}
+
+/* TABLE */
+.table-modern-inner {
+  margin-bottom: 0;
+}
+
+.table-modern-inner thead th {
+  font-size: 13px;
+  color: #6b7280;
+  font-weight: 500;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* ROWS */
+.table-modern-inner tbody tr {
+  transition: background 0.2s ease;
+}
+
+.table-modern-inner tbody tr:hover {
+  background: #f9fafb;
+}
+
+/* BADGES */
+.badge {
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+}
+
+/* TYPE COLORS */
+.type-percentage {
+  background: #e0f2fe;
+  color: #0284c7;
+}
+
+.type-tiered {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.type-flat {
+  background: #ede9fe;
+  color: #7c3aed;
+}
+
+/* STATUS */
+.badge-active {
+  background: #16a34a;
+  color: white;
+}
+
+.badge-inactive {
+  background: #9ca3af;
+  color: white;
+}
+
+/* ACTION BUTTONS */
+.btn-modern-action {
+  background: transparent;
+  border: none;
+  color: #374151;
+  font-weight: 500;
+  margin-left: 8px;
+}
+
+.btn-modern-action:hover {
+  color: #111827;
+  text-decoration: underline;
+}
+
+/* SECTION TITLE */
+.section-title {
+  font-weight: 600;
+}
+
+/* CARD */
+.rule-card-modern {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 18px;
+  border: 1px solid #e5e7eb;
+  transition: all 0.25s ease;
+  margin-bottom: 20px;
+}
+
+/* hover effect */
+.rule-card-modern:hover {
+  box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+  transform: translateY(-3px);
+}
+
+/* ICON */
+.rule-icon {
+  width: 55px;
+  height: 55px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rule-icon i {
+  font-size: 22px;
+}
+
+/* TITLE */
+.rule-title {
+  margin-top: 12px;
+  font-weight: 600;
+}
+
+/* DESC */
+.rule-desc {
+  font-size: 13px;
+  color: #6b7280;
+  margin-bottom: 12px;
+}
+
+/* BOXES */
+.rule-box {
+  background: #f9fafb;
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+}
+
+.rule-formula {
+  background: #f3f4f6;
+}
+
+/* LABEL */
+.rule-label {
+  font-size: 11px;
+  color: #9ca3af;
+  display: block;
+}
+
+/* VALUE */
+.rule-value {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* OUTPUT */
+.rule-output {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.stat-card-modern {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 18px;
+  border: 1px solid #e5e7eb;
+  transition: all 0.25s ease;
+}
+
+/* hover effect */
+.stat-card-modern:hover {
+  box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+  transform: translateY(-2px);
+}
+
+/* title */
+.stat-title {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+/* value */
+.stat-value {
+  font-size: 26px;
+  font-weight: 600;
+  margin-top: 6px;
+  color: #111827;
+}
+
+/* subtitle */
+.stat-sub {
+  font-size: 12px;
+  color: #9ca3af;
+  margin-top: 6px;
+}
+
+/* CARD */
+.table-card-modern {
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+}
+
+/* HEADER */
+.table-card-header {
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* REMOVE PADDING */
+.p-none {
+  padding: 0 !important;
+}
+
+/* TABLE */
+.table-modern-clean {
+  margin-bottom: 0;
+}
+
+.table-modern-clean thead th {
+  font-size: 13px;
+  font-weight: 500;
+  color: #6b7280;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* ROW */
+.table-modern-clean tbody tr {
+  transition: background 0.2s ease;
+}
+
+.table-modern-clean tbody tr:hover {
+  background: #f9fafb;
+}
+
+/* TEXT */
+.font-medium {
+  font-weight: 500;
+}
+
+/* BADGES */
+.badge-modern {
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+}
+
+/* TYPE COLORS */
+.badge-blue {
+  background: #e0f2fe;
+  color: #0284c7;
+}
+
+.badge-green {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.badge-purple {
+  background: #ede9fe;
+  color: #7c3aed;
+}
+
+/* STATUS */
+.badge-active {
+  background: #2563eb;
+  color: white;
+}
+
+.badge-inactive {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+/* ACTION BUTTONS */
+.btn-link-modern {
+  background: none;
+  border: none;
+  color: #374151;
+  font-weight: 500;
+  margin-left: 10px;
+}
+
+.btn-link-modern:hover {
+  text-decoration: underline;
+}
+
+.data-header-modern {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+
+/* LEFT SIDE */
+.data-title {
+  font-size: 20px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+}
+
+.data-icon {
+  margin-right: 8px;
+  color: #2563eb;
+  font-size: 18px;
+}
+
+/* SUBTEXT */
+.data-subtitle {
+  font-size: 13px;
+  color: #6b7280;
+  margin-top: 4px;
+}
+
+/* BADGE */
+.badge-modern {
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  border: 1px solid #e5e7eb;
+}
+
+.badge-neutral {
+  background: #f9fafb;
+  color: #374151;
+}
+
+/* CARD */
+.rule-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 16px;
+  border: 2px solid #e5e7eb;
+  margin-bottom: 20px;
+  transition: all 0.25s ease;
+}
+
+.rule-card:hover {
+  box-shadow: 0 8px 18px rgba(0,0,0,0.08);
+  transform: translateY(-3px);
+}
+
+/* ICON */
+.rule-icon-box {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  background: #f3f4f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+.rule-icon-box i {
+  font-size: 20px;
+}
+
+/* TITLE */
+.rule-title {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.rule-desc {
+  font-size: 12px;
+  color: #6b7280;
+  margin-bottom: 10px;
+}
+
+/* SECTIONS */
+.rule-section {
+  background: #f9fafb;
+  padding: 8px;
+  border-radius: 6px;
+  margin-bottom: 8px;
+}
+
+.rule-formula {
+  background: #eef2ff;
+}
+
+/* LABEL */
+.rule-label {
+  font-size: 11px;
+  color: #6b7280;
+}
+
+/* VALUE */
+.rule-value {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* OUTPUT */
+.rule-output {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.rule-chain-card {
+  border-radius: 12px;
+  border: 2px solid #93c5fd;
+  background: #eff6ff;
+  padding: 15px;
+}
+
+/* HEADER */
+.rule-chain-title {
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  color: #1e3a8a;
+}
+
+.rule-chain-title i {
+  margin-right: 6px;
+  color: #2563eb;
+}
+
+/* DESCRIPTION */
+.rule-chain-desc {
+  font-size: 13px;
+  color: #1e40af;
+  margin: 10px 0;
+}
+
+/* EXAMPLE BOX */
+.rule-chain-example {
+  background: #ffffff;
+  border: 1px solid #93c5fd;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.example-title {
+  font-weight: 600;
+  color: #1e3a8a;
+  margin-bottom: 8px;
+}
+
+/* STEPS */
+.example-step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+/* BADGE */
+.step-badge {
+  background: #2563eb;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+}
+
+/* ARROW */
+.example-arrow {
+  text-align: left;
+  margin: 6px 0 6px 20px;
+}
+
+.example-arrow i {
+  color: #2563eb;
+}
+
+.payout-header-modern {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* TITLE */
+.payout-title {
+  font-size: 20px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+}
+
+/* ICON */
+.payout-icon {
+  margin-right: 8px;
+  color: #7c3aed;
+  font-size: 18px;
+}
+
+/* SUBTEXT */
+.payout-subtitle {
+  font-size: 13px;
+  color: #6b7280;
+  margin-top: 4px;
+}
+
+/* CARD */
+.payout-formula-card {
+  border: 2px solid #c4b5fd;
+  border-radius: 12px;
+  background: #f5f3ff;
+  padding: 15px;
+}
+
+/* HEADER */
+.payout-formula-header h4 {
+  font-weight: 600;
+  margin-bottom: 15px;
+}
+
+/* OUTER CARD */
+.payout-formula-card {
+  border: 2px solid #c4b5fd;
+  border-radius: 12px;
+  background: #f5f3ff;
+  padding: 15px;
+}
+
+/* INNER BOX (ONLY ONE INNER BORDER) */
+.payout-formula-body {
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 20px;
+}
+
+/* FLEX STRUCTURE */
+.formula-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+/* BLOCK */
+.formula-block {
+  text-align: center;
+}
+
+.formula-label {
+  font-size: 11px;
+  color: #6b7280;
+  margin-bottom: 6px;
+}
+
+/* BADGES */
+.formula-badge {
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  border: 1px solid;
+  display: inline-block;
+  line-height: 1.4;
+}
+
+/* COLORS */
+.badge-blue {
+  background: #eff6ff;
+  border-color: #93c5fd;
+}
+
+.badge-purple {
+  background: #f5f3ff;
+  border-color: #c4b5fd;
+}
+
+.badge-green {
+  background: #ecfdf5;
+  border-color: #86efac;
+}
+
+.badge-result {
+  background: #16a34a;
+  color: white;
+  font-size: 16px;
+  padding: 10px 16px;
+}
+
+/* SYMBOLS */
+.formula-symbol {
+  font-size: 28px;
+  font-weight: bold;
+  color: #7c3aed;
+}
+
+.formula-symbol.equals {
+  color: #16a34a;
+}
+
+/* CARD */
+.payout-card-modern {
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+  margin-bottom: 20px;
+  transition: all 0.25s ease;
+}
+
+.payout-card-modern:hover {
+  box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+  transform: translateY(-2px);
+}
+
+/* HEADER */
+.payout-card-header {
+  background: #f5f3ff;
+  padding: 10px 15px;
+  display: flex;
+  align-items: center;
+}
+
+/* BADGE */
+.example-badge {
+  background: #7c3aed;
+  color: white;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+}
+
+/* TITLE */
+.example-title {
+  margin-left: 10px;
+}
+
+/* BODY */
+.payout-card-body {
+  padding: 15px;
+}
+
+/* FORMULA */
+.formula-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+/* CHIPS */
+.formula-chip {
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+}
+
+.chip-blue {
+  background: #e0f2fe;
+}
+
+.chip-green {
+  background: #dcfce7;
+}
+
+/* OPERATOR */
+.formula-operator {
+  font-weight: bold;
+  color: #7c3aed;
+}
+
+/* CALCULATION */
+.calculation-box {
+  background: #f9fafb;
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 12px;
+}
+
+/* RESULT */
+.payout-result {
+  text-align: right;
+}
+
+.payout-result h3 {
+  color: #16a34a;
+  margin: 0;
+}
+
+/* CARD */
+.grand-summary-card {
+  border-radius: 12px;
+  border: 2px solid #86efac;
+  background: #ecfdf5;
+  padding: 15px;
+}
+
+/* HEADER */
+.grand-summary-title {
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  color: #14532d;
+}
+
+.grand-summary-title i {
+  margin-right: 6px;
+  color: #16a34a;
+}
+
+/* DESCRIPTION */
+.grand-summary-desc {
+  font-size: 13px;
+  color: #166534;
+  margin: 10px 0;
+}
+
+/* INNER BOX */
+.grand-summary-example {
+  background: #ffffff;
+  border: 1px solid #86efac;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.example-title {
+  font-weight: 600;
+  color: #14532d;
+  margin-bottom: 8px;
+}
+
+/* LIST */
+.example-list div {
+  margin-bottom: 4px;
+}
+
+/* OPERATOR */
+.operator {
+  color: #16a34a;
+  font-weight: bold;
+}
+
+/* TOTAL */
+.example-total {
+  border-top: 1px solid #86efac;
+  padding-top: 8px;
+  margin-top: 8px;
+}
+
+.total-value {
+  font-size: 16px;
+  font-weight: bold;
+  color: #15803d;
+}
+
+.examples-header-modern {
+  margin-bottom: 15px;
+}
+
+/* TITLE */
+.examples-title {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0;
+}
+
+/* SUBTEXT */
+.examples-subtitle {
+  font-size: 13px;
+  color: #6b7280;
+  margin-top: 4px;
+}
+
+/* CARD */
+.example-plan-card {
+  border: 2px solid #93c5fd;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* HEADER */
+.example-header {
+  background: #eff6ff;
+  padding: 15px;
+}
+
+.example-title {
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+}
+
+.example-title i {
+  margin-right: 6px;
+}
+
+.example-subtitle {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+/* BODY */
+.example-body {
+  padding: 15px;
+}
+
+/* PHASE */
+.phase-title {
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.text-blue { color: #2563eb; }
+.text-purple { color: #7c3aed; }
+
+/* STEP CARDS */
+.step-card {
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid;
+  margin-bottom: 10px;
+}
+
+.step-blue { background:#eff6ff; border-color:#93c5fd; }
+.step-purple { background:#f5f3ff; border-color:#c4b5fd; }
+.step-green { background:#ecfdf5; border-color:#86efac; }
+
+.step-badge {
+  font-size: 11px;
+  background: #2563eb;
+  color: white;
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+
+.step-title { font-weight: 600; }
+.step-sub { font-size: 12px; color: #6b7280; }
+.step-value { font-size: 18px; font-weight: bold; }
+
+/* PAYOUT */
+.payout-box {
+  background: #f5f3ff;
+  border: 2px solid #c4b5fd;
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 10px;
+}
+
+.payout-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.payout-badge {
+  background: #7c3aed;
+  color: white;
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-size: 11px;
+}
+
+.formula-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0;
+}
+
+.formula-chip {
+  background: white;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.formula-operator {
+  color: #7c3aed;
+  font-weight: bold;
+}
+
+.payout-value {
+  text-align: right;
+  font-weight: bold;
+  color: #16a34a;
+}
+
+/* TOTAL */
+.example-total-box {
+  background: linear-gradient(to right, #ecfdf5, #d1fae5);
+  border: 2px solid #86efac;
+  border-radius: 10px;
+  padding: 15px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.total-label {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.total-value {
+  font-size: 26px;
+  font-weight: bold;
+  color: #15803d;
+}
+
+</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description/>
+        <docs/>
+        <field_list/>
+        <has_preview>true</has_preview>
+        <id>incentive_plans</id>
+        <internal>false</internal>
+        <link><![CDATA[function link(scope, element, attrs, controller) {
+  
+}]]></link>
+        <name>Incentive Plans</name>
+        <option_schema/>
+        <public>false</public>
+        <roles>x_ctans_incentnow.admin,x_ctans_incentnow.user</roles>
+        <script><![CDATA[(function() {
+  /* populate the 'data' object */
+  /* e.g., data.table = $sp.getValue('table'); */
+data.title = 'Incentive Plans';
+  data.subtitle = 'Two-phase commission calculation architecture';
+  data.activeTab = 'overview';
+	data.tableWidget=$sp.getWidget('incentnow-table-widget',{ table: 'x_ctans_incentnow_plan',view:'portal_view',viewperiod:'false'});
+  data.isIncentNowGroupAdmin=gs.hasRole('x_ctans_incentnow.business_group_admin') || gs.hasRole('x_ctans_incentnow.admin');
+	
+	
+	if(input && input.action=="openassign")
+		{
+			data.planid=input.planId;
+			data.assignuserwidget= $sp.getWidget("incentnow-assignment-user",{table:'x_ctans_incentnow_plan',sysid:input.planId});
+
+		}
+	
+	
+	var planGR = new GlideAggregate('x_ctans_incentnow_plan');
+	planGR.addAggregate('COUNT');
+	planGR.query();
+
+	var totalPlans = 0;
+
+	if (planGR.next()) {
+			totalPlans = parseInt(planGR.getAggregate('COUNT'), 10);
+	}
+
+	data.stats = {
+			totalPlans: totalPlans,
+			activePlans: 0,
+			assignedReps: 0,
+			avgPerPlan: 0
+	};
+	
+  
+	
+  
+  // Get active plans count
+  var activePlanGR = new GlideAggregate('x_ctans_incentnow_plan');
+	activePlanGR.addQuery('status', 'active');
+	activePlanGR.addAggregate('COUNT');
+	activePlanGR.query();
+
+	if (activePlanGR.next()) {
+			data.stats.activePlans = parseInt(activePlanGR.getAggregate('COUNT'), 10);
+	}
+	
+	var ga = new GlideAggregate('x_ctans_incentnow_plan_users');
+	ga.addEncodedQuery('x_ctans_incentnow_plan.status!=inactive');
+	ga.addAggregate('COUNT', 'x_ctans_incentnow_sales_user');
+	ga.groupBy('x_ctans_incentnow_sales_user');
+	ga.query();
+
+	
+	data.stats.assignedReps = ga.getRowCount();
+	//gs.addInfoMessage(data.stats.avgPerPlan+" -- "+data.stats.activePlans + "   "+data.stats.assignedReps + " -- "+(data.stats.activePlans!=0 && data.stats.assignedReps!=0))
+	
+	if(data.stats.activePlans!=0 && data.stats.assignedReps!=0)
+	data.stats.avgPerPlan=parseInt(data.stats.activePlans/data.stats.assignedReps);
+  
+  // Get all plans for table
+  data.plans = [];
+  var allPlansGR = new GlideRecordSecure('x_ctans_incentnow_plan');
+  allPlansGR.orderByDesc('sys_created_on');
+  allPlansGR.setLimit(20);
+  allPlansGR.query();
+  
+  while (allPlansGR.next()) {
+    data.plans.push({
+      sys_id: allPlansGR.getUniqueValue(),
+      name: allPlansGR.getValue('u_name'),
+      type: allPlansGR.getValue('u_plan_type'),
+      baseRate: '5%', // Calculate based on plan type
+      status: allPlansGR.getValue('u_status'),
+      assignedReps: 8 // Count from assignment table
+    });
+  }
+  
+  // Data Gathering Rule Types
+  data.dataGatheringRules = [
+    {
+      type: 'quota_attainment',
+      title: 'Quota Attainment',
+      icon: 'fa-line-chart',
+      bgColor: '#e3f2fd',
+      iconColor: '#2196f3',
+      description: 'Calculate quota achievement percentage',
+      input: 'Earning Rule (Sales)',
+      output: 'Quota Attainment %',
+      example: '105%',
+      formula: 'Sales ÷ Assigned Quota × 100'
+    },
+    {
+      type: 'lookup_rate',
+      title: 'Lookup - Commission Rate',
+      icon: 'fa-percent',
+      bgColor: '#f3e5f5',
+      iconColor: '#9c27b0',
+      description: 'Retrieve commission rate from lookup table',
+      input: 'User Information',
+      output: 'Commission Rate %',
+      example: '5%',
+      formula: 'Match User ID/Role/Team → Return Rate'
+    },
+    {
+      type: 'lookup_variable',
+      title: 'Lookup - Variable Pay',
+      icon: 'fa-dollar',
+      bgColor: '#e8f5e9',
+      iconColor: '#4caf50',
+      description: 'Retrieve variable pay amount from lookup table',
+      input: 'User Information',
+      output: 'Variable Pay Amount',
+      example: '$25,000',
+      formula: 'Match User ID/Role/Team → Return Amount'
+    },
+    {
+      type: 'lookup_bonus',
+      title: 'Lookup - Bonus Amount',
+      icon: 'fa-gift',
+      bgColor: '#fce4ec',
+      iconColor: '#e91e63',
+      description: 'Retrieve bonus from criteria-based lookup',
+      input: 'Bonus Criteria',
+      output: 'Bonus Amount',
+      example: '$3,000',
+      formula: 'Match Product/Deal Type → Return Bonus'
+    },
+    {
+      type: 'range_lookup_highest_tier',
+      title: 'Range Lookup - Highest Tier',
+      icon: 'fa-arrow-up',
+      bgColor: '#fff3e0',
+      iconColor: '#ff9800',
+      description: 'Get highest achieved tier rate',
+      input: 'Quota Attainment %',
+      output: 'Highest Tier Rate %',
+      example: '7%',
+      formula: 'Find Tier Range → Return Highest Rate'
+    },
+    {
+      type: 'range_lookup_progressive_tier',
+      title: 'Range Lookup - Progressive Tier',
+      icon: 'fa-layer-group',
+      bgColor: '#e8eaf6',
+      iconColor: '#3f51b5',
+      description: 'Get progressive tier rates',
+      input: 'Quota Attainment %',
+      output: 'Progressive Rate %',
+      example: '6.5%',
+      formula: 'Calculate Blended Rate Across Tiers'
+    }
+  ];
+  
+  // Payout Examples
+  data.payoutExamples = [
+    {
+      label: 'Example 1',
+      title: 'Standard Commission',
+      input1: 'ARR Sum',
+      input2: 'Commission Rate (5%)',
+      calculation: '$100,000 × 5% = $5,000',
+      result: '$5,000'
+    },
+    {
+      label: 'Example 2',
+      title: 'Variable Pay (OTE)',
+      input1: 'Quota Attainment (105%)',
+      input2: 'Variable Pay ($25K)',
+      calculation: '1.05 × $25,000 = $26,250',
+      result: '$26,250'
+    },
+    {
+      label: 'Example 3',
+      title: 'Accelerator Commission',
+      input1: 'ARR Sum',
+      input2: 'Highest Tier Rate (7%)',
+      calculation: '$100,000 × 7% = $7,000',
+      result: '$7,000'
+    },
+    {
+      label: 'Example 4',
+      title: 'Deal Bonus',
+      input1: 'Deal Count',
+      input2: 'Bonus Amount ($2K)',
+      calculation: '3 deals × $2,000 = $6,000',
+      result: '$6,000'
+    }
+  ];
+  
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>karan.kumar</sys_created_by>
+        <sys_created_on>2026-04-03 11:51:17</sys_created_on>
+        <sys_id>aab314d53bc00354ffa00e9693e45a1e</sys_id>
+        <sys_mod_count>153</sys_mod_count>
+        <sys_name>Incentive Plans</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sp_widget_aab314d53bc00354ffa00e9693e45a1e</sys_update_name>
+        <sys_updated_by>shroin.mandal</sys_updated_by>
+        <sys_updated_on>2026-06-12 06:37:52</sys_updated_on>
+        <template><![CDATA[<div ng-if="c.pageView=='main'">
+  
+<div class="incentive-plans-home">
+  <!-- Header 
+  <div class="row m-b-lg">
+    <div class="col-sm-8">
+      <h1 class="h2">{{c.data.title}}</h1>
+      <p class="text-muted">{{c.data.subtitle}}</p>
+    </div>
+    <div class="col-sm-4 text-right">
+      <button class="btn btn-primary" ng-click="c.createPlan()">
+        <i class="fa fa-plus"></i> Create Plan
+      </button>
+    </div>
+  </div> -->
+  
+  <!-- Modified Header -->
+  <div class="row m-b-lg header-modern">
+
+  <div class="col-sm-8">
+    <h1 class="header-title">{{c.data.title}}</h1>
+    <p class="header-subtitle">{{c.data.subtitle}}</p>
+  </div>
+
+  <!-- <div class="col-sm-4 text-right">
+    <button class="btn btn-primary btn-modern" ng-click="c.createPlan()">
+      <i class="fa fa-plus m-r-xs"></i> Create Plan
+    </button>
+  </div>-->
+    
+    <div class="col-sm-4 header-actions">
+
+  <!-- TOGGLE BUTTONS -->
+  <div class="view-toggle-btns">
+
+    <button class="btn btn-default btn-modern-toggle"
+            ng-class="{'active-toggle': c.data.activeTab == 'overview'}"
+            ng-click="c.showOverview()" ng-show="c.viewMode!='overview'">
+      Back to the Main Content
+    </button>
+
+    <button class="btn btn-default btn-modern-toggle"
+            ng-class="{'active-toggle': c.data.activeTab != 'overview'}"
+            ng-click="c.showAll()" ng-show="c.viewMode!='all'">
+      Commission Calculation Architecture
+    </button>
+
+  </div>
+
+  <!-- CREATE BUTTON -->
+  <button class="btn btn-primary btn-modern" ng-click="c.createPlan()" ng-if="data.isIncentNowGroupAdmin">
+    <i class="fa fa-plus m-r-xs"></i> Create Plan
+  </button>
+
+</div>
+
+</div>
+  
+
+
+  <!-- Modified Summary -->
+
+<div class="panel architecture-modern m-b-lg" ng-show="c.viewMode == 'all'">
+
+  <!-- HEADER -->
+  <div class="panel-heading architecture-header">
+    <h3 class="panel-title">
+      <i class="fa fa-info-circle text-primary"></i>
+      Commission Calculation Architecture
+    </h3>
+  </div>
+
+  <!-- BODY -->
+  <div class="panel-body">
+
+    <div class="row">
+
+      <!-- PHASE 1 -->
+      <div class="col-md-4">
+        <div class="phase-modern">
+
+          <div class="phase-title-row">
+            <span class="phase-circle phase-blue">1</span>
+            <div>
+              <div class="phase-title">Data Gathering</div>
+              <div class="phase-subtitle">Calculate intermediate values</div>
+            </div>
+          </div>
+
+          <div class="phase-box phase-box-blue">
+            <div class="phase-box-header">
+              <i class="fa fa-database"></i>
+              <span>6 Rule Types</span>
+            </div>
+
+            <ul class="phase-list">
+              <li>Quota Attainment</li>
+              <li>Rate Lookups</li>
+              <li>Variable Pay Lookups</li>
+              <li>Bonus Lookups</li>
+              <li>Range Lookups</li>
+            </ul>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ARROW -->
+      <div class="col-md-4 text-center hidden-sm hidden-xs arrow-modern">
+        <i class="fa fa-arrow-right"></i>
+      </div>
+
+      <!-- PHASE 2 -->
+      <div class="col-md-4">
+        <div class="phase-modern">
+
+          <div class="phase-title-row">
+            <span class="phase-circle phase-purple">2</span>
+            <div>
+              <div class="phase-title">Payout Calculation</div>
+              <div class="phase-subtitle">Combine data into payouts</div>
+            </div>
+          </div>
+
+          <div class="phase-box phase-box-purple">
+            <div class="phase-box-header">
+              <i class="fa fa-calculator"></i>
+              <span>Flexible Formulas</span>
+            </div>
+
+            <ul class="phase-list">
+              <li>Input 1 (Earning/Data)</li>
+              <li>Operator (×, +, −, ÷)</li>
+              <li>Input 2 (Earning/Data)</li>
+              <li>= Payout Amount</li>
+            </ul>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <!-- GRAND SUMMARY -->
+    <div class="grand-summary-modern m-t-lg">
+      <div class="row">
+
+        <div class="col-sm-8">
+          <div class="summary-left">
+            <span class="summary-icon">
+              <i class="fa fa-bolt"></i>
+            </span>
+            <div>
+              <div class="summary-title">Grand Payout Summary</div>
+              <div class="summary-subtitle">
+                Combine all payout rules with operators (+, −, ×, ÷)
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-sm-4 text-right">
+          <div class="summary-value-label">Example Total</div>
+          <div class="summary-value">$14,500</div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+  <!-- Tab Navigation 
+  <ul class="nav nav-tabs m-b-md" role="tablist">
+    <li role="presentation" ng-class="{'active': c.data.activeTab == 'overview'}">
+      <a href="javascript:void(0)" ng-click="c.setTab('overview')">Overview</a>
+    </li>
+    <li role="presentation" ng-class="{'active': c.data.activeTab == 'data-rules'}">
+      <a href="javascript:void(0)" ng-click="c.setTab('data-rules')">Data Gathering</a>
+    </li>
+    <li role="presentation" ng-class="{'active': c.data.activeTab == 'payout-rules'}">
+      <a href="javascript:void(0)" ng-click="c.setTab('payout-rules')">Payout Rules</a>
+    </li>
+    <li role="presentation" ng-class="{'active': c.data.activeTab == 'examples'}">
+      <a href="javascript:void(0)" ng-click="c.setTab('examples')">Examples</a>
+    </li>
+  </ul> -->
+  
+  <!-- Modified Tab Navigation  -->
+
+	<ul class="nav nav-pills tabs-modern" ng-show="c.viewMode=='all'">
+
+ <!-- <li ng-class="{'active': c.data.activeTab=='overview'}">
+    <a href="javascript:void(0)" ng-click="c.setTab('overview')">
+      Overview
+    </a>
+  </li> -->
+
+  <li ng-class="{'active': c.data.activeTab=='data-rules'}">
+    <a href="javascript:void(0)" ng-click="c.setTab('data-rules')">
+      Data Gathering
+    </a>
+  </li>
+
+  <li ng-class="{'active': c.data.activeTab=='payout-rules'}">
+    <a href="javascript:void(0)" ng-click="c.setTab('payout-rules')">
+      Payout Rules
+    </a>
+  </li>
+
+  <li ng-class="{'active': c.data.activeTab=='examples'}">
+    <a href="javascript:void(0)" ng-click="c.setTab('examples')">
+      Examples
+    </a>
+  </li>
+
+</ul>  
+
+  <!-- Tab Content -->
+  <div class="tab-content">
+    <!-- Overview Tab -->
+    <div ng-show="c.viewMode == 'overview'">
+      
+
+<!-- Modified Quick Stats -->
+
+<div class="row m-b-lg">
+
+  <!-- Total Plans -->
+  <div class="col-sm-3">
+    <div class="pt-scorecard">
+      <div class="pt-scorecard-top"><span class="pt-scorecard-label">Total Plans</span></div>
+      <div class="pt-scorecard-value">{{c.data.stats.totalPlans}}</div>
+      <div class="pt-scorecard-period">Active & Inactive</div>
+    </div>
+  </div>
+
+  <!-- Active Plans -->
+  <div class="col-sm-3">
+    <div class="pt-scorecard">
+      <div class="pt-scorecard-top"><span class="pt-scorecard-label">Active Plans</span></div>
+      <div class="pt-scorecard-value">{{c.data.stats.activePlans}}</div>
+      <div class="pt-scorecard-period">Currently in Use</div>
+    </div>
+  </div>
+
+  <!-- Assigned Reps -->
+  <div class="col-sm-3">
+    <div class="pt-scorecard">
+      <div class="pt-scorecard-top"><span class="pt-scorecard-label">Assigned Reps</span></div>
+      <div class="pt-scorecard-value">{{c.data.stats.assignedReps}}</div>
+      <div class="pt-scorecard-period">Total Assignments</div>
+    </div>
+  </div>
+
+  <!-- Avg per Plan -->
+  <div class="col-sm-3">
+    <div class="pt-scorecard">
+      <div class="pt-scorecard-top"><span class="pt-scorecard-lable">Avg per Plan</span></div>
+      <div class="pt-scorecard-value">{{c.data.stats.avgPerPlan}}</div>
+      <div class="pt-scorecard-period">Reps per Plan</div>
+    </div>
+  </div>
+
+</div>
+
+      <!-- Plans Table -->
+      <!--<div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">All Incentive Plans</h3>
+        </div>
+        <div class="panel-body">
+          <table class="table table-striped table-hover">
+            <thead>
+              <tr>
+                <th>Plan Name</th>
+                <th>Type</th>
+                <th>Base Rate</th>
+                <th>Status</th>
+                <th>Assigned Reps</th>
+                <th class="text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="plan in c.data.plans">
+                <td><strong>{{plan.name}}</strong></td>
+                <td>
+                  <span class="label" ng-class="{
+                    'label-primary': plan.type == 'percentage',
+                    'label-success': plan.type == 'tiered',
+                    'label-info': plan.type == 'flat'
+                  }">{{plan.type}}</span>
+                </td>
+                <td>{{plan.baseRate}}</td>
+                <td>
+                  <span class="label" ng-class="{
+                    'label-success': plan.status == 'active',
+                    'label-default': plan.status == 'inactive'
+                  }">{{plan.status}}</span>
+                </td>
+                <td>{{plan.assignedReps}} reps</td>
+                <td class="text-right">
+                  <button class="btn btn-xs btn-default" ng-click="c.editPlan(plan.sys_id)">
+                    <i class="fa fa-edit"></i> Edit
+                  </button>
+                  <button class="btn btn-xs btn-default" ng-click="c.viewPlan(plan.sys_id)">
+                    <i class="fa fa-eye"></i> View
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div> -->
+      
+      <!-- Plan table -->
+      <div>
+        <sp-widget widget="data.tableWidget"></sp-widget>
+      </div>
+      
+ 
+      
+    </div>
+
+    <!-- Data Gathering Tab -->
+    <div ng-show="c.data.activeTab == 'data-rules' && c.viewMode == 'all'">
+      <div class="data-header-modern m-b-md">
+
+      <div class="data-header-left">
+        <h2 class="data-title">
+          <i class="fa fa-database data-icon"></i>
+          Data Gathering Rule Types
+        </h2>
+
+        <p class="data-subtitle">
+          Phase 1: Calculate intermediate values like rates, percentages, and amounts
+        </p>
+      </div>
+
+      <div class="data-header-right">
+        <span class="badge-modern badge-neutral">
+          6 Rule Types
+        </span>
+      </div>
+
+    </div>
+			
+      <!-- Data Gathering Tabs -->
+      <!--<div class="row">
+        <div class="col-md-4" ng-repeat="ruleType in c.data.dataGatheringRules">
+          <div class="panel panel-default rule-type-card">
+            <div class="panel-body">
+              <div class="rule-icon-box" style="background-color: {{ruleType.bgColor}};">
+                <i class="fa {{ruleType.icon}}" style="color: {{ruleType.iconColor}};"></i>
+              </div>
+              <h4 class="m-t-md">{{ruleType.title}}</h4>
+              <p class="small text-muted">{{ruleType.description}}</p>
+
+              <div class="rule-detail-box m-t-md">
+                <small class="text-muted">Input:</small>
+                <p class="small"><strong>{{ruleType.input}}</strong></p>
+              </div>
+
+              <div class="rule-detail-box m-t-sm" style="background-color: {{ruleType.bgColor}};">
+                <small style="color: {{ruleType.iconColor}};">Formula:</small>
+                <p class="small font-mono">{{ruleType.formula}}</p>
+              </div>
+
+              <div class="rule-output-box m-t-sm">
+                <div class="clearfix">
+                  <small class="text-muted pull-left">Output:</small>
+                  <strong class="pull-right" style="color: {{ruleType.iconColor}};">{{ruleType.example}}</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div> -->
+      <!-- Modified Data Gathering tabs -->
+      <div class="row">
+
+  <div class="col-md-4" ng-repeat="ruleType in c.data.dataGatheringRules">
+
+    <div class="rule-card">
+
+      <!-- ICON -->
+      <div class="rule-icon-box">
+        <i class="fa {{ruleType.icon || 'fa-circle'}}"></i>
+      </div>
+
+      <!-- TITLE -->
+      <h4 class="rule-title">{{ruleType.title}}</h4>
+      <p class="rule-desc">{{ruleType.description}}</p>
+
+      <!-- INPUT -->
+      <div class="rule-section">
+        <div class="rule-label">Input:</div>
+        <div class="rule-value">{{ruleType.input}}</div>
+      </div>
+
+      <!-- FORMULA -->
+      <div class="rule-section rule-formula">
+        <div class="rule-label">Formula:</div>
+        <div class="rule-value font-mono">
+          {{ruleType.formula}}
+        </div>
+      </div>
+
+      <!-- OUTPUT -->
+      <div class="rule-output">
+        <span>{{ruleType.output || 'Output'}}</span>
+        <strong>{{ruleType.example}}</strong>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+      <!-- Rule Chaining Info -->
+      <!-- <div class="panel panel-info">
+        <div class="panel-heading">
+          <h3 class="panel-title"><i class="fa fa-arrow-right"></i> Rule Chaining</h3>
+        </div>
+        <div class="panel-body">
+          <p>Data gathering steps can chain together - the output of one step can become the input of another step.</p>
+          <div class="well well-sm m-t-md">
+            <p class="small"><strong>Example Chain:</strong></p>
+            <div class="m-t-sm">
+              <span class="label label-primary">Step 1</span>
+              <span class="small"> Calculate Quota Attainment → Output: 105%</span>
+            </div>
+            <div class="m-t-sm m-l-lg">
+              <i class="fa fa-arrow-down text-primary"></i>
+            </div>
+            <div class="m-t-sm">
+              <span class="label label-primary">Step 2</span>
+              <span class="small"> Range Lookup using Step 1 (105%) → Output: 7% rate</span>
+            </div>
+          </div>
+        </div>
+      </div> -->
+      <!-- Modified Rule Chaining Info -->
+      
+      <div class="rule-chain-card m-t-md">
+
+      <!-- HEADER -->
+      <div class="rule-chain-header">
+        <h4 class="rule-chain-title">
+          <i class="fa fa-arrow-right"></i>
+          Rule Chaining
+        </h4>
+      </div>
+
+      <!-- CONTENT -->
+      <div class="rule-chain-body">
+
+        <p class="rule-chain-desc">
+          Data gathering steps can chain together - the output of one step can become the input of another step.
+        </p>
+
+        <!-- EXAMPLE BOX -->
+        <div class="rule-chain-example">
+
+          <div class="example-title">Example Chain:</div>
+
+          <div class="example-step">
+            <span class="step-badge">Step 1</span>
+            <span>Calculate Quota Attainment → Output: 105%</span>
+          </div>
+
+          <div class="example-arrow">
+            <i class="fa fa-arrow-down"></i>
+          </div>
+
+          <div class="example-step">
+            <span class="step-badge">Step 2</span>
+            <span>Range Lookup using Step 1 (105%) → Output: 7% rate</span>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+      
+    </div>
+
+    <!-- Payout Rules Tab -->
+    <div ng-show="c.data.activeTab == 'payout-rules' && c.viewMode=='all'">
+      <div class="payout-header-modern m-b-md">
+
+      <div class="payout-header-left">
+        <h2 class="payout-title">
+          <i class="fa fa-calculator payout-icon"></i>
+          Payout Summary Rules
+        </h2>
+
+        <p class="payout-subtitle">
+          Phase 2: Combine inputs with operators to calculate commission payouts
+        </p>
+      </div>
+
+    </div>
+
+      <!-- Formula Structure -->
+      <div> 
+        
+        <div class="payout-formula-card m-b-lg">
+
+          <!-- HEADER -->
+          <div class="payout-formula-header">
+            <h4>Payout Rule Formula Structure</h4>
+          </div>
+
+          <!-- BODY -->
+          <div class="payout-formula-body">
+
+            <div class="formula-container">
+
+              <!-- INPUT 1 -->
+              <div class="formula-block">
+                <div class="formula-label">Input 1</div>
+                <div class="formula-badge badge-blue">
+                  Earning Rule<br>OR<br>Data Step
+                </div>
+              </div>
+
+              <!-- OPERATOR -->
+              <div class="formula-symbol">×</div>
+
+              <!-- OPERATOR TYPES -->
+              <div class="formula-block">
+                <div class="formula-label">Operator</div>
+                <div class="formula-badge badge-purple">
+                  × + − ÷
+                </div>
+              </div>
+
+              <!-- OPERATOR -->
+              <div class="formula-symbol">×</div>
+
+              <!-- INPUT 2 -->
+              <div class="formula-block">
+                <div class="formula-label">Input 2</div>
+                <div class="formula-badge badge-green">
+                  Earning Rule<br>OR<br>Data Step
+                </div>
+              </div>
+
+              <!-- EQUAL -->
+              <div class="formula-symbol equals">=</div>
+
+              <!-- RESULT -->
+              <div class="formula-block">
+                <div class="formula-label">Result</div>
+                <div class="formula-badge badge-result">
+                  Payout $
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+</div>
+      </div>
+
+      <!-- Modified Payout Examples -->
+
+		<div class="row">
+
+      <div class="col-md-6" ng-repeat="example in c.data.payoutExamples">
+
+        <div class="payout-card-modern">
+
+          <!-- HEADER -->
+          <div class="payout-card-header">
+            <span class="example-badge">{{example.label}}</span>
+            <strong class="example-title">{{example.title}}</strong>
+          </div>
+
+          <!-- BODY -->
+          <div class="payout-card-body">
+
+            <!-- FORMULA -->
+            <div class="formula-row">
+              <span class="formula-chip chip-blue">
+                {{example.input1}}
+              </span>
+
+              <span class="formula-operator">×</span>
+
+              <span class="formula-chip chip-green">
+                {{example.input2}}
+              </span>
+            </div>
+
+            <!-- CALCULATION -->
+            <div class="calculation-box">
+              <small>Calculation:</small>
+              <p class="font-mono">{{example.calculation}}</p>
+            </div>
+
+            <!-- RESULT -->
+            <div class="payout-result">
+              <small>Payout</small>
+              <h3>{{example.result}}</h3>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+      
+      
+
+    </div>
+    </div>
+
+    <!-- Examples Tab -->
+    <div ng-show="c.data.activeTab == 'examples' && c.viewMode=='all'">
+      <div class="examples-header-modern m-b-md">
+
+      <h2 class="examples-title">
+        Complete Commission Plan Examples
+      </h2>
+
+      <p class="examples-subtitle">
+        End-to-end examples showing data gathering steps and payout calculations
+      </p>
+
+    </div>
+
+      
+      
+      <div class="example-plan-card m-b-lg">
+
+  <!-- HEADER -->
+  <div class="example-header">
+    <h4 class="example-title">
+      <i class="fa fa-bullseye"></i>
+      Example 1: Basic Commission Plan
+    </h4>
+    <p class="example-subtitle">
+      Simple percentage-based commission with quota bonus
+    </p>
+  </div>
+
+  <!-- BODY -->
+  <div class="example-body">
+
+    <!-- ================= PHASE 1 ================= -->
+    <div class="phase-section">
+
+      <h5 class="phase-title text-blue">
+        <i class="fa fa-database"></i>
+        Phase 1: Data Gathering Steps
+      </h5>
+
+      <div class="row">
+
+        <!-- STEP -->
+        <div class="col-md-4">
+          <div class="step-card step-blue">
+            <span class="step-badge">Step 1</span>
+            <div class="step-title">Quota Attainment</div>
+            <div class="step-sub">Input: Total ARR</div>
+            <div class="step-value">105%</div>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="step-card step-purple">
+            <span class="step-badge">Step 2</span>
+            <div class="step-title">Base Rate Lookup</div>
+            <div class="step-sub">Input: User Info</div>
+            <div class="step-value">5%</div>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="step-card step-green">
+            <span class="step-badge">Step 3</span>
+            <div class="step-title">Bonus Lookup</div>
+            <div class="step-sub">Input: Product</div>
+            <div class="step-value">$2,000</div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ================= PHASE 2 ================= -->
+    <div class="phase-section m-t-md">
+
+      <h5 class="phase-title text-purple">
+        <i class="fa fa-calculator"></i>
+        Phase 2: Payout Summary Rules
+      </h5>
+
+      <!-- PAYOUT 1 -->
+      <div class="payout-box">
+        <div class="payout-header">
+          <span class="payout-badge">Payout 1</span>
+          <strong>Base Commission</strong>
+        </div>
+
+        <div class="formula-row">
+          <span class="formula-chip">ARR ($100K)</span>
+          <span class="formula-operator">×</span>
+          <span class="formula-chip">Rate (5%)</span>
+        </div>
+
+        <div class="payout-value">$5,000</div>
+      </div>
+
+      <!-- PAYOUT 2 -->
+      <div class="payout-box">
+        <div class="payout-header">
+          <span class="payout-badge">Payout 2</span>
+          <strong>Product Bonus</strong>
+        </div>
+
+        <div class="formula-row">
+          <span class="formula-chip">Deals (3)</span>
+          <span class="formula-operator">×</span>
+          <span class="formula-chip">Bonus ($2K)</span>
+        </div>
+
+        <div class="payout-value">$6,000</div>
+      </div>
+
+    </div>
+
+    <!-- ================= TOTAL ================= -->
+    <div class="example-total-box">
+
+      <div>
+        <div class="total-label">Grand Total Formula</div>
+        <div class="font-mono">$5,000 + $6,000</div>
+      </div>
+
+      <div class="text-right">
+        <div class="total-label">Total Commission</div>
+        <div class="total-value">$11,000</div>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+    </div>
+  </div>
+  </div> </div>
+
+<!-- ================= ASSIGN PAGE ================= -->
+<div ng-if="c.pageView == 'assign'">
+  <sp-widget widget="c.data.assignuserwidget"></sp-widget>
+</div>
+]]></template>
+    </sp_widget>
+</record_update>

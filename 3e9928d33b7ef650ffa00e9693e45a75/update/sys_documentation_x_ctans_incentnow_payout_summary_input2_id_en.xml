@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update>
+    <sys_documentation element="input2_id" label="Input 2 ID" language="en" table="x_ctans_incentnow_payout_summary">
+        <sys_documentation action="INSERT_OR_UPDATE">
+            <element>input2_id</element>
+            <help/>
+            <hint>Search and select a data step (e.g., Step 3: Bonus Calculation)</hint>
+            <label>Input 2 ID</label>
+            <language>en</language>
+            <name>x_ctans_incentnow_payout_summary</name>
+            <plural>Input 2 IDs</plural>
+            <sys_class_name>sys_documentation</sys_class_name>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-03-17 10:29:13</sys_created_on>
+            <sys_mod_count>1</sys_mod_count>
+            <sys_name>Input 2 ID</sys_name>
+            <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+            <sys_policy/>
+            <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+            <sys_update_name>sys_documentation_x_ctans_incentnow_payout_summary_input2_id_en</sys_update_name>
+            <sys_updated_by>karan.kumar</sys_updated_by>
+            <sys_updated_on>2026-04-20 05:20:13</sys_updated_on>
+            <url/>
+            <url_target/>
+        </sys_documentation>
+    </sys_documentation>
+</record_update>

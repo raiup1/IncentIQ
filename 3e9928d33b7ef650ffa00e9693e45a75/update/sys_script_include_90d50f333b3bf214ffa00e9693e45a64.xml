@@ -1,0 +1,868 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>package_private</access>
+        <active>true</active>
+        <api_name>x_ctans_incentnow.IncentNowPayoutEngine</api_name>
+        <caller_access/>
+        <client_callable>false</client_callable>
+        <description/>
+        <mobile_callable>false</mobile_callable>
+        <name>IncentNowPayoutEngine</name>
+        <sandbox_callable>false</sandbox_callable>
+        <script><![CDATA[var IncentNowPayoutEngine = Class.create();
+IncentNowPayoutEngine.prototype = {
+    initialize: function() {
+        this.LOG = 'IncentNowPayoutEngine | ';
+        this.DEBUG = true;
+        this.UNITS = {
+            CURRENCY: 'currency',
+            NUMBER: 'number',
+            PERCENTAGE: 'percentage'
+        };
+        this.validator = new IncentNowPayoutValidator(this.UNITS);
+        this.formatter = new IncentNowSystemConfigUtil();
+    },
+
+    logDebug: function(msg) {
+        if (this.DEBUG) {
+            gs.info(this.LOG + msg);
+        }
+    },
+    /* =====================================================
+       MAIN EXECUTION
+    ===================================================== */
+
+    executePlan: function(userGR, periodGR, planGR, statementId) {
+
+        try {
+            if (periodGR.getValue('period_type') != 'month') {
+                gs.info('Skipping payout execution for non-month period');
+
+                return {
+                    status: 'skipped',
+                    total_payout: 0,
+                    breakdown: [],
+                    quota_attainment: null
+                };
+            }
+
+            var context = {
+                user: userGR.sys_id,
+                plan: planGR.sys_id,
+                period: periodGR.sys_id,
+                userGR: userGR,
+                periodGR: periodGR,
+                planGR: planGR,
+                quotaAttainment: 0,
+                statementId: statementId
+            };
+
+            this.clearPreviousResults(context);
+            this.executeSteps(context);
+
+            var summary = this.calculateSummary(context);
+
+            this.logDebug('| executePlan| ' + summary.total);
+
+            return {
+                status: 'success',
+                total_payout: summary.total,
+                breakdown: summary.breakdown,
+                quota_attainment: context.quotaAttainment
+            };
+
+        } catch (ex) {
+
+            this.logError("EXECUTION FAILED", ex, context);
+
+
+            return {
+                status: 'error',
+                message: ex.message || ex,
+                ruleName: ex.ruleName || '',
+                ruleSysId: ex.ruleSysId || ''
+            };
+        }
+    },
+    /* =====================================================
+       STEP ENGINE
+    ===================================================== */
+
+    executeSteps: function(context) {
+
+        var ruleGR = new GlideRecordSecure('x_ctans_incentnow_lookup_rule');
+        ruleGR.addQuery('plan', context.plan);
+        ruleGR.addQuery('active', true);
+        ruleGR.orderBy('step_number');
+        ruleGR.query();
+
+        while (ruleGR.next()) {
+
+            var inputValue = this.resolveStepInput(ruleGR, context);
+            var outputValue = this.evaluateRule(ruleGR, inputValue, context);
+            //  Capture quota attainment
+            if (ruleGR.getValue('rule_type') == 'quota_attainment') {
+                context.quotaAttainment = outputValue;
+            }
+            this.storeStepResult(ruleGR, inputValue, outputValue, context);
+
+            this.logDebug(
+                "Lookup Rule: " + ruleGR.display_name +
+                " | Input=" + inputValue +
+                " | Output=" + outputValue);
+        }
+    },
+
+    /* =====================================================
+       INPUT RESOLUTION
+    ===================================================== */
+
+    resolveStepInput: function(ruleGR, context) {
+
+        var type = ruleGR.getValue('input_type');
+
+        if (type == 'earning_rule') {
+            var stepEarningRule = ruleGR.getValue('select_earning_rule');
+            if (!stepEarningRule) {
+                throw new Error("Missing earning rule reference in lookup rule: " + ruleGR.display_name);
+            }
+            return this.getEarningValue(stepEarningRule, context);
+        }
+        if (type == 'previous_step') {
+
+            var stepId = ruleGR.getValue('select_previous_step');
+            if (!stepId) {
+                throw new Error("Missing previous step reference in lookup rule: " + ruleGR.display_name);
+            }
+            var res = this.getStepResult(stepId, context);
+            if (!res || res.value === 0) {
+                gs.warn(this.LOG + "Previous step returned 0 or missing: " + stepId);
+            }
+            return res.value;
+        }
+
+        return 0;
+    },
+
+    getEarningValue: function(ruleId, context) {
+        var credResult = new GlideRecordSecure('x_ctans_incentnow_credit_results');
+        credResult.addQuery('earning_rule', ruleId);
+        credResult.addQuery('user', context.user);
+        credResult.addQuery('plan', context.plan);
+        credResult.addQuery('fiscal_period', context.period);
+        credResult.query();
+
+        if (credResult.next()) {
+
+            return parseFloat(credResult.credit_value) || 0;
+        }
+
+        return 0;
+    },
+
+    getStepResult: function(stepId, context) {
+
+        var lookupResult = new GlideRecordSecure('x_ctans_incentnow_lookup_results');
+        lookupResult.addQuery('lookup_rule', stepId);
+        lookupResult.addQuery('user', context.user);
+        lookupResult.addQuery('plan', context.plan);
+        lookupResult.addQuery('fiscal_period', context.period);
+        lookupResult.query();
+
+        if (lookupResult.next()) {
+
+            return {
+                value: parseFloat(lookupResult.value) || 0,
+                rate_unit: lookupResult.getValue('rate_unit') || this.UNITS.NUMBER
+            };
+        }
+        return this.defaultResult(0, this.UNITS.NUMBER);
+
+    },
+
+    /* =====================================================
+       RULE EVALUATION (LOOKUP ONLY)
+    ===================================================== */
+
+    evaluateRule: function(ruleGR, inputValue, context) {
+
+        if (!ruleGR || !ruleGR.isValidRecord()) return 0;
+        var type = ruleGR.getValue('rule_type');
+
+        switch (type) {
+
+            case 'quota_attainment':
+                return this.calculateQuotaAttainment(context, inputValue);
+            case 'flat_commission_rate':
+                return parseFloat(ruleGR.getValue('rate_value')) || 0;
+
+            case 'lookup_commission_rate':
+            case 'lookup_bonus':
+            case 'lookup_variable_pay':
+                return this.lookupValue(ruleGR, inputValue, context);
+
+            case 'range_lookup_highest_tier':
+                return this.evaluateHighestTier(ruleGR, inputValue, context);
+
+            case 'range_lookup_progressive_tier':
+                return this.evaluateProgressiveTier(ruleGR, inputValue, context);
+
+            default:
+                gs.warn(this.LOG + "Unknown rule category: " + type);
+                return 0;
+        }
+    },
+
+    /* =====================================================
+       QUOTA Attainment
+    ===================================================== */
+
+    calculateQuotaAttainment: function(context, achievement) {
+
+        var earningEngine = new IncentNowEarningRuleEngine();
+
+        var quotaObj = earningEngine.getQuotaTarget(
+            context.userGR,
+            context.periodGR
+        );
+
+        if (!quotaObj) {
+            throw new Error('Quota target could not be determined.');
+        }
+
+        var quotaTarget = quotaObj.value;
+
+        if (quotaTarget <= 0) {
+            throw new Error('Quota target is zero or missing for user: ' +
+                context.userGR.getDisplayValue() +
+                ', period: ' + context.periodGR.getDisplayValue());
+        }
+
+        var quotaAttainment = ((achievement / quotaTarget) * 100);
+        quotaAttainment = parseFloat(quotaAttainment.toFixed(2)) || 0;
+
+        this.logDebug('Quota attainment ' + quotaAttainment);
+
+        return quotaAttainment;
+    },
+    /* =====================================================
+       LOOKUP ENGINE
+    ===================================================== */
+
+    lookupValue: function(ruleGR, inputValue, context) {
+        if (!ruleGR || !ruleGR.isValidRecord()) return 0;
+        var dt = new sn_dt.DecisionTableAPI();
+        var dtInputs = {};
+
+        dtInputs = this.buildDecisionTableInputs(ruleGR, inputValue, context);
+
+        var res = dt.getDecision(ruleGR.lookup_table, dtInputs);
+        if (!res) {
+            gs.warn(this.LOG + "Decision table returned null response");
+            return 0;
+        }
+
+        var dtOutput = this.getOutputsForDecisionTable(ruleGR);
+        if (!dtOutput) {
+            gs.warn(this.LOG + " No decision table output field found");
+            return 0;
+        }
+
+        //  Access dynamically
+        var element = res.result_elements[dtOutput];
+
+        if (!element) {
+            gs.warn(this.LOG + " Output field not found in result: " + dtOutput);
+            return 0;
+        }
+
+        var val = parseFloat(element.getValue()) || 0;
+
+        return val;
+
+    },
+
+    evaluateHighestTier: function(ruleGR, inputValue, context) {
+
+        return this.lookupValue(ruleGR, inputValue, context);
+    },
+
+    evaluateProgressiveTier: function(ruleGR, inputValue, context) {
+
+        //  Get total credit from earning rule
+        var earningRuleId = ruleGR.getValue('select_earning_rule');
+        var totalCredit = this.getEarningValue(earningRuleId, context);
+        var dt = new sn_dt.DecisionTableAPI();
+        var response = dt.getDecisionTable(ruleGR.lookup_table);
+        var tiers = [];
+        var questions = response.questions;
+        var i;
+        // --- Extract tiers safely from DT ---
+        for (i = 0; i < questions.length; i++) {
+            var q = questions[i];
+
+            if (q.defaultAnswer) continue;
+
+            var min = 0;
+            var max = 0;
+
+            if (q.min_value !== undefined) min = parseFloat(q.min_value);
+            if (q.max_value !== undefined) max = parseFloat(q.max_value);
+
+            if (!min && !max && q.condition) {
+                var rangePart = q.condition.split('BETWEEN')[1].split('^')[0];
+                var values = rangePart.split('@');
+                min = parseFloat(values[0]);
+                max = parseFloat(values[1]);
+            }
+
+            var rate = parseFloat(q.answer.answerElementValues[0].value);
+
+            tiers.push({
+                min: min,
+                max: max,
+                rate: rate
+            });
+        }
+
+        // Sort tiers
+        tiers.sort(function(a, b) {
+            return a.min - b.min;
+        });
+
+        // this.logDebug( "Per-Tier structure: " + JSON.stringify(tiers));
+
+        var payout = 0;
+        var quotaPercent = parseFloat(inputValue) || 0;
+
+        // --- Calculate payout using your existing logic ---
+        for (i = 0; i < tiers.length; i++) {
+
+            var tier = tiers[i];
+
+            if (quotaPercent > tier.min) {
+
+                var applicableMax = Math.min(quotaPercent, tier.max);
+                var tierRange = applicableMax - tier.min;
+
+                if (tierRange < 0) tierRange = 0;
+
+                var tierCredit = (tierRange / 100) * totalCredit;
+                var tierPayout = tierCredit * (tier.rate / 100);
+
+                payout += tierPayout;
+
+                this.logDebug(
+                    "Tier " + tier.min + "-" + tier.max +
+                    " | Range=" + tierRange +
+                    " | Credit=" + tierCredit +
+                    " | Rate=" + tier.rate +
+                    " | Commission=" + tierPayout);
+            }
+
+            if (quotaPercent <= tier.max) break;
+        }
+
+        payout = parseFloat(payout.toFixed(2)) || 0;
+
+        // =====================================================
+        //CONVERT PAYOUT TO Rate
+        // =====================================================
+
+        var effectiveRate = 0;
+
+        if (totalCredit > 0) {
+            effectiveRate = (payout / totalCredit) * 100;
+        }
+        effectiveRate = parseFloat(effectiveRate.toFixed(4)) || 0;
+        this.logDebug("Effective Blended Rate (%) = " + effectiveRate);
+
+        return effectiveRate;
+    },
+
+    // Build Decision Table Inputs Dynamically
+    buildDecisionTableInputs: function(ruleGR, inputValue, context) {
+
+        var inputs = {};
+
+        var inputType = ruleGR.getValue('lookup_input');
+        var fieldName = ruleGR.getValue('user_attribute');
+        gs.warn(this.LOG + "User Attribute field Name " + fieldName);
+        var DecisionTablefieldName = '';
+        if (!inputType) {
+            gs.warn(this.LOG + "| Missing input type");
+            return inputs;
+        }
+
+        switch (inputType) {
+
+            case 'quota_attainment':
+
+                DecisionTablefieldName = this.getInputsForDecisionTable(ruleGR);
+                inputs[DecisionTablefieldName] = Math.round(parseFloat(inputValue) || 0);
+                break;
+
+            case 'user_information':
+                DecisionTablefieldName = this.getInputsForDecisionTable(ruleGR);
+                var userGR = new GlideRecordSecure('x_ctans_incentnow_user_profile'); 
+                if (userGR.get(context.user)) {
+                    inputs[DecisionTablefieldName] = userGR.getValue(fieldName) || '';
+                }
+                break;
+
+            default:
+                gs.warn(this.LOG + "| Unknown DT input type: " + inputType);
+        }
+
+        return inputs;
+    },
+
+    getInputsForDecisionTable: function(ruleGR) {
+
+        var decisionTableId = ruleGR.lookup_table;
+        if (!decisionTableId)
+            return '';
+
+        var di = new GlideRecordSecure('sys_decision_input');
+        di.addQuery('model', decisionTableId);
+        di.query();
+
+        if (di.next()) {
+
+            var fieldName = di.element.toString();
+
+            return fieldName; //  single value
+        }
+
+        return '';
+    },
+    getOutputsForDecisionTable: function(ruleGR) {
+
+        var decisionTableId = ruleGR.lookup_table;
+        if (!decisionTableId)
+            return '';
+
+        var outputs = [];
+        var di = new GlideRecordSecure('sys_decision_multi_result_element');
+        di.addQuery('name', 'CONTAINS', decisionTableId);
+        di.query();
+
+        if (di.next()) {
+            var fieldName = di.element.toString();
+            return fieldName; //  single value
+        }
+
+        return '';
+    },
+    /* =====================================================
+       STORE RESULTS
+    ===================================================== */
+
+    storeStepResult: function(ruleGR, input, output, context) {
+
+        var lookupResults = new GlideRecordSecure('x_ctans_incentnow_lookup_results');
+        lookupResults.initialize();
+
+        lookupResults.lookup_rule = ruleGR.sys_id;
+        lookupResults.step_number = ruleGR.step_number;
+        lookupResults.user = context.user;
+        lookupResults.plan = context.plan;
+        lookupResults.fiscal_period = context.period;
+        lookupResults.input_value = input;
+        lookupResults.value = parseFloat(output.toFixed(2)) || 0;
+        lookupResults.rate_unit = ruleGR.getValue('rate_unit');
+        lookupResults.statement_id = context.statementId;
+        lookupResults.insert();
+    },
+
+    clearPreviousResults: function(context) {
+
+        var lookupRes = new GlideRecordSecure('x_ctans_incentnow_lookup_results');
+        lookupRes.addQuery('user', context.user);
+        lookupRes.addQuery('plan', context.plan);
+        lookupRes.addQuery('fiscal_period', context.period);
+        lookupRes.deleteMultiple();
+    },
+
+    /* =====================================================
+       SUMMARY ENGINE 
+    ===================================================== */
+
+    calculateSummary: function(context) {
+
+        var summaryGR = new GlideRecordSecure('x_ctans_incentnow_payout_summary');
+        summaryGR.addQuery('plan', context.plan);
+        summaryGR.addQuery('active', 'true');
+        summaryGR.orderBy('order');
+        summaryGR.query();
+
+        var breakdown = [];
+        var total = 0;
+
+        while (summaryGR.next()) {
+
+            var payoutType = summaryGR.getValue('payout_type');
+            var resultObj = this.evaluatePayoutStep(summaryGR.sys_id, context);
+
+            //  Only include PAYABLE
+            if (payoutType == 'payable') {
+
+                breakdown.push({
+                    rule_id: summaryGR.sys_id.toString(),
+                    ruleName: summaryGR.rule_name.toString(),
+
+                    payoutNumeric: resultObj.value,
+                    payoutValue: this.formatWithUnit(resultObj.value, resultObj.rate_unit),
+                    formula: resultObj.formula + " = " + this.formatWithUnit(resultObj.value, resultObj.rate_unit),
+                    rate_unit: resultObj.rate_unit,
+                    operator: summaryGR.operator.toString(),
+                    input1: {
+                        type: this._getInputType(resultObj.inputs.left),
+                        name: this._getInputName(resultObj.inputs.left),
+                        value: resultObj.inputs.left.value,
+                        unit: resultObj.inputs.left.rate_unit
+                    },
+
+                    input2: {
+                        type: this._getInputType(resultObj.inputs.right),
+                        name: this._getInputName(resultObj.inputs.right),
+                        value: resultObj.inputs.right.value,
+                        unit: resultObj.inputs.right.rate_unit
+                    },
+
+                    trace: resultObj.trace
+                });
+
+                total += resultObj.value;
+
+            }
+        }
+        this.logDebug('calculateSummary | ' + total);
+        return {
+            total: parseFloat(total.toFixed(2)),
+            breakdown: breakdown
+        };
+    },
+    _getInputType: function(input) {
+
+        if (!input.trace || input.trace.length === 0) return '';
+
+        //  If trace has calculation → it's payout_step
+        for (var i = 0; i < input.trace.length; i++) {
+            if (input.trace[i].type == 'calculation') {
+                return 'payout_step';
+            }
+        }
+
+        // Otherwise check first meaningful type
+        for (var j = 0; j < input.trace.length; j++) {
+            var t = input.trace[j];
+
+            if (t.type == 'earning') return 'earning_rule';
+            if (t.type == 'lookup') return 'data_step';
+        }
+
+        return '';
+    },
+    _getInputName: function(input) {
+
+        if (!input.trace) return '';
+
+        // If payout_step → use formula (best representation)
+        for (var i = input.trace.length - 1; i >= 0; i--) {
+
+            var t = input.trace[i];
+
+            if (t.type == 'calculation') {
+                return t.formula; // represents payout step
+            }
+        }
+
+        // Otherwise use earning / lookup name
+        for (var j = 0; j < input.trace.length; j++) {
+
+            var t2 = input.trace[j];
+
+            if (t2.type == 'earning' || t2.type == 'lookup') {
+                return t2.name;
+            }
+        }
+
+        return '';
+    },
+    evaluatePayoutStep: function(payoutId, context, visited) {
+
+        var payoutSummary = new GlideRecordSecure('x_ctans_incentnow_payout_summary');
+        if (!payoutSummary.get(payoutId)) {
+            return this.defaultResult(0, this.UNITS.NUMBER);
+        }
+        visited = visited || {};
+
+        if (visited[payoutSummary.sys_id]) {
+            throw new Error(
+                "Circular Dependency Detected in Payout Summaries: " +
+                Object.values(visited).join(" → ") + " → " + payoutSummary.rule_name
+            );
+        }
+        // Mark as visited to identify Circular loop
+        visited[payoutSummary.sys_id] = payoutSummary.rule_name.toString();
+
+        var input1 = this.resolveSummaryInput(payoutSummary, '1', context, visited);
+        var input2 = this.resolveSummaryInput(payoutSummary, '2', context, visited);
+        var trace = [];
+
+        // collect trace from inputs
+        trace = trace.concat(input1.trace || []);
+        trace = trace.concat(input2.trace || []);
+
+        var v1 = input1.value;
+        var v2 = input2.value;
+        var op = payoutSummary.operator.toString();
+
+        if (!this.validator.validateOperation(input1.rate_unit, op, input2.rate_unit)) {
+            throw new Error("Invalid operation in payout step: " + payoutSummary.rule_name);
+        }
+
+        var result = this.applyOperatorWithRateUnit(
+            v1, input1.rate_unit,
+            op,
+            v2, input2.rate_unit
+        );
+        var unit1 = input1.rate_unit;
+        var unit2 = input2.rate_unit;
+
+
+        var outputUnit = payoutSummary.getValue('output_unit');
+
+
+        if (!outputUnit) {
+            outputUnit = this.validator.deriveOutputUnit(unit1, op, unit2);
+        }
+        var symbolMap = {
+            multiply: '×',
+            add: '+',
+            subtract: '-',
+            divide: '÷'
+        };
+
+        var opSymbol = symbolMap[op] || op;
+
+        // Build readable values
+        var leftFormula = input1.formula;
+        var rightFormula = input2.formula;
+
+        var formula = leftFormula + " " + opSymbol + " " + rightFormula;
+
+        // Wrap ONLY if this step is used inside another step
+        formula = "(" + formula + ")";
+
+        trace.push({
+            type: "calculation",
+            formula: formula,
+            result: this.formatWithUnit(result, outputUnit)
+        });
+
+        return {
+            value: parseFloat(result.toFixed(2)),
+            rate_unit: outputUnit,
+            formula: formula,
+            inputs: {
+                left: input1,
+                right: input2
+            },
+            trace: trace
+        };
+    },
+
+    formatWithUnit: function(value, unit) {
+        return this.formatter.format(value, unit);
+    },
+    resolveSummaryInput: function(payout, index, context, visited) {
+
+        var type = payout.getValue('input' + index + '_type');
+        if (type == 'earning_rule') {
+
+            var earningRuleId = payout.getValue('input' + index + '_earning_rule');
+
+            if (!earningRuleId) {
+                throw new Error("Missing earning rule in payout step: " + payout.rule_name);
+            }
+
+            var val = this.getEarningValue(earningRuleId, context);
+
+            if (val === 0) {
+                gs.warn(this.LOG + "Earning rule returned 0: " + earningRuleId);
+            }
+
+            // Fetch earning rule
+            var er = new GlideRecordSecure('x_ctans_incentnow_earning_rule');
+            var unit = this.UNITS.CURRENCY; // default
+
+            if (er.get(earningRuleId)) {
+
+                var aggregation = er.getValue('aggregation');
+
+                if (aggregation == 'count') {
+                    unit = this.UNITS.NUMBER;
+                }
+            }
+
+            return {
+                value: val,
+                rate_unit: unit,
+                formula: this.formatWithUnit(val, unit),
+                trace: [{
+                    type: "earning",
+                    name: er.getDisplayValue(),
+                    value: this.formatWithUnit(val, unit)
+                }]
+            };
+        }
+
+        if (type == 'data_step') {
+
+            var stepId = payout.getValue('input' + index + '_id');
+            if (!stepId) {
+                throw new Error("Missing lookup step in payout step: " + payout.rule_name);
+            }
+            var res = this.getStepResult(stepId, context);
+            if (!res || res.value === 0) {
+                gs.warn(this.LOG + "Lookup step missing or returned 0: " + stepId);
+            }
+            var step = new GlideRecordSecure('x_ctans_incentnow_lookup_rule');
+            var name = '';
+            if (step.get(payout.getValue('input' + index + '_id'))) {
+                name = step.step_name;
+            }
+
+            return {
+                value: res.value,
+                rate_unit: res.rate_unit,
+                formula: this.formatWithUnit(res.value, res.rate_unit),
+                trace: [{
+                    type: "lookup",
+                    name: name,
+                    output: this.formatWithUnit(res.value, res.rate_unit)
+                }]
+            };
+        }
+        if (type == 'payout_step') {
+
+            var payoutId = payout.getValue('input' + index + '_payout');
+
+            if (!payoutId) {
+                throw new Error(
+                    "Missing payout step reference in rule: " + payout.rule_name
+                );
+            }
+
+            var payoutGR = new GlideRecordSecure('x_ctans_incentnow_payout_summary');
+
+            if (!payoutGR.get(payoutId)) {
+                throw new Error(
+                    "Referenced payout step not found: " + payoutId +
+                    " in rule: " + payout.rule_name
+                );
+            }
+
+            var result = this.evaluatePayoutStep(payoutId, context, visited);
+
+            return {
+                value: result.value,
+                rate_unit: result.rate_unit,
+                formula: result.formula,
+                trace: result.trace
+            };
+        }
+
+        return this.defaultResult(0, this.UNITS.NUMBER);
+
+    },
+
+
+
+    /* =====================================================
+       OPERATOR with RATE UNIT HANDLING 
+    ===================================================== */
+    applyOperatorWithRateUnit: function(v1, unit1, op, v2, unit2) {
+
+        v1 = this.normalizeValueByUnit(v1, unit1);
+        v2 = this.normalizeValueByUnit(v2, unit2);
+
+        if (!this.validator.validateOperation(unit1, op, unit2)) {
+            return 0;
+        }
+
+        switch (op) {
+
+            case 'multiply':
+                return v1 * v2;
+
+            case 'add':
+                return v1 + v2;
+
+            case 'subtract':
+                return v1 - v2;
+
+            case 'divide':
+                return v2 !== 0 ? v1 / v2 : 0;
+        }
+
+        return 0;
+
+    },
+
+    normalizePercentage: function(val) {
+
+        val = parseFloat(val) || 0;
+        // If stored as 5 instead of 0.05
+        if (val > 1) return val / 100;
+
+        return val;
+    },
+
+    normalizeValueByUnit: function(value, unit) {
+
+        value = parseFloat(value) || 0;
+
+        switch (unit) {
+
+            case this.UNITS.PERCENTAGE:
+                return this.normalizePercentage(value); // already exists
+
+            case this.UNITS.CURRENCY:
+            case this.UNITS.NUMBER:
+            default:
+                return value;
+        }
+    },
+    logError: function(message, ex, context) {
+        gs.error(this.LOG + message +
+            " | user=" + context.user +
+            " | plan=" + context.plan +
+            " | period=" + context.period +
+            " | error=" + (ex.message || ex));
+    },
+
+    defaultResult: function(value, unit) {
+        return {
+            value: parseFloat(value) || 0,
+            rate_unit: unit || this.UNITS.NUMBER
+        };
+    },
+    type: 'IncentNowPayoutEngine'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>upma.rai</sys_created_by>
+        <sys_created_on>2026-03-30 09:09:23</sys_created_on>
+        <sys_id>90d50f333b3bf214ffa00e9693e45a64</sys_id>
+        <sys_mod_count>88</sys_mod_count>
+        <sys_name>IncentNowPayoutEngine</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_script_include_90d50f333b3bf214ffa00e9693e45a64</sys_update_name>
+        <sys_updated_by>upma.rai</sys_updated_by>
+        <sys_updated_on>2026-06-12 12:24:04</sys_updated_on>
+    </sys_script_include>
+</record_update>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_embedded_help_role">
+    <sys_embedded_help_role action="INSERT_OR_UPDATE">
+        <order>1000</order>
+        <role display_value="x_ctans_incentnow.ai_execution_failure_user" name="x_ctans_incentnow.ai_execution_failure_user">3bcf66a13b610790a4cbaddc73e45aab</role>
+        <sys_class_name>sys_embedded_help_role</sys_class_name>
+        <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+        <sys_created_on>2026-06-18 07:25:29</sys_created_on>
+        <sys_id>37cf62e13b610790a4cbaddc73e45a76</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>3bcf66a13b610790a4cbaddc73e45aab</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_embedded_help_role_37cf62e13b610790a4cbaddc73e45a76</sys_update_name>
+        <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
+        <sys_updated_on>2026-06-18 07:25:29</sys_updated_on>
+    </sys_embedded_help_role>
+</record_update>

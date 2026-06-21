@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>standard</category>
+        <client_script><![CDATA[api.controller = function($window,$location) {
+  var c = this;
+
+  c.goBack = function() {
+    //$window.history.back();
+		var url  = '?id=incentive_statements';
+		$location.url(url);
+  };
+};]]></client_script>
+        <controller_as>c</controller_as>
+        <css>.admin-page-topbar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.admin-back-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  cursor: pointer;
+  color: #374151;
+  flex-shrink: 0;
+  transition: background 0.15s, border-color 0.15s;
+}
+ 
+.admin-back-btn:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+}
+
+.headd {
+		font-size: 2.6rem;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.profile-header {
+  display: flex;
+  align-items: center;
+  background: white;
+  padding: 15px;
+  //border: 1px solid #ddd;
+  //border-bottom: 3px solid #f39c12;
+  border-radius: 1rem;
+  margin-bottom: 2rem;
+}
+
+.profile-left img {
+  width: 80px;
+  height: 80px;
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+.profile-left {
+  margin-right: 5.5rem;
+}
+
+.profile-center {
+  flex: 1;
+}
+
+.profile-center h2 {
+  margin: 0 0 10px 0;
+  font-size: 1.6rem;
+  font-weight: 600;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, auto);
+  gap: 6px 40px;
+  font-size: 1.6rem;
+}
+
+.profile-right {
+  margin-left: 10px;
+}
+
+.icon-btn {
+  background: #5bc0de;
+  border: none;
+  padding: 8px 10px;
+  border-radius: 4px;
+  color: white;
+  cursor: pointer;
+}
+
+.icon-btn:hover {
+  background: #31b0d5;
+}</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description/>
+        <docs/>
+        <field_list/>
+        <has_preview>false</has_preview>
+        <id/>
+        <internal>false</internal>
+        <link><![CDATA[function link(scope, element, attrs, controller) {  }]]></link>
+        <name>Incentive User Profile</name>
+        <option_schema>[{"hint":"Display the current user in the teams widget","name":"show_current_user","section":"other","default_value":"false","label":"Show current user","type":"boolean"}]</option_schema>
+        <public>false</public>
+        <roles>x_ctans_incentnow.admin,x_ctans_incentnow.user</roles>
+        <script><![CDATA[(function() {
+
+    var loggedInUser = gs.getUserID();
+
+    // ]]>🚫<![CDATA[ Block unauthenticated users
+    if (!loggedInUser) {
+        data.error = "Unauthorized";
+        return;
+    }
+
+    // ✅ Role check (user OR incentnow admin OR system admin)
+    var hasAccessRole = gs.hasRole('x_ctans_incentnow.user');
+
+    if (!hasAccessRole) {
+        data.error = "Access Denied";
+        return;
+    }
+
+    // 1. Get statement_id
+    var statementId = $sp.getParameter('statement_id');
+
+    if (!statementId) {
+        data.error = "No statement_id in URL";
+        return;
+    }
+
+    // 2. Fetch statement
+    var stmtGR = new GlideRecordSecure('x_ctans_incentnow_incentive_statement');
+
+    if (!stmtGR.get(statementId)) {
+        data.error = "Statement record not found";
+        return;
+    }
+
+    var statementUser = stmtGR.getValue('user');
+
+    // ]]>🔐<![CDATA[ Record-level access
+    var isOwner   = (statementUser == loggedInUser);
+    var isManager = gs.hasRole('x_ctans_incentnow.manager');
+    var isAdmin   = gs.hasRole('x_ctans_incentnow.admin');
+
+    if (!isOwner && !isManager && !isAdmin) {
+        data.error = "Access Denied";
+        return;
+    }
+
+    // 3. Fetch user
+    var userGR = new GlideRecordSecure('x_ctans_incentnow_user_profile');
+
+    if (!userGR.get(statementUser)) {
+        data.error = "User record not found";
+        return;
+    }
+
+    // 4. Send safe data
+    data.name = userGR.user.name.toString();
+    data.user_name = userGR.user.user_name.toString();
+    data.email = userGR.user.email.toString();
+    data.title = userGR.user.title.toString();
+    data.manager = userGR.user.manager.getDisplayValue();
+    data.role = userGR.getDisplayValue('role');
+
+    data.photo = userGR.user.photo ?
+        '/sys_attachment.do?sys_id=' + userGR.user.photo :
+        '';
+
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>shroin.mandal</sys_created_by>
+        <sys_created_on>2026-04-09 06:27:25</sys_created_on>
+        <sys_id>a63342433b8c0f105493ddb693e45aee</sys_id>
+        <sys_mod_count>44</sys_mod_count>
+        <sys_name>Incentive User Profile</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sp_widget_a63342433b8c0f105493ddb693e45aee</sys_update_name>
+        <sys_updated_by>karan.kumar</sys_updated_by>
+        <sys_updated_on>2026-06-16 11:58:30</sys_updated_on>
+        <template><![CDATA[<div class="admin-page-topbar">
+      <button class="admin-back-btn" ng-click="c.goBack()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12 8 8 12 12 16"/>
+          <line x1="16" y1="12" x2="8" y2="12"/>
+        </svg>
+      </button>
+      <span class="admin-page-topbar-title headd">Incentive Statement</span>
+</div>
+<div ng-if="data.name">
+  <!-- your profile UI -->
+  <div class="profile-header">
+
+  <!-- Left: Profile Image -->
+  <div class="profile-left">
+    <img ng-src="{{data.photo}}" alt="User Image"/>
+  </div>
+
+  <!-- Center: User Details -->
+  <div class="profile-center">
+    <h2>{{data.name}} ({{data.user_name}})</h2>
+
+    <div class="info-grid">
+      
+      <div><strong>Email:</strong> {{data.email}}</div>
+
+      <div><strong>Manager:</strong> {{data.manager}}</div>
+
+      <div><strong>Title:</strong> {{data.title}}</div>
+      
+      <div><strong>Role:</strong> {{data.role}}</div>
+
+    </div>
+  </div>
+
+
+</div>
+</div>
+
+<div ng-if="data.error">
+  <p>{{data.error}}</p>
+</div>
+
+]]></template>
+    </sp_widget>
+</record_update>

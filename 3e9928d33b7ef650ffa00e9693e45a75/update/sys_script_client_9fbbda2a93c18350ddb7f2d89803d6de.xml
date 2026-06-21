@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update sys_domain="global" table="sys_script_client">
+    <sys_script_client action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <applies_extended>false</applies_extended>
+        <condition/>
+        <description/>
+        <field>data_model_object_id</field>
+        <global>true</global>
+        <isolate_script>true</isolate_script>
+        <messages/>
+        <name>Data Lake Field Mandatory Incentnow</name>
+        <order/>
+        <script><![CDATA[function onChange(control, oldValue, newValue, isLoading) {
+
+    if (isLoading)
+        return;
+	
+    if (!newValue) {
+        g_form.setMandatory('data_lake_field_name', false);
+        return;
+    }
+
+    g_form.getReference('data_model_object_id', function(ref) {
+
+        if (ref.data_source_system == 'Internal') {
+
+            g_form.setMandatory('data_lake_field_name', false);
+
+        } else {
+
+            g_form.setMandatory('data_lake_field_name', true);
+
+        }
+
+    });
+
+}]]></script>
+        <sys_class_name>sys_script_client</sys_class_name>
+        <sys_created_by>shroin.mandal</sys_created_by>
+        <sys_created_on>2026-05-27 12:02:22</sys_created_on>
+        <sys_domain>global</sys_domain>
+        <sys_domain_path>/</sys_domain_path>
+        <sys_id>9fbbda2a93c18350ddb7f2d89803d6de</sys_id>
+        <sys_mod_count>7</sys_mod_count>
+        <sys_name>Data Lake Field Mandatory Incentnow</sys_name>
+        <sys_overrides/>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_script_client_9fbbda2a93c18350ddb7f2d89803d6de</sys_update_name>
+        <sys_updated_by>shroin.mandal</sys_updated_by>
+        <sys_updated_on>2026-05-28 07:04:30</sys_updated_on>
+        <table>x_ctans_incentnow_metadata_mapping</table>
+        <type>onChange</type>
+        <ui_type>0</ui_type>
+        <view/>
+    </sys_script_client>
+</record_update>

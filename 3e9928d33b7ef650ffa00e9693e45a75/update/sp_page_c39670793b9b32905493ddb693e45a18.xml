@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_page">
+    <sp_page action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <css>$background-desktop: "223a20eeffa1a2105703ffffffffffa1.iix";&#13;
+$background-mobile: "e93aac2effa1a2105703ffffffffff90.iix";&#13;
+&#13;
+main.body {&#13;
+  background-image: url($background-desktop);&#13;
+  padding-top: 0rem !important;&#13;
+  background-repeat: no-repeat;&#13;
+  background-size: 100% 50rem;&#13;
+}&#13;
+&#13;
+/* Padding for container after banner image */&#13;
+.padding-top {&#13;
+  padding-top: 2.4rem;&#13;
+}&#13;
+&#13;
+/* Padding bottom after each widget */&#13;
+.child-b-margin &gt; span &gt; div &gt; *{&#13;
+  margin-bottom: 2.4rem;&#13;
+}&#13;
+&#13;
+.mobile-banner {&#13;
+  background-position: right bottom !important;&#13;
+}&#13;
+&#13;
+/* Max width for Containers to stay in view port*/&#13;
+.container {&#13;
+  max-width: 100%;&#13;
+}&#13;
+&#13;
+.panel-heading&#13;
+{&#13;
+  &#13;
+background: #A8DCD4 !important;&#13;
+}&#13;
+&#13;
+@container (max-width: 48em) {&#13;
+ .page-0987d9aa53331210b8f2ddeeff7b129d main.body {&#13;
+   background-image: url($background-mobile);&#13;
+}&#13;
+&#13;
+  .child-b-margin &gt; span &gt; div &gt; *{&#13;
+    margin-bottom: 1.6rem;&#13;
+  }&#13;
+  .padding-right {&#13;
+    padding-right: 0rem;&#13;
+  }&#13;
+   .padding-top {&#13;
+    padding-top: 1.6rem;&#13;
+  }&#13;
+}&#13;
+&#13;
+@container (max-width : 62em) {&#13;
+  .container {&#13;
+    width : 100%;&#13;
+  }&#13;
+  .col-md-4 {&#13;
+    width : 100%&#13;
+  }&#13;
+  .col-md-8 {&#13;
+    width : 100%&#13;
+  }&#13;
+  .left-column{&#13;
+    padding-left: 2.4rem;&#13;
+    padding-right: 2.4rem;	&#13;
+  }	&#13;
+  .right-column{&#13;
+    padding-left: 2.4rem;&#13;
+    padding-right: 2.4rem;	&#13;
+  }&#13;
+}&#13;
+&#13;
+@container (min-width: 62em) {	&#13;
+  .container {	&#13;
+    padding-left: 1.2rem;	&#13;
+    padding-right: 1.2rem;	&#13;
+  }	&#13;
+  .left-column{&#13;
+    padding-right: 0rem;	&#13;
+  }	&#13;
+  .right-column{&#13;
+    padding-left: 2.4rem;&#13;
+    padding-right: 1.6rem;&#13;
+  }	&#13;
+}</css>
+        <draft>false</draft>
+        <dynamic_title_structure/>
+        <human_readable_url_structure/>
+        <id>fiscal_calendar</id>
+        <internal>false</internal>
+        <omit_watcher>false</omit_watcher>
+        <public>false</public>
+        <roles>x_ctans_incentnow.user,x_ctans_incentnow.admin</roles>
+        <seo_script/>
+        <short_description>Page to create Fiscal Calendar</short_description>
+        <sys_class_name>sp_page</sys_class_name>
+        <sys_created_by>karan.kumar</sys_created_by>
+        <sys_created_on>2026-02-26 20:54:56</sys_created_on>
+        <sys_id>c39670793b9b32905493ddb693e45a18</sys_id>
+        <sys_mod_count>3</sys_mod_count>
+        <sys_name>fiscal_calendar</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sp_page_c39670793b9b32905493ddb693e45a18</sys_update_name>
+        <sys_updated_by>karan.kumar</sys_updated_by>
+        <sys_updated_on>2026-05-19 04:29:25</sys_updated_on>
+        <title>Fiscal Calendar</title>
+        <use_seo_script>false</use_seo_script>
+    </sp_page>
+    <sys_translated_text action="delete_multiple" query="documentkey=c39670793b9b32905493ddb693e45a18"/>
+</record_update>

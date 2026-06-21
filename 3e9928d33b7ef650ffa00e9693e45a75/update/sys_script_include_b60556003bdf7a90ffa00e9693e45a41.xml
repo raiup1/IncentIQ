@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>public</access>
+        <active>true</active>
+        <api_name>x_ctans_incentnow.IncentNowTransformEngine</api_name>
+        <caller_access>1</caller_access>
+        <client_callable>false</client_callable>
+        <description/>
+        <mobile_callable>false</mobile_callable>
+        <name>IncentNowTransformEngine</name>
+        <sandbox_callable>false</sandbox_callable>
+        <script><![CDATA[var IncentNowTransformEngine = Class.create();
+IncentNowTransformEngine.prototype = {
+
+    initialize: function () {},
+
+    execute: function (runSysId) {
+
+        var startTime = new GlideDateTime();
+
+        var runGR = this._getRun(runSysId);
+        if (!runGR)
+            throw "Import Run not found";
+
+        var counters = {
+            inserted: 0,
+            failed: 0
+        };
+
+        var context = this._prepareContext(runGR);
+        this._processRows(context, counters);
+
+        this._updateRunMetrics(runGR, counters, startTime);
+
+        return counters;
+    },
+
+    /* ===================================================== */
+
+    _getRun: function (runSysId) {
+
+        var runGR = new GlideRecordSecure("x_ctans_incentnow_import_run");
+        if (!runGR.get(runSysId))
+            return null;
+
+        return runGR;
+    },
+
+    /* ===================================================== */
+
+    _prepareContext: function (runGR) {
+
+        var dataModelId = runGR.getValue("data_model_object");
+
+        if (!dataModelId)
+            throw "Data model missing";
+
+        var stagingGR = new GlideRecordSecure("x_ctans_incentnow_data_lake_staging");
+        stagingGR.addQuery("import_run", runGR.getUniqueValue());
+        stagingGR.addQuery("is_valid", true);
+        stagingGR.orderBy("row_number");
+        stagingGR.query();
+
+        if (!stagingGR.hasNext())
+            throw "No valid staging rows found";
+
+        var mappings = this._loadMappings(dataModelId);
+
+        return {
+            runSysId: runGR.getUniqueValue(),
+            dataModelId: dataModelId,
+            stagingGR: stagingGR,
+            mappings: mappings
+        };
+    },
+
+    /* ===================================================== */
+
+    _loadMappings: function (dataModelId) {
+
+        var mappingGR = new GlideRecordSecure("x_ctans_incentnow_metadata_mapping");
+        mappingGR.addQuery("data_model_object_id", dataModelId);
+        mappingGR.addQuery("active", true);
+        mappingGR.query();
+
+        var mappings = [];
+
+        while (mappingGR.next()) {
+
+            mappings.push({
+                source: mappingGR.getValue("source_field_name"),
+                target: mappingGR.getValue("data_lake_column_name")
+            });
+        }
+
+        if (mappings.length === 0)
+            throw "No metadata mappings configured";
+
+        return mappings;
+    },
+
+    /* ===================================================== */
+
+    _processRows: function (context, counters) {
+
+        var stagingGR = context.stagingGR;
+
+        while (stagingGR.next()) {
+
+            try {
+
+                var rowObj = JSON.parse(stagingGR.getValue("raw_json"));
+
+                var targetGR = new GlideRecordSecure("x_ctans_incentnow_data_lake");
+                targetGR.initialize();
+
+                /* ===============================
+                   SYSTEM CONTROLLED FIELDS
+                =============================== */
+
+                targetGR.setValue("data_model_object", context.dataModelId);
+                targetGR.setValue("processing_status", "Raw");
+                targetGR.setValue("raw_payload", stagingGR.getValue("raw_json"));
+                targetGR.setValue("sys_import_set", stagingGR.getValue("sys_import_set"));
+                targetGR.setValue("transaction_date", new GlideDateTime());
+                targetGR.setValue("user_id", gs.getUserID());
+                targetGR.setValue("import_run", context.runSysId);
+
+                /* ===============================
+                   DYNAMIC METADATA MAPPING
+                =============================== */
+
+                this._applyMappings(targetGR, rowObj, context.mappings);
+
+                targetGR.insert();
+                counters.inserted++;
+
+            } catch (rowEx) {
+
+                counters.failed++;
+                this._logRowError(context.runSysId, stagingGR, rowEx.toString());
+            }
+        }
+    },
+
+    /* ===================================================== */
+
+    _applyMappings: function (targetGR, rowObj, mappings) {
+
+        for (var i = 0; i < mappings.length; i++) {
+
+            var map = mappings[i];
+            var value = rowObj[map.source];
+
+            if (value === undefined || value === null)
+                continue;
+
+            targetGR.setValue(map.target, value);
+        }
+    },
+
+    /* ===================================================== */
+
+    _logRowError: function (runSysId, stagingGR, message) {
+
+        var errGR = new GlideRecordSecure("x_ctans_incentnow_import_error");
+        errGR.initialize();
+        errGR.setValue("import_run", runSysId);
+        errGR.setValue("staging_record", stagingGR.getUniqueValue());
+        errGR.setValue("row_number", stagingGR.getValue("row_number"));
+        errGR.setValue("error_message", message);
+        errGR.setValue("raw_payload", stagingGR.getValue("raw_json"));
+        errGR.insert();
+    },
+
+    /* ===================================================== */
+
+    _updateRunMetrics: function (runGR, counters, startTime) {
+
+        var endTime = new GlideDateTime();
+        var duration = endTime.getNumericValue() - startTime.getNumericValue();
+
+        runGR.setValue("inserted_count", counters.inserted);
+        runGR.setValue("updated_count", 0); // Always zero now
+        runGR.setValue("failed_count", counters.failed);
+        runGR.setValue("execution_time_ms", duration);
+        runGR.setValue("status", "Completed");
+        runGR.setValue("completed_at", endTime);
+        runGR.update();
+    },
+
+    type: "IncentNowTransformEngine"
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+        <sys_created_on>2026-02-21 17:18:49</sys_created_on>
+        <sys_id>b60556003bdf7a90ffa00e9693e45a41</sys_id>
+        <sys_mod_count>15</sys_mod_count>
+        <sys_name>IncentNowTransformEngine</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_script_include_b60556003bdf7a90ffa00e9693e45a41</sys_update_name>
+        <sys_updated_by>upma.rai</sys_updated_by>
+        <sys_updated_on>2026-04-22 17:42:32</sys_updated_on>
+    </sys_script_include>
+</record_update>

@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update sys_domain="global" table="sn_aia_tool">
+    <sn_aia_tool action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <description>Answers quota, payout, compensation plan, incentive statement, YTD, QTD, payout breakdown, lookup rules, and other IncentNow compensation questions for the logged-in sales user using exact tool output without rewriting.</description>
+        <input_schema>[]</input_schema>
+        <name>IncentNow Compensation Assistant</name>
+        <record_type>custom</record_type>
+        <script><![CDATA[(function execute(inputs) {
+
+    try {
+
+        var userQuestion = inputs.question || "";
+        var userId = inputs.userid || "";
+
+        if (!userQuestion) {
+            return "Question is required.";
+        }
+
+        if (!userId) {
+            return "User information is missing.";
+        }
+
+        /*
+        ============================================
+        BUILD INPUT PAYLOAD
+        ============================================
+        */
+
+        var inputsPayload = {};
+
+        inputsPayload["question"] = userQuestion;
+        inputsPayload["userid"] = userId;
+
+        /*
+        ============================================
+        ONEEXTEND EXECUTION REQUEST
+        Updated with NEW Capability ID
+        and NEW Skill Config ID
+        ============================================
+        */
+
+        var request = {
+            executionRequests: [
+                {
+                    payload: inputsPayload,
+
+                    capabilityId: "47de14403bac0350ffa00e9693e45a16",
+
+                    meta: {
+                        skillConfigId: "abde14403bac0350ffa00e9693e45a9c"
+                    }
+                }
+            ],
+
+            mode: "sync"
+        };
+
+        /*
+        ============================================
+        EXECUTE SKILL
+        ============================================
+        */
+
+        var response = sn_one_extend.OneExtendUtil.execute(request);
+
+        /*
+        ============================================
+        IMPORTANT:
+        Use SAME capabilityId here also
+        Must match request capabilityId
+        ============================================
+        */
+
+        var rawResponse =
+            response.capabilities[
+                "47de14403bac0350ffa00e9693e45a16"
+            ].response;
+
+        var finalResponse = rawResponse;
+
+        /*
+        ============================================
+        HANDLE model_output RESPONSE
+        Avoid wrapper responses / JSON output
+        ============================================
+        */
+
+        try {
+
+            if (typeof rawResponse == "string") {
+
+                var parsed = JSON.parse(rawResponse);
+
+                if (parsed.model_output) {
+                    finalResponse = parsed.model_output;
+                }
+
+            } else if (
+                rawResponse &&
+                rawResponse.model_output
+            ) {
+
+                finalResponse = rawResponse.model_output;
+            }
+
+        } catch (e) {
+
+            finalResponse = rawResponse;
+        }
+
+        /*
+        ============================================
+        FINAL CLEAN RESPONSE
+        ============================================
+        */
+
+        return finalResponse;
+
+    } catch (ex) {
+
+        gs.error(
+            "IncentNow Script Tool Error: " + ex
+        );
+
+        return "We could not process your request at the moment. Please try again later.";
+    }
+
+})(inputs);]]></script>
+        <sys_class_name>sn_aia_tool</sys_class_name>
+        <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+        <sys_created_on>2026-04-24 18:06:09</sys_created_on>
+        <sys_domain>global</sys_domain>
+        <sys_id>d403f9843b6c4350ffa00e9693e45a3d</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>IncentNow Compensation Assistant</sys_name>
+        <sys_overrides/>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sn_aia_tool_d403f9843b6c4350ffa00e9693e45a3d</sys_update_name>
+        <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
+        <sys_updated_on>2026-04-24 18:06:09</sys_updated_on>
+        <target_document>abde14403bac0350ffa00e9693e45a9c</target_document>
+        <target_document_table>sn_nowassist_skill_config</target_document_table>
+        <type>capability</type>
+    </sn_aia_tool>
+</record_update>

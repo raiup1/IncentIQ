@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>package_private</access>
+        <active>true</active>
+        <api_name>x_ctans_incentnow.IncentNowRuleClientUtils</api_name>
+        <caller_access/>
+        <client_callable>true</client_callable>
+        <description/>
+        <mobile_callable>false</mobile_callable>
+        <name>IncentNowRuleClientUtils</name>
+        <sandbox_callable>false</sandbox_callable>
+        <script><![CDATA[var IncentNowRuleClientUtils = Class.create();
+IncentNowRuleClientUtils.prototype = Object.extendsObject(global.AbstractAjaxProcessor, {
+
+
+    getOperators: function() {
+        var mappingSysId = this.getParameter('sysparm_mapping_field');
+        if (!mappingSysId)
+            return JSON.stringify([]);
+
+        var fieldType = this._getFieldType(mappingSysId);
+        var operators = this._buildOperatorList(fieldType);
+
+        return JSON.stringify(operators);
+    },
+
+    _getFieldType: function(mappingSysId) {
+        var mappingGR = new GlideRecordSecure('x_ctans_incentnow_metadata_mapping'); //  mapping table
+        if (!mappingGR.get(mappingSysId))
+            return '';
+
+        if (mappingGR.field_type)
+            return mappingGR.field_type.name.toString(); // derived field type
+
+        return '';
+    },
+
+    _buildOperatorList: function(fieldType) {
+        var operators = [];
+
+        switch (fieldType) {
+
+            case 'integer':
+            case 'decimal':
+            case 'currency':
+                operators = [
+                    { value: '=', label: 'Is' },
+                    { value: '!=', label: 'Is not' },
+                    { value: '>', label: 'Greater than' },
+                    { value: '<', label: 'Less than' },
+                    { value: '>=', label: 'Greater than or is' },
+                    { value: '<=', label: 'Less than or is' }
+                ];
+                break;
+
+            case 'string':
+                operators = [
+                    { value: '=', label: 'Is' },
+                    { value: '!=', label: 'Is not' },
+                    { value: 'LIKE', label: 'Contains' },
+                    { value: 'STARTSWITH', label: 'Starts with' },
+                    { value: 'ENDSWITH', label: 'Ends with' }
+                ];
+                break;
+
+            case 'datetime':
+            case 'glide_date_time':
+                operators = [
+                    { value: 'ON', label: 'On' },
+                    { value: 'NOTON', label: 'Not on' },
+                    { value: '>', label: 'After' },
+                    { value: '<', label: 'Before' },
+                   // { value: 'BETWEEN', label: 'Between' }
+                ];
+                break;
+        }
+
+        return operators;
+    },
+
+    type: 'IncentNowRuleClientUtils'
+});]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>upma.rai</sys_created_by>
+        <sys_created_on>2026-02-20 12:50:13</sys_created_on>
+        <sys_id>a14e0c3b3b8f7690ffa00e9693e45af5</sys_id>
+        <sys_mod_count>16</sys_mod_count>
+        <sys_name>IncentNowRuleClientUtils</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_script_include_a14e0c3b3b8f7690ffa00e9693e45af5</sys_update_name>
+        <sys_updated_by>upma.rai</sys_updated_by>
+        <sys_updated_on>2026-06-12 12:36:31</sys_updated_on>
+    </sys_script_include>
+</record_update>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_search_sort_option">
+    <sys_search_sort_option action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <ais_field_name>sort_by_date</ais_field_name>
+        <ascending>false</ascending>
+        <gui_label>Most recent</gui_label>
+        <search_context_config display_value="Now Assist - IncentIQ">61abdbf43b6ccf505493ddb693e45ab2</search_context_config>
+        <sys_class_name>sys_search_sort_option</sys_class_name>
+        <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+        <sys_created_on>2026-04-27 09:38:51</sys_created_on>
+        <sys_id>e2abd3383b6ccf505493ddb693e45ab9</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>Most recent</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_search_sort_option_e2abd3383b6ccf505493ddb693e45ab9</sys_update_name>
+        <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
+        <sys_updated_on>2026-04-27 09:38:51</sys_updated_on>
+    </sys_search_sort_option>
+</record_update>

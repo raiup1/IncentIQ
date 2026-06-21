@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update sys_domain="global" table="sys_script">
+    <sys_script action="INSERT_OR_UPDATE">
+        <abort_action>false</abort_action>
+        <access>package_private</access>
+        <action_delete>true</action_delete>
+        <action_insert>false</action_insert>
+        <action_query>false</action_query>
+        <action_update>false</action_update>
+        <active>true</active>
+        <add_message>false</add_message>
+        <advanced>true</advanced>
+        <change_fields>false</change_fields>
+        <client_callable>false</client_callable>
+        <collection>x_ctans_incentnow_plan</collection>
+        <condition/>
+        <description/>
+        <execute_function>false</execute_function>
+        <filter_condition/>
+        <is_rest>false</is_rest>
+        <message/>
+        <name>Prevent deletion on active Plans</name>
+        <order>100</order>
+        <priority>100</priority>
+        <rest_method/>
+        <rest_method_text/>
+        <rest_service/>
+        <rest_service_text/>
+        <rest_variables/>
+        <role_conditions/>
+        <script><![CDATA[(function executeRule(current, previous) {
+
+    var status = current.getValue('status');
+
+    if (status != 'draft') {
+
+        gs.addErrorMessage(
+            "This Plan cannot be deleted. Only draft plans can be deleted."
+        );
+        current.setAbortAction(true);
+        return;
+    }
+
+    try {
+
+        var planId = current.sys_id;
+
+        //  function expression
+        var deleteByPlan = function(tableName, logLabel) {
+
+            var planRule = new GlideRecord(tableName);
+            planRule.addQuery('plan', planId);
+            planRule.setWorkflow(false);
+            planRule.autoSysFields(false);
+            planRule.query();
+
+            var hasRecords = false;
+
+            while (planRule.next()) {
+                hasRecords = true;
+                planRule.deleteRecord();
+            }
+
+            if (hasRecords) {
+                gs.info("Deleted " + logLabel + " for plan: " + current.getDisplayValue());
+            }
+        };
+
+        deleteByPlan('x_ctans_incentnow_payout_summary', 'Payout Summary');
+        deleteByPlan('x_ctans_incentnow_lookup_rule', 'Lookup Rules');
+        deleteByPlan('x_ctans_incentnow_earning_rule', 'Earning Rules');
+
+        var credit = new GlideRecord('x_ctans_incentnow_credit_results');
+        credit.addQuery('plan', planId);
+        credit.deleteMultiple();
+
+        var lookupRes = new GlideRecord('x_ctans_incentnow_lookup_results');
+        lookupRes.addQuery('plan', planId);
+        lookupRes.deleteMultiple();
+
+        gs.info("Cascade delete completed for plan: " + current.getDisplayValue());
+
+    } catch (ex) {
+
+        gs.error("Error during cascade delete: " + ex.message);
+
+        gs.addErrorMessage("Failed to delete related records. Contact admin.");
+        current.setAbortAction(true);
+    }
+
+})(current, previous);]]></script>
+        <sys_class_name>sys_script</sys_class_name>
+        <sys_created_by>upma.rai</sys_created_by>
+        <sys_created_on>2026-04-08 14:20:31</sys_created_on>
+        <sys_domain>global</sys_domain>
+        <sys_domain_path>/</sys_domain_path>
+        <sys_id>a6756a723b088b10ffa00e9693e45a1d</sys_id>
+        <sys_mod_count>6</sys_mod_count>
+        <sys_name>Prevent deletion on active Plans</sys_name>
+        <sys_overrides/>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_script_a6756a723b088b10ffa00e9693e45a1d</sys_update_name>
+        <sys_updated_by>upma.rai</sys_updated_by>
+        <sys_updated_on>2026-06-11 11:40:04</sys_updated_on>
+        <template/>
+        <when>before</when>
+    </sys_script>
+    <sys_translated_text action="delete_multiple" query="documentkey=a6756a723b088b10ffa00e9693e45a1d"/>
+</record_update>

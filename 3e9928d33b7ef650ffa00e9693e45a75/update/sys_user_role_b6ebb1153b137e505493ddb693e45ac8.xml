@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_user_role">
+    <sys_user_role action="INSERT_OR_UPDATE">
+        <assignable_by/>
+        <can_delegate>true</can_delegate>
+        <description>This role can create Reports, dashboards and monitoring KPIs, Read access to Plan, Quota, Users across enterprise</description>
+        <elevated_privilege>false</elevated_privilege>
+        <federated_id>83HAj9pMLZOalRs9Vefa0vfGiz1zzUY+EQvMiIr5YQ0=</federated_id>
+        <grantable>true</grantable>
+        <includes_roles/>
+        <name>x_ctans_incentnow.org_executive</name>
+        <scoped_admin>false</scoped_admin>
+        <suffix>org_executive</suffix>
+        <sys_class_name>sys_user_role</sys_class_name>
+        <sys_created_by>upma.rai</sys_created_by>
+        <sys_created_on>2026-02-25 12:39:58</sys_created_on>
+        <sys_id>b6ebb1153b137e505493ddb693e45ac8</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>x_ctans_incentnow.org_executive</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_user_role_b6ebb1153b137e505493ddb693e45ac8</sys_update_name>
+        <sys_updated_by>upma.rai</sys_updated_by>
+        <sys_updated_on>2026-02-25 12:39:58</sys_updated_on>
+    </sys_user_role>
+</record_update>

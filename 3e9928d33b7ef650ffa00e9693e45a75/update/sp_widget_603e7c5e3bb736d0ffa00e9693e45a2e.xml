@@ -1,0 +1,1864 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <client_script><![CDATA[api.controller = function($scope, spModal, $location,spUtil) {
+
+    var c = this;
+
+    /* ================= INIT ================= */
+
+    c.newRow = {};
+    c.filteredQuotas = [];
+    c.loading = false;
+    c.successMessage = "";
+    c.errorMessage = "";
+    c.data.columns = c.data.columns || [];
+    c.data.rows = c.data.rows || [];
+    c.selectedLookup = null;
+    c.lookupForm = {
+        name: '',
+        description: ''
+    };
+    c.view = 'main';
+    c.activeLookupName = '';
+
+    /* ================= REQ 1: PAGINATION STATE ================= */
+
+    c.lkpPageSize = 10;
+    c.lkpPage = 1;
+    c.lkpTotalPages = 1;
+    c.lkpPages = [];
+
+    c._buildLkpPages = function() {
+        var total = c.data.lookupTables ? c.data.lookupTables.length : 0;
+        c.lkpTotalPages = Math.max(1, Math.ceil(total / c.lkpPageSize));
+        c.lkpPages = [];
+        for (var i = 1; i <= c.lkpTotalPages; i++) {
+            c.lkpPages.push(i);
+        }
+    };
+
+    // Returns the slice of rows for the current page — avoids Angular filter registration
+    c.lkpGetPage = function() {
+        var list = c.data.lookupTables || [];
+        var start = (c.lkpPage - 1) * c.lkpPageSize;
+        return list.slice(start, start + c.lkpPageSize);
+    };
+
+    // Returns the last item number on the current page
+    c.lkpEndItem = function() {
+        var total = (c.data.lookupTables || []).length;
+        return Math.min(c.lkpPage * c.lkpPageSize, total);
+    };
+
+    /* ================= NAVIGATION ================= */
+
+    c.goTo = function(view) {
+
+        c.view = view;
+        if (view === 'lookups') {
+            c.viewColumns = [];
+            c.viewRows = [];
+            c.viewLoaded = false;
+            c.activeLookupName = '';
+            c.lkpPage = 1; // reset to page 1 on navigation
+            c.server.get({
+                action: 'load_lookups'
+            }).then(function(response) {
+                c.data.lookupTables = (response.data && response.data.lookupTables) || [];
+                c._buildLkpPages(); // build page numbers after data loads
+            });
+            return;
+        }
+        if (view === 'fiscal') {
+            c._hideFiscalBtn();
+            return;
+        }
+        if (view === 'importData') {
+            var url = '/incentiq?id=import_external';
+            $location.url(url);
+            return;
+        }
+			 if (view === 'importDataInternal') {
+            var url = '/incentiq?id=import_internal';
+            $location.url(url);
+            return;
+        }
+        if (view === 'quotas') {
+            var url = '/incentniq?id=quota_setup';
+            $location.url(url);
+            return;
+        }
+        if (view === 'settings' || view === 'main' || view === 'lookupView') {
+            return;
+        }
+				
+        c.server.update({
+            action: 'refresh_all',
+            period: c.selectedQuotaPeriod,
+            unit: c.selectedQuotaUnit,
+            activeTab: view
+        }).then(function(response) {
+            c.data.fiscalPeriods = response.data.fiscalPeriods || {};
+            c.data.fiscalYears = response.data.fiscalYears || {};
+            c.data.fiscalStats = response.data.fiscalStats || {};
+            c.data.quotaAssignments = response.data.quotaAssignments || {};
+            c.data.quotaSummary = response.data.quotaSummary || {};
+            c.filteredQuotas = angular.copy(c.data.quotaAssignments || []);
+        });
+    };
+
+
+    c.setTab = function(tab) {
+        c.goTo(tab);
+    };
+
+    /* ================= HIDE DUPLICATE FISCAL BUTTON ================= */
+
+    c._hideFiscalBtn = function() {
+        if (c._fiscalObserver) {
+            c._fiscalObserver.disconnect();
+            c._fiscalObserver = null;
+        }
+        var checkAndHide = function(wrap) {
+            var allBtns = wrap.querySelectorAll('button, a.btn, a[class*="btn"]');
+            var found = false;
+            allBtns.forEach(function(btn) {
+                var txt = (btn.textContent || btn.innerText || '').replace(/\s+/g, ' ').trim().toLowerCase();
+                if (txt.indexOf('new fiscal calendar') !== -1 || txt.indexOf('new calendar') !== -1) {
+                    btn.style.setProperty('display', 'none', 'important');
+                    found = true;
+                }
+            });
+            return found;
+        };
+        var waitForWrap = function() {
+            var wrap = document.querySelector('.fiscal-widget-wrap');
+            if (!wrap) {
+                requestAnimationFrame(waitForWrap);
+                return;
+            }
+            if (checkAndHide(wrap)) {
+                return;
+            }
+            c._fiscalObserver = new MutationObserver(function(mutations, obs) {
+                if (checkAndHide(wrap)) {
+                    obs.disconnect();
+                    c._fiscalObserver = null;
+                }
+            });
+            c._fiscalObserver.observe(wrap, {
+                childList: true,
+                subtree: true
+            });
+            setTimeout(function() {
+                if (c._fiscalObserver) {
+                    c._fiscalObserver.disconnect();
+                    c._fiscalObserver = null;
+                }
+            }, 10000);
+        };
+        requestAnimationFrame(waitForWrap);
+    };
+
+    /* ================= FISCAL CALENDAR ================= */
+
+    c.newFiscalCalendar = function() {
+
+        var url = '/incentiq?id=incentnow_form&table=x_ctans_incentnow_fiscal_calendar&sys_id=-1';
+        $location.url(url);
+    };
+
+    /* ================= QUOTA FILTER ================= */
+
+    c.uiFilter = {
+        period: '',
+        frequency: '',
+        search: ''
+    };
+    c.applyUIFilter = function() {
+        var list = angular.copy(c.data.quotaAssignments || []);
+        if (c.uiFilter.period) {
+            list = list.filter(function(q) {
+                return q.periodName === c.uiFilter.period;
+            });
+        }
+        if (c.uiFilter.frequency) {
+            list = list.filter(function(q) {
+                return q.distributionMethod === c.uiFilter.frequency;
+            });
+        }
+        if (c.uiFilter.search) {
+            var s = c.uiFilter.search.toLowerCase();
+            list = list.filter(function(q) {
+                return q.name && q.name.toLowerCase().indexOf(s) !== -1;
+            });
+        }
+        c.filteredQuotas = list;
+    };
+
+    /* ================= QUOTA SUMMARY ================= */
+
+    c.getQuotaSummary = function() {
+        var totalValue = 0;
+        if (c.data.quotaAssignments) {
+            c.data.quotaAssignments.forEach(function(q) {
+                totalValue += parseFloat(q.targetValue) || 0;
+            });
+        }
+        return {
+            total: (c.data.quotaAssignments || []).length,
+            totalValue: totalValue
+        };
+    };
+
+    /* ================= LOOKUP TABLE VIEW ================= */
+
+    c.openLookupView = function(table) {
+        if (!table || !table.sys_id) {
+            c.showMessage("error", "Invalid table");
+            return;
+        }
+        c.viewColumns = [];
+        c.viewRows = [];
+        c.viewLoaded = false;
+        c.activeLookupName = table.name || 'Decision Table View';
+        c.view = 'lookupView';
+
+        c.server.get({
+            action: 'get_lookup_rows',
+            sys_id: table.sys_id
+        }).then(function(response) {
+            c.viewLoaded = true;
+            c.viewColumns = (response.data && response.data.columns) || [];
+            c.viewRows = (response.data && response.data.rows) || [];
+            c.viewRows.forEach(function(r) {
+                if (!r.values) r.values = {};
+            });
+        }, function() {
+            c.loading = false;
+            c.showMessage("error", "Failed to load data");
+        });
+    };
+
+    c.viewDecisionTable = function(table) {
+        c.openLookupView(table);
+    };
+
+    /* ================= LOOKUP TABLE ACTIONS ================= */
+
+    c.normalizeRows = function() {
+        if (!c.data.rows) return;
+        c.data.rows.forEach(function(row) {
+            if (!row.values) row.values = {};
+            c.data.columns.forEach(function(col) {
+                if (row.values[col.sys_id] === undefined) {
+                    row.values[col.sys_id] = '';
+                }
+            });
+        });
+    };
+
+    c.formatCondition = function(cond, col) {
+        if (!cond) return '';
+        var value = '';
+        if (cond.indexOf('BETWEEN') > -1) {
+            var part = cond.split('BETWEEN')[1] || '';
+            if (part.indexOf('^') > -1) part = part.split('^')[0];
+            var range = part.split('@');
+            return (range[0] || '') + ' - ' + (range[1] || '');
+        }
+        if (cond.indexOf('=') > -1) {
+            var raw = cond.split('=')[1] || '';
+            if (raw.indexOf('^') > -1) raw = raw.split('^')[0];
+            value = raw;
+        }
+        if (col.reference && value && value.length === 32) {
+            c.server.get({
+                action: 'get_display_value',
+                table: col.reference,
+                sys_id: value
+            }).then(function(res) {
+                col.displayMap[value] = res.data.display;
+            });
+            return (col.displayMap && col.displayMap[value]) || value;
+        }
+        return value;
+    };
+
+    c.openDecisionTable = function(table) {
+        if (!table || !table.sys_id) {
+            alert("Invalid table");
+            return;
+        }
+        var url = '/now/workflow-studio/builder?tableName=sys_decision&builderId=decision-table&sysId=" + table.sys_id,"DecisionTable","width=1400,height=900,scrollbars=yes,resizable=yes';
+        $location.url(url);
+    };
+
+    c.addInput = function() {
+        c.newInput = {
+            label: '',
+            element: '',
+            type: 'string',
+            reference: '',
+            order: (c.columns || []).length + 1
+        };
+        $('#addInputModal').modal('show');
+    };
+
+    c.submitInput = function() {
+        if (!c.newInput.label || !c.newInput.element) {
+            alert("Label and Element are required");
+            return;
+        }
+        var payload = {
+            label: c.newInput.label,
+            element: c.newInput.element,
+            type: c.newInput.type,
+            reference: c.newInput.type === 'reference' ? c.newInput.reference : '',
+            order: c.newInput.order || 100
+        };
+        c.server.get({
+            action: 'create_dt_input',
+            decision_id: c.selectedLookup,
+            inputObj: payload
+        }).then(function(res) {
+            if (res && res.data && JSON.stringify(res.data).toLowerCase().indexOf('success') !== -1) {
+                alert("Input created successfully");
+                if (!c.columns) {
+                    c.columns = [];
+                }
+                c.columns.push({
+                    sys_id: payload.element,
+                    name: payload.label,
+                    type: 'input'
+                });
+                $('#addInputModal').modal('hide');
+            } else {
+                alert("Failed to create input");
+            }
+        });
+    };
+
+    c.addOutput = function() {
+        var name = prompt("Enter Output Name");
+        if (!name) {
+            return;
+        }
+        if (name.length > 20 || /\d/.test(name)) {
+            alert("Invalid output name. Use proper column name like Commission");
+            return;
+        }
+        var key = "out_" + name.toLowerCase().replace(/\s+/g, '_');
+        if (!c.columns) {
+            c.columns = [];
+        }
+        if (c.columns.some(function(col) {
+                return col.name.toLowerCase() === name.toLowerCase();
+            })) {
+            alert("Column already exists");
+            return;
+        }
+        c.columns.push({
+            sys_id: key,
+            name: name,
+            type: 'output'
+        });
+    };
+
+    c.addRow = function() {
+        if (!c.rows) {
+            c.rows = [];
+        }
+        var newRow = {
+            sys_id: null,
+            values: {}
+        };
+        (c.columns || []).forEach(function(col) {
+            newRow.values[col.sys_id] = c.newRow[col.sys_id] || '';
+        });
+        c.rows.push(newRow);
+        c.newRow = {};
+    };
+
+    c.removeRow = function(index, row) {
+        if (!row || !row.sys_id) {
+            c.rows.splice(index, 1);
+            return;
+        }
+        if (!confirm("Delete this row?")) {
+            return;
+        }
+        c.server.get({
+            action: 'delete_lookup_row',
+            row_id: row.sys_id
+        }).then(function(res) {
+            if (res.data.status === 'success') {
+                c.rows.splice(index, 1);
+            } else {
+                alert("Delete failed");
+            }
+        });
+    };
+
+    c.deleteRow = function(row) {
+        if (!row || !row.sys_id) {
+            var idx = c.rows.indexOf(row);
+            if (idx > -1) {
+                c.rows.splice(idx, 1);
+            }
+            return;
+        }
+        if (!confirm("Delete this row?")) {
+            return;
+        }
+        c.server.get({
+            action: 'delete_lookup_row',
+            row_id: row.sys_id
+        }).then(function(res) {
+            if (res.data.status === 'success') {
+                var idx = c.rows.indexOf(row);
+                if (idx > -1) {
+                    c.rows.splice(idx, 1);
+                }
+            } else {
+                alert("Delete failed");
+            }
+        });
+    };
+
+    c.saveLookupRows = function() {
+        if (!c.rows) {
+            c.rows = [];
+        }
+        c.server.get({
+            action: 'save_lookup_config',
+            sys_id: c.selectedLookup,
+            columns: c.columns.map(function(col) {
+                return {
+                    sys_id: col.sys_id,
+                    name: col.name,
+                    type: col.sys_id.startsWith('out_') ? 'output' : 'input'
+                };
+            }),
+            rows: c.rows
+        }).then(function(res) {
+            if (res.data && res.data.data && res.data.data.status === 'success') {
+                alert("Saved successfully");
+            } else {
+                alert("Save executed (check DB)");
+            }
+        });
+    };
+
+    c.saveLookupConfig = function() {
+        if (!c.selectedLookup || !c.selectedLookup.sys_id) {
+            alert("No lookup selected");
+            return;
+        }
+        if (!c.data.columns.length) {
+            alert("Add at least one column");
+            return;
+        }
+        if (!c.data.rows.length) {
+            alert("Add at least one row");
+            return;
+        }
+        c.server.get({
+            action: 'save_lookup_config',
+            sys_id: c.selectedLookup.sys_id,
+            columns: c.data.columns,
+            rows: c.data.rows
+        }).then(function(res) {
+            if (res.data.status === 'success') {
+                alert("Lookup saved successfully");
+            } else {
+                alert(res.data.message);
+            }
+        });
+    };
+
+    c.generateElement = function() {
+        if (!c.newInput || !c.newInput.label) {
+            return;
+        }
+        var element = c.newInput.label.toLowerCase().trim()
+            .replace(/[^a-z0-9\s]/g, '')
+            .replace(/\s+/g, '_');
+        if (!element.startsWith('u_')) {
+            element = 'u_' + element;
+        }
+        c.newInput.element = element;
+    };
+
+    c.showMessage = function(type, msg) {
+        if (type === 'success') {
+            c.successMessage = msg;
+            c.errorMessage = "";
+        } else {
+            c.errorMessage = msg;
+            c.successMessage = "";
+        }
+        setTimeout(function() {
+            c.successMessage = "";
+            c.errorMessage = "";
+            $scope.$applyAsync();
+        }, 3000);
+    };
+
+    c.createLookup = function() {
+        c.lookupForm = {
+            name: '',
+            description: ''
+        };
+        $('#createLookupModal').modal('show');
+    };
+	
+		c.submitLookup = function() {
+			if (!c.lookupForm.name || !c.lookupForm.name.trim()) {
+					c.showMessage("error", "Name is required");
+					return;
+			}
+			c.loading = true;
+			c.server.get({
+					action: 'create_lookup',
+					name: c.lookupForm.name,
+					description: c.lookupForm.description
+			}).then(function(response) {
+					c.loading = false;
+
+					var res = response.data || {};
+					if (res.status === "success") {
+							$('#createLookupModal').modal('hide');
+							// SUCCESS NOTIFICATION
+							spUtil.addInfoMessage('Lookup record created successfully');
+							// OPTIONAL LOCAL MESSAGE
+							c.showMessage("success", "Lookup record created successfully");
+							// RELOAD LOOKUPS
+							c.goTo('lookups');
+					} else {
+							spUtil.addErrorMessage(res.message || 'Failed to create lookup');
+							c.showMessage("error", res.message || 'Failed to create lookup');
+					}
+
+			}, function() {
+					c.loading = false;
+					spUtil.addErrorMessage('Server error while creating lookup');
+					c.showMessage("error", "Server error while creating lookup");
+			});
+	};
+
+    c.openConfigureModal = function(table) {
+        if (!table || !table.sys_id) {
+            c.showMessage("error", "Invalid lookup selected");
+            return;
+        }        
+
+        window.open('/now/workflow-studio/builder?table=sys_decision&sysId=' + table.sys_id, '_blank');
+    };
+
+    c.confirmDeleteDirect = function(record) {
+			
+			spModal.open({
+					title: 'Delete Confirmation',
+					message: 'This action cannot be undone. Are you sure?',
+					buttons: [
+							{ label: 'Cancel', cancel: true },
+							{ label: 'Delete', primary: true }
+					]
+			}).then(function () {
+				
+				c.loading = true;
+        c.server.get({
+            action: 'delete_lookup',
+            sys_id: record.sys_id
+        }).then(function(response) {
+            c.loading = false;
+            if (response.data.status === "success") {
+                spUtil.addInfoMessage("Deleted successfully");
+                c.goTo('lookups');
+            } else {
+							spUtil.addErrorMessage("Delete failed "+ response.data.message);
+                //alert(response.data.message || "Delete failed");
+            }
+        }, function() {
+            c.loading = false;
+            alert("Server error");
+        });
+				
+				
+			});
+			
+			
+      
+        
+    };
+
+    c.viewAssignments = function(quota) {
+        var quotaId = null;
+        if (quota) {
+            quotaId = quota.id || quota.sys_id || quota.quotaId;
+        }
+        var url = "/incentiq?id=quota_assignments";
+        if (quotaId) {
+            url += "&quota_id=" + quotaId;
+        }
+        $location.url(url);
+    };
+
+    c.createQuota = function() {
+        var base = $location.absUrl();
+        var sep = base.indexOf('?') === -1 ? '?' : '&';
+        sessionStorage.setItem('qb_origin', base + sep + 'view=quotas');
+        $location.url("/incentiq?id=quota_builder");
+    };
+
+    /* ================= INIT LOAD ================= */
+
+    c.$onInit = function() {
+        c.filteredQuotas = c.data.quotaAssignments || [];
+        var urlParams = new URLSearchParams(window.location.search);
+        var viewParam = urlParams.get('view');
+        if (viewParam && ['fiscal', 'quotas', 'lookups', 'lookupView', 'settings', 'importData'].indexOf(viewParam) !== -1) {
+            c.goTo(viewParam);
+        } else {
+            c.server.update({
+                action: 'refresh_all'
+            }).then(function(response) {
+                c.data.fiscalPeriods = response.data.fiscalPeriods;
+                c.data.fiscalYears = response.data.fiscalYears;
+                c.data.fiscalStats = response.data.fiscalStats;
+                c.data.quotaAssignments = response.data.quotaAssignments;
+                c.data.quotaSummary = response.data.quotaSummary;
+                c.filteredQuotas = angular.copy(c.data.quotaAssignments || []);
+            });
+        }
+    };
+
+    var action = $location.search().action;
+    if (action === 'fiscal') {
+        c.goTo('fiscal');
+    }
+
+};]]></client_script>
+        <controller_as>c</controller_as>
+        <css>/* ================= FISCAL PERIOD CARD ================= */
+
+.fiscal-period-card {
+  min-height: 280px;
+  margin-bottom: 10px;
+  transition: all 0.3s;
+}
+
+.fiscal-period-card:hover {
+  box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+  transform: translateY(-3px);
+}
+
+.fiscal-period-card .panel-heading {
+  padding: 6px 10px;
+  font-size: 13px;
+}
+
+.fiscal-period-card .panel-body {
+  padding: 8px 10px;
+}
+
+.fiscal-period-card .panel-body div {
+  font-size: 12px;
+  line-height: 1.2;
+  margin-bottom: 2px;
+}
+
+.fiscal-period-info .info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.fiscal-period-info .info-row:last-child { border-bottom: none; }
+.fiscal-period-info .info-label { font-weight: 600; color: #666; font-size: 13px; }
+.fiscal-period-info .info-value { color: #333; font-size: 13px; }
+.fiscal-filter-row { margin-bottom: 35px; }
+.quota-filter-row  { margin-bottom: 35px; }
+
+/* ================= ADMIN CARDS ================= */
+
+.row.m-b-lg[style*="display:flex"] { align-items: stretch !important; }
+.row.m-b-lg[style*="display:flex"] &gt; [class*="col-"] { display: flex; flex-direction: column; }
+
+.admin-card {
+  padding: 22px;
+  border-radius: 18px;
+  border: 1px solid #e6e8ec;
+  background: linear-gradient(180deg, #ffffff, #f9fafb);
+  transition: all 0.3s ease;
+  position: relative;
+  cursor: pointer;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-card i { font-size: 22px; margin-bottom: 10px; }
+.admin-card h4 { font-weight: 600; margin-top: 6px; }
+.admin-card:hover { transform: translateY(-6px) scale(1.01); box-shadow: 0 14px 40px rgba(0,0,0,0.12); }
+
+/* ================= BACK BUTTON TOPBAR ================= */
+
+.admin-page-topbar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.admin-back-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  cursor: pointer;
+  color: #374151;
+  flex-shrink: 0;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.admin-back-btn:hover { background: #f1f5f9; border-color: #94a3b8; }
+
+.admin-page-topbar-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: #0f172a;
+  flex: 1;
+  letter-spacing: -0.01em;
+}
+
+.admin-page-topbar-actions { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+
+/* ================= TOPBAR BUTTONS ================= */
+
+.admin-btn-solid {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 18px;
+  background: #0f172a;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s;
+}
+.admin-btn-solid:hover { background: #1e293b; }
+
+.admin-btn-outline {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 18px;
+  background: #ffffff;
+  color: #374151;
+  border: 1.5px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s, border-color 0.15s;
+}
+.admin-btn-outline:hover { background: #f9fafb; border-color: #9ca3af; }
+
+/* ================= LOOKUP ACTION BUTTONS ================= */
+
+.lkp-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  margin-right: 4px;
+  transition: background 0.15s, border-color 0.15s;
+}
+.lkp-btn-outline { background: #ffffff; color: #374151; border: 1.5px solid #d1d5db; }
+.lkp-btn-outline:hover { background: #f3f4f6; border-color: #9ca3af; }
+.lkp-btn-danger { background: #ffffff; color: #dc2626; border: 1.5px solid #fca5a5; }
+.lkp-btn-danger:hover { background: #fef2f2; border-color: #f87171; }
+
+/* ================= DECISION TABLE VIEW PAGE ================= */
+
+.admin-lookup-view-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 28px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+}
+.admin-lookup-loading { text-align: center; padding: 40px; color: #6b7280; font-size: 15px; }
+.admin-lookup-empty   { text-align: center; padding: 40px; color: #9ca3af; font-size: 14px; }
+
+/* ================= FILTER BAR ================= */
+
+.row.m-b-lg {
+  background: #ffffff;
+  padding: 16px 20px;
+  border-radius: 16px;
+  border: 1px solid #e6e8ec;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.05);
+}
+.row.m-b-lg .col-sm-3 { display: flex; align-items: center; }
+.row.m-b-lg .col-sm-3:first-child::before { content: "Calendar:"; font-weight: 600; margin-right: 10px; color: #374151; }
+.row.m-b-lg .col-sm-3:nth-child(2)::before { content: "Frequency:"; font-weight: 600; margin-right: 10px; color: #374151; }
+.row.m-b-lg select.form-control, .row.m-b-lg input.form-control {
+  border-radius: 12px; height: 38px; border: 1px solid #e5e7eb; background: #fff; transition: all 0.2s ease;
+}
+.row.m-b-lg select.form-control:focus, .row.m-b-lg input.form-control:focus {
+  border-color: #2563eb; box-shadow: 0 0 0 2px rgba(37,99,235,0.1);
+}
+
+/* ================= KPI CARDS ================= */
+
+.quota-kpi-card {
+  border-radius: 22px;
+  background: linear-gradient(145deg, #ffffff, #f3f4f6);
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.05);
+  overflow: hidden;
+}
+.quota-kpi-card:hover { transform: translateY(-5px); box-shadow: 0 18px 40px rgba(0,0,0,0.12); }
+.quota-kpi-card h2 { font-size: 32px; font-weight: 700; color: #111827; }
+.quota-kpi-card p { font-size: 13px; color: #6b7280; }
+.quota-kpi-card .panel-body { padding: 22px; }
+
+/* ================= TABLE ================= */
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #ffffff;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.04);
+}
+.table, .table th, .table td { border: 1px solid #e5e7eb; }
+.table thead th { background: #f9fafb; font-weight: 600; color: #374151; padding: 14px; }
+.table tbody td { padding: 12px; vertical-align: middle; color: #374151; }
+.table tbody tr:nth-child(even) { background: #fafafa; }
+.table tbody tr:hover { background: #eef2ff; }
+
+/* ================= BUTTONS ================= */
+
+.btn { border-radius: 10px; font-weight: 500; padding: 6px 14px; }
+.btn-primary { background: linear-gradient(135deg, #2563eb, #1d4ed8); border: none; color: white; box-shadow: 0 6px 14px rgba(37,99,235,0.25); }
+.btn-primary:hover { transform: translateY(-2px); }
+.btn-success { background: linear-gradient(135deg, #16a34a, #15803d); border: none; color: white; box-shadow: 0 6px 14px rgba(22,163,74,0.25); }
+.btn-danger  { background: linear-gradient(135deg, #dc2626, #b91c1c); border: none; color: white; box-shadow: 0 6px 14px rgba(220,38,38,0.25); }
+.btn-xs { padding: 4px 10px; font-size: 11px; }
+
+/* ================= MODALS ================= */
+
+.modal-content { border-radius: 18px; border: none; box-shadow: 0 25px 60px rgba(0,0,0,0.25); }
+.modal-header  { border-bottom: 1px solid #e5e7eb; padding: 16px 20px; }
+.modal-body    { padding: 20px; max-height: 60vh; overflow-y: auto; }
+.modal-footer  { border-top: 1px solid #e5e7eb; padding: 14px 20px; }
+
+/* ================= FORM CONTROLS ================= */
+
+.form-control { border-radius: 10px; border: 1px solid #e5e7eb; box-shadow: none; }
+.form-control:focus { border-color: #2563eb; box-shadow: 0 0 0 2px rgba(37,99,235,0.1); }
+
+/* ================= ALERTS ================= */
+
+.alert { border-radius: 12px; padding: 12px 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+
+/* ================= PAGE HEADER ================= */
+
+.admin-main h1 { font-weight: 600; color: #111827; }
+
+/* ================= LOOKUP TABLE CARD ================= */
+
+.lookup-table-card { transition: all 0.3s; }
+.lookup-table-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.15); transform: translateY(-2px); }
+.lookup-header-row { display: flex; align-items: center; width: 100%; }
+.lookup-header-right { margin-left: auto; text-align: right; }
+
+/* ================= IO STYLES ================= */
+
+.io-container { display: flex; justify-content: space-between; align-items: center; margin: 15px 0; }
+.io-actions   { display: flex; gap: 25px; }
+.io-group     { display: flex; align-items: center; gap: 8px; }
+.io-label     { font-weight: 600; color: #444; }
+.io-btn { background: #f4f6f8; border: 1px solid #dcdfe6; border-radius: 6px; padding: 4px 10px; font-size: 12px; }
+.io-btn:hover { background: #e6f0ff; border-color: #4a90e2; color: #2b6cb0; }
+.io-input-row { display: flex; gap: 10px; margin-bottom: 15px; }
+.io-input { flex: 1; }
+.io-add-row .btn { border-radius: 8px; padding: 6px 16px; }
+
+/* ================= LOOKUP VIEW ================= */
+
+.lkv-output-cell { color: #16a34a; font-weight: 600; }
+.lkv-subhdr { background: #eef2ff; font-size: 11px; font-weight: 700; color: #4338ca; padding: 8px 16px !important; text-align: center; border: 1px solid #c7d2fe; letter-spacing: 0.04em; text-transform: uppercase; }
+.lkv-subhdr-blank { background: #f9fafb; border: 1px solid #e5e7eb; padding: 8px 16px !important; }
+.lkv-range-cell { text-align: center; color: #1e40af; font-weight: 600; font-size: 14px; }
+.lkv-group-header { text-align: center; background: #f8fafc; color: #1e293b !important; font-size: 13px; font-weight: 700; padding: 12px 16px !important; border: 1px solid #e2e8f0; }
+.lkv-group-header * { color: #1e293b !important; }
+
+.admin-lookup-view-card .table thead th { font-size: 13px; font-weight: 700; color: #1e293b; padding: 12px 16px; background: #f8fafc; border-bottom: 2px solid #e2e8f0; }
+.admin-lookup-view-card .table tbody td { font-size: 14px; color: #374151; padding: 13px 16px; vertical-align: middle; }
+.admin-lookup-view-card .table tbody tr:hover { background: #f0f4ff; }
+.admin-lookup-view-card .table tbody tr:nth-child(even) { background: #f8fafc; }
+.admin-lookup-view-card .table tbody tr:nth-child(even):hover { background: #f0f4ff; }
+
+/* ================= GLOBAL ================= */
+
+body { font-family: "Inter", "Segoe UI", sans-serif; background: #f5f7fb; }
+.btn-group .btn.active { background-color: #337ab7; color: white; border-color: #2e6da4; }
+
+/* ================= LOOKUP TABLE PAGINATION ================= */
+
+.lkp-pagination {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 16px;
+  justify-content: flex-start;
+}
+
+.lkp-page-label {
+  font-size: 13px;
+  color: #374151;
+  font-weight: 500;
+  font-family: "Inter", "Segoe UI", sans-serif;
+  padding: 0 4px;
+}
+
+.lkp-prev-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 7px 14px;
+  border: 1.5px solid #d1d5db;
+  border-radius: 7px;
+  background: #ffffff;
+  color: #374151;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s, border-color 0.15s;
+}
+.lkp-prev-btn:hover:not([disabled]) { background: #f1f5f9; border-color: #94a3b8; }
+.lkp-prev-btn[disabled] { opacity: 0.4; cursor: not-allowed; }
+
+.lkp-next-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 7px 14px;
+  border: none;
+  border-radius: 7px;
+  background: #0f172a;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s;
+}
+.lkp-next-btn:hover:not([disabled]) { background: #1e293b; }
+.lkp-next-btn[disabled] { opacity: 0.4; cursor: not-allowed; }</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description/>
+        <docs/>
+        <field_list/>
+        <has_preview>false</has_preview>
+        <id>incentnow-admin-dashboard</id>
+        <internal>false</internal>
+        <link><![CDATA[function link(scope, element, attrs, controller) {
+  
+}]]></link>
+        <name>IncentNow Admin Dashboard</name>
+        <option_schema/>
+        <public>false</public>
+        <roles>x_ctans_incentnow.user,x_ctans_incentnow.admin</roles>
+        <script><![CDATA[(function() {
+
+  data  = data  || {};
+  input = input || {};
+  data.widgets          = data.widgets || {};
+  data.widgets.settings = $sp.getWidget('incentnow-system-settings');
+  data.widgets.fiscal   = $sp.getWidget('incentnow-widget-container');
+  data.tableWidget      = $sp.getWidget('incentnow-table-widget', { table: 'x_ctans_incentnow_quota', view: '', viewperiod: 'false' });
+
+  data.isIncentNowAdmin= gs.hasRole('x_ctans_incentnow.admin');
+	data.isIncentNowGroupAdmin= gs.hasRole('x_ctans_incentnow.business_group_admin') || gs.hasRole('x_ctans_incentnow.admin') ;
+  
+  /* ================= LOAD LOOKUPS ================= */
+
+  if (input.action === 'load_lookups') {
+    data.lookupTables = [];
+    var lkGR = new GlideRecord('sys_decision');
+    lkGR.addEncodedQuery('sys_scope=3e9928d33b7ef650ffa00e9693e45a75');
+    lkGR.orderBy('name');
+    lkGR.query();
+    while (lkGR.next()) {
+      var lkEntry = {};
+      lkEntry.sys_id  = lkGR.getUniqueValue();
+      lkEntry.name    = lkGR.getDisplayValue('name');
+      lkEntry.type    = 'Decision Table';
+      lkEntry.updated = lkGR.getDisplayValue('sys_updated_on');
+      data.lookupTables.push(lkEntry);
+    }
+    data.success = true;
+    return data;
+  }
+
+  /* ===============================================================
+     GET LOOKUP ROWS
+  =============================================================== */
+
+  if (input.action === 'get_lookup_rows') {
+    data.columns = [];
+    data.rows    = [];
+
+    try {
+
+      var inpColGR = new GlideRecord('sys_decision_input');
+      inpColGR.addQuery('model_id', input.sys_id);
+      inpColGR.orderBy('order');
+      inpColGR.query();
+      var inputMap = {};
+
+      while (inpColGR.next()) {
+        var inpKey       = inpColGR.getValue('name');
+        var inpRef       = inpColGR.getValue('reference');
+        inputMap[inpKey] = inpRef;
+
+        var inpCol    = {};
+        inpCol.sys_id = inpKey;
+        inpCol.name   = inpColGR.getDisplayValue('label');
+        inpCol.type   = 'input';
+        data.columns.push(inpCol);
+      }
+
+      var outColGR = new GlideRecord('sys_decision_multi_result_element');
+      outColGR.addQuery('model_id', input.sys_id);
+      outColGR.query();
+      while (outColGR.next()) {
+        var outCol    = {};
+        outCol.sys_id = outColGR.getUniqueValue();
+        outCol.name   = outColGR.getDisplayValue('label');
+        outCol.type   = 'output';
+        data.columns.push(outCol);
+      }
+
+      var resultGR = new GlideRecord('sys_decision_multi_result');
+      resultGR.addQuery('decision_table', input.sys_id);
+      resultGR.query();
+
+      while (resultGR.next()) {
+        var row    = {};
+        row.sys_id = resultGR.getUniqueValue();
+        row.values = {};
+
+        var valGR = new GlideRecord('sys_variable_value');
+        valGR.addQuery('document_key', row.sys_id);
+        valGR.query();
+        while (valGR.next()) {
+          var valKey         = valGR.getValue('variable');
+          row.values[valKey] = valGR.getValue('value');
+        }
+
+        var condGR = new GlideRecord('sys_decision_question');
+        condGR.addQuery('answer', row.sys_id);
+        condGR.query();
+
+        while (condGR.next()) {
+          var cond = condGR.getValue('condition');
+          if (!cond) continue;
+
+          var firstKey = Object.keys(inputMap)[0];
+          if (!firstKey) continue;
+
+          var displayVal = '';
+
+          if (cond.indexOf('BETWEEN') > -1) {
+            var btwPart  = cond.split('BETWEEN')[1] || '';
+            if (btwPart.indexOf('^') > -1) btwPart = btwPart.split('^')[0];
+            var btwRange = btwPart.split('@');
+
+            row.values[firstKey + '_min'] = btwRange[0] || '';
+            row.values[firstKey + '_max'] = btwRange[1] || '';
+
+            for (var ci = 0; ci < data.columns.length; ci++) {
+              if (data.columns[ci].sys_id === firstKey) {
+                data.columns[ci].isBetween = true;
+                break;
+              }
+            }
+
+            displayVal = '';
+
+          } else if (cond.indexOf('=') > -1) {
+            var eqRaw = cond.split('=')[1] || '';
+            if (eqRaw.indexOf('^') > -1) eqRaw = eqRaw.split('^')[0];
+            displayVal = eqRaw;
+
+            var refTable = inputMap[firstKey];
+            if (refTable && eqRaw && eqRaw.length === 32) {
+              var refGR = new GlideRecord(refTable);
+              if (refGR.get(eqRaw)) {
+                displayVal = refGR.getDisplayValue();
+              }
+            }
+          }
+
+          if (displayVal) {
+            row.values[firstKey] = displayVal;
+          }
+        }
+
+        data.rows.push(row);
+      }
+
+      data.success = true;
+
+    } catch (e) {
+      data.success = false;
+      data.message = e.message;
+    }
+
+    return data;
+  }
+
+  /* ================= GET DISPLAY VALUE ================= */
+
+  if (input.action === 'get_display_value') {
+    var dispGR = new GlideRecord(input.table);
+    if (dispGR.get(input.sys_id)) {
+      data.display = dispGR.getDisplayValue();
+    } else {
+      data.display = input.sys_id;
+    }
+    return data;
+  }
+
+  /* ================= CREATE LOOKUP — Req 2: state=draft, active=false, enable_publishing=true ================= */
+
+  if (input.action === 'create_lookup') {
+    try {
+      if (!input.name) {
+        data.status  = 'error';
+        data.message = 'Name is required';
+        return data;
+      }
+			
+			var decisionTable = {
+					name: input.name,  
+					scope: 'x_ctans_incentnow',
+					accessibleFrom: 'public',
+					description: input.description || ''
+			};
+
+			var dt = new sn_dt.DecisionTableAPI();
+			var response = dt.createDecisionTable(decisionTable);
+			//gs.addErrorMessage(JSON.stringify(response));
+			if(response.record.getValue('sys_id'))
+				{
+					data.newId=response.record.getValue('sys_id');
+					data.status  = 'success';
+					data.message='Lookup created successfully';
+				}
+			
+    } catch (e) {
+      gs.error('LOOKUP CREATE ERROR: ' + e.message);
+      data.status  = 'error';
+      data.message = 'Server error while creating lookup';
+    }
+    return data;
+  }
+
+  /* ================= DELETE LOOKUP ================= */
+
+  if (input.action === 'delete_lookup') {
+    try {
+      var delId = input.sys_id;
+      if (!delId) { data.status = 'error'; data.message = 'Missing sys_id'; return data; }
+			
+			var dt = new sn_dt.DecisionTableAPI();
+			var response = dt.deleteDecisionTable(delId);
+      data.status = 'success';
+    } catch (e) {
+      gs.error('DELETE LOOKUP ERROR: ' + e.message);
+      data.status  = 'error';
+      data.message = e.message;
+    }
+    return data;
+  }
+
+  /* ================= DELETE LOOKUP ROW ================= */
+
+  if (input.action === 'delete_lookup_row') {
+    try {
+      var rowId = input.row_id;
+      if (!rowId) { data.status = 'error'; return data; }
+
+      var delRowValGR = new GlideRecord('sys_variable_value');
+      delRowValGR.addQuery('document_key', rowId);
+      delRowValGR.query();
+      while (delRowValGR.next()) { delRowValGR.deleteRecord(); }
+
+      var delRowQGR = new GlideRecord('sys_decision_question');
+      delRowQGR.addQuery('answer', rowId);
+      delRowQGR.query();
+      while (delRowQGR.next()) { delRowQGR.deleteRecord(); }
+
+      var delRowResGR = new GlideRecord('sys_decision_multi_result');
+      if (delRowResGR.get(rowId)) { delRowResGR.deleteRecord(); }
+
+      data.status = 'success';
+    } catch (e) {
+      data.status  = 'error';
+      data.message = e.message;
+    }
+    return data;
+  }
+
+  /* ================= CREATE DT INPUT ================= */
+
+  if (input.action === 'create_dt_input') {
+    try {
+      var dtDecisionID = input.decision_id;
+      var dtObj        = input.inputObj;
+      var dtInputObj   = {
+        label:      dtObj.label,
+        element:    dtObj.element,
+        type:       dtObj.type,
+        order:      dtObj.order || 100,
+        max_length: 255,
+        maxsize:    255,
+        maxSize:    255
+      };
+      if (dtObj.type === 'reference') {
+        dtInputObj.reference  = dtObj.reference;
+        dtInputObj.max_length = dtInputObj.maxsize = dtInputObj.maxSize = 32;
+      }
+      if (dtObj.type === 'integer') {
+        dtInputObj.max_length = dtInputObj.maxsize = dtInputObj.maxSize = 40;
+      }
+      gs.info('FINAL INPUT PAYLOAD: ' + JSON.stringify([dtInputObj]));
+      var dtAPI      = new sn_dt.DecisionTableAPI();
+      var dtResponse = dtAPI.createInputs(dtDecisionID, [dtInputObj]);
+      if (dtResponse && dtResponse.status === 'success') {
+        data.status = 'success';
+      } else {
+        data.status  = 'error';
+        data.message = JSON.stringify(dtResponse);
+      }
+    } catch (e) {
+      gs.error('CREATE INPUT ERROR: ' + e.message);
+      data.status  = 'error';
+      data.message = e.message;
+    }
+    return data;
+  }
+
+  /* ================= SAVE LOOKUP CONFIG ================= */
+
+  if (input.action === 'save_lookup_config') {
+    try {
+      var saveDecId = input.sys_id;
+      if (!saveDecId) { data.status = 'error'; data.message = 'Missing decision table'; return data; }
+
+      var saveInputMap = {};
+      var saveInpGR    = new GlideRecord('sys_decision_input');
+      saveInpGR.addQuery('model_id', saveDecId);
+      saveInpGR.query();
+      while (saveInpGR.next()) {
+        saveInputMap[saveInpGR.getValue('name')] = saveInpGR.getUniqueValue();
+      }
+
+      var saveOutputMap = {};
+      input.columns.forEach(function(col, index) {
+        if (col.type !== 'output') { return; }
+        var existOutGR = new GlideRecord('sys_decision_multi_result_element');
+        existOutGR.addQuery('model_id', saveDecId);
+        existOutGR.addQuery('label', col.name);
+        existOutGR.query();
+        if (existOutGR.next()) {
+          saveOutputMap[col.sys_id] = existOutGR.getUniqueValue();
+        } else {
+          var newOutGR = new GlideRecord('sys_decision_multi_result_element');
+          newOutGR.initialize();
+          newOutGR.model_id = saveDecId;
+          newOutGR.label    = col.name;
+          newOutGR.order    = index;
+          saveOutputMap[col.sys_id] = newOutGR.insert();
+        }
+      });
+
+      input.rows.forEach(function(row) {
+        var hasValue = false;
+        for (var k in row.values) {
+          if (row.values[k]) { hasValue = true; break; }
+        }
+        if (!hasValue) { return; }
+
+        var saveResGR = new GlideRecord('sys_decision_multi_result');
+        saveResGR.initialize();
+        saveResGR.decision_table = saveDecId;
+        var saveResId = saveResGR.insert();
+
+        for (var valKey in row.values) {
+          var saveValGR = new GlideRecord('sys_variable_value');
+          saveValGR.initialize();
+          saveValGR.document_key = saveResId;
+          saveValGR.variable     = valKey;
+          saveValGR.value        = row.values[valKey];
+          saveValGR.insert();
+        }
+
+        for (var qKey in row.values) {
+          if (!qKey.startsWith('out_')) {
+            var saveQGR = new GlideRecord('sys_decision_question');
+            saveQGR.initialize();
+            saveQGR.decision_table = saveDecId;
+            saveQGR.answer         = saveResId;
+            saveQGR.condition      = qKey + '=' + row.values[qKey] + '^EQ';
+            saveQGR.insert();
+          }
+        }
+      });
+
+      data.status = 'success';
+    } catch (e) {
+      gs.error('SAVE ERROR: ' + e.message);
+      data.status  = 'error';
+      data.message = e.message;
+    }
+    return data;
+  }
+
+  if (input.action === 'refresh_all') {
+    return data;
+  }
+
+  /* ================= DEFAULT DATA LOAD ================= */
+
+  data.settings = {
+    defaultCurrency:        'USD',
+    dateFormat:             'MM/DD/YYYY',
+    currencyPrecision:      '2',
+    percentagePrecision:    '1',
+    fiscalYearStart:        '1',
+    autoGenerateStatements: true,
+    approvalRequired:       false,
+    emailNotifications:     true
+  };
+
+  var propGR = new GlideRecord('sys_properties');
+  propGR.addQuery('name', 'STARTSWITH', 'x_incent.');
+  propGR.query();
+  while (propGR.next()) {
+    var propKey = (propGR.getValue('name') || '').replace('x_incent.', '');
+    data.settings[propKey] = propGR.getValue('value') || '';
+  }
+
+  data.fiscalPeriods    = [];
+  data.fiscalYears      = [];
+  var fySet             = {};
+  var now               = new GlideDateTime();
+  var currentPeriodName = '';
+  var activePeriods     = 0;
+
+  var periodGR = new GlideRecord('x_ctans_incentnow_fiscal_period');
+  periodGR.orderByDesc('period_start_date');
+  periodGR.query();
+  while (periodGR.next()) {
+    var pStart   = periodGR.getValue('period_start_date');
+    var pEnd     = periodGR.getValue('period_end_date');
+    var pStartDT = pStart ? new GlideDateTime(pStart) : null;
+    var pEndDT   = pEnd   ? new GlideDateTime(pEnd)   : null;
+    var isCurrent = false, isFuture = false, isPast = false;
+    if (pStartDT && pEndDT) {
+      if (now.after(pStartDT) && now.before(pEndDT)) {
+        isCurrent = true;
+        currentPeriodName = periodGR.getValue('period_name') || '';
+        activePeriods++;
+      } else if (now.before(pStartDT)) {
+        isFuture = true;
+      } else {
+        isPast = true;
+      }
+    }
+    var pDuration   = '';
+    var pFiscalYear = periodGR.getDisplayValue('fiscal_year') || '';
+    if (pStart && pEnd) {
+      pDuration = Math.ceil((new Date(pEnd) - new Date(pStart)) / (1000 * 60 * 60 * 24)) + 1;
+    }
+    fySet[pFiscalYear] = true;
+    data.fiscalPeriods.push({
+      id:         periodGR.getUniqueValue(),
+      name:       periodGR.getValue('period_name') || '',
+      type:       periodGR.getValue('period_type') || '',
+      startDate:  pStart,
+      endDate:    pEnd,
+      fiscalYear: pFiscalYear,
+      duration:   pDuration,
+      isCurrent:  isCurrent,
+      isFuture:   isFuture,
+      isPast:     isPast
+    });
+  }
+
+  data.fiscalYears = Object.keys(fySet).sort().reverse();
+  data.fiscalStats = {
+    totalPeriods:  data.fiscalPeriods.length,
+    currentPeriod: currentPeriodName || 'None',
+    activePeriods: activePeriods,
+    fiscalYears:   data.fiscalYears.length
+  };
+
+  data.fiscalCalendars = [];
+  var fcGR = new GlideRecord('x_ctans_incentnow_fiscal_calendar');
+  fcGR.orderByDesc('budget_year_name');
+  fcGR.query();
+  while (fcGR.next()) {
+    data.fiscalCalendars.push({
+      id:   fcGR.getUniqueValue(),
+      name: fcGR.getValue('budget_year_name') || ''
+    });
+  }
+
+  data.businessUnits = [];
+  var buGR = new GlideRecord('business_unit');
+  buGR.orderBy('name');
+  buGR.query();
+  while (buGR.next()) {
+    data.businessUnits.push({
+      id:   buGR.getUniqueValue(),
+      name: buGR.getValue('name') || ''
+    });
+  }
+
+  data.quotaAssignments = [];
+  var quotaGR = new GlideRecord('x_ctans_incentnow_quota');
+  quotaGR.orderByDesc('sys_created_on');
+  quotaGR.query();
+  while (quotaGR.next()) {
+    var qRaw    = quotaGR.getValue('target_value');
+    var qTarget = (!qRaw || isNaN(parseFloat(qRaw))) ? 0 : parseFloat(qRaw);
+    data.quotaAssignments.push({
+      id:                 quotaGR.getUniqueValue(),
+      name:               quotaGR.getValue('name') || '',
+      periodName:         quotaGR.getDisplayValue('fiscal_year') || '',
+      targetValue:        qTarget,
+      targetDisplay:      qTarget.toString(),
+      quotaMetric:        quotaGR.getDisplayValue('quota_metric') || '',
+      distributionMethod: quotaGR.getDisplayValue('quota_frequency') || ''
+    });
+  }
+
+  var totalQuota = 0, buSet2 = {};
+  data.quotaAssignments.forEach(function(q) {
+    totalQuota += (q.targetValue || 0);
+    if (q.businessUnit) { buSet2[q.businessUnit] = true; }
+  });
+
+  data.quotaSummary = {
+    totalAssignments: data.quotaAssignments.length,
+    totalQuota:       (totalQuota / 1000).toFixed(0),
+    avgQuota:         data.quotaAssignments.length > 0
+                        ? (totalQuota / data.quotaAssignments.length / 1000).toFixed(0)
+                        : 0,
+    businessUnits:    Object.keys(buSet2).length
+  };
+
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+        <sys_created_on>2026-03-25 07:14:40</sys_created_on>
+        <sys_id>603e7c5e3bb736d0ffa00e9693e45a2e</sys_id>
+        <sys_mod_count>421</sys_mod_count>
+        <sys_name>IncentNow Admin Dashboard</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sp_widget_603e7c5e3bb736d0ffa00e9693e45a2e</sys_update_name>
+        <sys_updated_by>karan.kumar</sys_updated_by>
+        <sys_updated_on>2026-06-15 11:21:45</sys_updated_on>
+        <template><![CDATA[<div class="admin-main">
+
+  <!-- ============================================================
+       MAIN VIEW
+  ============================================================ -->
+  <div ng-if="c.view === 'main'">
+    <div class="m-b-lg">
+      <h1 >Administration</h1>
+      <p>Manage fiscal calendars, periods, lookup tables and data imports</p>
+    </div>
+    <div class="row m-b-lg" style="display:flex; gap:20px;">
+      <div class="col-md-3" style="flex:1;">
+        <div class="panel panel-default admin-card" ng-click="c.goTo('fiscal')">
+          <i class="fa fa-calendar text-primary"></i>
+          <h4>Fiscal Calendar &amp; Periods</h4>
+          <p class="text-muted small">Create fiscal calendars with auto-generated quarters and months</p>
+        </div>
+      </div>
+      <!--<div class="col-md-3" style="flex:1;">
+        <div class="panel panel-default admin-card" ng-click="c.goTo('quotas')">
+          <i class="fa fa-bullseye text-danger"></i>
+          <h4>Quota Setup</h4>
+          <p class="text-muted small">Configure quotas for periods and frequencies</p>
+        </div>
+      </div> -->
+      <div class="col-md-3" style="flex:1;" ng-if="c.data.isIncentNowGroupAdmin">
+        <div class="panel panel-default admin-card" ng-click="c.goTo('lookups')">
+          <i class="fa fa-database text-info"></i>
+          <h4>Lookup Tables</h4>
+          <p class="text-muted small">Manage commission rate and bonus tables</p>
+        </div>
+      </div>
+      <div class="col-md-3" style="flex:1;" ng-if="c.data.isIncentNowAdmin">
+        <div class="panel panel-default admin-card" ng-click="c.goTo('settings')">
+          <i class="fa fa-cog text-success"></i>
+          <h4>System Settings</h4>
+          <p class="text-muted small">Configure default settings, and global preferences</p>
+        </div>
+      </div>
+      <div class="col-md-3" style="flex:1;">
+        <div class="panel panel-default admin-card" ng-click="c.goTo('importData')">
+          <i class="fa fa-upload text-warning"></i>
+          <h4>Import Data (External)</h4>
+          <p class="text-muted small">Upload and import data files into the system</p>
+        </div>
+      </div>
+      <div class="col-md-3" style="flex:1;">
+        <div class="panel panel-default admin-card" ng-click="c.goTo('importDataInternal')">
+          <i class="fa fa-upload text-primary"></i>
+          <h4>Import Data (Internal)</h4>
+          <p class="text-muted small">Upload and import data files into the system from ServiceNow</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       FISCAL CALENDAR VIEW
+  ============================================================ -->
+  <div ng-if="c.view === 'fiscal'">
+    <div class="admin-page-topbar">
+      <button class="admin-back-btn" ng-click="c.goTo('main')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12 8 8 12 12 16"/>
+          <line x1="16" y1="12" x2="8" y2="12"/>
+        </svg>
+      </button>
+      <span class="admin-page-topbar-title">Fiscal Calendar &amp; Periods</span>
+      <div class="admin-page-topbar-actions">
+        <button class="admin-btn-solid" ng-click="c.newFiscalCalendar()" ng-if="c.data.isIncentNowAdmin">
+          + New Fiscal Calendar
+        </button>
+      </div>
+    </div>
+    <div class="fiscal-widget-wrap">
+      <sp-widget widget="c.data.widgets.fiscal"></sp-widget>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       LOOKUP TABLES VIEW — Req 1: Pagination added
+  ============================================================ -->
+  <div ng-if="c.view === 'lookups' && c.data.isIncentNowGroupAdmin">
+    <div class="admin-page-topbar">
+      <button class="admin-back-btn" ng-click="c.goTo('main')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12 8 8 12 12 16"/>
+          <line x1="16" y1="12" x2="8" y2="12"/>
+        </svg>
+      </button>
+      <span class="admin-page-topbar-title">Lookup Tables</span>
+      <div class="admin-page-topbar-actions">
+        <button class="admin-btn-solid" ng-click="c.createLookup()">
+          + Create Lookup Table
+        </button>
+      </div>
+    </div>
+    <table class="table table-striped table-hover">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Last Updated</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat="l in c.lkpGetPage()">
+          <td>{{l.name}}</td>
+          <td>{{l.type}}</td>
+          <td>{{l.updated}}</td>
+          <td>
+            <button class="lkp-btn lkp-btn-outline" ng-click="c.openConfigureModal(l)">Configure</button>
+            <button class="lkp-btn lkp-btn-outline" ng-click="c.openLookupView(l)">View</button>
+            <button class="lkp-btn lkp-btn-danger"  ng-click="c.confirmDeleteDirect(l)">Delete</button>
+          </td>
+        </tr>
+        <tr ng-if="!c.data.lookupTables || c.data.lookupTables.length === 0">
+          <td colspan="4" style="text-align:center;color:#9ca3af;padding:24px;">No lookup tables found.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Pagination — Previous | Page X of Y | Next style -->
+    <div class="lkp-pagination" ng-if="c.data.lookupTables && c.data.lookupTables.length > c.lkpPageSize">
+      <button class="lkp-prev-btn" ng-click="c.lkpPage=c.lkpPage-1" ng-disabled="c.lkpPage === 1">
+        &#9664; Previous
+      </button>
+      <span class="lkp-page-label">Page {{c.lkpPage}} of {{c.lkpTotalPages}}</span>
+      <button class="lkp-next-btn" ng-click="c.lkpPage=c.lkpPage+1" ng-disabled="c.lkpPage === c.lkpTotalPages">
+        Next &#9654;
+      </button>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       LOOKUP TABLE — DECISION TABLE VIEW
+  ============================================================ -->
+  <div ng-if="c.view === 'lookupView'">
+    <div class="admin-page-topbar">
+      <button class="admin-back-btn" ng-click="c.goTo('lookups')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12 8 8 12 12 16"/>
+          <line x1="16" y1="12" x2="8" y2="12"/>
+        </svg>
+      </button>
+      <span class="admin-page-topbar-title">{{c.activeLookupName || 'Decision Table View'}}</span>
+    </div>
+
+    <div class="admin-lookup-view-card">
+      <div>
+        <table class="table table-bordered" ng-if="c.viewColumns && c.viewColumns.length">
+          <thead>
+            <tr>
+              <th ng-repeat-start="col in c.viewColumns" ng-if="col.isBetween" colspan="2" class="lkv-group-header">{{col.name}}</th>
+              <th ng-repeat-end ng-if="!col.isBetween">{{col.name}}</th>
+            </tr>
+            <tr ng-if="c.viewColumns | filter:{isBetween:true} | limitTo:1 : 0">
+              <th ng-repeat-start="col in c.viewColumns" ng-if="col.isBetween" class="lkv-subhdr">Min</th>
+              <th ng-if="col.isBetween" class="lkv-subhdr">Max</th>
+              <th ng-repeat-end ng-if="!col.isBetween" class="lkv-subhdr-blank"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr ng-repeat="r in c.viewRows">
+              <td ng-repeat-start="col in c.viewColumns" ng-if="col.isBetween" class="lkv-range-cell">{{r.values[col.sys_id + '_min']}}</td>
+              <td ng-if="col.isBetween" class="lkv-range-cell">{{r.values[col.sys_id + '_max']}}</td>
+              <td ng-repeat-end ng-if="!col.isBetween">
+                <span ng-if="col.type === 'input'">{{r.values[col.sys_id]}}</span>
+                <span ng-if="col.type === 'output'">{{r.values[col.sys_id]}}</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="admin-lookup-empty" ng-if="c.viewLoaded && (!c.viewColumns || !c.viewColumns.length)">
+          No data available for this lookup table.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       SYSTEM SETTINGS VIEW
+  ============================================================ -->
+  <div ng-if="c.view === 'settings'">
+    <div class="admin-page-topbar">
+      <button class="admin-back-btn" ng-click="c.goTo('main')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12 8 8 12 12 16"/>
+          <line x1="16" y1="12" x2="8" y2="12"/>
+        </svg>
+      </button>
+      <span class="admin-page-topbar-title">System Settings</span>
+    </div>
+    <sp-widget widget="c.data.widgets.settings"></sp-widget>
+  </div>
+
+  <!-- ============================================================
+       IMPORT DATA VIEW
+  ============================================================ -->
+  <div ng-if="c.view === 'importData'">
+    <div class="admin-page-topbar">
+      <button class="admin-back-btn" ng-click="c.goTo('main')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12 8 8 12 12 16"/>
+          <line x1="16" y1="12" x2="8" y2="12"/>
+        </svg>
+      </button>
+      <span class="admin-page-topbar-title">Import Data</span>
+    </div>
+    <sp-widget widget="c.data.widgets.importData"></sp-widget>
+  </div>
+  
+
+  
+
+  <!-- ============================================================
+       MODALS
+  ============================================================ -->
+  <div id="createLookupModal" class="modal fade">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">Create Lookup Table</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Name</label>
+            <input type="text" class="form-control"
+              ng-model="c.lookupForm.name"
+              placeholder="Enter Lookup Name">
+          </div>
+          <div class="form-group">
+            <label>Description</label>
+            <textarea class="form-control"
+              ng-model="c.lookupForm.description"
+              placeholder="Enter Description"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-default" data-dismiss="modal">Cancel</button>
+          <button class="btn btn-success" ng-click="c.submitLookup()">Create</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="configureModal" class="modal fade">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">Configure Lookup</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+        <div class="modal-body">
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th ng-repeat="col in c.columns">{{col.name}}</th>
+                <th style="width:80px;">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="r in c.rows">
+                <td ng-repeat="col in c.columns">
+                  <input class="form-control" ng-model="r.values[col.sys_id]">
+                </td>
+                <td>
+                  <button class="btn btn-danger btn-xs" ng-click="c.removeRow($index, r)">
+                    <i class="fa fa-trash"></i>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="io-container" style="margin-bottom:15px;">
+            <div class="io-actions">
+              <div class="io-group">
+                <span class="io-label">Inputs</span>
+                <button class="btn btn-sm io-btn" ng-click="c.addInput()">+ Add Input</button>
+              </div>
+              <div class="io-group">
+                <span class="io-label">Outputs</span>
+                <button class="btn btn-sm io-btn" ng-click="c.addOutput()">+ Add Output</button>
+              </div>
+            </div>
+            <div class="io-input-row" style="margin-top:15px;">
+              <div class="io-input" ng-repeat="col in c.columns">
+                <input class="form-control"
+                  ng-model="c.newRow[col.sys_id]"
+                  placeholder="Enter {{col.name}}">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="io-add-row">
+          <button class="btn btn-primary" ng-click="c.addRow()">Add Row</button>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-success" ng-click="c.saveLookupRows()">Save</button>
+          <button class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="addInputModal" class="modal fade">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">Add Input</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Label</label>
+            <input class="form-control"
+              ng-model="c.newInput.label"
+              ng-change="c.generateElement()">
+          </div>
+          <div class="form-group">
+            <label>Element</label>
+            <input class="form-control" ng-model="c.newInput.element" readonly>
+          </div>
+          <div class="form-group">
+            <label>Type</label>
+            <select class="form-control" ng-model="c.newInput.type">
+              <option value="string">String</option>
+              <option value="integer">Integer</option>
+              <option value="reference">Reference</option>
+            </select>
+          </div>
+          <div class="form-group" ng-if="c.newInput.type === 'reference'">
+            <label>Reference Table</label>
+            <input class="form-control" ng-model="c.newInput.reference">
+          </div>
+          <div class="form-group">
+            <label>Order</label>
+            <input type="number" class="form-control" ng-model="c.newInput.order">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-success" ng-click="c.submitInput()">Create</button>
+          <button class="btn btn-default" data-dismiss="modal">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>]]></template>
+    </sp_widget>
+</record_update>

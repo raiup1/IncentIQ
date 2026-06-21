@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element db_object_id="406902803b5f7a90ffa00e9693e45a08" label="Import Error" max_length="40" name="x_ctans_incentnow_import_error" type="collection">
+        <element label="Raw Payload" max_length="10000" name="raw_payload" type="string"/>
+        <element label="Import Run" max_length="32" name="import_run" reference="x_ctans_incentnow_import_run" type="reference"/>
+        <element label="Row Number" max_length="40" name="row_number" type="integer"/>
+        <element label="Domain" max_length="32" name="sys_domain" type="domain_id"/>
+        <element label="Staging Record" max_length="32" name="staging_record" reference="x_ctans_incentnow_data_lake_staging" type="reference"/>
+        <element label="Error Message" max_length="4000" name="error_message" type="string"/>
+        <index name="index">
+            <element name="import_run"/>
+        </index>
+        <index name="index2">
+            <element name="staging_record"/>
+        </index>
+        <index name="index3">
+            <element name="sys_domain"/>
+        </index>
+    </element>
+</database>

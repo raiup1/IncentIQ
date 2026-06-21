@@ -1,0 +1,545 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>public</access>
+        <active>true</active>
+        <api_name>x_ctans_incentnow.IncentNowQuotaHandler </api_name>
+        <caller_access/>
+        <client_callable>false</client_callable>
+        <description/>
+        <mobile_callable>false</mobile_callable>
+        <name>IncentNowQuotaHandler </name>
+        <sandbox_callable>false</sandbox_callable>
+        <script><![CDATA[var IncentNowQuotaHandler = Class.create();
+
+IncentNowQuotaHandler.prototype = {
+
+    initialize: function() {
+        this.utils = new IncentIQUtils();
+    },
+
+    _getMonthOrder: function(text) {
+
+        var months = [
+            "january", "february", "march",
+            "april", "may", "june",
+            "july", "august", "september",
+            "october", "november", "december"
+        ];
+
+        for (var i = 0; i < months.length; i++) {
+            if (text.indexOf(months[i]) > -1) {
+                return i;
+            }
+        }
+
+        return -1;
+    },
+
+
+    handleQuotaAttainment: function(userId) {
+
+        try {
+
+            var profileId = this.utils.getUserProfileId(userId);
+
+            var stmtGR = new GlideRecordSecure(
+                "x_ctans_incentnow_incentive_statement"
+            );
+
+            stmtGR.addQuery("user", profileId);
+            stmtGR.orderByDesc("sys_created_on");
+            stmtGR.setLimit(1);
+            stmtGR.query();
+
+            if (!stmtGR.next()) {
+                return "]]>📈<![CDATA[ Your quota attainment is 0.00%";
+            }
+
+            var attainment = parseFloat(
+                stmtGR.getValue("quota_attainment")
+            );
+
+            if (isNaN(attainment)) {
+                attainment = 0;
+            }
+
+            return "]]>📈<![CDATA[ Your quota attainment is " +
+                attainment.toFixed(2) + "%";
+
+        } catch (ex) {
+
+            gs.error(
+                "IntentRouter :: handleQuotaAttainment Error = " +
+                ex.message
+            );
+
+            return "Unable to retrieve quota attainment details at the moment.";
+        }
+    },
+
+    handleQuota: function(userId, query) {
+
+        var profileId = this.utils.getUserProfileId(userId);
+        var originalQuery = query || "";
+        var periodFromQuery =
+            this.utils.extractMonthYear(originalQuery);      
+
+        query = (query || "").toLowerCase();
+
+        /*
+        =====================================================
+        NEW USE CASE FLAGS
+        =====================================================
+        */
+
+        var isMonthlyQuotaQuery =
+            query.includes("monthly quota") ||
+            query.includes("month wise quota") ||
+            query.includes("monthwise quota") ||
+            query.includes("show monthly quota") ||
+            query.includes("what is my monthly quota") ||
+            query.includes("my monthly quota");
+
+        var isQuarterQuotaQuery =
+            query.includes("quarter quota") ||
+            query.includes("quota for quarter") ||
+            query.includes("quarterly quota") ||
+            query.includes("quarter quota details") ||
+            query.includes("current quarter") ||
+            query.includes("this quarter") ||
+            query.includes("my quarter quota") ||
+            query.includes("quota for current quarter") ||
+            query.includes("what is my quota for quarter") ||
+            query.includes("q1") ||
+            query.includes("q2") ||
+            query.includes("q3") ||
+            query.includes("q4") ||
+            query.includes("quarter 1") ||
+            query.includes("quarter 2") ||
+            query.includes("quarter 3") ||
+            query.includes("quarter 4");
+
+        var isQuotaAttainmentQuery =
+            query.includes("quota attainment") ||
+            query.includes("quota achievement") ||
+            query.includes("quota achievement percentage") ||
+            query.includes("attainment percentage") ||
+            query.includes("achievement percentage");
+
+        var isMonthYearQuery = false;
+        var isMonthOnlyQuery = false;
+        var isYearOnlyQuery = false;
+
+        /*
+        =====================================================
+        VERY IMPORTANT PORTAL FIX
+        Prevent "monthly quota" from being treated as month query
+        =====================================================
+        */
+
+        if (!isMonthlyQuotaQuery) {
+
+            if (
+                periodFromQuery &&
+                periodFromQuery.indexOf(" ") > -1 &&
+                periodFromQuery.match(/\b20\d{2}\b/)
+            ) {
+                isMonthYearQuery = true;
+            } else if (
+                periodFromQuery &&
+                !periodFromQuery.match(/\b20\d{2}\b/)
+            ) {
+                isMonthOnlyQuery = true;
+            } else if (
+                periodFromQuery &&
+                periodFromQuery.match(/^\d{4}$/)
+            ) {
+                isYearOnlyQuery = true;
+            }
+        }
+
+        /*
+        =====================================================
+        EXISTING LOGIC
+        Get User Quota Assignment
+        =====================================================
+        */
+
+        var assignGR = new GlideRecordSecure("x_ctans_incentnow_user_quota_assignment");
+        assignGR.addQuery("user", profileId);
+        assignGR.orderByDesc("sys_created_on");
+        assignGR.setLimit(1);
+        assignGR.query();
+
+        if (!assignGR.next()) {
+            return "No quota assigned.";
+        }
+
+        var quotaId = assignGR.getValue("quota");
+
+        if (!quotaId) {
+            return "No quota assigned.";
+        }
+
+        /*
+        =====================================================
+        EXISTING LOGIC
+        Get Yearly Quota
+        =====================================================
+        */
+
+        var quotaGR = new GlideRecordSecure("x_ctans_incentnow_quota");
+
+        if (!quotaGR.get(quotaId)) {
+            return "Quota details not found.";
+        }
+
+        var yearlyQuota =
+            parseFloat(quotaGR.getValue("target_value")) || 0;
+
+        var fiscalYear =
+            quotaGR.getDisplayValue("fiscal_year") ||
+            quotaGR.getDisplayValue("fiscal_period") ||
+            "FY 2026";
+        /*
+        =====================================================
+        NEW USE CASE
+        Quota Attainment
+        =====================================================
+        */
+
+        if (isQuotaAttainmentQuery) {
+
+            var stmtGR = new GlideRecordSecure("x_ctans_incentnow_incentive_statement");
+            stmtGR.addQuery("user", profileId);
+            stmtGR.orderByDesc("sys_created_on");
+            stmtGR.setLimit(1);
+            stmtGR.query();
+
+            if (stmtGR.next()) {
+
+                var attainment =
+                    parseFloat(stmtGR.getValue("quota_attainment")) || 0;
+
+                if (attainment > 0) {
+                    return "]]>📈<![CDATA[ Your quota attainment is " +
+                        attainment.toLocaleString("en-IN") +
+                        "%";
+                }
+            }
+
+            return "Quota attainment details are not available.";
+        }
+
+        /*
+        =====================================================
+        MONTHLY QUOTA PERIOD RECORDS
+        =====================================================
+        */
+
+        var qpGR = new GlideRecordSecure("x_ctans_incentnow_quota_period");
+        qpGR.addQuery("quota", quotaId);
+        qpGR.addQuery("period_type", "month");
+        qpGR.orderBy("parent_period");
+        qpGR.query();
+
+        var latestMonthMatch = null;
+        var yearExists = false;
+
+        var monthlyResponse = "";
+        var firstParentPeriod = "";
+        var latestQuarter = "";
+        var quarterTotal = 0;
+
+        var requestedQuarter = "";
+
+        if (query.includes("q1") || query.includes("quarter 1")) {
+            requestedQuarter = "Q1";
+        } else if (query.includes("q2") || query.includes("quarter 2")) {
+            requestedQuarter = "Q2";
+        } else if (query.includes("q3") || query.includes("quarter 3")) {
+            requestedQuarter = "Q3";
+        } else if (query.includes("q4") || query.includes("quarter 4")) {
+            requestedQuarter = "Q4";
+        }
+
+        var monthlyQuotaMap = {};
+
+        while (qpGR.next()) {
+
+            var period =
+                qpGR.getDisplayValue("fiscal_period") || "";
+
+            var parentPeriod =
+                qpGR.getDisplayValue("parent_period") || "";
+
+            if (!parentPeriod) {
+
+                if (
+                    period.indexOf("January") > -1 ||
+                    period.indexOf("February") > -1 ||
+                    period.indexOf("March") > -1
+                ) {
+                    parentPeriod = "Q1";
+                } else if (
+                    period.indexOf("April") > -1 ||
+                    period.indexOf("May") > -1 ||
+                    period.indexOf("June") > -1
+                ) {
+                    parentPeriod = "Q2";
+                } else if (
+                    period.indexOf("July") > -1 ||
+                    period.indexOf("August") > -1 ||
+                    period.indexOf("September") > -1
+                ) {
+                    parentPeriod = "Q3";
+                } else {
+                    parentPeriod = "Q4";
+                }
+            }
+
+            var normalizedPeriod =
+                this.utils.normalizeMonth(period);
+
+            var monthlyQuota =
+                parseFloat(qpGR.getValue("target_value")) || 0;
+
+            var monthOrder =
+                this.utils.getMonthOrder(period);
+
+            if (!firstParentPeriod && parentPeriod) {
+                firstParentPeriod = parentPeriod;
+                latestQuarter = parentPeriod;
+            }
+
+            /*
+            =====================================================
+            MONTHLY QUOTA GROUPING
+            =====================================================
+            */
+
+            if (isMonthlyQuotaQuery) {
+
+                if (!monthlyQuotaMap[parentPeriod]) {
+                    monthlyQuotaMap[parentPeriod] = [];
+                }
+
+                monthlyQuotaMap[parentPeriod].push({
+                    period: period,
+                    amount: monthlyQuota,
+                    monthOrder: monthOrder
+                });
+            }
+
+            /*
+            =====================================================
+            QUARTER QUOTA
+            =====================================================
+            */
+
+            if (isQuarterQuotaQuery) {
+
+                if (
+                    requestedQuarter &&
+                    parentPeriod.indexOf(requestedQuarter) > -1
+                ) {
+                    latestQuarter = parentPeriod;
+                    quarterTotal += monthlyQuota;
+                } else if (
+                    !requestedQuarter &&
+                    parentPeriod === firstParentPeriod
+                ) {
+                    latestQuarter = parentPeriod;
+                    quarterTotal += monthlyQuota;
+                }
+            }
+
+            /*
+            =====================================================
+            SPECIFIC MONTH + YEAR
+            =====================================================
+            */
+
+            if (isMonthYearQuery) {
+
+                var normalizedQuery =
+                    this.utils.normalizeMonth(periodFromQuery);
+
+                if (
+                    normalizedPeriod === normalizedQuery ||
+                    normalizedPeriod.indexOf(normalizedQuery) > -1
+                ) {
+                    return "]]>🎯<![CDATA[ Your quota for " +
+                        period +
+                        " is $" +
+                        monthlyQuota.toLocaleString("en-IN");
+                }
+            }
+
+            /*
+            =====================================================
+            MONTH ONLY
+            =====================================================
+            */
+
+            if (isMonthOnlyQuery) {
+
+                if (
+                    normalizedPeriod.indexOf(periodFromQuery) > -1 &&
+                    !latestMonthMatch
+                ) {
+                    latestMonthMatch = {
+                        period: period,
+                        amount: monthlyQuota
+                    };
+                }
+            }
+
+            /*
+            =====================================================
+            YEAR ONLY
+            =====================================================
+            */
+
+            if (isYearOnlyQuery) {
+                if (period.indexOf(periodFromQuery) > -1) {
+                    yearExists = true;
+                }
+            }
+        }
+
+        /*
+        =====================================================
+        FINAL BUILD
+        Monthly Quota Response with Proper Month Order
+        =====================================================
+        */
+
+        if (isMonthlyQuotaQuery) {
+
+            var quarterOrder = [
+                "Q1",
+                "Q2",
+                "Q3",
+                "Q4"
+            ];
+
+            for (var q = 0; q < quarterOrder.length; q++) {
+
+                var quarter = quarterOrder[q];
+
+                if (!monthlyQuotaMap[quarter]) {
+                    continue;
+                }
+
+                monthlyResponse +=
+                    "]]>🎯<![CDATA[ " + quarter + "\n\n";
+
+                monthlyQuotaMap[quarter].sort(function(a, b) {
+                    return a.monthOrder - b.monthOrder;
+                });
+
+                for (var i = 0; i < monthlyQuotaMap[quarter].length; i++) {
+
+                    monthlyResponse +=
+                        "• " +
+                        monthlyQuotaMap[quarter][i].period +
+                        " → $" +
+                        monthlyQuotaMap[quarter][i].amount.toLocaleString("en-IN") +
+                        "\n";
+                }
+
+                monthlyResponse += "\n";
+            }
+
+            if (monthlyResponse) {
+                return monthlyResponse.trim();
+            }
+        }
+
+        /*
+        =====================================================
+        QUARTER QUOTA RETURN
+        =====================================================
+        */
+
+        /*
+        =====================================================
+        MONTH ONLY RETURN
+        =====================================================
+        */
+
+        if (isMonthOnlyQuery && latestMonthMatch) {
+            return "]]>🎯<![CDATA[ Your quota for " +
+                latestMonthMatch.period +
+                " is $" +
+                latestMonthMatch.amount.toLocaleString("en-IN");
+        }
+
+        /*
+        =====================================================
+        MONTH NOT FOUND
+        =====================================================
+        */
+
+        if (isMonthYearQuery || isMonthOnlyQuery) {
+            return "Commission data is not yet available for the selected period. Please check again later.";
+        }
+
+        /*
+        =====================================================
+        YEAR QUERY
+        =====================================================
+        */
+
+        if (isYearOnlyQuery) {
+
+            if (yearExists || yearlyQuota > 0) {
+                return "]]>🎯<![CDATA[ Your total yearly quota for " +
+                    periodFromQuery +
+                    " is $" +
+                    yearlyQuota.toLocaleString("en-IN");
+            }
+
+            return "Commission data is not yet available for the selected period. Please check again later.";
+        }
+
+        /*
+        =====================================================
+        DEFAULT YEARLY QUOTA
+        =====================================================
+        */
+
+        if (isQuarterQuotaQuery && quarterTotal > 0) {
+            return "]]>🎯<![CDATA[ Your quota for " +
+                latestQuarter +
+                " is $" +
+                quarterTotal.toLocaleString("en-IN");
+        }
+
+        if (yearlyQuota > 0) {
+            return "]]>🎯<![CDATA[ Your total yearly quota for " +
+                fiscalYear +
+                " is $" +
+                yearlyQuota.toLocaleString("en-IN");
+        }
+
+        return "Quota not found.";
+    },
+
+    type: 'IncentNowQuotaHandler'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+        <sys_created_on>2026-06-10 20:59:57</sys_created_on>
+        <sys_id>1c7dd05b93ddcb10ddb7f2d89803d6b7</sys_id>
+        <sys_mod_count>17</sys_mod_count>
+        <sys_name>IncentNowQuotaHandler </sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_script_include_1c7dd05b93ddcb10ddb7f2d89803d6b7</sys_update_name>
+        <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
+        <sys_updated_on>2026-06-17 12:04:51</sys_updated_on>
+    </sys_script_include>
+</record_update>

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update>
+    <sys_ui_section caption="Resolution Information" section_id="96e93a6d3ba10790a4cbaddc73e45a48" sys_domain="global" table="x_ctans_incentnow_ai_execution_failure" version="3" view="">
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>.begin_split</element>
+            <position>0</position>
+            <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+            <sys_created_on>2026-06-18 08:10:07</sys_created_on>
+            <sys_id>ad0af26d3ba10790a4cbaddc73e45a24</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="Resolution Information" display_value="Resolution Information" name="x_ctans_incentnow_ai_execution_failure" sys_domain="global" view="Default view">96e93a6d3ba10790a4cbaddc73e45a48</sys_ui_section>
+            <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
+            <sys_updated_on>2026-06-18 08:10:07</sys_updated_on>
+            <sys_user/>
+            <type>.begin_split</type>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>resolved_by</element>
+            <position>1</position>
+            <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+            <sys_created_on>2026-06-18 08:10:07</sys_created_on>
+            <sys_id>6d0af26d3ba10790a4cbaddc73e45a25</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="Resolution Information" display_value="Resolution Information" name="x_ctans_incentnow_ai_execution_failure" sys_domain="global" view="Default view">96e93a6d3ba10790a4cbaddc73e45a48</sys_ui_section>
+            <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
+            <sys_updated_on>2026-06-18 08:10:07</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>.split</element>
+            <position>2</position>
+            <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+            <sys_created_on>2026-06-18 08:10:07</sys_created_on>
+            <sys_id>e90af26d3ba10790a4cbaddc73e45a26</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="Resolution Information" display_value="Resolution Information" name="x_ctans_incentnow_ai_execution_failure" sys_domain="global" view="Default view">96e93a6d3ba10790a4cbaddc73e45a48</sys_ui_section>
+            <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
+            <sys_updated_on>2026-06-18 08:10:07</sys_updated_on>
+            <sys_user/>
+            <type>.split</type>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>resolved_on</element>
+            <position>3</position>
+            <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+            <sys_created_on>2026-06-18 08:10:07</sys_created_on>
+            <sys_id>690af26d3ba10790a4cbaddc73e45a27</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="Resolution Information" display_value="Resolution Information" name="x_ctans_incentnow_ai_execution_failure" sys_domain="global" view="Default view">96e93a6d3ba10790a4cbaddc73e45a48</sys_ui_section>
+            <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
+            <sys_updated_on>2026-06-18 08:10:07</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>.end_split</element>
+            <position>4</position>
+            <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+            <sys_created_on>2026-06-18 08:10:07</sys_created_on>
+            <sys_id>e50af26d3ba10790a4cbaddc73e45a28</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="Resolution Information" display_value="Resolution Information" name="x_ctans_incentnow_ai_execution_failure" sys_domain="global" view="Default view">96e93a6d3ba10790a4cbaddc73e45a48</sys_ui_section>
+            <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
+            <sys_updated_on>2026-06-18 08:10:07</sys_updated_on>
+            <sys_user/>
+            <type>.end_split</type>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>resolution_notes</element>
+            <position>5</position>
+            <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+            <sys_created_on>2026-06-18 08:10:07</sys_created_on>
+            <sys_id>2d0a32ad3ba10790a4cbaddc73e45a6c</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="Resolution Information" display_value="Resolution Information" name="x_ctans_incentnow_ai_execution_failure" sys_domain="global" view="Default view">96e93a6d3ba10790a4cbaddc73e45a48</sys_ui_section>
+            <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
+            <sys_updated_on>2026-06-18 08:10:07</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_section action="INSERT_OR_UPDATE">
+            <caption>Resolution Information</caption>
+            <header>false</header>
+            <name>x_ctans_incentnow_ai_execution_failure</name>
+            <roles/>
+            <sys_class_name>sys_ui_section</sys_class_name>
+            <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+            <sys_created_on>2026-06-18 08:09:37</sys_created_on>
+            <sys_domain>global</sys_domain>
+            <sys_domain_path>/</sys_domain_path>
+            <sys_id>96e93a6d3ba10790a4cbaddc73e45a48</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_name>x_ctans_incentnow_ai_execution_failure</sys_name>
+            <sys_overrides/>
+            <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+            <sys_policy/>
+            <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+            <sys_update_name>sys_ui_section_96e93a6d3ba10790a4cbaddc73e45a48</sys_update_name>
+            <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
+            <sys_updated_on>2026-06-18 08:09:37</sys_updated_on>
+            <sys_user/>
+            <title>false</title>
+            <view display_value="Default view" name="NULL">Default view</view>
+            <view_name/>
+        </sys_ui_section>
+    </sys_ui_section>
+</record_update>

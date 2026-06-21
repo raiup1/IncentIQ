@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element db_object_id="ffba60973b7ef650ffa00e9693e45aa7" label="Metadata Mapping" max_length="40" name="x_ctans_incentnow_metadata_mapping" type="collection">
+        <element label="Field Type" mandatory="true" max_length="32" name="field_type" reference="sys_glide_object" reference_qual="javascript:new MetadataMappingUtils().getFieldTypeQualifier(current);" type="reference" use_reference_qualifier="advanced"/>
+        <element default="true" function_definition="true" label="Active" max_length="255" name="active" type="boolean"/>
+        <element attributes="ignore_filter_on_new=true" default="javascript:global.getNextObjNumberPadded();" label="Number" max_length="40" name="number" read_only="true" type="string"/>
+        <element label="Domain" max_length="32" name="sys_domain" type="domain_id"/>
+        <element attributes="edge_encryption_enabled=true" display="true" label="Source Field Display Name" mandatory="true" max_length="40" name="source_display_name" type="string"/>
+        <element label="Is Primary Key" max_length="255" name="is_primary_key" type="boolean"/>
+        <element label="Data Model Object" mandatory="true" max_length="32" name="data_model_object_id" reference="x_ctans_incentnow_data_model_object" type="reference"/>
+        <element label="Source Field Name" mandatory="true" max_length="40" name="source_field_name" type="string"/>
+        <element attributes="encode_utf8=false" label="Data Lake Field Name" max_length="80" name="data_lake_field_name" reference="sys_dictionary" reference_qual="javascript:new DataLakeUtils().filterColumnsbyType(current.getValue('field_type'));" type="reference" use_dependent_field="true" use_reference_qualifier="advanced"/>
+        <index name="index">
+            <element name="data_lake_field_name"/>
+        </index>
+        <index name="index2">
+            <element name="data_model_object_id"/>
+        </index>
+        <index name="index3">
+            <element name="field_type"/>
+        </index>
+        <index name="index4">
+            <element name="sys_domain"/>
+        </index>
+    </element>
+</database>

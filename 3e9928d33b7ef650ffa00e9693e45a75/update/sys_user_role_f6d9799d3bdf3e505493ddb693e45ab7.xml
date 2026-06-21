@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_user_role">
+    <sys_user_role action="INSERT_OR_UPDATE">
+        <assignable_by/>
+        <can_delegate>true</can_delegate>
+        <description>This role will have access to following modules for their own business unit&#13;
+Quotas&#13;
+Lookup Tables&#13;
+Plans&#13;
+Rules (Earning, Lookup, Payout Summary)&#13;
+Plan Assignment&#13;
+Quota Assignment&#13;
+Incentive Statements</description>
+        <elevated_privilege>false</elevated_privilege>
+        <federated_id>Jgx66WbuyxCJs/qXs6yVEUONh0bCn9BJ7OMle+X7QA8=</federated_id>
+        <grantable>true</grantable>
+        <includes_roles/>
+        <name>x_ctans_incentnow.business_group_admin</name>
+        <scoped_admin>false</scoped_admin>
+        <suffix>business_group_admin</suffix>
+        <sys_class_name>sys_user_role</sys_class_name>
+        <sys_created_by>upma.rai</sys_created_by>
+        <sys_created_on>2026-02-25 12:31:38</sys_created_on>
+        <sys_id>f6d9799d3bdf3e505493ddb693e45ab7</sys_id>
+        <sys_mod_count>1</sys_mod_count>
+        <sys_name>x_ctans_incentnow.business_group_admin</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_user_role_f6d9799d3bdf3e505493ddb693e45ab7</sys_update_name>
+        <sys_updated_by>upma.rai</sys_updated_by>
+        <sys_updated_on>2026-06-14 08:27:03</sys_updated_on>
+    </sys_user_role>
+</record_update>

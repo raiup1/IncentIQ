@@ -1,0 +1,305 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <client_script><![CDATA[api.controller = function($scope,spUtil) {
+  var c = this;
+	
+	c.setDefaultSettings = function() {
+
+        c.data.settings.defaultCurrency = '$';
+        c.data.settings.currencyPosition = 'before';
+        c.data.settings.decimalPlaces = '2';
+        c.data.settings.thousandSeperator = 'true';
+        c.data.settings.crm_tables = 'sn_csm_om_order,sn_opty_mgmt_core_opportunity,sn_quote_mgmt_core_quote,sn_lead_mgmt_core_lead';
+
+    };
+
+	
+
+  c.saveSettings = function() {
+		
+		c.data.action='save_settings';
+		c.data.settings=c.data.settings;
+    c.server.update().then(function(response) {
+      if (response.status) {
+				
+        spUtil.addInfoMessage("Settings saved successfully");
+				c.data.settings=response.settings;
+				spUtil.update($scope);
+      }
+    });
+  };
+	
+
+};]]></client_script>
+        <controller_as>c</controller_as>
+        <css>
+.modern-btn 
+{		border-radius: .8rem;
+    padding: .8rem 1.8rem;
+    font-weight: 500;
+    transition: all .2s ease;
+    background: #000000;
+
+}
+.settings-widget .panel {
+  border-radius: 10px;
+  border: none;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.settings-widget .panel-heading {
+  font-weight: 600;
+  padding: 16px 20px;
+  background: #2c3e50;
+  color: #fff;
+  border-bottom: none;
+}
+
+.settings-widget .panel-body {
+  padding: 25px;
+  background: #fff;
+}
+
+.settings-widget .form-group {
+  margin-bottom: 20px;
+}
+
+.settings-widget .control-label {
+  font-weight: 600;
+  color: #333;
+}
+
+.settings-widget .form-control {
+  border-radius: 8px;
+  height: 42px;
+  border: 1px solid #dcdfe6;
+  box-shadow: none;
+  transition: 0.2s ease;
+}
+
+.settings-widget .form-control:focus {
+  border-color: #4a90e2;
+  box-shadow: 0 0 4px rgba(74,144,226,0.3);
+}
+
+.settings-widget .checkbox {
+  margin-bottom: 12px;
+}
+
+.settings-widget .btn-primary {
+  min-width: 140px;
+  border-radius: 8px;
+  padding: 10px 18px;
+  font-weight: 600;
+  transition: 0.2s ease;
+}
+
+.settings-widget .btn-primary:hover {
+  transform: translateY(-1px);
+}</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description/>
+        <docs/>
+        <field_list/>
+        <has_preview>false</has_preview>
+        <id>incentnow-system-settings</id>
+        <internal>false</internal>
+        <link><![CDATA[function link(scope, element, attrs, controller) {
+  
+}]]></link>
+        <name>IncentNow System Settings</name>
+        <option_schema/>
+        <public>false</public>
+        <roles>snc_internal</roles>
+        <script><![CDATA[(function() {
+
+	
+	var currencyPosition = gs.getProperty('x_ctans_incentnow.currency_position');
+	var currencySymbol = gs.getProperty('x_ctans_incentnow.currency_symbol');
+	var decimalPlaces = gs.getProperty('x_ctans_incentnow.decimal_places');
+	var thousandSeparator = gs.getProperty('x_ctans_incentnow.thousand_separator');
+	var crm_tables = gs.getProperty('x_ctans_incentnow.internal.crm_tables'); 
+
+
+  data.settings = {
+    defaultCurrency: currencySymbol,
+    currencyPosition: currencyPosition,
+    decimalPlaces:decimalPlaces,
+		thousandSeperator:thousandSeparator,
+		crm_tables: crm_tables
+  };
+	
+	
+	
+	data.currencies = new x_ctans_incentnow.IncentNowPortalUtils().getCurrencies();
+	
+
+
+  // Save settings
+  if (input && input.action === 'save_settings') {
+		
+		try
+		{
+			
+			gs.setProperty('x_ctans_incentnow.currency_position', input.settings.currencyPosition);
+			gs.setProperty('x_ctans_incentnow.currency_symbol', input.settings.defaultCurrency);
+			gs.setProperty('x_ctans_incentnow.decimal_places', input.settings.decimalPlaces);
+			gs.setProperty('x_ctans_incentnow.thousand_separator', input.settings.thousandSeperator);
+			gs.setProperty('x_ctans_incentnow.internal.crm_tables', input.settings.crm_tables);
+
+			data.settings=input.settings;
+			data.status='success';
+			
+		}
+		catch(ex)
+			{
+				gs.addErrorMessage("Error in updating properties : "+ex.message);
+			}
+    
+  }
+
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>karan.kumar</sys_created_by>
+        <sys_created_on>2026-03-19 12:49:48</sys_created_on>
+        <sys_id>e84113903b7336905493ddb693e45a05</sys_id>
+        <sys_mod_count>39</sys_mod_count>
+        <sys_name>IncentNow System Settings</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sp_widget_e84113903b7336905493ddb693e45a05</sys_update_name>
+        <sys_updated_by>karan.kumar</sys_updated_by>
+        <sys_updated_on>2026-06-15 05:04:08</sys_updated_on>
+        <template><![CDATA[<div class="settings-widget">
+  
+  <div class="text-right" style="margin-bottom:15px;">
+  <button type="button"
+          class="btn btn-default"
+          ng-click="c.setDefaultSettings()">
+    <i class="fa fa-refresh"></i> Default Settings
+  </button>
+</div>
+
+  <div class="panel panel-default">
+    <!-- <div class="panel-heading">
+      <h3 class="panel-title">System Settings</h3>
+    </div> -->
+
+    <div class="panel-body">
+      <form class="form-horizontal" ng-submit="c.saveSettings()">
+
+        <!-- Default Currency -->
+        <div class="form-group">
+          <label class="col-sm-3 control-label">Default Currency</label>
+          <div class="col-sm-6">
+            <select class="form-control"
+                    ng-model="c.data.settings.defaultCurrency"
+                    ng-options="currency.value as currency.label for currency in c.data.currencies">
+            </select>
+          </div>
+        </div>
+
+        <!-- Date Format -->
+        <div class="form-group">
+          <label class="col-sm-3 control-label">Currency Position</label>
+          <div class="col-sm-6">
+            <select class="form-control" ng-model="c.data.settings.currencyPosition">
+              <option value="before">Before</option>
+              <option value="after">After</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Currency Precision -->
+        <div class="form-group">
+          <label class="col-sm-3 control-label">Decimal Places</label>
+          <div class="col-sm-6">
+            <select class="form-control" ng-model="c.data.settings.decimalPlaces">
+              <option value="0">0 (No decimals)</option>
+              <option value="1">1 decimals</option>
+              <option value="2">2 decimals</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Percentage Precision -->
+        <div class="form-group">
+          <label class="col-sm-3 control-label">Thousands Seperator</label>
+          <div class="col-sm-6">
+            <select class="form-control" ng-model="c.data.settings.thousandSeperator">
+              <option value="true">True</option>
+              <option value="false">false</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label class="col-sm-3 control-label">CRM Tables</label>
+          <div class="col-sm-6">
+            <textarea class="form-control" ng-model="c.data.settings.crm_tables"></textarea>
+          </div>
+        </div>
+        
+
+        <!-- Fiscal Year Start 
+        <div class="form-group">
+          <label class="col-sm-3 control-label">Fiscal Year Start</label>
+          <div class="col-sm-6">
+            <select class="form-control" ng-model="c.data.settings.fiscalYearStart">
+              <option value="1">January</option>
+              <option value="4">April</option>
+              <option value="7">July</option>
+              <option value="10">October</option>
+            </select>
+          </div>
+        </div> -->
+
+        <!-- Checkboxes 
+        <div class="form-group">
+          <div class="col-sm-offset-3 col-sm-6">
+
+            <div class="checkbox">
+              <label>
+                <input type="checkbox" ng-model="c.data.settings.autoGenerateStatements">
+                Auto Generate Statements
+              </label>
+            </div>
+
+            <div class="checkbox">
+              <label>
+                <input type="checkbox" ng-model="c.data.settings.approvalRequired">
+                Approval Required
+              </label>
+            </div>
+
+            <div class="checkbox">
+              <label>
+                <input type="checkbox" ng-model="c.data.settings.emailNotifications">
+                Email Notifications
+              </label>
+            </div>
+
+          </div>
+        </div> -->
+
+        <!-- Save Button -->
+        <div class="form-group">
+          <div class="col-sm-offset-3 col-sm-6">
+            <button type="submit" class="btn btn-primary modern-btn">
+              <i class="fa fa-save"></i> Save Settings
+            </button>
+          </div>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+</div>]]></template>
+    </sp_widget>
+</record_update>

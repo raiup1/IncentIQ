@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="ais_rule_mirror_m2m">
+    <ais_rule_mirror_m2m action="INSERT_OR_UPDATE">
+        <mirror_source display_value="Now Assist in Virtual Agent - 1">15ab9bf43b6ccf505493ddb693e45a92</mirror_source>
+        <mirror_target display_value="Now Assist - IncentIQ Primary">b2ec1f383beccf505493ddb693e45aa9</mirror_target>
+        <sys_class_name>ais_rule_mirror_m2m</sys_class_name>
+        <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+        <sys_created_on>2026-06-12 14:18:17</sys_created_on>
+        <sys_id>04c415b33bd58350a4cbaddc73e45a41</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name/>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>ais_rule_mirror_m2m_04c415b33bd58350a4cbaddc73e45a41</sys_update_name>
+        <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
+        <sys_updated_on>2026-06-12 14:18:17</sys_updated_on>
+    </ais_rule_mirror_m2m>
+</record_update>

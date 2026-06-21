@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update>
+    <sys_choice action="INSERT_OR_UPDATE" field="role" table="x_ctans_incentnow_user_profile" version="3">
+        <sys_choice_set action="INSERT_OR_UPDATE">
+            <element>role</element>
+            <name>x_ctans_incentnow_user_profile</name>
+            <sys_class_name>sys_choice_set</sys_class_name>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-06-03 07:23:56</sys_created_on>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_name>role</sys_name>
+            <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+            <sys_policy/>
+            <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+            <sys_update_name>sys_choice_x_ctans_incentnow_user_profile_role</sys_update_name>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-06-03 07:23:56</sys_updated_on>
+        </sys_choice_set>
+        <sys_choice action="INSERT_OR_UPDATE">
+            <dependent_value/>
+            <element>role</element>
+            <hint/>
+            <inactive>false</inactive>
+            <label>Account Executive</label>
+            <language>en</language>
+            <name>x_ctans_incentnow_user_profile</name>
+            <sequence>0</sequence>
+            <synonyms/>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-06-03 07:23:56</sys_created_on>
+            <sys_domain>global</sys_domain>
+            <sys_domain_path>/</sys_domain_path>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-06-03 07:23:56</sys_updated_on>
+            <value>account executive</value>
+        </sys_choice>
+        <sys_choice action="INSERT_OR_UPDATE">
+            <dependent_value/>
+            <element>role</element>
+            <hint/>
+            <inactive>false</inactive>
+            <label>Application Admin</label>
+            <language>en</language>
+            <name>x_ctans_incentnow_user_profile</name>
+            <sequence>1</sequence>
+            <synonyms/>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-06-03 07:23:56</sys_created_on>
+            <sys_domain>global</sys_domain>
+            <sys_domain_path>/</sys_domain_path>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-06-03 07:23:56</sys_updated_on>
+            <value>application admin</value>
+        </sys_choice>
+        <sys_choice action="INSERT_OR_UPDATE">
+            <dependent_value/>
+            <element>role</element>
+            <hint/>
+            <inactive>false</inactive>
+            <label>Business Development Rep</label>
+            <language>en</language>
+            <name>x_ctans_incentnow_user_profile</name>
+            <sequence>2</sequence>
+            <synonyms/>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-06-03 07:23:56</sys_created_on>
+            <sys_domain>global</sys_domain>
+            <sys_domain_path>/</sys_domain_path>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-06-03 07:23:56</sys_updated_on>
+            <value>business development rep</value>
+        </sys_choice>
+        <sys_choice action="INSERT_OR_UPDATE">
+            <dependent_value/>
+            <element>role</element>
+            <hint/>
+            <inactive>false</inactive>
+            <label>Business Group Admin</label>
+            <language>en</language>
+            <name>x_ctans_incentnow_user_profile</name>
+            <sequence>3</sequence>
+            <synonyms/>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-06-03 07:23:56</sys_created_on>
+            <sys_domain>global</sys_domain>
+            <sys_domain_path>/</sys_domain_path>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-06-03 07:23:56</sys_updated_on>
+            <value>business group admin</value>
+        </sys_choice>
+        <sys_choice action="INSERT_OR_UPDATE">
+            <dependent_value/>
+            <element>role</element>
+            <hint/>
+            <inactive>false</inactive>
+            <label>Business Group Executive</label>
+            <language>en</language>
+            <name>x_ctans_incentnow_user_profile</name>
+            <sequence>4</sequence>
+            <synonyms/>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-06-03 07:23:56</sys_created_on>
+            <sys_domain>global</sys_domain>
+            <sys_domain_path>/</sys_domain_path>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-06-03 07:23:56</sys_updated_on>
+            <value>business group executive</value>
+        </sys_choice>
+        <sys_choice action="INSERT_OR_UPDATE">
+            <dependent_value/>
+            <element>role</element>
+            <hint/>
+            <inactive>false</inactive>
+            <label>Organization Executive</label>
+            <language>en</language>
+            <name>x_ctans_incentnow_user_profile</name>
+            <sequence>5</sequence>
+            <synonyms/>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-06-03 07:23:56</sys_created_on>
+            <sys_domain>global</sys_domain>
+            <sys_domain_path>/</sys_domain_path>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-06-03 07:23:56</sys_updated_on>
+            <value>organization executive</value>
+        </sys_choice>
+        <sys_choice action="INSERT_OR_UPDATE">
+            <dependent_value/>
+            <element>role</element>
+            <hint/>
+            <inactive>false</inactive>
+            <label>Sales Manager</label>
+            <language>en</language>
+            <name>x_ctans_incentnow_user_profile</name>
+            <sequence>6</sequence>
+            <synonyms/>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-06-03 07:23:56</sys_created_on>
+            <sys_domain>global</sys_domain>
+            <sys_domain_path>/</sys_domain_path>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-06-03 07:23:56</sys_updated_on>
+            <value>sales manager</value>
+        </sys_choice>
+    </sys_choice>
+</record_update>
