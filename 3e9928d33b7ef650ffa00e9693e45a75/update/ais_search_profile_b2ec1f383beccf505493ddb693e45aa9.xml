@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="ais_search_profile">
+    <ais_search_profile action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <creator_source/>
+        <description/>
+        <exclude_from_evaluation>true</exclude_from_evaluation>
+        <genius_result_assembly/>
+        <label>Now Assist - IncentIQ Primary</label>
+        <name>x_ctans_incentnow_now_assist_in_virtual_agent_incentnow_primary</name>
+        <publish_id>ff214c0a-f588-44b8-a15d-537db9810e13</publish_id>
+        <qna_model_id>bert-qa-model-1.1.6</qna_model_id>
+        <state>PUBLISHED</state>
+        <sys_class_name>ais_search_profile</sys_class_name>
+        <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+        <sys_created_on>2026-04-27 09:44:20</sys_created_on>
+        <sys_id>b2ec1f383beccf505493ddb693e45aa9</sys_id>
+        <sys_mod_count>5</sys_mod_count>
+        <sys_name>Now Assist - IncentIQ Primary</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>ais_search_profile_b2ec1f383beccf505493ddb693e45aa9</sys_update_name>
+        <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
+        <sys_updated_on>2026-06-12 14:18:15</sys_updated_on>
+    </ais_search_profile>
+</record_update>

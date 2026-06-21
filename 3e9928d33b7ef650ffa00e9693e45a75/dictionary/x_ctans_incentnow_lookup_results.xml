@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element db_object_id="eaefba333bf7f214ffa00e9693e45a51" label="Lookup Results" max_length="40" name="x_ctans_incentnow_lookup_results" type="collection">
+        <element attributes="encode_utf8=false" label="Plan" max_length="32" name="plan" reference="x_ctans_incentnow_plan" type="reference"/>
+        <element label="Domain" max_length="32" name="sys_domain" type="domain_id"/>
+        <element label="Step Number" max_length="40" name="step_number" type="integer"/>
+        <element label="Value" max_length="15" name="value" type="decimal"/>
+        <element attributes="encode_utf8=false" label="Fiscal Period" max_length="32" name="fiscal_period" reference="x_ctans_incentnow_fiscal_period" type="reference"/>
+        <element attributes="encode_utf8=false" label="User" max_length="32" name="user" reference="x_ctans_incentnow_user_profile" type="reference"/>
+        <element attributes="encode_utf8=false" label="Lookup Rule" max_length="32" name="lookup_rule" reference="x_ctans_incentnow_lookup_rule" type="reference"/>
+        <element attributes="encode_utf8=false" label="Statement ID" max_length="32" name="statement_id" reference="x_ctans_incentnow_incentive_statement" type="reference"/>
+        <element attributes="edge_encryption_enabled=true" choice="1" label="Rate Unit" max_length="40" name="rate_unit" type="string">
+            <choice>
+                <element inactive_on_update="false" label="Percentage" sequence="2" value="percentage"/>
+                <element inactive_on_update="false" label="Currency" sequence="0" value="currency"/>
+                <element inactive_on_update="false" label="Number" sequence="1" value="number"/>
+            </choice>
+        </element>
+        <element attributes="ignore_filter_on_new=true" default="javascript:global.getNextObjNumberPadded();" label="Number" max_length="40" name="number" type="string"/>
+        <element label="Input Value" max_length="15" name="input_value" type="decimal"/>
+        <index name="index">
+            <element name="fiscal_period"/>
+        </index>
+        <index name="index2">
+            <element name="lookup_rule"/>
+        </index>
+        <index name="index3">
+            <element name="plan"/>
+        </index>
+        <index name="index4">
+            <element name="statement_id"/>
+        </index>
+        <index name="index5">
+            <element name="sys_domain"/>
+        </index>
+        <index name="index6">
+            <element name="user"/>
+        </index>
+    </element>
+</database>

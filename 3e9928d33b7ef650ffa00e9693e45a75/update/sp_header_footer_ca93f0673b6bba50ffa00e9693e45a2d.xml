@@ -1,0 +1,438 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_header_footer">
+    <sp_header_footer action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <client_script><![CDATA[api.controller=function() {
+  /* widget controller */
+ var c = this;
+	
+};]]></client_script>
+        <controller_as>c</controller_as>
+        <css>/* USER AVATAR */
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #2563eb;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.profile-card {
+    
+    
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+    max-width: 560px;
+    border: 1px solid rgba(255,255,255,0.08);
+    
+}
+
+
+
+.profile-info h2{
+    margin: 0;    
+    font-size: 36px;
+    font-weight: 100;
+}
+
+
+
+/* HEADER */
+
+.sim-header {
+  width: 100%;
+  background: #fff;
+  border-bottom: 1px solid #e5e7eb;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+/* CONTAINER */
+.sim-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+  padding: 0 24px;
+  flex-wrap: nowrap;
+}
+
+/* LEFT GROUP */
+.sim-left {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex: 1;
+  min-width: 0;
+}
+
+/* LOGO */
+.sim-logo {
+  display: flex;
+  align-items: center;
+}
+
+.logo-link {
+  display: flex;
+  align-items: center;
+}
+
+.logo-img {
+  height: 34px;
+  width: auto;
+}
+
+/* NAVIGATION */
+.sim-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.sim-nav a {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  text-decoration: none;
+  color: #374151 !important;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+/* HOVER EFFECT */
+.sim-nav a:hover {
+  background: #f3f4f6;
+  color: #111827 !important;
+}
+
+/* ACTIVE MENU ITEM (DYNAMIC HIGHLIGHT) */
+.sim-nav a.active {
+  background: #e8f0ff !important;
+  color: #2563eb !important;
+  border-radius: 8px;
+  font-weight: 600 !important;
+  padding: 8px 14px;
+}
+
+/* RIGHT SIDE */
+.sim-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  white-space: nowrap;
+}
+
+/* PERIOD BUTTON */
+.period-btn {
+  border: 1px solid #d1d5db;
+  padding: 5px 10px;
+  background: #fff;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+/* NAVBAR RIGHT FIX */
+.navbar-right {
+  display: flex !important;
+  align-items: center;
+  margin: 0 !important;
+  padding: 0 !important;
+  list-style: none;
+}
+
+.navbar-right &gt; li {
+  float: none !important;
+  display: flex;
+  align-items: center;
+}
+
+
+
+/* DROPDOWN */
+.dropdown {
+  position: relative;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 110%;
+  right: 0;
+  z-index: 9999;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  min-width: 150px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+}
+
+.dropdown-menu li a {
+  padding: 10px 14px;
+  display: block;
+  color: #374151 !important;
+  text-decoration: none;
+}
+
+.dropdown-menu li a:hover {
+  background: #f9fafb;
+}
+
+/* FINAL FORCE */
+.sim-header * {
+  white-space: nowrap;
+}</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description/>
+        <docs/>
+        <field_list/>
+        <has_preview>true</has_preview>
+        <id>incentnow-header-widget</id>
+        <internal>false</internal>
+        <link><![CDATA[function link(scope, element, attrs, controller) {
+  
+}]]></link>
+        <name>IncentNow Header Widget</name>
+        <option_schema/>
+        <public>false</public>
+        <roles>snc_internal</roles>
+        <script><![CDATA[(function() {
+
+	data.user = {
+		sys_id: gs.getUserID(),
+		name: gs.getUserDisplayName(),
+		logged_in: gs.getUserID() ? true : false
+	};
+
+	data.avatarProfile = {
+		userID: data.user.sys_id,
+		name: data.user.name
+		
+	};
+	
+	data.isIncentNowGroupAdmin= gs.hasRole('x_ctans_incentnow.business_group_admin') || gs.hasRole('x_ctans_incentnow.admin');
+
+
+	var allowedReportRoles = [
+		'x_ctans_incentnow.business_group_admin',
+    'x_ctans_incentnow.admin',
+    
+    'x_ctans_incentnow.business_group_executive',
+    'x_ctans_incentnow.manager',
+    'x_ctans_incentnow.org_executive'
+];
+
+data.canViewReports = false;
+
+for (var i = 0; i < allowedReportRoles.length; i++) {
+
+    if (gs.hasRole(allowedReportRoles[i])) {
+		//gs.addInfoMessage(allowedReportRoles[i]);
+        data.canViewReports = true;
+        break;
+    }
+
+}
+
+
+	data.initials = gs.getUser().getFirstName().charAt(0) + gs.getUser().getLastName().charAt(0);
+
+	data.logoutUrl = "/logout.do";
+
+})();]]></script>
+        <servicenow>false</servicenow>
+        <static>false</static>
+        <sys_class_name>sp_header_footer</sys_class_name>
+        <sys_created_by>karan.kumar</sys_created_by>
+        <sys_created_on>2026-03-16 17:26:54</sys_created_on>
+        <sys_id>ca93f0673b6bba50ffa00e9693e45a2d</sys_id>
+        <sys_mod_count>118</sys_mod_count>
+        <sys_name>IncentNow Header Widget</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sp_header_footer_ca93f0673b6bba50ffa00e9693e45a2d</sys_update_name>
+        <sys_updated_by>karan.kumar</sys_updated_by>
+        <sys_updated_on>2026-06-02 10:22:11</sys_updated_on>
+        <template><![CDATA[<div>
+  <header class="sim-header">
+    <div class="sim-container">
+
+      <div class="sim-left">
+        <div class="sim-logo">
+          <a href="/incentiq" class="logo-link">
+            <img src="x_ctans_incentIQ.image.jpg" class="logo-img" />
+          </a>
+        </div>
+
+    <nav class="sim-nav">
+
+  <a href="?id=incentnow_homepage" id="nav-incentnow_homepage">
+    <i class="fa fa-th-large"></i> Dashboard
+  </a>
+
+  <a href="?id=organization" id="nav-organization">
+    <i class="fa fa-building"></i> Organization
+  </a>
+      <a href="?id=quota_setup" id="nav-quota">
+    <i class="fa fa-bullseye"></i> Quota Setup
+  </a>
+
+  <a href="?id=incentive_plans_home" id="nav-incentive_plans_home">
+    <i class="fa fa-crosshairs"></i> Incentive Plans
+  </a>
+
+  <a href="?id=performance_tracking" id="nav-performance_tracking">
+    <i class="fa fa-line-chart"></i> Performance
+  </a>
+
+  <a href="?id=incentive_statements" id="nav-incentive_statements">
+    <i class="fa fa-file-text"></i> Statements
+  </a>
+
+  <a href="?id=reports_main" id="nav-reports_main" ng-if="data.canViewReports">
+    <i class="fa fa-bar-chart"></i> Reports
+  </a>
+
+  <a href="?id=incentnow_admin" id="nav-incentnow_admin" ng-if="data.isIncentNowGroupAdmin">
+    <i class="fa fa-cog"></i> Admin
+  </a>
+
+</nav>
+      </div>
+
+      <div class="sim-right">
+
+        <ul class="nav navbar-nav navbar-right">
+
+          <li ng-if="!data.user.logged_in">
+            <a href="?id=login">Login</a>
+          </li>
+
+          <li ng-if="data.user.logged_in" class="dropdown">
+            <a href class="dropdown-toggle" data-toggle="dropdown">
+              <span class="navbar-avatar">
+                 <div class="avatar">{{data.initials}}</div> 
+              </span>
+
+              <!-- <span>{{data.user.name}}</span> -->
+              <span class="caret"></span>
+            </a>
+
+            <ul class="dropdown-menu">
+              <li>
+                <div class="profile-card">
+
+                <div class="avatar">
+                  {{c.data.initials}}
+                </div>
+
+                <div class="profile-info">
+                  <h2>{{data.user.name}}</h2>
+
+            
+                </div>
+
+              </div>
+              </li>
+              <li>
+                <a ng-href="?id=user_profile&sys_id={{data.user.sys_id}}">
+                  Profile
+                </a>
+              </li>
+
+              <li>
+                <a ng-href="{{data.logoutUrl}}">
+                  Logout
+                </a>
+              </li>
+            </ul>
+          </li>
+
+        </ul>
+      </div>
+
+    </div>
+  </header>
+</div>
+
+<script>
+function updateActiveMenu() {
+
+    // Get current page id from URL
+    var currentPage = new URLSearchParams(window.location.search).get("id");
+
+    if (!currentPage) {
+        currentPage = "incentnow_homepage";
+    }
+
+    // Remove active from all links
+    $('.sim-nav a').removeClass('active');
+
+    // Apply active only to exact matching page
+    $('.sim-nav a').each(function () {
+        var href = $(this).attr('href');
+
+        if (href === '?id=' + currentPage) {
+            $(this).addClass('active');
+        }
+    });
+}
+
+/* Initial load */
+setTimeout(function () {
+    updateActiveMenu();
+}, 500);
+
+/* Detect Service Portal page changes */
+$(window).on('hashchange popstate', function () {
+    updateActiveMenu();
+});
+
+/* Extra safety for SPA navigation */
+$(document).ajaxComplete(function () {
+    updateActiveMenu();
+});
+
+
+if (window.angular) {
+    try {
+        var injector = angular.element(document.body).injector();
+        if (injector) {
+            var $rootScope = injector.get('$rootScope');
+
+            $rootScope.$on('$locationChangeSuccess', function () {
+                setTimeout(function () {
+                    updateActiveMenu();
+                }, 100);
+            });
+        }
+    } catch (e) {
+        console.log("Angular hook error:", e);
+    }
+}
+
+/* ]]>🔥<![CDATA[ EXTRA: MutationObserver for DOM changes (bulletproof) */
+var observer = new MutationObserver(function () {
+    updateActiveMenu();
+});
+
+observer.observe(document.body, {
+    childList: true,
+    subtree: true
+});
+</script>]]></template>
+    </sp_header_footer>
+</record_update>

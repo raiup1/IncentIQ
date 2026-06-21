@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="db_image">
+    <db_image action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <category>Service Portal</category>
+        <format>png</format>
+        <height>30</height>
+        <image>449f3e0c3b914390a4cbaddc73e45ad9</image>
+        <name>Incentiqbot_2026.png</name>
+        <size_bytes>2336</size_bytes>
+        <sys_class_name>db_image</sys_class_name>
+        <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+        <sys_created_on>2026-04-28 02:47:26</sys_created_on>
+        <sys_id>51f687093b684310350ee4d355e45aca</sys_id>
+        <sys_mod_count>47</sys_mod_count>
+        <sys_name>Incentiqbot_2026.png</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>db_image_51f687093b684310350ee4d355e45aca</sys_update_name>
+        <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
+        <sys_updated_on>2026-06-01 06:28:14</sys_updated_on>
+        <thumbnail/>
+        <width>30</width>
+    </db_image>
+    <sys_attachment action="INSERT_OR_UPDATE">
+        <average_image_color>#44240</average_image_color>
+        <chunk_size_bytes>700000</chunk_size_bytes>
+        <compressed>true</compressed>
+        <content_type>image/png</content_type>
+        <file_name>image</file_name>
+        <hash>e15f206d01b61b879d80b4fe129ccc821a724063cb7e79894cfee0e0b8fef266</hash>
+        <image_height>30</image_height>
+        <image_width>30</image_width>
+        <size_bytes>2336</size_bytes>
+        <size_compressed>2232</size_compressed>
+        <state>available</state>
+        <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+        <sys_created_on>2026-06-01 06:27:44</sys_created_on>
+        <sys_id>449f3e0c3b914390a4cbaddc73e45ad9</sys_id>
+        <sys_mod_count>5</sys_mod_count>
+        <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
+        <sys_updated_on>2026-06-01 06:27:44</sys_updated_on>
+        <table_name>ZZ_YYdb_image</table_name>
+        <table_sys_id>51f687093b684310350ee4d355e45aca</table_sys_id>
+    </sys_attachment>
+    <sys_attachment_doc action="INSERT_OR_UPDATE">
+        <data>H4sIAAAAAAAA/w==</data>
+        <length>16</length>
+        <position>0</position>
+        <sys_attachment display_value="image" sys_id="449f3e0c3b914390a4cbaddc73e45ad9">449f3e0c3b914390a4cbaddc73e45ad9</sys_attachment>
+        <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+        <sys_created_on>2026-06-01 06:27:44</sys_created_on>
+        <sys_id>849f3e0c3b914390a4cbaddc73e45ad9</sys_id>
+    </sys_attachment_doc>
+    <sys_attachment_doc action="INSERT_OR_UPDATE">
+        <data>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</data>
+        <length>2964</length>
+        <position>1</position>
+        <sys_attachment display_value="image" sys_id="449f3e0c3b914390a4cbaddc73e45ad9">449f3e0c3b914390a4cbaddc73e45ad9</sys_attachment>
+        <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+        <sys_created_on>2026-06-01 06:27:44</sys_created_on>
+        <sys_id>489f3e0c3b914390a4cbaddc73e45ad9</sys_id>
+    </sys_attachment_doc>
+</record_update>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element db_object_id="1a36e2153b977e505493ddb693e45a96" label="Incentive Statement" max_length="40" name="x_ctans_incentnow_incentive_statement" type="collection">
+        <element label="Target Quota" max_length="15" name="target_quota" type="decimal"/>
+        <element label="Statement" max_length="65536" name="statement" type="html"/>
+        <element attributes="edge_encryption_enabled=true,json_view=true" label="Payout Results" max_length="4000" name="payout_results" type="string"/>
+        <element attributes="edge_encryption_enabled=true" choice="1" default="draft" label="Status" max_length="40" name="status" type="string">
+            <choice>
+                <element inactive_on_update="false" label="Draft" sequence="0" value="draft"/>
+                <element inactive_on_update="false" label="Error" sequence="1" value="error"/>
+                <element inactive_on_update="false" label="Statement Published" sequence="3" value="statement_published"/>
+                <element inactive_on_update="false" label="Statement Generated" sequence="2" value="statement_generated"/>
+            </choice>
+        </element>
+        <element attributes="encode_utf8=false" label="User" mandatory="true" max_length="32" name="user" reference="x_ctans_incentnow_user_profile" reference_qual="active=true^EQ" reference_qual_condition="active=true^EQ" type="reference"/>
+        <element attributes="edge_encryption_enabled=true" label="Earning Results" max_length="1000" name="earning_results" type="string"/>
+        <element label="Total Commission" max_length="15" name="total_commission" type="decimal"/>
+        <element label="Quota Attainment (%)" max_length="15" name="quota_attainment" type="decimal"/>
+        <element attributes="ref_ac_order_by=period_number" dependent="fiscal_year" dependent_on_field="fiscal_year" label="Fiscal Period" mandatory="true" max_length="32" name="fiscal_period" reference="x_ctans_incentnow_fiscal_period" reference_qual="period_type=month^EQ" reference_qual_condition="period_type=month^EQ" type="reference" use_dependent_field="true"/>
+        <element label="Domain" max_length="32" name="sys_domain" type="domain_id"/>
+        <element attributes="ignore_filter_on_new=true" default="javascript:global.getNextObjNumberPadded();" label="Number" max_length="40" name="number" type="string"/>
+        <element attributes="encode_utf8=false, readonly_clickthrough=true" label="Plan" mandatory="true" max_length="32" name="plan" reference="x_ctans_incentnow_plan" reference_qual="javascript: new IncentNowClientUtils().getPlansForUser(current.user, current.fiscal_year)" type="reference" use_reference_qualifier="advanced"/>
+        <element attributes="encode_utf8=false" label="Fiscal Year" mandatory="true" max_length="32" name="fiscal_year" reference="x_ctans_incentnow_fiscal_calendar" reference_qual="active=true^EQ" reference_qual_condition="active=true^EQ" type="reference"/>
+        <index name="index">
+            <element name="fiscal_period"/>
+        </index>
+        <index name="index2">
+            <element name="fiscal_year"/>
+        </index>
+        <index name="index3">
+            <element name="plan"/>
+        </index>
+        <index name="index4">
+            <element name="sys_domain"/>
+        </index>
+        <index name="index5">
+            <element name="user"/>
+        </index>
+    </element>
+</database>

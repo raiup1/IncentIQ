@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update>
+    <sys_documentation element="period_end_date" label="Period End Date" language="en" table="x_ctans_incentnow_fiscal_period">
+        <sys_documentation action="INSERT_OR_UPDATE">
+            <element>period_end_date</element>
+            <help/>
+            <hint/>
+            <label>Period End Date</label>
+            <language>en</language>
+            <name>x_ctans_incentnow_fiscal_period</name>
+            <plural>Period End Dates</plural>
+            <sys_class_name>sys_documentation</sys_class_name>
+            <sys_created_by>karan.kumar</sys_created_by>
+            <sys_created_on>2026-02-25 10:47:08</sys_created_on>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_name>Period End Date</sys_name>
+            <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+            <sys_policy/>
+            <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+            <sys_update_name>sys_documentation_x_ctans_incentnow_fiscal_period_period_end_date_en</sys_update_name>
+            <sys_updated_by>karan.kumar</sys_updated_by>
+            <sys_updated_on>2026-02-25 10:47:08</sys_updated_on>
+            <url/>
+            <url_target/>
+        </sys_documentation>
+    </sys_documentation>
+</record_update>

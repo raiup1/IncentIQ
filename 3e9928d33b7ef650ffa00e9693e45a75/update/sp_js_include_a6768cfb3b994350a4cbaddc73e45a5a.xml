@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_js_include">
+    <sp_js_include action="INSERT_OR_UPDATE">
+        <display_name>https://cdn.jsdelivr.net/npm/chart.js</display_name>
+        <source>url</source>
+        <sys_class_name>sp_js_include</sys_class_name>
+        <sys_created_by>karan.kumar</sys_created_by>
+        <sys_created_on>2026-06-12 08:36:53</sys_created_on>
+        <sys_id>a6768cfb3b994350a4cbaddc73e45a5a</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>https://cdn.jsdelivr.net/npm/chart.js</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_ui_script/>
+        <sys_update_name>sp_js_include_a6768cfb3b994350a4cbaddc73e45a5a</sys_update_name>
+        <sys_updated_by>karan.kumar</sys_updated_by>
+        <sys_updated_on>2026-06-12 08:36:53</sys_updated_on>
+        <url>https://cdn.jsdelivr.net/npm/chart.js</url>
+    </sp_js_include>
+</record_update>

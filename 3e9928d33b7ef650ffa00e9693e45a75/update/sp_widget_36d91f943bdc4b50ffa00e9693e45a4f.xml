@@ -1,0 +1,1827 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <client_script><![CDATA[api.controller = function($scope, spUtil,spModal) {
+    var c = this;
+
+    /* ================= INIT ================= */
+
+    c.selectedQuota = '';
+    c.selectedQuotaLabel = '';
+    c.quotaSearch = '';
+    c.quotaDisplayText = '';
+    c.filteredQuotas = [];
+    c.quotaDropOpen = false;
+
+    c.userConditions = [{
+        field: '',
+        operator: 'contains',
+        value: '',
+        logic: 'AND'
+    }];
+    c.filteredUsers = [];
+    c.userFilterApplied = false;
+
+    /* ================= INIT LOAD ================= */
+
+
+
+    c.$onInit = function() {
+        c.filteredQuotas = c.data.quotas || [];
+        c.filteredUsers = c.data.users || [];
+        c.selectedRecord = c.data.sysid;
+    };
+
+    /* ================= NAV ================= */
+
+    c.goBack = function() {
+        $scope.$emit('assignBackToMain');
+    };
+
+    /* ================= QUOTA ================= */
+
+    c.openQuotaDrop = function() {
+        c.filteredQuotas = c.data.quotas || [];
+        c.quotaDisplayText = '';
+        c.quotaSearch = '';
+        c.quotaDropOpen = true;
+    };
+
+    c.onQuotaInputChange = function() {
+        c.quotaSearch = c.quotaDisplayText;
+        c.quotaDropOpen = true;
+
+        var all = c.data.quotas || [];
+
+        if (!c.quotaSearch) {
+            c.filteredQuotas = all;
+            return;
+        }
+
+        var s = c.quotaSearch.toLowerCase();
+
+        c.filteredQuotas = all.filter(function(q) {
+            return (q.name && q.name.toLowerCase().indexOf(s) !== -1) ||
+                (q.business_unit && q.business_unit.toLowerCase().indexOf(s) !== -1) ||
+                (q.financial_year && q.financial_year.toLowerCase().indexOf(s) !== -1);
+        });
+    };
+
+    c.pickQuota = function(q) {
+        c.selectedQuota = q.sys_id;
+        c.selectedQuotaLabel = q.name +
+            (q.business_unit ? ' | ' + q.business_unit : '') +
+            (q.financial_year ? ' | ' + q.financial_year : '');
+
+        c.quotaDisplayText = c.selectedQuotaLabel;
+        c.quotaSearch = '';
+        c.filteredQuotas = c.data.quotas || [];
+        c.quotaDropOpen = false;
+    };
+
+    c.clearQuotaSelection = function() {
+        c.selectedQuota = '';
+        c.selectedQuotaLabel = '';
+        c.quotaSearch = '';
+        c.quotaDisplayText = '';
+        c.filteredQuotas = c.data.quotas || [];
+        c.quotaDropOpen = false;
+    };
+
+    angular.element(document).on('click', function(e) {
+        if (!angular.element(e.target).closest('.qa-quota-search-wrap').length) {
+            $scope.$apply(function() {
+                c.quotaDropOpen = false;
+            });
+        }
+    });
+
+    /* ================= USER FILTER ================= */
+
+    c.addCondition = function() {
+        c.userConditions.push({
+            field: '',
+            operator: 'contains',
+            value: '',
+            logic: 'AND'
+        });
+    };
+
+    c.removeCondition = function(idx) {
+        c.userConditions.splice(idx, 1);
+        if (c.userConditions.length === 0) {
+            c.addCondition();
+        }
+        if (c.userFilterApplied) c.runUserFilter();
+    };
+
+    c.onFieldChange = function(cond) {
+        cond.operator = 'contains';
+        cond.value = '';
+    };
+
+    c._matchCond = function(user, cond) {
+        if (!cond.field || !cond.value) return true;
+
+        var fieldMap = {
+            name: user.name || '',
+            email: user.email || '',
+            business_unit: user.segment || '',
+            role: user.role || '',
+            segment: user.segment || ''
+        };
+
+        var fieldVal = (fieldMap[cond.field] || '').toLowerCase();
+        var condVal = (cond.value || '').toLowerCase();
+
+        if (cond.operator === 'is') return fieldVal === condVal;
+        if (cond.operator === 'starts_with') return fieldVal.indexOf(condVal) === 0;
+        return fieldVal.indexOf(condVal) !== -1;
+    };
+
+    c.runUserFilter = function() {
+        c.userFilterApplied = true;
+        var all = c.data.users || [];
+
+        var activeConds = c.userConditions.filter(function(cond) {
+            return cond.field && cond.value;
+        });
+
+        if (!activeConds.length) {
+            c.filteredUsers = all;
+            return;
+        }
+
+        c.filteredUsers = all.filter(function(user) {
+            var result = c._matchCond(user, activeConds[0]);
+
+            for (var i = 1; i < activeConds.length; i++) {
+                var prev = activeConds[i - 1];
+                var match = c._matchCond(user, activeConds[i]);
+
+                if (prev.logic === 'OR') {
+                    result = result || match;
+                } else {
+                    result = result && match;
+                }
+            }
+
+            return result;
+        });
+    };
+
+    c.clearUserFilter = function() {
+        c.userConditions = [{
+            field: '',
+            operator: 'contains',
+            value: '',
+            logic: 'AND'
+        }];
+        c.userFilterApplied = false;
+        c.filteredUsers = c.data.users || [];
+    };
+
+    /* ================= USER SELECTION ================= */
+
+    c.getSelectedCount = function() {
+        if (!c.data.users) return 0;
+        return c.data.users.filter(function(u) {
+            return u.selected;
+        }).length;
+    };
+
+    c.toggleSelectAll = function() {
+        if (!c.filteredUsers) return;
+
+        var allSelected = c.filteredUsers.every(function(u) {
+            return u.disabled || u.selected;
+        });
+
+        c.filteredUsers.forEach(function(u) {
+            if (!u.disabled) {
+                u.selected = !allSelected; //  toggle
+            }
+        });
+
+        c.filteredUsers.sort(function(a, b) {
+            return (b.disabled === true) - (a.disabled === true);
+        });
+    };
+
+    /* ================= ASSIGN ================= */
+
+
+    //var shared = c.widget.options.shared;
+    //console.log("Shared "+JSON.stringify(shared));
+
+    c.sendToParent = function() {
+
+        c.data.selectedUsers = (c.data.users || []).filter(function(u) {
+            return u.selected;
+        });
+        c.data.action = "assignplan";
+        c.data.sysid = c.data.sysid;
+        //alert(c.data.sysid);
+        console.log("suser " + JSON.stringify(c.data.selectedUsers))
+        console.log("vuser " + JSON.stringify(c.data.sysid))
+
+        c.server.update().then(function(response) {
+            if (response.status == "success")
+                c.goBack();
+
+            c.clearUserFilter()
+
+        });
+    };
+
+
+
+    c.assignQuota = function() {
+        console.log("h1");
+
+
+        var selectedUsers = (c.data.users || []).filter(function(u) {
+            return u.selected;
+        });
+        console.log("h2 " + JSON.stringify(selectedUsers));
+
+        if (!selectedUsers.length) {
+            spUtil.addErrorMessage("Please select at least one user");
+            return;
+        }
+        console.log("h3");
+
+
+    };
+
+
+    c.filterAvailableOnly = function() {
+
+        var base = c.userFilterApplied ? c.filteredUsers : (c.data.users || []);
+
+        if (c.showAvailableOnly) {
+            c.filteredUsers = base.filter(function(u) {
+                return !u.disabled;
+            });
+        } else {
+            c.filteredUsers = c.data.users || [];
+        }
+
+        c.filteredUsers.sort(function(a, b) {
+            return (b.disabled === true) - (a.disabled === true);
+        });
+    };
+	
+	c.unassignUser = function(user) {
+
+    spModal.open({
+        title: "Confirm Unassign",
+        message: "Are you sure you want to unassign " + user.name + "?",
+        buttons: [
+            { label: "Cancel", cancel: true },
+            { label: "Unassign", primary: true }
+        ]
+    }).then(function() {
+
+        c.data.action = "unassignUser";
+        c.data.userId = user.sys_id;
+				
+				
+        c.server.update().then(function(response) {
+
+            if (response.status === "success") {
+							
+
+                spUtil.addInfoMessage(user.name + " unassigned successfully");
+
+                //reload users (NO FULL REFRESH)
+                c.reloadUsers();
+								
+
+            } else {
+                spUtil.addErrorMessage("Failed to unassign user");
+            }
+
+        });
+
+    });
+};
+	
+	c.reloadUsers = function() {
+
+    c.server.get({
+        action: "getUsers",
+			sysid: c.data.sysid,   
+    table: c.data.table    
+    }).then(function(response) {
+
+        c.data.users = response.data.users;
+
+        // Apply filter if already applied
+        if (c.userFilterApplied) {
+            c.runUserFilter();
+        } else {
+            c.filteredUsers = c.data.users;
+        }
+
+    });
+};
+	
+
+
+};]]></client_script>
+        <controller_as>c</controller_as>
+        <css>/* ================= GLOBAL ================= */
+
+.admin-main {
+  padding: 10px 15px;
+  background: #f5f7fb;
+}
+
+/* ================= HEADER ================= */
+
+.error-box {
+      background: #fff;
+      border-left: 6px solid #e53935;
+      padding: 0.5rem 1.2rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .error-icon {
+      font-size: 24px;
+      color: #e53935;
+    }
+
+    .error-text {
+      color: #333;
+      font-size: 16px;
+      font-weight: 500;
+    }
+
+.qa-unassign-btn {
+  font-size: 12px;
+  color: #dc2626;
+  font-weight: 600;
+  padding: 4px 6px;
+}
+
+
+
+.qa-unassign-btn:hover {
+  text-decoration: underline;
+  color: #b91c1c;
+}
+
+
+.admin-main h2 {
+  font-weight: 600;
+  color: #111827;
+}
+
+.admin-main p {
+  color: #6b7280;
+}
+.disabled-row {
+  opacity: 0.5;
+}
+
+.disabled-row td {
+  color: #888;
+}
+
+.qa-user-disabled {
+  opacity: 0.5;
+  background: #f9fafb;
+}
+
+.qa-user-disabled .qa-user-name {
+  color: #777;
+}
+
+.qa-user-disabled .qa-user-info {
+  opacity: 0.5;
+}
+
+.qa-user-disabled .qa-unassign-btn {
+  color: #dc2626;
+  font-weight: 600;
+}
+
+
+.qa-user-plan {
+  font-size: 11px;
+  color: #999;
+  margin-left: 5px;
+}
+/* ================= FILTER BAR ================= */
+
+.quota-filter-row {
+  background: #f1f5f9;
+  padding: 16px 18px;
+  border-radius: 14px;
+  margin-bottom: 25px;
+}
+
+.quota-filter-row .col-sm-3 {
+  display: flex;
+  align-items: center;
+}
+
+.quota-filter-row select,
+.quota-filter-row input {
+  border-radius: 12px;
+  height: 40px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  transition: all 0.2s ease;
+}
+
+.quota-filter-row select:focus,
+.quota-filter-row input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37,99,235,0.1);
+}
+
+/* ================= KPI CARDS ================= */
+
+.quota-kpi-card {
+  border-radius: 18px;
+  border: 1px solid #e6e8ec;
+  background: linear-gradient(180deg, #ffffff, #f9fafb);
+  transition: all 0.25s ease;
+}
+
+.quota-kpi-card .panel-body {
+  padding: 22px;
+}
+
+.quota-kpi-card p {
+  margin: 0;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.quota-kpi-card h2 {
+  font-size: 28px;
+  font-weight: 600;
+  margin: 8px 0;
+  color: #111827;
+}
+
+.quota-kpi-card small {
+  color: #9ca3af;
+}
+
+.quota-kpi-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.1);
+}
+
+/* ================= TOGGLE BUTTON ================= */
+
+.btn-group {
+  background: #eef2f7;
+  padding: 4px;
+  border-radius: 12px;
+}
+
+.btn-group .btn {
+  border-radius: 10px !important;
+  padding: 6px 16px;
+  border: none;
+  background: transparent;
+}
+
+.btn-group .btn.active {
+  background: #2563eb;
+  color: white;
+  box-shadow: 0 4px 12px rgba(37,99,235,0.3);
+}
+
+/* ================= QUOTA CARDS ================= */
+
+.quota-card {
+  border-radius: 18px;
+  border: 1px solid #e5e7eb;
+  background: linear-gradient(180deg, #ffffff, #f9fafb);
+  padding: 18px;
+  transition: all 0.3s ease;
+  margin-bottom: 20px;
+}
+
+.quota-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 14px 35px rgba(0,0,0,0.12);
+}
+
+/* TITLE */
+
+.quota-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+}
+
+/* SUBTEXT */
+
+.quota-desc {
+  font-size: 12px;
+  color: #6b7280;
+  margin-bottom: 12px;
+}
+
+/* META INFO */
+
+.quota-meta {
+  font-size: 12px;
+  color: #4b5563;
+  margin-bottom: 10px;
+}
+
+.quota-meta div {
+  margin-bottom: 5px;
+}
+
+/* VALUE */
+
+.quota-value {
+  font-size: 20px;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 12px;
+}
+
+/* BADGE */
+
+.quota-badge {
+  display: inline-block;
+  background: linear-gradient(90deg, #e0f2fe, #bae6fd);
+  color: #0369a1;
+  font-size: 11px;
+  padding: 6px 12px;
+  border-radius: 12px;
+  text-transform: capitalize;
+}
+
+/* ================= TABLE ================= */
+
+/* CARD WRAPPER */
+
+.panel.quota-card {
+  padding: 0;
+}
+
+/* HEADER */
+
+.panel-heading {
+  padding: 14px 18px;
+  border-bottom: 1px solid #e5e7eb;
+  background: transparent;
+}
+
+.panel-title {
+  font-weight: 600;
+  color: #111827;
+}
+
+/* TABLE BASE */
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 0;
+}
+
+/* FORCE GRID LINES */
+
+.table,
+.table th,
+.table td {
+  border: 1px solid #e5e7eb !important;
+}
+
+/* HEADER */
+
+.table thead th {
+  background: #f3f4f6;
+  font-weight: 600;
+  color: #374151;
+  padding: 12px;
+}
+
+/* ROWS */
+
+.table tbody td {
+  padding: 12px;
+  color: #374151;
+}
+
+/* ALTERNATE ROW */
+
+.table tbody tr:nth-child(even) {
+  background: #fafafa;
+}
+
+/* HOVER */
+
+.table tbody tr:hover {
+  background: #f1f5f9;
+}
+
+/* ================= BUTTON ================= */
+
+.btn-success {
+  border-radius: 10px;
+  padding: 8px 16px;
+  background: #22c55e;
+  border: none;
+}
+
+.btn-success:hover {
+  background: #16a34a;
+}
+
+/* ================= RESPONSIVE ================= */
+
+@media (max-width: 768px) {
+  .quota-kpi-card h2 {
+    font-size: 22px;
+  }
+  .quota-value {
+    font-size: 18px;
+  }
+}
+
+/* =================================================================
+   ASSIGN QUOTA INLINE PAGE STYLES
+================================================================= */
+
+/* Top bar with back button */
+
+.qa-page-topbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.qa-back-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  cursor: pointer;
+  color: #374151;
+  transition: background 0.15s, border-color 0.15s;
+  flex-shrink: 0;
+}
+
+.qa-back-btn:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+}
+
+.qa-page-topbar-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #111827;
+}
+
+/* Form card */
+
+.qa-form-page {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  overflow: hidden;
+}
+
+.qa-form-page-heading {
+  font-size: 18px;
+  font-weight: 700;
+  color: #111827;
+  padding: 24px 28px 4px;
+}
+
+.qa-form-page-sub {
+  font-size: 13px;
+  color: #6b7280;
+  padding: 0 28px 20px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.qa-form-body {
+  padding: 24px 28px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Quota select inside form page */
+
+.qa-select {
+  border-radius: 10px !important;
+  height: 42px;
+  border: 1px solid #e5e7eb !important;
+  transition: all 0.2s ease;
+  color: #111827 !important;
+  background-color: #ffffff !important;
+  font-weight: 500;
+}
+
+.qa-select option {
+  color: #111827;
+  font-weight: 400;
+}
+
+.qa-select option[value=""] {
+  color: #9ca3af;
+}
+
+.qa-select:focus {
+  border-color: #2563eb !important;
+  box-shadow: 0 0 0 2px rgba(37,99,235,0.1) !important;
+}
+
+/* Select All row */
+
+.qa-select-all-row {
+  margin-bottom: 12px;
+  display: flex;
+}
+
+.qa-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  color: #374151;
+  cursor: pointer;
+  margin: 0;
+}
+
+.qa-checkbox {
+  margin: 0 !important;
+  cursor: pointer;
+}
+
+/* User list container */
+
+.qa-user-list {
+  max-height: 340px;
+  overflow-y: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  margin-bottom: 12px;
+}
+
+.qa-user-list::-webkit-scrollbar {
+  width: 5px;
+}
+
+.qa-user-list::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+/* Individual user row */
+
+.qa-user-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 16px;
+  border-bottom: 1px solid #f1f1f1;
+  transition: background 0.12s;
+}
+
+.qa-user-row:last-child {
+  border-bottom: none;
+}
+
+.qa-user-row:hover {
+  background: #f8fafc;
+}
+
+.qa-user-info {
+  flex: 1;
+}
+
+.qa-user-name {
+  font-weight: 600;
+  font-size: 14px;
+  color: #111827;
+}
+
+.qa-user-email {
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 2px;
+}
+
+.qa-segment-label {
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 8px;
+  background: #f1f5f9;
+  color: #475569;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* Count text */
+
+.qa-count-text {
+  font-size: 13px;
+  color: #6b7280;
+  margin-top: 8px;
+  margin-bottom: 0;
+}
+
+/* Footer */
+
+.qa-form-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 28px 24px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.qa-btn-cancel {
+  border-radius: 10px !important;
+  padding: 8px 18px !important;
+}
+
+.qa-btn-assign {
+  border-radius: 10px !important;
+  padding: 8px 20px !important;
+}
+
+/* Required star */
+
+.qa-req {
+  color: #ef4444;
+}
+
+/* ================= QUOTA COMBINED SEARCH + SELECT ================= */
+
+.qa-quota-search-wrap {
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.qa-quota-search-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 10px;
+  background: #f8fafc;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  cursor: text;
+}
+
+.qa-quota-box-open {
+  border-color: #6b7280 !important;
+  background: #ffffff !important;
+  border-bottom-left-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+}
+
+.qa-quota-search-box:focus-within {
+  border-color: #6b7280;
+  background: #ffffff;
+}
+
+.qa-quota-search-icon {
+  color: #9ca3af;
+  flex-shrink: 0;
+}
+
+.qa-quota-search-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 13px;
+  color: #111827;
+  font-weight: 500;
+  font-family: inherit;
+  min-width: 0;
+}
+
+.qa-quota-search-input::placeholder {
+  color: #9ca3af;
+  font-weight: 400;
+}
+
+.qa-quota-search-clear {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #9ca3af;
+  padding: 2px;
+  border-radius: 4px;
+  flex-shrink: 0;
+  transition: color 0.15s, background 0.15s;
+}
+
+.qa-quota-search-clear:hover {
+  color: #374151;
+  background: #e5e7eb;
+}
+
+.qa-quota-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 999;
+  background: #ffffff;
+  border: 1.5px solid #6b7280;
+  border-top: none;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.09);
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.qa-quota-dropdown::-webkit-scrollbar {
+  width: 5px;
+}
+
+.qa-quota-dropdown::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+.qa-quota-dropdown-empty {
+  padding: 14px 16px;
+  font-size: 13px;
+  color: #9ca3af;
+}
+
+.qa-quota-option {
+  display: flex;
+  align-items: center;
+  padding: 10px 16px;
+  gap: 10px;
+  cursor: pointer;
+  border-bottom: 1px solid #f8fafc;
+  transition: background 0.1s;
+}
+
+.qa-quota-option:last-child {
+  border-bottom: none;
+}
+
+.qa-quota-option:hover {
+  background: #f1f5f9;
+}
+
+.qa-quota-option-selected {
+  background: #f0f6ff;
+}
+
+.qa-quota-opt-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+  flex: 1;
+}
+
+.qa-quota-opt-meta {
+  font-size: 12px;
+  color: #6b7280;
+  white-space: nowrap;
+}
+
+.qa-quota-opt-check {
+  color: #2563eb;
+  flex-shrink: 0;
+}
+
+/* ================= USER FILTER — SN-style custom filter UI ================= */
+
+.qa-uf-wrap {
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  background: #f3f4f6;
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+
+.qa-uf-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: #e5e7eb;
+  border-bottom: 1px solid #d1d5db;
+}
+
+.qa-uf-toolbar-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.qa-uf-toolbar-right {
+  display: flex;
+  gap: 6px;
+}
+
+.qa-uf-btn {
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 5px;
+  font-size: 12px;
+  color: #374151;
+  padding: 4px 12px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s;
+}
+
+.qa-uf-btn:hover {
+  background: #f9fafb;
+}
+
+.qa-uf-btn-run {
+  background: #2563eb;
+  color: #ffffff;
+  border-color: #2563eb;
+}
+
+.qa-uf-btn-run:hover {
+  background: #1d4ed8;
+}
+
+.qa-uf-conditions {
+  padding: 10px 12px;
+}
+
+.qa-uf-condition-header {
+  font-size: 11px;
+  color: #6b7280;
+  margin-bottom: 8px;
+}
+
+.qa-uf-condition-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.qa-uf-cond-field,
+.qa-uf-cond-op {
+  height: 32px;
+  border: 1px solid #d1d5db;
+  border-radius: 5px;
+  background: #ffffff;
+  font-size: 12px;
+  color: #111827;
+  padding: 0 6px;
+}
+
+.qa-uf-cond-field {
+  min-width: 150px;
+}
+
+.qa-uf-cond-op {
+  min-width: 110px;
+}
+
+.qa-uf-cond-val {
+  flex: 1;
+  min-width: 160px;
+  height: 32px;
+  border: 1px solid #d1d5db;
+  border-radius: 5px;
+  background: #ffffff;
+  font-size: 12px;
+  color: #111827;
+  padding: 0 8px;
+  font-family: inherit;
+}
+
+.qa-uf-cond-val:focus,
+.qa-uf-cond-field:focus,
+.qa-uf-cond-op:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37,99,235,0.1);
+}
+
+.qa-uf-cond-remove {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #9ca3af;
+  padding: 4px;
+  border-radius: 4px;
+  transition: color 0.15s;
+}
+
+.qa-uf-cond-remove:hover {
+  color: #dc2626;
+}
+
+.qa-uf-logic-pills {
+  display: flex;
+  gap: 3px;
+}
+
+.qa-uf-pill {
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  font-size: 11px;
+  font-weight: 600;
+  color: #6b7280;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.qa-uf-pill-active {
+  background: #fef9c3;
+  border-color: #ca8a04;
+  color: #854d0e;
+}
+
+.qa-uf-add-row {
+  padding: 4px 12px 10px;
+}
+
+.qa-uf-result {
+  padding: 8px 12px;
+  font-size: 12px;
+  color: #6b7280;
+  background: #ffffff;
+  border-top: 1px solid #e5e7eb;
+}
+
+.qa-uf-noresult {
+  color: #ef4444;
+}</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description/>
+        <docs/>
+        <field_list/>
+        <has_preview>true</has_preview>
+        <id>incentnow-assignment-user</id>
+        <internal>false</internal>
+        <link><![CDATA[function link(scope, element, attrs, controller) {
+  
+}]]></link>
+        <name>IncentNow Assignment User</name>
+        <option_schema>[{"name":"table","section":"other","label":"Table","type":"string"},{"name":"sysid","section":"other","label":"Sys Id","type":"string"},{"name":"title","section":"other","label":"Title","type":"string"}]</option_schema>
+        <public>false</public>
+        <roles>x_ctans_incentnow.user</roles>
+        <script><![CDATA[(function() {
+
+    data = data || {};
+    input = input || {};
+
+    data.table = input.table || data.table || options.table || "";
+		data.sysid = input.sysid || data.sysid || options.sysid || "";
+    data.title = input.title || options.title || "Plan";
+	
+	if (!input.action) {
+    data.table = data.table;
+    data.sysid = data.sysid;
+}
+	
+		data.isIncentNowGroupAdmin= gs.hasRole('x_ctans_incentnow.business_group_admin') || gs.hasRole('x_ctans_incentnow.admin');
+	
+
+    if (data.table == "x_ctans_incentnow_plan") {
+        data.assigneduser = $sp.getWidget("incentnow-table-widget", {
+            table: 'x_ctans_incentnow_plan_users',
+            view: 'Default view',
+            title: 'Assigned Users'
+        });
+    } else if (data.table == "x_ctans_incentnow_quota") {
+        data.assigneduser = $sp.getWidget("incentnow-table-widget", {
+            table: 'x_ctans_incentnow_user_quota_assignment',
+            view: ''
+        });
+    }
+
+    var MAIN_TABLE = data.table || 'x_ctans_incentnow_quota';
+    var USER_TABLE = 'x_ctans_incentnow_user_profile';
+    var ASSIGN_TABLE = 'x_ctans_incentnow_user_quota_assignment';
+
+    var MAPPED_REL_TABLE = 'x_ctans_incentnow_plan_users';
+
+    /* ================= ASSIGN ================= */
+
+   
+
+    data.recordName = "";
+
+	if (!MAIN_TABLE) {
+    data.status = "error table not available";}
+    
+    if (data.sysid && MAIN_TABLE) {
+        var rec = new GlideRecordSecure(MAIN_TABLE);
+        if (rec.get(data.sysid)) {
+            data.recordName = rec.getDisplayValue(); // or display value
+        }
+    }
+
+    if (input.action === 'assignQuota') {
+
+        var quotaId = input.data.quota;
+        var users = input.data.users || [];
+
+        if (!quotaId || users.length === 0) {
+            data.status = "error";
+            return;
+        }
+
+        var quotaGR = new GlideRecordSecure(MAIN_TABLE);
+        if (!quotaGR.get(data.sysid)) {
+            data.status = "error";
+            return;
+        }
+
+        var role = quotaGR.getValue('role') || '';
+
+        users.forEach(function(userId) {
+
+            var userGR = new GlideRecordSecure(USER_TABLE);
+            var bu = '';
+
+            if (userGR.get(userId)) {
+                bu = userGR.getValue('business_unit') || '';
+            }
+
+            var check = new GlideRecordSecure(ASSIGN_TABLE);
+            check.addQuery('user', userId);
+            check.addQuery('quota', quotaId);
+            check.query();
+
+            if (!check.hasNext()) {
+                var grAssign = new GlideRecordSecure(ASSIGN_TABLE);
+                grAssign.initialize();
+                grAssign.setValue('user', userId);
+                grAssign.setValue('quota', quotaId);
+                grAssign.setValue('role', role);
+                grAssign.setValue('business_unit', bu);
+                grAssign.insert();
+            }
+        });
+
+        data.status = "success";
+        return;
+    }
+	
+	
+
+    if (input.action === "assignplan") {
+        var selectedUsers = input.selectedUsers;
+        var insertion = 0;
+        //gs.addInfoMessage("- - - - - - - - - - - - - - - - ")
+        //	gs.addInfoMessage("k "+input.sysid);
+        var infoMessage = "";
+        var assigned = [];
+        var unassigned = [];
+
+
+        selectedUsers.forEach(function(user) {
+
+            var grPlan = new GlideRecordSecure("x_ctans_incentnow_plan_users");
+            grPlan.addQuery("x_ctans_incentnow_plan", input.sysid);
+            grPlan.addQuery("x_ctans_incentnow_sales_user", user.sys_id);
+            grPlan.setLimit(1);
+            grPlan.query();
+
+            if (!grPlan.next()) {
+                grPlan.initialize();
+                grPlan.x_ctans_incentnow_plan = input.sysid;
+                grPlan.x_ctans_incentnow_sales_user = user.sys_id;
+                var plan = grPlan.insert();
+                if (plan) {
+                    assigned.push(user.name);
+                    insertion = insertion + 1
+
+                } else {
+                    unassigned.push(user.name);
+                }
+            }
+
+        });
+
+        if (insertion > 0 && unassigned.length == 0) { 
+					//gs.addInfoMessage("- - - - - - - - - - - - - - - - ")
+            gs.addInfoMessage("Plan has been Assigned to " + assigned.join() + ".");
+            data.status = "success"
+        } else if (insertion > 0 && unassigned.length > 0) {
+            gs.addInfoMessage("Plan has been Assigned to " + assigned.join() + ", Not Assigned to " + unassigned.join());
+            data.status = "error"
+        }
+        /*else if(insertion==0 && unassigned.length>0)
+        	{
+        		gs.addErrorMessage("Users "+unassigned.join()+ "already assigned to another plan");
+        		data.status="error";
+        	} */
+
+
+    }
+
+
+    /* ================= USERS ================= */
+	
+	 data.planBU = '';
+
+		if (data.sysid) {
+				var planGR = new GlideRecordSecure(MAIN_TABLE);
+				if (planGR.get(data.sysid)) {
+						data.planBU = planGR.getValue('business_unit') || '';
+				}
+		}
+	
+
+	getUsers();
+    function getUsers()
+	{
+		data.users = [];
+    var segmentSet = {};
+    var roleSet = {};
+
+    var mappedUsers = {};
+
+    var relGR = new GlideRecordSecure('x_ctans_incentnow_plan_users');
+		relGR.addEncodedQuery("x_ctans_incentnow_plan.status!=inactive");
+    relGR.query();
+
+    while (relGR.next()) {
+        var userId = relGR.getValue('x_ctans_incentnow_sales_user');
+        if (userId) {
+            mappedUsers[userId.toString()] = relGR.getDisplayValue('x_ctans_incentnow_plan');
+        }
+    }
+    //gs.addErrorMessage(JSON.stringify(mappedUsers));
+
+    var userGR = new GlideRecordSecure(USER_TABLE);
+    userGR.addQuery('user.active', true);
+		if (data.planBU) {
+    		userGR.addQuery('business_unit', data.planBU);
+				}
+		
+
+    /*if (Object.keys(mappedUsers).length > 0) {
+    	userGR.addQuery('sys_id', 'NOT IN', Object.keys(mappedUsers).join(','));
+    }*/
+
+    userGR.query();
+		//gs.addErrorMessage("q1 "+userGR.getEncodedQuery());
+
+    while (userGR.next()) {
+
+    var userId = userGR.getUniqueValue();
+
+    var segment = userGR.getDisplayValue('business_unit') || '';
+
+    var role = userGR.getDisplayValue('role') || '';
+
+    var planName = mappedUsers[userId];
+
+    data.users.push({
+        sys_id: userId,
+
+        // values from sys_user
+        name: userGR.getDisplayValue('user') || '',
+        email: userGR.user.email.toString() || '',
+
+        // values from profile table
+        segment: segment,
+        role: role,
+
+        selected: false,
+        disabled: !!planName,
+        plan: planName || '',
+        tooltip: planName ? 'Assigned to: ' + planName : ''
+    });
+
+    if (segment)
+        segmentSet[segment] = true;
+
+    if (role)
+        roleSet[role] = true;
+}
+    data.users.sort(function(a, b) {
+        return (b.disabled === true) - (a.disabled === true);
+    });
+    data.userSegments = Object.keys(segmentSet).sort();
+    data.userRoles = Object.keys(roleSet).sort();
+
+	}
+    /* ================= QUOTAS ================= */
+
+    data.quotas = [];
+
+    var quotaGR = new GlideRecordSecure(MAIN_TABLE);
+    quotaGR.orderBy('name');
+    quotaGR.query();
+
+    if (MAIN_TABLE == "x_ctans_incentnow_plan") {
+        while (quotaGR.next()) {
+            data.quotas.push({
+                sys_id: quotaGR.getUniqueValue(),
+                name: quotaGR.getValue('plan_name') || '',
+                business_unit: quotaGR.getDisplayValue('business_unit') || '',
+                financial_year: quotaGR.getDisplayValue('fiscal_period') || ''
+            });
+        }
+    } else {
+        while (quotaGR.next()) {
+            data.quotas.push({
+                sys_id: quotaGR.getUniqueValue(),
+                name: quotaGR.getValue('name') || '',
+                business_unit: quotaGR.getDisplayValue('business_unit') || '',
+                financial_year: quotaGR.getDisplayValue('fiscal_year') || ''
+            });
+        }
+    }
+	
+	
+	if (input.action === "unassignUser") {
+
+    var userId = input.userId;
+    var removed = false;
+
+    var grPlanUser = new GlideRecordSecure("x_ctans_incentnow_plan_users");
+    grPlanUser.addQuery("x_ctans_incentnow_sales_user", userId);
+    grPlanUser.query();
+
+    while (grPlanUser.next()) {
+        grPlanUser.deleteRecord();
+        removed = true;
+    }
+
+    data.status = removed ? "success" : "error";
+    return;
+}
+	
+	if(input.action==='getUsers')
+		{
+			getUsers();
+		}
+	
+	
+
+
+
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>karan.kumar</sys_created_by>
+        <sys_created_on>2026-04-13 10:00:09</sys_created_on>
+        <sys_id>36d91f943bdc4b50ffa00e9693e45a4f</sys_id>
+        <sys_mod_count>173</sys_mod_count>
+        <sys_name>IncentNow Assignment User</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sp_widget_36d91f943bdc4b50ffa00e9693e45a4f</sys_update_name>
+        <sys_updated_by>karan.kumar</sys_updated_by>
+        <sys_updated_on>2026-06-12 04:59:09</sys_updated_on>
+        <template><![CDATA[<div class="admin-main">
+
+  <!-- ================= ASSIGN QUOTA PAGE ================= -->
+
+  <!-- Top bar -->
+  <div class="qa-page-topbar">
+     <button class="qa-back-btn" ng-click="c.goBack()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <circle cx="12" cy="12" r="10"/>
+        <polyline points="12 8 8 12 12 16"/>
+        <line x1="16" y1="12" x2="8" y2="12"/>
+      </svg>
+    </button>  
+    <span class="qa-page-topbar-title">{{options.assign_page_title || 'Assign User'}}</span>
+    
+    
+  </div> 
+
+  <!-- Form card -->
+  <div class="qa-form-page">
+    
+    
+    
+    <sp-widget ng-if="c.viewAssigned=='true'" widget="c.data.assigneduser"></sp-widget>
+
+    <div class="qa-form-page-heading">{{options.form_heading || 'Assign Plan to Users'}}</div>
+    <div class="qa-form-page-sub">{{options.form_sub || 'Select users and assign plan'}}</div>
+
+    <div class="qa-form-body">
+
+   
+     <!-- <div class="form-group qa-quota-search-wrap">-->
+
+        
+        <div class="form-group">
+            <label>{{data.title || 'Record'}}</label>
+
+            <select class="form-control qa-select"
+                    ng-model="c.selectedRecord"
+                    ng-disabled="true">
+
+              <option value="{{c.data.sysid}}">
+                {{c.data.recordName}}
+              </option>
+
+            </select>
+          </div>
+
+       <!-- <div class="qa-quota-search-box" ng-class="{'qa-quota-box-open': c.quotaDropOpen}">
+          <svg class="qa-quota-search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <circle cx="11" cy="11" r="8"/>
+            <path d="m21 21-4.35-4.35"/>
+          </svg>
+
+          <input
+            type="text"
+            class="qa-quota-search-input"
+            placeholder="Search or select {{data.title}}..."
+            ng-model="c.quotaDisplayText"
+            ng-change="c.onQuotaInputChange()"
+            ng-focus="c.openQuotaDrop()"
+            autocomplete="off" />
+
+          <button class="qa-quota-search-clear"
+            ng-show="c.selectedQuota || c.quotaSearch"
+            ng-click="c.clearQuotaSelection()"
+            title="Clear">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Dropdown 
+        <div class="qa-quota-dropdown" ng-show="c.quotaDropOpen">
+          <div class="qa-quota-dropdown-empty" ng-if="!c.filteredQuotas.length">
+            No quotas match "{{c.quotaSearch}}"
+          </div>
+
+          <div class="qa-quota-option"
+            ng-repeat="q in c.filteredQuotas"
+            ng-class="{'qa-quota-option-selected': c.selectedQuota === q.sys_id}"
+            ng-click="c.pickQuota(q)">
+
+            <div class="qa-quota-opt-name">{{q.name}}</div>
+
+            <div class="qa-quota-opt-meta">
+              <span ng-if="q.business_unit">{{q.business_unit}}</span>
+              <span ng-if="q.business_unit && q.financial_year"> | </span>
+              <span ng-if="q.financial_year">{{q.financial_year}}</span>
+            </div>
+
+            <svg class="qa-quota-opt-check"
+              ng-if="c.selectedQuota === q.sys_id"
+              width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+
+          </div>
+        </div>
+      </div> -->
+
+      <!-- ================= USER FILTER ================= -->
+
+      <div class="qa-uf-wrap">
+
+        <div class="qa-uf-toolbar">
+          <div class="qa-uf-toolbar-left">
+            <span class="qa-uf-toolbar-label">Filter Users</span>
+          </div>
+
+          <div class="qa-uf-toolbar-right">
+            <button class="qa-uf-btn" ng-click="c.clearUserFilter()">Clear All</button>
+            <button class="qa-uf-btn qa-uf-btn-run" ng-click="c.runUserFilter()">Run</button>
+          </div>
+        </div>
+
+        <div class="qa-uf-conditions">
+
+          <div class="qa-uf-condition-header">
+            All of these conditions must be met
+          </div>
+
+          <div class="qa-uf-condition-row" ng-repeat="cond in c.userConditions track by $index">
+
+            <select class="qa-uf-cond-field" ng-model="cond.field" ng-change="c.onFieldChange(cond)">
+              <option value="">-- choose field --</option>
+              <option value="name">Name</option>
+              <option value="email">Email</option>
+              <option value="business_unit">Business Unit</option>
+              <option value="role">Role</option>
+              <option value="segment">Segment</option>
+            </select>
+
+            <select class="qa-uf-cond-op" ng-model="cond.operator" ng-disabled="!cond.field">
+              <option value="contains">contains</option>
+              <option value="is">is</option>
+              <option value="starts_with">starts with</option>
+            </select>
+
+            <select class="qa-uf-cond-val"
+              ng-if="cond.field === 'business_unit'"
+              ng-model="cond.value">
+              <option value="">-- choose --</option>
+              <option ng-repeat="seg in c.data.userSegments track by $index" value="{{seg}}">{{seg}}</option>
+            </select>
+
+            <select class="qa-uf-cond-val"
+              ng-if="cond.field === 'role'"
+              ng-model="cond.value">
+              <option value="">-- choose --</option>
+              <option ng-repeat="r in c.data.userRoles track by $index" value="{{r}}">{{r}}</option>
+            </select>
+
+            <input type="text"
+              class="qa-uf-cond-val"
+              ng-if="cond.field !== 'business_unit' && cond.field !== 'role'"
+              ng-model="cond.value"
+              placeholder="Enter value..." />
+
+            <button class="qa-uf-cond-remove" ng-click="c.removeCondition($index)">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="15" y1="9" x2="9" y2="15"/>
+                <line x1="9" y1="9" x2="15" y2="15"/>
+              </svg>
+            </button>
+
+            <div class="qa-uf-logic-pills" ng-if="$index < c.userConditions.length - 1">
+              <button class="qa-uf-pill"
+                ng-class="{'qa-uf-pill-active': cond.logic === 'OR'}"
+                ng-click="cond.logic = 'OR'">OR</button>
+
+              <button class="qa-uf-pill"
+                ng-class="{'qa-uf-pill-active': cond.logic === 'AND'}"
+                ng-click="cond.logic = 'AND'">AND</button>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="qa-uf-add-row">
+          <button class="qa-uf-btn" ng-click="c.addCondition()">+ New Criteria</button>
+        </div>
+
+        <div class="qa-uf-result" ng-show="c.userFilterApplied">
+          <span ng-if="c.filteredUsers.length">
+            {{c.filteredUsers.length}} user{{c.filteredUsers.length !== 1 ? 's' : ''}} match the filter
+          </span>
+
+          <span ng-if="!c.filteredUsers.length" class="qa-uf-noresult">
+            No users match the filter conditions
+          </span>
+        </div>
+
+      </div>
+
+      <!-- SELECT ALL -->
+     <div class="qa-select-all-row">
+
+        <!-- Select All -->
+        <label class="qa-checkbox-label">
+          <input type="checkbox"
+                 ng-click="c.toggleSelectAll()"
+                 class="qa-checkbox"/>
+          Select All Users
+        </label>
+
+        <!-- Select Only Available -->
+        <label class="qa-checkbox-label" style="margin-left: 15px;">
+        <input type="checkbox"
+               ng-model="c.showAvailableOnly"
+               ng-change="c.filterAvailableOnly()"
+               class="qa-checkbox"/>
+        Available Users
+      </label>
+
+      </div>
+
+      <!-- USER LIST -->
+      <div class="qa-user-list">
+        <div ng-repeat="user in c.filteredUsers"
+     class="qa-user-row"
+     ng-class="{'qa-user-disabled': user.disabled}"
+     title="{{user.tooltip}}">
+
+  <input type="checkbox"
+         ng-model="user.selected"
+         class="qa-checkbox"
+         ng-disabled="user.disabled"/>
+
+  <div class="qa-user-info">
+          <div class="qa-user-name">
+            {{user.name}}
+            <span ng-if="user.disabled" class="qa-user-plan">
+              ({{user.plan}})
+            </span>
+          </div>
+
+          <div class="qa-user-email">{{user.email}}</div>
+        </div>
+
+        <span class="label label-default qa-segment-label">
+          {{user.segment}}
+        </span>
+          <!--  NEW: Unassign Button -->
+  <button class="btn btn-link qa-unassign-btn"
+          ng-if="user.disabled && data.isIncentNowGroupAdmin"
+          ng-click="c.unassignUser(user)">
+    Unassign
+  </button>
+          
+
+      </div>
+      </div>
+
+      <!-- COUNT -->
+      <p class="text-muted qa-count-text">
+        {{c.getSelectedCount()}} users selected
+      </p>
+      
+      <div class="error-box" ng-if="!data.isIncentNowGroupAdmin">
+    <div class="error-icon">⚠️</div>
+    <div class="error-text">
+      Sales Representatives are not allowed to assign or unassign.
+    </div>
+  </div>
+
+    </div>
+
+    <!-- FOOTER -->
+    <div class="qa-form-footer">
+      <button class="btn btn-default qa-btn-cancel" ng-click="c.goBack()">Cancel</button>
+      
+      <!--<pre>{{c.getSelectedCount()}}  Helllo {{c.selectedQuota}}</pre> -->
+      
+      <button class="btn btn-danger qa-btn-assign"
+        ng-click="c.assignQuota()"
+        ng-disabled="!c.selectedQuota || !c.getSelectedCount()" ng-if="c.data.table=='x_ctans_incentnow_quota'">
+        <span ng-if="!c.loading">
+          Assign to {{c.getSelectedCount()}} Users
+        </span>
+        <span ng-if="c.loading">
+          <i class="fa fa-spinner fa-spin"></i> Assigning...
+        </span>
+      </button>
+      
+
+      <button class="btn btn-primary qa-btn-assign"
+        ng-click="c.sendToParent()"
+        ng-disabled="!c.getSelectedCount()" ng-if='c.data.isIncentNowGroupAdmin'>
+
+        <span ng-if="!c.loading">
+          Assign to {{c.getSelectedCount()}} Users
+        </span>
+
+        <span ng-if="c.loading">
+          <i class="fa fa-spinner fa-spin"></i> Assigning...
+        </span>
+
+      </button>
+    </div>
+
+  </div>
+
+</div>]]></template>
+    </sp_widget>
+</record_update>

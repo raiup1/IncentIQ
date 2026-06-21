@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element db_object_id="e544add73bd04b10ffa00e9693e45a6e" label="AI Learning Repository" max_length="40" name="x_ctans_incentnow_ai_learning_repository" type="collection">
+        <element attributes="ignore_filter_on_new=true" default="javascript:global.getNextObjNumberPadded();" label="Number" max_length="40" name="number" type="string"/>
+        <element label="Question" max_length="1000" name="question" type="string"/>
+        <element choice="1" label="Status" max_length="40" name="status" type="choice">
+            <choice>
+                <element inactive_on_update="false" label="Approved" sequence="30" value="Approved"/>
+                <element inactive_on_update="false" label="Under Review" sequence="20" value="Under Review"/>
+                <element inactive_on_update="false" label="Implemented" sequence="50" value="Implemented"/>
+                <element inactive_on_update="false" label="New" sequence="10" value="New"/>
+                <element inactive_on_update="false" label="Rejected" sequence="40" value="Rejected"/>
+            </choice>
+        </element>
+        <element label="User" max_length="32" name="user" reference="x_ctans_incentnow_user_profile" type="reference"/>
+        <element choice="1" label="Source Channel" max_length="40" name="source_channel" type="choice">
+            <choice>
+                <element inactive_on_update="false" label="Workspace" sequence="20" value="Workspace"/>
+                <element inactive_on_update="false" label="Portal" sequence="10" value="Portal"/>
+                <element inactive_on_update="false" label="Agent Chat" sequence="50" value="Agent Chat"/>
+                <element inactive_on_update="false" label="API" sequence="30" value="API"/>
+                <element inactive_on_update="false" label="Virtual Agent" sequence="40" value="Virtual Agent"/>
+            </choice>
+        </element>
+        <element label="Detected Intent" max_length="255" name="detected_intent" type="string"/>
+        <element label="Resolution Version" max_length="40" name="resolution_version" type="string"/>
+        <element label="Frequency Count" max_length="40" name="frequency_count" type="integer"/>
+        <element label="Implementation Notes" max_length="4000" name="implementation_notes" type="string"/>
+        <element default="global" label="Domain" max_length="32" name="sys_domain" type="domain_id"/>
+        <element label="Normalized Question" max_length="1000" name="normalized_question" type="string"/>
+        <element label="Suggested Table Mapping" max_length="1000" name="suggested_table_mapping" type="string"/>
+        <element label="Last Asked" max_length="40" name="last_asked" type="glide_date_time"/>
+        <element label="Admin Response" max_length="4000" name="admin_response" type="string"/>
+        <index name="index">
+            <element name="normalized_question"/>
+        </index>
+        <index name="index2">
+            <element name="sys_domain"/>
+        </index>
+        <index name="index3">
+            <element name="user"/>
+        </index>
+    </element>
+</database>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element db_object_id="db616d2d3baff610ffa00e9693e45a2b" label="Quota Assignment" max_length="40" name="x_ctans_incentnow_user_quota_assignment" type="collection">
+        <element attributes="encode_utf8=false" label="Quota" mandatory="true" max_length="32" name="quota" reference="x_ctans_incentnow_quota" reference_floats="true" reference_qual="javascript:new IncentNowUtils().getQuotaByUserBusinessUnit(current.user)" type="reference" use_reference_qualifier="advanced"/>
+        <element attributes="encode_utf8=false" display="true" label="User" mandatory="true" max_length="32" name="user" reference="x_ctans_incentnow_user_profile" reference_qual="javascript:new IncentNowUtils().getUserByQuotaBusinessUnit(current.quota)" type="reference" use_reference_qualifier="advanced"/>
+        <element label="Domain" max_length="32" name="sys_domain" type="domain_id"/>
+        <index name="index">
+            <element name="quota"/>
+        </index>
+        <index name="index2">
+            <element name="sys_domain"/>
+        </index>
+        <index name="index3">
+            <element name="user"/>
+        </index>
+    </element>
+</database>

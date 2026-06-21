@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update>
+    <sys_ui_section caption="Additional Details" section_id="218e2f063b4bb650ffa00e9693e45ab0" sys_domain="global" table="x_ctans_incentnow_data_lake" version="3" view="">
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>raw_payload</element>
+            <position>0</position>
+            <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+            <sys_created_on>2026-02-15 18:39:46</sys_created_on>
+            <sys_id>b19eef063b4bb650ffa00e9693e45aa4</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="Additional Details" display_value="Additional Details" name="x_ctans_incentnow_data_lake" sys_domain="global" view="Default view">218e2f063b4bb650ffa00e9693e45ab0</sys_ui_section>
+            <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
+            <sys_updated_on>2026-02-15 18:39:46</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_section action="INSERT_OR_UPDATE">
+            <caption>Additional Details</caption>
+            <header>false</header>
+            <name>x_ctans_incentnow_data_lake</name>
+            <roles/>
+            <sys_class_name>sys_ui_section</sys_class_name>
+            <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+            <sys_created_on>2026-02-15 18:39:28</sys_created_on>
+            <sys_domain>global</sys_domain>
+            <sys_domain_path>/</sys_domain_path>
+            <sys_id>218e2f063b4bb650ffa00e9693e45ab0</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_name>x_ctans_incentnow_data_lake</sys_name>
+            <sys_overrides/>
+            <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+            <sys_policy/>
+            <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+            <sys_update_name>sys_ui_section_218e2f063b4bb650ffa00e9693e45ab0</sys_update_name>
+            <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
+            <sys_updated_on>2026-02-15 18:39:28</sys_updated_on>
+            <sys_user/>
+            <title>false</title>
+            <view display_value="Default view" name="NULL">Default view</view>
+            <view_name/>
+        </sys_ui_section>
+    </sys_ui_section>
+</record_update>

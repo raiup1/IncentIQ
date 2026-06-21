@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element db_object_id="fbec52c73b10c710ffa00e9693e45aa9" label="Credit Result Dimension" max_length="40" name="x_ctans_incentnow_credit_result_dimension" type="collection">
+        <element attributes="encode_utf8=false" label="Credit Transaction" max_length="32" name="credit_transaction" reference="x_ctans_incentnow_earning_credit_transaction" type="reference"/>
+        <element attributes="encode_utf8=false" label="Dimension" max_length="32" name="dimension" reference="x_ctans_incentnow_metadata_mapping" type="reference"/>
+        <element attributes="encode_utf8=false" label="Credit Result" max_length="32" name="credit_result" reference="x_ctans_incentnow_credit_results" type="reference"/>
+        <element label="Domain" max_length="32" name="sys_domain" type="domain_id"/>
+        <element attributes="edge_encryption_enabled=true" label="Dimension Value" max_length="100" name="dimension_value" type="string"/>
+        <index name="index">
+            <element name="credit_result"/>
+        </index>
+        <index name="index2">
+            <element name="credit_transaction"/>
+        </index>
+        <index name="index3">
+            <element name="dimension"/>
+        </index>
+        <index name="index4">
+            <element name="sys_domain"/>
+        </index>
+    </element>
+</database>

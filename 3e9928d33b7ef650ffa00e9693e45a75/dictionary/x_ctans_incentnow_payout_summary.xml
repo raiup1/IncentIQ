@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element db_object_id="adebd4fb3beb3e50ffa00e9693e45ad9" label="Payout Summary" max_length="40" name="x_ctans_incentnow_payout_summary" type="collection">
+        <element label="Domain" max_length="32" name="sys_domain" type="domain_id"/>
+        <element attributes="encode_utf8=false,ref_qual_elements=plan" default="909890ce93850f10ddb7f2d89803d6a1" label="Input 1 Earning Rule" max_length="32" name="input1_earning_rule" reference="x_ctans_incentnow_earning_rule" reference_qual="javascript:'active=true^plan=' + current.plan;" type="reference" use_reference_qualifier="advanced"/>
+        <element attributes="edge_encryption_enabled=true" display="true" label="Rule Name" mandatory="true" max_length="100" name="rule_name" type="string"/>
+        <element attributes="edge_encryption_enabled=true" choice="1" hint="Select first input source (e.g., Data Step, Earning Rule)" label="Input 1 Type" mandatory="true" max_length="40" name="input1_type" type="string">
+            <choice>
+                <element inactive_on_update="false" label="Data Gathering Step" sequence="0" value="data_step"/>
+                <element inactive_on_update="false" label="Earning Rule" sequence="1" value="earning_rule"/>
+                <element inactive_on_update="false" label="Payout Summary Step" sequence="2" value="payout_step"/>
+            </choice>
+        </element>
+        <element attributes="encode_utf8=false, readonly_clickthrough=true" hint="Auto-filled based on selected compensation plan" label="Plan" mandatory="true" max_length="32" name="plan" read_only="true" reference="x_ctans_incentnow_plan" type="reference"/>
+        <element attributes="edge_encryption_enabled=true" choice="1" hint="Select output format (e.g., Currency, Percentage)" label="Output Unit" mandatory="true" max_length="40" name="output_unit" type="string">
+            <choice>
+                <element inactive_on_update="false" label="Number" sequence="1" value="number"/>
+                <element inactive_on_update="false" label="Percentage" sequence="2" value="percentage"/>
+                <element inactive_on_update="false" label="Currency" sequence="0" value="currency"/>
+            </choice>
+        </element>
+        <element attributes="encode_utf8=false" hint="Search and select a data step (e.g., Step 3: Bonus Calculation)" label="Input 2 ID" max_length="32" name="input2_id" reference="x_ctans_incentnow_lookup_rule" reference_qual="javascript:'plan=' + current.plan + '^sys_id!=' + current.sys_id + '^active=true';" type="reference" use_reference_qualifier="advanced"/>
+        <element attributes="encode_utf8=false,ref_qual_elements=plan" hint="Search and select earning rule for Input 2" label="Input 2 Earning Rule" max_length="32" name="input2_earning_rule" reference="x_ctans_incentnow_earning_rule" reference_qual="javascript:'active=true^plan=' + current.plan;" type="reference" use_reference_qualifier="advanced"/>
+        <element default="true" label="Active" max_length="40" name="active" type="boolean"/>
+        <element attributes="edge_encryption_enabled=true" choice="1" hint="Select second input source (e.g., Data Step, Earning Rule)" label="Input 2 Type" mandatory="true" max_length="40" name="input2_type" type="string">
+            <choice>
+                <element inactive_on_update="false" label="Payout Summary Step" sequence="2" value="payout_step"/>
+                <element inactive_on_update="false" label="Data Gathering Step" sequence="1" value="data_step"/>
+                <element inactive_on_update="false" label="Earning Rule" sequence="0" value="earning_rule"/>
+            </choice>
+        </element>
+        <element label="Order" max_length="40" name="order" read_only="true" type="integer"/>
+        <element attributes="edge_encryption_enabled=true" choice="1" hint="Select payout behavior (e.g., Payable, Recoverable)" label="Payout Type" mandatory="true" max_length="40" name="payout_type" type="string">
+            <choice>
+                <element inactive="true" inactive_on_update="true" label="Intermediate" sequence="0" value="intermediate"/>
+                <element inactive_on_update="false" label="Payable" sequence="1" value="payable"/>
+                <element inactive_on_update="false" label="Intermediate Step" sequence="0" value="intermediate_step"/>
+            </choice>
+        </element>
+        <element attributes="encode_utf8=false" label="Input 1 Payout" max_length="32" name="input1_payout" reference="x_ctans_incentnow_payout_summary" reference_qual="javascript:'plan=' + current.plan + '^sys_id!=' + current.sys_id + '^active=true';" type="reference" use_reference_qualifier="advanced"/>
+        <element attributes="edge_encryption_enabled=true" choice="1" hint="Select operation to combine inputs (e.g., Multiply, Add)" label="Operator" mandatory="true" max_length="40" name="operator" type="string">
+            <choice>
+                <element inactive_on_update="false" label="Add" sequence="0" value="add"/>
+                <element inactive_on_update="false" label="Divide" sequence="3" value="divide"/>
+                <element inactive_on_update="false" label="Subtract" sequence="1" value="subtract"/>
+                <element inactive_on_update="false" label="Multiply" sequence="2" value="multiply"/>
+            </choice>
+        </element>
+        <element attributes="encode_utf8=false" hint="Search and select the first input reference" label="Input 1 ID" max_length="32" name="input1_id" reference="x_ctans_incentnow_lookup_rule" reference_qual="javascript:'plan=' + current.plan + '^sys_id!=' + current.sys_id + '^active=true';" type="reference" use_reference_qualifier="advanced"/>
+        <element attributes="encode_utf8=false" hint="Search and select a payout step" label="Input 2 Payout" max_length="32" name="input2_payout" reference="x_ctans_incentnow_payout_summary" reference_qual="javascript:'plan=' + current.plan + '^sys_id!=' + current.sys_id + '^active=true';" type="reference" use_reference_qualifier="advanced"/>
+        <index name="index">
+            <element name="input1_earning_rule"/>
+        </index>
+        <index name="index2">
+            <element name="input1_id"/>
+        </index>
+        <index name="index3">
+            <element name="input1_payout"/>
+        </index>
+        <index name="index4">
+            <element name="input2_earning_rule"/>
+        </index>
+        <index name="index5">
+            <element name="input2_id"/>
+        </index>
+        <index name="index6">
+            <element name="input2_payout"/>
+        </index>
+        <index name="index7">
+            <element name="plan"/>
+        </index>
+        <index name="index8">
+            <element name="sys_domain"/>
+        </index>
+    </element>
+</database>

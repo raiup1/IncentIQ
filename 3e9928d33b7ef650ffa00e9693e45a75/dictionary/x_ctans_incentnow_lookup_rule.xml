@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element db_object_id="d224cab33b7736145493ddb693e45a1e" label="Lookup Rule" max_length="40" name="x_ctans_incentnow_lookup_rule" type="collection">
+        <element attributes="edge_encryption_enabled=true" hint="Add a brief explanation of this rule (optional)" label="Description" max_length="400" name="description" type="string"/>
+        <element attributes="encode_utf8=false" label="Select Previous Step" max_length="32" name="select_previous_step" reference="x_ctans_incentnow_lookup_rule" reference_qual="javascript:'plan=' + current.plan + '^sys_id!=' + current.sys_id + '^active=true';" type="reference" use_reference_qualifier="advanced"/>
+        <element default="true" label="Active" max_length="40" name="active" type="boolean"/>
+        <element attributes="encode_utf8=false, readonly_clickthrough=true" label="Plan" mandatory="true" max_length="32" name="plan" read_only="true" reference="x_ctans_incentnow_plan" type="reference"/>
+        <element attributes="edge_encryption_enabled=true" choice="1" hint="Select the input metric (e.g., quota, revenue)" label="Lookup Input" max_length="40" name="lookup_input" type="string">
+            <choice>
+                <element inactive_on_update="false" label="Quota Attainment" sequence="0" value="quota_attainment"/>
+                <element inactive_on_update="false" label="User Information" sequence="1" value="user_information"/>
+            </choice>
+        </element>
+        <element label="Domain" max_length="32" name="sys_domain" type="domain_id"/>
+        <element attributes="table=x_ctans_incentnow_user_profile" label="User Attribute" max_length="80" name="user_attribute" type="field_name"/>
+        <element attributes="edge_encryption_enabled=true" choice="1" hint="Select how the rate will be applied (e.g., %, amount)" label="Output Unit" mandatory="true" max_length="40" name="rate_unit" type="string">
+            <choice>
+                <element inactive_on_update="false" label="Currency" sequence="0" value="currency"/>
+                <element inactive_on_update="false" label="Number" sequence="1" value="number"/>
+                <element inactive_on_update="false" label="Percentage" sequence="2" value="percentage"/>
+            </choice>
+        </element>
+        <element attributes="edge_encryption_enabled=true" choice="1" hint="Choose the input source for this rule" label="Input Type" max_length="40" name="input_type" type="string">
+            <choice>
+                <element inactive_on_update="false" label="Earning Rule" sequence="0" value="earning_rule"/>
+                <element inactive_on_update="false" label="Previous Data Step" sequence="1" value="previous_step"/>
+            </choice>
+        </element>
+        <element attributes="encode_utf8=false" hint="Search and select an earning rule" label="Select Earning Rule" max_length="32" name="select_earning_rule" reference="x_ctans_incentnow_earning_rule" reference_qual="javascript:'plan=' + current.plan + '^sys_id!=' + current.sys_id + '^active=true';" type="reference" use_reference_qualifier="advanced"/>
+        <element attributes="edge_encryption_enabled=true" calculation="(function calculatedFieldValue(current) {&#10;&#10;    var parts = [];&#10;&#10;    if (!gs.nil(current.step_number))&#10;        parts.push(current.step_number);&#10;&#10;    if (!gs.nil(current.step_name))&#10;        parts.push(current.step_name);&#10;&#10;&#10;    return 'Step ' + parts.join(': ');&#10;&#10;})(current);" display="true" label="Display Name" max_length="400" name="display_name" read_only="true" type="string" virtual="true"/>
+        <element label="Step Number" max_length="40" name="step_number" read_only="true" type="integer"/>
+        <element attributes="edge_encryption_enabled=true" choice="1" hint="Select how the lookup should be applied" label="Rule Type" mandatory="true" max_length="40" name="rule_type" type="string">
+            <choice>
+                <element inactive_on_update="false" label="Range Lookup -  Highest Tier" sequence="5" value="range_lookup_highest_tier"/>
+                <element inactive_on_update="false" label="Lookup - Variable Pay" sequence="3" value="lookup_variable_pay"/>
+                <element inactive_on_update="false" label="Flat - Commission Rate" sequence="0" value="flat_commission_rate"/>
+                <element inactive_on_update="false" label="Lookup - Commission Rate" sequence="2" value="lookup_commission_rate"/>
+                <element inactive_on_update="false" label="Range Lookup - Progressive Tier" sequence="6" value="range_lookup_progressive_tier"/>
+                <element inactive_on_update="false" label="Quota Attainment" sequence="4" value="quota_attainment"/>
+                <element inactive_on_update="false" label="Lookup - Bonus Amount" sequence="1" value="lookup_bonus"/>
+            </choice>
+        </element>
+        <element attributes="encode_utf8=false" hint="Search and select a lookup table" label="Lookup Table" max_length="32" name="lookup_table" reference="sys_decision" reference_qual="active=true^sys_scope=3e9928d33b7ef650ffa00e9693e45a75^EQ" reference_qual_condition="active=true^sys_scope=3e9928d33b7ef650ffa00e9693e45a75^EQ" type="reference"/>
+        <element attributes="encode_utf8=false" hint="Auto-populated based on selected lookup table" label="Lookup Output" max_length="32" name="lookup_output" read_only="true" reference="sys_decision_multi_result_element" type="reference"/>
+        <element attributes="edge_encryption_enabled=true" hint="Enter a unique step name (e.g., Tier 1 Calculation)" label="Step Name" mandatory="true" max_length="100" name="step_name" type="string"/>
+        <element hint="Enter commission value" label="Rate Value" max_length="15" name="rate_value" type="decimal"/>
+        <index name="index">
+            <element name="lookup_output"/>
+        </index>
+        <index name="index2">
+            <element name="lookup_table"/>
+        </index>
+        <index name="index3">
+            <element name="plan"/>
+        </index>
+        <index name="index4">
+            <element name="select_earning_rule"/>
+        </index>
+        <index name="index5">
+            <element name="select_previous_step"/>
+        </index>
+        <index name="index6">
+            <element name="sys_domain"/>
+        </index>
+    </element>
+</database>

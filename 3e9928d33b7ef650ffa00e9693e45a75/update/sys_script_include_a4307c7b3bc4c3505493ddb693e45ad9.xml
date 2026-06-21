@@ -1,0 +1,625 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>package_private</access>
+        <active>true</active>
+        <api_name>x_ctans_incentnow.IncentNowStatementProcessor</api_name>
+        <caller_access/>
+        <client_callable>false</client_callable>
+        <description/>
+        <mobile_callable>false</mobile_callable>
+        <name>IncentNowStatementProcessor</name>
+        <sandbox_callable>false</sandbox_callable>
+        <script><![CDATA[var IncentNowStatementProcessor = Class.create();
+IncentNowStatementProcessor.prototype = {
+
+    initialize: function() {
+        this.LOG = 'IncentNowStatementProcessor | ';
+        this.formatter = new IncentNowSystemConfigUtil();
+    },
+
+    process: function(current) {
+
+        try {
+
+            var resultObj = this._getTargetRecord(current);
+            var targetGR = resultObj.record;
+            var isDuplicate = resultObj.isDuplicate;
+
+            var today = new GlideDateTime();
+            var periodGR = targetGR.fiscal_period.getRefRecord();
+            var periodType = periodGR.getValue('period_type');
+
+            var periodEnd = new GlideDateTime(periodGR.period_end_date);
+            var periodStart = new GlideDateTime(periodGR.period_start_date);
+
+            if (periodStart > today) {
+                return this._fail('Cannot generate statement for a future fiscal period.');
+            }
+            if (periodEnd > today) {
+                return this._fail('Statement can only be generated after fiscal period is completed.');
+            }
+
+            var validator = new IncentNowPayoutValidator();
+            var validation = validator.validateStatement(targetGR);
+            if (!validation.valid) return validation;
+
+            var payoutResult;
+            var earningResult = [];
+
+            // =========================================================
+            //  MONTH → RUN FULL ENGINE
+            // =========================================================
+            if (periodType == 'month') {
+
+                var earningEngine = new IncentNowEarningRuleEngine();
+
+                earningResult = earningEngine.calculateMetrics(
+                    targetGR.user.getRefRecord(),
+                    periodGR,
+                    targetGR.plan.getRefRecord(),
+                    targetGR.sys_id
+                );
+
+                if (!earningResult || earningResult.length === 0)
+                    return this._fail('No earnings generated for this period.');
+
+                var earningRulesArr = [];
+
+                for (var i = 0; i < earningResult.length; i++) {
+                    earningRulesArr.push({
+                        name: earningResult[i].rule,
+                        type: earningResult[i].aggregation_type,
+                        object: earningResult[i].object,
+                        field: earningResult[i].field,
+                        condition: earningResult[i].condition,
+                        earning_level: earningResult[i].earning_level,
+
+                        value: this.formatter.format(
+                            earningResult[i].credit,
+                            earningResult[i].unit
+                        )
+                    });
+                }
+
+                var totalCredit = 0;
+                for (var i = 0; i < earningResult.length; i++) {
+                    totalCredit += parseFloat(earningResult[i].credit) || 0;
+                }
+
+                if (totalCredit === 0) {
+                    return this._fail('No orders found for this period.');
+                }
+
+                targetGR.earning_results = JSON.stringify(earningResult);
+
+                var payoutEngine = new IncentNowPayoutEngine();
+
+                payoutResult = payoutEngine.executePlan(
+                    targetGR.user.getRefRecord(),
+                    periodGR,
+                    targetGR.plan.getRefRecord(),
+                    targetGR.sys_id
+                );
+
+                if (payoutResult.status == 'error')
+                    return this._fail(payoutResult.message);
+            }
+
+            // =========================================================
+            //  QUARTER / YEAR → AGGREGATE FROM MONTH
+            // =========================================================
+            else {
+
+                payoutResult = this._aggregateFromMonthly(targetGR, periodGR);
+
+                if (payoutResult.status == 'error')
+                    return this._fail(payoutResult.message);
+
+                targetGR.earning_results = ''; // no earning JSON
+            }
+
+            // =========================================================
+            // BUILD STATEMENT (COMMON)
+            // =========================================================
+
+            var getQuota = new IncentNowEarningRuleEngine();
+            var quotaObj = getQuota.getQuotaTarget(
+                targetGR.user.getRefRecord(),
+                periodGR
+            );
+
+            var quotaValue = quotaObj.value;
+            var quotaAttainment = payoutResult.quota_attainment;
+
+            var formattedSteps = [];
+
+            if (periodType == 'month') {
+                var steps = payoutResult.breakdown;
+
+                for (var i = 0; i < steps.length; i++) {
+                    formattedSteps.push({
+                        ruleName: steps[i].ruleName || steps[i].rule_name,
+                        formula: steps[i].formula,
+                        payoutValue: steps[i].payoutValue || steps[i].display_value,
+                        trace: steps[i].trace
+                    });
+                }
+            }
+
+            var meta = {
+                user: targetGR.user.getDisplayValue(),
+                plan: targetGR.plan.getDisplayValue(),
+                period: targetGR.fiscal_period.getDisplayValue(),
+                generatedOn: this._getFormattedGeneratedOn(),
+                earningRules: earningRulesArr,
+                quota: quotaValue,
+                total: this.formatter.formatCurrency(payoutResult.total_payout)
+            };
+            var html = this._buildStatementHTML(formattedSteps, meta);
+
+            targetGR.statement = html;
+            targetGR.total_commission = payoutResult.total_payout;
+            if (quotaValue != null && quotaValue != '' && parseFloat(quotaValue) > 0) {
+                targetGR.target_quota = quotaValue;
+            } else {
+                targetGR.target_quota = ''; // or null if field allows
+            }
+
+
+            // Only store if it's a real calculated value
+            if (quotaAttainment !== null && quotaAttainment !== '' && parseFloat(quotaAttainment) > 0) {
+                targetGR.quota_attainment = quotaAttainment;
+            }
+
+            //targetGR.payout_results = JSON.stringify(payoutResult.breakdown || []);
+            // this._insertPayoutResults(targetGR, payoutResult);
+            // targetGR.status = 'statement_generated';
+
+            // this._insertMetricRecord(targetGR, payoutResult);
+
+            // if (targetGR.isNewRecord()) targetGR.insert();
+            // else targetGR.update();
+            targetGR.payout_results = JSON.stringify(payoutResult.breakdown || []);
+            targetGR.status = 'statement_generated';
+
+            // SAVE RECORD FIRST (CRITICAL FIX)
+            if (targetGR.isNewRecord()) {
+                targetGR.insert();
+            } else {
+                targetGR.update();
+            }
+
+            //  NOW sys_id exists → safe to use
+            this._insertPayoutResults(targetGR, payoutResult);
+            this._insertMetricRecord(targetGR, payoutResult);
+
+            return {
+                valid: true,
+                record: targetGR,
+                total: payoutResult.total_payout,
+                isDuplicate: isDuplicate
+            };
+
+        } catch (ex) {
+            return this._fail('Processing failed: ' + (ex.message || ex));
+        }
+    },
+
+    // -----------------------------------------
+    // HELPERS
+    // -----------------------------------------
+
+    _getTargetRecord: function(current) {
+
+        var dupGR = new GlideRecordSecure('x_ctans_incentnow_incentive_statement');
+        dupGR.addQuery('user', current.user);
+        dupGR.addQuery('fiscal_period', current.fiscal_period);
+        dupGR.setLimit(1);
+        dupGR.query();
+
+        if (dupGR.next()) {
+            return {
+                record: dupGR,
+                isDuplicate: true
+            };
+        }
+
+        return {
+            record: current,
+            isDuplicate: false
+        };
+    },
+
+    _insertPayoutResults: function(targetGR, payoutResult) {
+
+        var steps = payoutResult.breakdown || [];
+        if (!steps.length) {
+            gs.warn(this.LOG + 'No payout generated as no Payout Result Found');
+            return;
+        }
+		
+
+        // delete old
+        var old = new GlideRecordSecure('x_ctans_incentnow_payout_results');
+        //old.addQuery('statement_id', targetGR.sys_id);
+        old.addQuery('user', targetGR.user);
+        old.addQuery('plan', targetGR.plan);
+        old.addQuery('fiscal_period', targetGR.fiscal_period);
+        old.deleteMultiple();
+
+        for (var i = 0; i < steps.length; i++) {
+
+            var step = steps[i];
+
+            var rec = new GlideRecordSecure('x_ctans_incentnow_payout_results');
+            rec.initialize();
+            rec.statement_id = targetGR.sys_id;
+            rec.user = targetGR.user;
+            rec.plan = targetGR.plan;
+            rec.fiscal_period = targetGR.fiscal_period;
+            rec.payout_summary_rule = step.rule_id;
+            rec.step_number = i + 1;
+            rec.input1_type = step.input1.type;
+            rec.input_1 = step.input1.name;
+            rec.input1_value = step.input1.value;
+            rec.input2_type = step.input2.type;
+            rec.input_2 = step.input2.name;
+            rec.input2_value = step.input2.value;
+            rec.operator = step.operator;
+            rec.formula = step.formula;
+            rec.rate_unit = step.rate_unit;
+            rec.payout_type = 'payable'; // from summaryGR if needed
+            rec.payout_value = step.payoutNumeric;
+
+            rec.insert();
+        }
+    },
+
+    _getFormattedGeneratedOn: function() {
+        return new GlideDateTime().getDisplayValue() + ' (System)';
+    },
+
+    //Insert Metric Record //
+
+    _insertMetricRecord: function(targetGR, payoutResult) {
+
+        var user = targetGR.user;
+        var plan = targetGR.plan;
+        var period = targetGR.fiscal_period;
+
+        var userGR = targetGR.user.getRefRecord();
+        var periodGR = targetGR.fiscal_period.getRefRecord();
+
+        // ----------------------------------
+        // 1. FIND EXISTING RECORD (UPSERT)
+        // ----------------------------------
+        var metricGR = new GlideRecordSecure('x_ctans_incentnow_metric_report');
+        metricGR.addQuery('user', user);
+        metricGR.addQuery('plan', plan);
+        metricGR.addQuery('fiscal_period', period);
+        metricGR.query();
+
+        var isUpdate = metricGR.next();
+
+        if (!isUpdate) {
+            metricGR.initialize();
+            metricGR.user = user;
+            metricGR.plan = plan;
+            metricGR.fiscal_period = period;
+
+        }
+
+        // ----------------------------------
+        // 2. DIMENSIONS
+        // ----------------------------------
+        metricGR.fiscal_year = periodGR.fiscal_year;
+        metricGR.period_type = period.period_type;
+        metricGR.business_unit = userGR.business_unit;
+        metricGR.manager = userGR.manager;
+
+
+        // ----------------------------------
+        // 3. METRICS
+        // ----------------------------------
+        metricGR.total_commission = payoutResult.total_payout;
+        if (targetGR.target_quota != null && targetGR.target_quota != 0) {
+            metricGR.target_quota = targetGR.target_quota;
+        }
+        if (targetGR.quota_attainment != null && targetGR.quota_attainment != 0) {
+            metricGR.quota_attainment = targetGR.quota_attainment;
+        }
+
+
+        // ----------------------------------
+        // 4. CREDIT AGGREGATION
+        // ----------------------------------
+        var creditGR = new GlideRecordSecure('x_ctans_incentnow_credit_results');
+        creditGR.addQuery('user', user);
+        creditGR.addQuery('plan', plan);
+        creditGR.addQuery('fiscal_period', period);
+        creditGR.query();
+
+        var totalCreditAmount = 0;
+        var totalTransactions = 0;
+
+        while (creditGR.next()) {
+
+            var aggType = creditGR.getValue('aggregation_type');
+            var value = parseFloat(creditGR.getValue('credit_value')) || 0;
+            var tanscationCount = parseFloat(creditGR.getValue('count')) || 0;
+
+            if (aggType == 'sum') {
+                totalCreditAmount += value;
+            } else {
+                totalTransactions += tanscationCount;
+            }
+        }
+        var periodType = (periodGR.getValue('period_type') || '').toLowerCase();
+
+        if (periodType != 'month') {
+
+            //  USE AGGREGATED VALUES
+            metricGR.total_credits = payoutResult.total_credit || 0;
+            metricGR.transaction_count = payoutResult.total_transaction || 0;
+
+
+        } else {
+
+            metricGR.total_credits = totalCreditAmount;
+            metricGR.transaction_count = totalTransactions;
+        }
+
+        metricGR.statement_id = targetGR.sys_id;
+
+        // ----------------------------------
+        // 5. SAVE (UPSERT)
+        // ----------------------------------
+        if (isUpdate) {
+            metricGR.update();
+        } else {
+            metricGR.insert();
+        }
+    },
+    _aggregateFromMonthly: function(targetGR, periodGR) {
+
+        var totalCommission = 0;
+        var totalQuota = 0;
+        var totalCredit = 0;
+        var totaltransaction = 0;
+
+        var hasQuotaAttainment = false;
+        var totalAttainment = 0;
+        var attainmentCount = 0;
+
+        // --------------------------------------------------
+        // 1. Fetch ALL monthly metric records in range
+        // --------------------------------------------------
+        var metricGR = new GlideRecordSecure('x_ctans_incentnow_metric_report');
+        metricGR.addQuery('user', targetGR.user);
+        metricGR.addQuery('plan', targetGR.plan);
+        metricGR.addQuery('period_type', 'month');
+
+        metricGR.addQuery('fiscal_period.period_start_date', '>=', periodGR.period_start_date);
+        metricGR.addQuery('fiscal_period.period_end_date', '<=', periodGR.period_end_date);
+        metricGR.query();
+
+        if (!metricGR.hasNext()) {
+            return {
+                status: 'error',
+                message: 'Generate monthly statements first'
+            };
+        }
+
+        // --------------------------------------------------
+        // 2. Aggregate safely
+        // --------------------------------------------------
+        while (metricGR.next()) {
+
+            // Commission
+            totalCommission += parseFloat(metricGR.getValue('total_commission')) || 0;
+
+            // Quota
+            totalQuota += parseFloat(metricGR.getValue('target_quota')) || 0;
+
+            // Credits 
+            totalCredit += parseFloat(metricGR.getValue('total_credits')) || 0;
+
+            // Total Transaction Count
+            totaltransaction += parseFloat(metricGR.getValue('transaction_count')) || 0;
+
+
+            // Quota Attainment (ONLY if exists)
+            var qa = metricGR.getValue('quota_attainment');
+
+            if (qa !== null && qa !== '' && parseFloat(qa) > 0) {
+                hasQuotaAttainment = true;
+                totalAttainment += parseFloat(qa);
+                attainmentCount++;
+            }
+        }
+
+        // --------------------------------------------------
+        // 3. Validate missing months (IMPORTANT)
+        // --------------------------------------------------
+        var expectedMonths = 0;
+
+        var fp = new GlideRecordSecure('x_ctans_incentnow_fiscal_period');
+        fp.addQuery('period_type', 'month');
+        fp.addQuery('period_start_date', '>=', periodGR.period_start_date);
+        fp.addQuery('period_end_date', '<=', periodGR.period_end_date);
+        fp.query();
+
+        while (fp.next()) {
+            expectedMonths++;
+        }
+
+        if (attainmentCount === 0 && hasQuotaAttainment === false) {
+            // no quota attainment rule exists → fine
+        }
+
+        // If partial months → warn but still proceed
+        if (expectedMonths > 0 && attainmentCount < expectedMonths) {
+            gs.warn('Partial monthly data detected for aggregation');
+        }
+
+        // --------------------------------------------------
+        // 4. Final quota attainment (FIXED LOGIC)
+        // --------------------------------------------------
+        var finalQuotaAttainment = null;
+
+        if (hasQuotaAttainment) {
+            // Option A: Average of monthly (SAFE & CONSISTENT)
+            finalQuotaAttainment = attainmentCount > 0 ?
+                (totalAttainment / attainmentCount) :
+                null;
+
+        }
+
+        // --------------------------------------------------
+        // 5. Return clean result
+        // --------------------------------------------------
+        return {
+            status: 'success',
+            total_payout: parseFloat(totalCommission.toFixed(2)),
+            total_quota: parseFloat(totalQuota.toFixed(2)),
+            total_credit: parseFloat(totalCredit.toFixed(2)),
+            total_transaction: parseFloat(totaltransaction.toFixed(2)),
+            quota_attainment: finalQuotaAttainment !== null ?
+                parseFloat(finalQuotaAttainment.toFixed(2)) : null,
+            breakdown: []
+        };
+    },
+    _buildStatementHTML: function(steps, meta) {
+
+        function safe(val) {
+            return (val + '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+        var html = '';
+
+        html += '<div class="statement-wrapper">';
+
+        // ================= HEADER =================
+        html += '<h2 class="statement-title" style="display:flex; align-items:center; gap:10px;">' + 'Incentive Statement</h2>';
+
+        html += '<table class="statement-header-table">';
+        html += '<tr class="header-row user-row"><td><b class="b headu">User:</b></td><td>' + safe(meta.user) + '</td></tr>';
+        html += '<tr class="header-row plan-row"><td><b class="b">Plan:</b></td><td>' + safe(meta.plan) + '</td></tr>';
+        html += '<tr class="header-row period-row"><td><b class="b">Fiscal Period:</b></td><td>' + safe(meta.period) + '</td></tr>';
+        html += '<tr class="header-row generated-row"><td><b class="b">Generated On:</b></td><td>' + safe(meta.generatedOn) + '</td></tr>';
+        html += '<tr class="header-row quota-row"><td><b class="b">Target Quota:</b></td><td>' + safe(meta.quota) + '</td></tr>';
+        html += '<tr class="header-row total-row"><td><b class="b">Total Commission:</b></td><td><b>' + safe(meta.total) + '</b></td></tr>';
+        html += '</table>';
+
+        // ================= EARNING RULES =================
+        if (meta.earningRules && meta.earningRules.length > 0) {
+
+            html += '<table class="earning-rules-table">';
+
+            html += '<tr class="earning-rules-header"  style="padding:2rem;">' +
+                '<th class="earning-rule-col">Earning Rule</th>' +
+                '<th class="earning-object-col">Object</th>' +
+                '<th class="earning-field-col">Field</th>' +
+                '<th class="earning-type-col">Type</th>' +
+                '<th class="earning-level-col">Earning Level</th>' +
+                '<th class="earning-condition-col">Rule Condition</th>' +
+                '<th class="earning-value-col">Value</th>' +
+                '</tr>';
+
+            for (var i = 0; i < meta.earningRules.length; i++) {
+
+                html += '<tr class="earning-rule-row">' +
+                    '<td class="earning-rule-name">' + safe(meta.earningRules[i].name) + '</td>' +
+                    '<td class="earning-rule-object">' + safe(meta.earningRules[i].object || '-') + '</td>' +
+                    '<td class="earning-rule-field">' + safe(meta.earningRules[i].field || '-') + '</td>' +
+                    '<td class="earning-rule-type">' + safe(meta.earningRules[i].type || '-') + '</td>' +
+                    '<td class="earning-rule-level">' + safe(meta.earningRules[i].earning_level || '-') + '</td>' +
+                    '<td class="earning-rule-condition">' + safe(meta.earningRules[i].condition || '-') + '</td>' +
+                    '<td class="earning-rule-value">' + safe(meta.earningRules[i].value || '-') + '</td>' +
+
+                    '</tr>';
+            }
+
+            html += '</table>';
+        }
+
+        // ================= PAYOUT TABLE =================
+        html += '<table class="payout-table">';
+
+        html += '<tr class="payout-header" style="padding:2rem;">' +
+            '<th class="payout-component-col">Payout Component(s)</th>' +
+            '<th class="payout-value-col">Commission</th>' +
+            '</tr>';
+
+        for (var i = 0; i < steps.length; i++) {
+
+            var step = steps[i];
+
+            html += '<tr class="payout-row">' +
+
+                '<td class="payout-detail">' +
+                '<div class="payout-rule-name">' + safe(step.ruleName) + '</div>' +
+                '<div class="payout-trace">';
+
+            if (step.trace) {
+
+                for (var j = 0; j < step.trace.length; j++) {
+
+                    var t = step.trace[j];
+
+                    if (t.type == 'earning') {
+                        html += '<div class="trace-earning"><b>Earning:</b> ' +
+                            safe(t.name) + ' → ' + safe(t.value) + '</div>';
+                    }
+
+                    if (t.type == 'lookup') {
+                        html += '<div class="trace-lookup"><b>Lookup:</b> ' +
+                            safe(t.name) + ' → ' + safe(t.output) + '</div>';
+                    }
+
+                    if (t.type == 'calculation' && j === step.trace.length - 1) {
+                        html += '<div class="trace-calculation"><b>Calculation:</b> ' +
+                            safe(t.formula) + ' = ' + safe(t.result) + '</div>';
+                    }
+                }
+            }
+
+            html += '</div></td>' +
+                '<td class="payout-amount">' + safe(step.payoutValue) + '</td>' +
+                '</tr>';
+        }
+
+        html += '<tr class="payout-total-row">' +
+            '<td class="payout-total-label">Total</td>' +
+            '<td class="payout-total-value">' + safe(meta.total) + '</td>' +
+            '</tr>';
+
+        html += '</table>';
+        html += '</div>';
+
+        return html;
+    },
+
+    _fail: function(msg) {
+        return {
+            valid: false,
+            message: msg
+        };
+    },
+
+    type: 'IncentNowStatementProcessor'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>upma.rai</sys_created_by>
+        <sys_created_on>2026-04-11 08:41:24</sys_created_on>
+        <sys_id>a4307c7b3bc4c3505493ddb693e45ad9</sys_id>
+        <sys_mod_count>77</sys_mod_count>
+        <sys_name>IncentNowStatementProcessor</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_script_include_a4307c7b3bc4c3505493ddb693e45ad9</sys_update_name>
+        <sys_updated_by>upma.rai</sys_updated_by>
+        <sys_updated_on>2026-06-18 14:44:55</sys_updated_on>
+    </sys_script_include>
+</record_update>

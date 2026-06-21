@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element db_object_id="3e57bd043b9b7a90ffa00e9693e45ae6" label="Import Run" max_length="40" name="x_ctans_incentnow_import_run" type="collection">
+        <element label="Updated Count" max_length="40" name="updated_count" type="integer"/>
+        <element label="Batch ID" max_length="100" name="batch_id" reference="sys_import_set" type="reference"/>
+        <element label="Data Model Object" max_length="32" name="data_model_object" reference="x_ctans_incentnow_data_model_object" type="reference"/>
+        <element label="Valid Row Count" max_length="40" name="valid_row_count" type="integer"/>
+        <element label="Total Records" max_length="40" name="total_records" type="integer"/>
+        <element label="Is Dry Run" max_length="40" name="is_dry_run" type="boolean"/>
+        <element label="Run By" max_length="32" name="run_by" reference="sys_user" type="reference"/>
+        <element label="Validation Completed At" max_length="40" name="validation_completed_at" type="glide_date_time"/>
+        <element label="Data Quality Store" max_length="38" name="data_quality_store" type="decimal"/>
+        <element label="Completed At" max_length="40" name="completed_at" type="glide_date_time"/>
+        <element label="Failed Count" max_length="40" name="failed_count" type="integer"/>
+        <element attributes="ignore_filter_on_new=true" default="javascript:global.getNextObjNumberPadded();" label="Number" max_length="40" name="number" type="string"/>
+        <element choice="1" label="Status" max_length="40" name="status" type="choice">
+            <choice>
+                <element inactive_on_update="false" label="Pending" sequence="4" value="Pending"/>
+                <element inactive_on_update="false" label="Draft" sequence="0" value="Draft"/>
+                <element inactive_on_update="false" label="Completed" sequence="2" value="Completed"/>
+                <element inactive_on_update="false" label="Running" sequence="1" value="Running"/>
+                <element inactive_on_update="false" label="Failed" sequence="3" value="Failed"/>
+            </choice>
+        </element>
+        <element label="Inserted Count" max_length="40" name="inserted_count" type="integer"/>
+        <element label="Total Row Count" max_length="40" name="total_row_count" type="integer"/>
+        <element label="Invalid Row Count" max_length="40" name="invalid_row_count" type="integer"/>
+        <element label="Domain" max_length="32" name="sys_domain" type="domain_id"/>
+        <element label="Started At" max_length="40" name="started_at" type="glide_date_time"/>
+        <index name="index">
+            <element name="batch_id"/>
+        </index>
+        <index name="index2">
+            <element name="data_model_object"/>
+        </index>
+        <index name="index3">
+            <element name="run_by"/>
+        </index>
+        <index name="index4">
+            <element name="sys_domain"/>
+        </index>
+    </element>
+</database>

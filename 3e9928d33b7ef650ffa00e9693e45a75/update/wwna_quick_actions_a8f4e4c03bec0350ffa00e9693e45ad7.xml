@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update sys_domain="global" table="wwna_quick_actions">
+    <wwna_quick_actions action="INSERT_OR_UPDATE">
+        <accepts_string_parameter>false</accepts_string_parameter>
+        <action_group/>
+        <action_type>common</action_type>
+        <active>false</active>
+        <apply_to_all_groups>true</apply_to_all_groups>
+        <apply_to_groups/>
+        <autogrow>false</autogrow>
+        <autogrow_level/>
+        <command_name>incentnowcompensationassistant</command_name>
+        <condition/>
+        <description/>
+        <execution_mode/>
+        <name>IncentNow Compensation Assistant</name>
+        <parameter_hint/>
+        <parameter_label/>
+        <script><![CDATA[// Convert the payload in string to escape quotes.
+
+
+	var stringifiedPayload = JSON.stringify(params[0]);
+
+	// Escape the characters & < > from the string
+	var escapedPayload = global.JSUtil.escapeText(stringifiedPayload);
+
+	// unescape HTML if escaped already
+	var unEscapedPayload = GlideStringUtil.unEscapeHTML(escapedPayload);
+
+	// parse the strigified Payload
+	var param = JSON.parse(unEscapedPayload);
+
+	var jsonPayload = JSON.parse(param);
+	var ambChannelName = jsonPayload.ambChannel;
+	var CAPABILITY_ID = '47de14403bac0350ffa00e9693e45a16';
+	var CAPABILITY_SKILL_CONFIG_ID = 'abde14403bac0350ffa00e9693e45a9c';
+	try {
+		var utils = new global.WWNAGlobalUtils();
+		var PAYLOAD = Object.assign({}, utils.createPayload(jsonPayload.payload, false));
+		var skillInputVariables = utils.getSkillInputVariables(CAPABILITY_ID, PAYLOAD);
+		PAYLOAD = Object.assign(PAYLOAD, skillInputVariables);
+		// Update or customize the Skill Input variables in the PAYLOAD object from this section.
+		PAYLOAD.skill_config_id = CAPABILITY_SKILL_CONFIG_ID || PAYLOAD.skill_config_id;
+		const hasAccessToSkill = utils.hasAccessToSkill(PAYLOAD.skill_config_id, CAPABILITY_ID, CAPABILITY_SKILL_CONFIG_ID);
+
+		if(hasAccessToSkill){
+			// PAYLOAD.skillConfiguration gives you the skill config record
+			// providing the promptConfigFilter will pick the right promptConfigID from sys_generative_ai_prompt_config
+			var PROMPT_CONFIG_FILTERS = {
+				"key": "value"
+			};
+
+			// Request payload for the capability
+			var request = {
+				"executionRequests": [{
+					"payload": PAYLOAD,
+					"meta": {
+						"configFilters": PROMPT_CONFIG_FILTERS,
+						"skillConfigId": PAYLOAD.skill_config_id,
+						"source": PAYLOAD.trigger_source,
+						"documentId": PAYLOAD.document_id,
+						"documentTable": PAYLOAD.document_table
+					},
+					'returnRequest': true,
+					"capabilityId": CAPABILITY_ID
+				}],
+				"mode": "async",
+				"ambCallbackChannel": ambChannelName,
+				"timeout":20
+			};
+
+			// Call to the OneExtend Capability
+			var response  = sn_one_extend.OneExtendUtil.executeSecure(request);
+
+			if (response.status === sn_wwna.WWNAConstants.ONE_EXTEND_STATES.ERROR) {
+				gs.publish(ambChannelName, {
+					"status": sn_wwna.WWNAConstants.ONE_EXTEND_STATES.ERROR,
+					"errorMessage": utils.getErrorMessage(response)
+				});
+			}
+		} else {
+			gs.publish(ambChannelName, {
+				"status": sn_wwna.WWNAConstants.ONE_EXTEND_STATES.ERROR,
+				"errorMessage": sn_wwna.WWNAConstants.WWNA_ACL_FAILURE_MESSAGE
+			});
+		}
+	} catch(err) {
+		if (ambChannelName) {
+			gs.publish(ambChannelName, {
+				"status": sn_wwna.WWNAConstants.ONE_EXTEND_STATES.ERROR,
+				"errorType": "error",
+				"errorMessage": sn_wwna.WWNAConstants.GENERIC_ERROR_MESSAGE
+			});
+    	}
+	}
+	
+
+	answer = {
+		success: true,
+		message: ""
+	};]]></script>
+        <skill display_value="IncentNow Compensation Assistant">47de14403bac0350ffa00e9693e45a16</skill>
+        <sys_class_name>wwna_quick_actions</sys_class_name>
+        <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+        <sys_created_on>2026-04-24 12:25:06</sys_created_on>
+        <sys_domain>global</sys_domain>
+        <sys_id>a8f4e4c03bec0350ffa00e9693e45ad7</sys_id>
+        <sys_mod_count>4</sys_mod_count>
+        <sys_name>IncentNow Compensation Assistant</sys_name>
+        <sys_overrides/>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>wwna_quick_actions_a8f4e4c03bec0350ffa00e9693e45ad7</sys_update_name>
+        <sys_updated_by>upma.rai</sys_updated_by>
+        <sys_updated_on>2026-06-17 12:40:03</sys_updated_on>
+        <table_name>sys_one_extend_capability</table_name>
+        <use_advanced_condition>false</use_advanced_condition>
+        <visibility_script><![CDATA[(function checkVisibility(inputs) {
+ return true;
+ })(inputs || {});
+ /*
+ * NOTE:
+ * If Applies To exists, it will be evaluated first, followed by the Visibility Script.
+ *
+ * The following keys will be part of the inputs variable:
+ *
+ * - skillConfig: {Object}
+ *   Skill Config Object fetched or derived from fetchNACMSkillConfiguration API.
+ *   Structure is similar to:
+ *       new sn_nowassist_admin.NowAssistSkillConfig().getSkillConfiguration()
+ *
+ * - skillId: {String}
+ *   Skill Id (sys_one_extend_capability record) used to fetch the NACM Configuration.
+ *
+ * - skillConfigId: {String}
+ *   Skill Config Id (sn_nowassist_skill_config record) used to fetch the NACM Configuration.
+ *
+ * - recordTableName: {String}
+ *   Table name for which the configuration is being evaluated.
+ *
+ * - recordSysId: {String}
+ *   SysId of the record being evaluated.
+ *
+ * - recordGr: {GlideRecord}
+ *   Only fetched for domain-separated instances.
+ *   For other cases, use recordTableName and recordSysId to fetch the record.
+ *
+ * - actionDetails: {Object}
+ *   Current Action Details for which the visibility script is being evaluated.
+ *   Payload fields are in camelCase (e.g., skillId, tableName, commandName, sysId, etc.)
+ *   and are derived from the wwna_quick_actions record.
+ */
+]]></visibility_script>
+    </wwna_quick_actions>
+</record_update>

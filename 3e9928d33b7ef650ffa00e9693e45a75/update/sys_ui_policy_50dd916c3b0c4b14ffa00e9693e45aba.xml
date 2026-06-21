@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update sys_domain="global" table="sys_ui_policy">
+    <sys_ui_policy action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <conditions table="x_ctans_incentnow_lookup_rule">rule_type=flat_commission_rate^EQ<item display_value="Flat - Commission Rate" endquery="false" field="rule_type" goto="false" newquery="false" operator="=" or="false" value="flat_commission_rate"/>
+            <item endquery="true" field="" goto="false" newquery="false" operator="=" or="false" value=""/>
+        </conditions>
+        <description/>
+        <global>true</global>
+        <inherit>false</inherit>
+        <isolate_script>true</isolate_script>
+        <model_id/>
+        <model_table/>
+        <on_load>true</on_load>
+        <order>100</order>
+        <reverse_if_false>true</reverse_if_false>
+        <run_scripts>false</run_scripts>
+        <script_false><![CDATA[function onCondition() {
+
+}]]></script_false>
+        <script_true><![CDATA[function onCondition() {
+
+}]]></script_true>
+        <set_values/>
+        <short_description>Make Rate Value Mandatory</short_description>
+        <sys_class_name>sys_ui_policy</sys_class_name>
+        <sys_created_by>upma.rai</sys_created_by>
+        <sys_created_on>2026-04-01 09:19:40</sys_created_on>
+        <sys_domain>global</sys_domain>
+        <sys_domain_path>/</sys_domain_path>
+        <sys_id>50dd916c3b0c4b14ffa00e9693e45aba</sys_id>
+        <sys_mod_count>2</sys_mod_count>
+        <sys_name>Make Rate Value Mandatory</sys_name>
+        <sys_overrides/>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_ui_policy_50dd916c3b0c4b14ffa00e9693e45aba</sys_update_name>
+        <sys_updated_by>upma.rai</sys_updated_by>
+        <sys_updated_on>2026-04-14 11:24:27</sys_updated_on>
+        <table>x_ctans_incentnow_lookup_rule</table>
+        <ui_type>0</ui_type>
+        <view/>
+    </sys_ui_policy>
+</record_update>

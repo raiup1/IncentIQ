@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="one_api_feature">
+    <one_api_feature action="INSERT_OR_UPDATE">
+        <input_processor display_value="OneExtendGenericCapabilityRequestProcessor">a7eb538353111110c271ddeeff7b12a8</input_processor>
+        <name>1c2c5735fff12210b9dbffffffffffbe</name>
+        <output_processor display_value="OneExtendCapabilityResponseProcessor">3a90ff027f50121032d293f10d866518</output_processor>
+        <short_description>Auto Generated </short_description>
+        <sys_class_name>one_api_feature</sys_class_name>
+        <sys_created_by>upma.rai</sys_created_by>
+        <sys_created_on>2026-05-12 14:55:19</sys_created_on>
+        <sys_id>a8f3b5f993b0c310ddb7f2d89803d684</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>1c2c5735fff12210b9dbffffffffffbe</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>one_api_feature_a8f3b5f993b0c310ddb7f2d89803d684</sys_update_name>
+        <sys_updated_by>upma.rai</sys_updated_by>
+        <sys_updated_on>2026-05-12 14:55:19</sys_updated_on>
+    </one_api_feature>
+</record_update>

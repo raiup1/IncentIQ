@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>package_private</access>
+        <active>true</active>
+        <api_name>x_ctans_incentnow.IncentNowPlanValidator</api_name>
+        <caller_access/>
+        <client_callable>false</client_callable>
+        <description/>
+        <mobile_callable>false</mobile_callable>
+        <name>IncentNowPlanValidator</name>
+        <sandbox_callable>false</sandbox_callable>
+        <script><![CDATA[var IncentNowPlanValidator = Class.create();
+IncentNowPlanValidator.prototype = {
+
+    validatePlan: function(planId) {
+
+        var errors = [];
+
+        var earningMap = {};
+        var lookupMap = {};
+        var payoutMap = {};
+
+        var lookupRecords = {};
+        var payoutRecords = {};
+
+        // ================================
+        // LOAD EARNING RULES
+        // ================================
+        var er = new GlideRecordSecure('x_ctans_incentnow_earning_rule');
+        er.addQuery('plan', planId);
+		er.addQuery('active', true);
+        er.query();
+
+        while (er.next()) {
+            earningMap[er.getUniqueValue()] = true;
+        }
+
+        if (Object.keys(earningMap).length === 0) {
+            errors.push("Plan must have at least one active Earning Rule.");
+        }
+
+        // ================================
+        // LOAD LOOKUP RULES
+        // ================================
+        var lr = new GlideRecordSecure('x_ctans_incentnow_lookup_rule');
+        lr.addQuery('plan', planId);
+		lr.addQuery('active', true);
+        lr.query();
+
+        while (lr.next()) {
+
+            var id = lr.getUniqueValue();
+
+            lookupMap[id] = true;
+
+            lookupRecords[id] = {
+                name: lr.display_name.toString(),
+                input_type: lr.input_type.toString(),
+                earning: lr.select_earning_rule.toString(),
+                prev: lr.select_previous_step.toString()
+            };
+        }
+
+        if (Object.keys(lookupMap).length === 0) {
+            errors.push("Plan must have at least one active Lookup Rule.");
+        }
+
+        // ================================
+        // LOAD PAYOUT RULES
+        // ================================
+        var ps = new GlideRecordSecure('x_ctans_incentnow_payout_summary');
+        ps.addQuery('plan', planId);
+		ps.addQuery('active', true);
+        ps.query();
+
+        while (ps.next()) {
+
+            var id = ps.getUniqueValue();
+
+            payoutMap[id] = true;
+
+            payoutRecords[id] = {
+                name: ps.rule_name.toString(),
+
+                input1_type: ps.input1_type.toString(),
+                input1_er: ps.input1_earning_rule.toString(),
+                input1_lookup: ps.input1_id.toString(),
+                input1_payout: ps.input1_payout.toString(),
+
+                input2_type: ps.input2_type.toString(),
+                input2_er: ps.input2_earning_rule.toString(),
+                input2_lookup: ps.input2_id.toString(),
+                input2_payout: ps.input2_payout.toString()
+            };
+        }
+
+        if (Object.keys(payoutMap).length === 0) {
+            errors.push("Plan must have at least one active Payout Summary.");
+        }
+
+        // ================================
+        // VALIDATE LOOKUP
+        // ================================
+        for (var lId in lookupRecords) {
+
+            var l = lookupRecords[lId];
+
+            if (l.input_type == 'earning_rule' && !earningMap[l.earning]) {
+                errors.push("Lookup '" + l.name + "' has missing earning rule.");
+            }
+
+            if (l.input_type == 'previous_step' && !lookupMap[l.prev]) {
+                errors.push("Lookup '" + l.name + "' has missing previous step.");
+            }
+        }
+
+        // ================================
+        // VALIDATE PAYOUT
+        // ================================
+        function validateInput(type, er, lookup, payout, name, label) {
+
+            if (type == 'earning_rule' && !earningMap[er]) {
+                errors.push("Payout '" + name + "' missing " + label + " earning rule.");
+            }
+
+            if (type == 'data_step' && !lookupMap[lookup]) {
+                errors.push("Payout '" + name + "' missing " + label + " lookup step.");
+            }
+
+            if (type == 'payout_step' && !payoutMap[payout]) {
+                errors.push("Payout '" + name + "' missing " + label + " payout step.");
+            }
+        }
+
+        for (var pId in payoutRecords) {
+
+            var p = payoutRecords[pId];
+
+            validateInput(p.input1_type, p.input1_er, p.input1_lookup, p.input1_payout, p.name, "Input 1");
+            validateInput(p.input2_type, p.input2_er, p.input2_lookup, p.input2_payout, p.name, "Input 2");
+        }
+
+        // ================================
+        // CIRCULAR CHECK - LOOKUP
+        // ================================
+        function detectLookupCycle(node, visited, stack) {
+
+            if (!lookupRecords[node]) return false;
+
+            if (stack[node]) return true;
+            if (visited[node]) return false;
+
+            visited[node] = true;
+            stack[node] = true;
+
+            var next = lookupRecords[node].prev;
+
+            if (next && detectLookupCycle(next, visited, stack)) {
+                return true;
+            }
+
+            stack[node] = false;
+            return false;
+        }
+
+        var visited = {}, stack = {};
+
+        for (var lId in lookupRecords) {
+            if (detectLookupCycle(lId, visited, stack)) {
+                errors.push("Circular dependency detected in Lookup Rules.");
+                break;
+            }
+        }
+
+        // ================================
+        // CIRCULAR CHECK - PAYOUT
+        // ================================
+        function detectPayoutCycle(node, visited, stack) {
+
+            if (!payoutRecords[node]) return false;
+
+            if (stack[node]) return true;
+            if (visited[node]) return false;
+
+            visited[node] = true;
+            stack[node] = true;
+
+            var p = payoutRecords[node];
+
+            var next1 = (p.input1_type == 'payout_step') ? p.input1_payout : null;
+            var next2 = (p.input2_type == 'payout_step') ? p.input2_payout : null;
+
+            if ((next1 && detectPayoutCycle(next1, visited, stack)) ||
+                (next2 && detectPayoutCycle(next2, visited, stack))) {
+                return true;
+            }
+
+            stack[node] = false;
+            return false;
+        }
+
+        visited = {}; stack = {};
+
+        for (var pId in payoutRecords) {
+            if (detectPayoutCycle(pId, visited, stack)) {
+                errors.push("Circular dependency detected in Payout Rules.");
+                break;
+            }
+        }
+
+        return errors;
+    },
+
+    type: 'IncentNowPlanValidator'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>upma.rai</sys_created_by>
+        <sys_created_on>2026-04-09 14:34:57</sys_created_on>
+        <sys_id>6aa2ff033b4c4f10ffa00e9693e45ae7</sys_id>
+        <sys_mod_count>2</sys_mod_count>
+        <sys_name>IncentNowPlanValidator</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_script_include_6aa2ff033b4c4f10ffa00e9693e45ae7</sys_update_name>
+        <sys_updated_by>upma.rai</sys_updated_by>
+        <sys_updated_on>2026-04-15 09:24:06</sys_updated_on>
+    </sys_script_include>
+</record_update>

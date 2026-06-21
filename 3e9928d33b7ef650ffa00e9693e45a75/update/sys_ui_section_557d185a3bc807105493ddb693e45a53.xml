@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update>
+    <sys_ui_section caption="" section_id="557d185a3bc807105493ddb693e45a53" sys_domain="global" table="x_ctans_incentnow_plan" version="3" view="portal_view">
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>plan_name</element>
+            <position>0</position>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-06-08 09:52:30</sys_created_on>
+            <sys_id>3381bb1293590710ddb7f2d89803d6f3</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="NULL" display_value="" name="x_ctans_incentnow_plan" sys_domain="global" view="bc824a2e3bf73ad05493ddb693e45aae">557d185a3bc807105493ddb693e45a53</sys_ui_section>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-06-08 09:52:30</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>fiscal_year</element>
+            <position>1</position>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-06-08 09:52:30</sys_created_on>
+            <sys_id>bf81bb1293590710ddb7f2d89803d6f3</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="NULL" display_value="" name="x_ctans_incentnow_plan" sys_domain="global" view="bc824a2e3bf73ad05493ddb693e45aae">557d185a3bc807105493ddb693e45a53</sys_ui_section>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-06-08 09:52:30</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>.split</element>
+            <position>2</position>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-06-08 09:52:30</sys_created_on>
+            <sys_id>f381fb1293590710ddb7f2d89803d601</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="NULL" display_value="" name="x_ctans_incentnow_plan" sys_domain="global" view="bc824a2e3bf73ad05493ddb693e45aae">557d185a3bc807105493ddb693e45a53</sys_ui_section>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-06-08 09:52:30</sys_updated_on>
+            <sys_user/>
+            <type>.split</type>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>business_unit</element>
+            <position>3</position>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-06-08 09:52:30</sys_created_on>
+            <sys_id>7381fb1293590710ddb7f2d89803d602</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="NULL" display_value="" name="x_ctans_incentnow_plan" sys_domain="global" view="bc824a2e3bf73ad05493ddb693e45aae">557d185a3bc807105493ddb693e45a53</sys_ui_section>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-06-08 09:52:30</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>.end_split</element>
+            <position>4</position>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-06-08 09:52:30</sys_created_on>
+            <sys_id>ff81fb1293590710ddb7f2d89803d602</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="NULL" display_value="" name="x_ctans_incentnow_plan" sys_domain="global" view="bc824a2e3bf73ad05493ddb693e45aae">557d185a3bc807105493ddb693e45a53</sys_ui_section>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-06-08 09:52:30</sys_updated_on>
+            <sys_user/>
+            <type>.end_split</type>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>plan_description</element>
+            <position>5</position>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-06-08 09:52:30</sys_created_on>
+            <sys_id>7f81fb1293590710ddb7f2d89803d603</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="NULL" display_value="" name="x_ctans_incentnow_plan" sys_domain="global" view="bc824a2e3bf73ad05493ddb693e45aae">557d185a3bc807105493ddb693e45a53</sys_ui_section>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-06-08 09:52:30</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_section action="INSERT_OR_UPDATE">
+            <caption/>
+            <header>false</header>
+            <name>x_ctans_incentnow_plan</name>
+            <roles/>
+            <sys_class_name>sys_ui_section</sys_class_name>
+            <sys_created_by>karan.kumar</sys_created_by>
+            <sys_created_on>2026-04-06 15:07:19</sys_created_on>
+            <sys_domain>global</sys_domain>
+            <sys_domain_path>/</sys_domain_path>
+            <sys_id>557d185a3bc807105493ddb693e45a53</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_name>x_ctans_incentnow_plan</sys_name>
+            <sys_overrides/>
+            <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+            <sys_policy/>
+            <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+            <sys_update_name>sys_ui_section_557d185a3bc807105493ddb693e45a53</sys_update_name>
+            <sys_updated_by>karan.kumar</sys_updated_by>
+            <sys_updated_on>2026-04-06 15:07:19</sys_updated_on>
+            <sys_user/>
+            <title>false</title>
+            <view display_value="Portal View" name="portal_view">bc824a2e3bf73ad05493ddb693e45aae</view>
+            <view_name/>
+        </sys_ui_section>
+    </sys_ui_section>
+</record_update>

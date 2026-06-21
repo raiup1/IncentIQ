@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_angular_provider">
+    <sp_angular_provider action="INSERT_OR_UPDATE">
+        <name>mandatoryValidator</name>
+        <script><![CDATA[function mandatoryValidator() {
+
+    this.validate = function(form) {
+
+        if (!form || !form._fields) return true;
+
+        var missingFields = [];
+
+        angular.forEach(form._fields, function(fieldObj) {
+
+            if (fieldObj.mandatory && fieldObj.visible) {
+
+                var value = fieldObj.value;
+
+                if (!value || value === "" || value === "-1") {
+                    missingFields.push(fieldObj.label);
+                }
+            }
+        });
+
+        if (missingFields.length > 0) {
+            return {
+                valid: false,
+                message: "Please fill mandatory fields: " + missingFields.join(", ")
+            };
+        }
+
+        return { valid: true };
+    };
+}]]></script>
+        <sys_class_name>sp_angular_provider</sys_class_name>
+        <sys_created_by>karan.kumar</sys_created_by>
+        <sys_created_on>2026-04-15 16:38:14</sys_created_on>
+        <sys_id>6fc707893b14c7105493ddb693e45aab</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>mandatoryValidator</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sp_angular_provider_6fc707893b14c7105493ddb693e45aab</sys_update_name>
+        <sys_updated_by>karan.kumar</sys_updated_by>
+        <sys_updated_on>2026-04-15 16:38:14</sys_updated_on>
+        <type>service</type>
+    </sp_angular_provider>
+</record_update>

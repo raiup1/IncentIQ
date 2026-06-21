@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update>
+    <sys_ui_list parent="" relationship="" sys_domain="global" table="x_ctans_incentnow_quota" version="2" view="portal_view">
+        <sys_ui_list_element action="INSERT_OR_UPDATE">
+            <average_value>false</average_value>
+            <element>name</element>
+            <list_id display_value="x_ctans_incentnow_quota" element="NULL" name="x_ctans_incentnow_quota" parent="NULL" relationship="NULL" sys_domain="global" view="bc824a2e3bf73ad05493ddb693e45aae">efc8dbbc3b098310a4cbaddc73e45aa5</list_id>
+            <max_value>false</max_value>
+            <min_value>false</min_value>
+            <position>0</position>
+            <sum>false</sum>
+            <sys_created_by>shroin.mandal</sys_created_by>
+            <sys_created_on>2026-05-22 05:57:46</sys_created_on>
+            <sys_id>afc8dbbc3b098310a4cbaddc73e45aa6</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>shroin.mandal</sys_updated_by>
+            <sys_updated_on>2026-05-22 05:57:46</sys_updated_on>
+        </sys_ui_list_element>
+        <sys_ui_list_element action="INSERT_OR_UPDATE">
+            <average_value>false</average_value>
+            <element>fiscal_year</element>
+            <list_id display_value="x_ctans_incentnow_quota" element="NULL" name="x_ctans_incentnow_quota" parent="NULL" relationship="NULL" sys_domain="global" view="bc824a2e3bf73ad05493ddb693e45aae">efc8dbbc3b098310a4cbaddc73e45aa5</list_id>
+            <max_value>false</max_value>
+            <min_value>false</min_value>
+            <position>1</position>
+            <sum>false</sum>
+            <sys_created_by>shroin.mandal</sys_created_by>
+            <sys_created_on>2026-05-22 05:57:46</sys_created_on>
+            <sys_id>27c8dbbc3b098310a4cbaddc73e45aa7</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>shroin.mandal</sys_updated_by>
+            <sys_updated_on>2026-05-22 05:57:46</sys_updated_on>
+        </sys_ui_list_element>
+        <sys_ui_list_element action="INSERT_OR_UPDATE">
+            <average_value>false</average_value>
+            <element>business_unit</element>
+            <list_id display_value="x_ctans_incentnow_quota" element="NULL" name="x_ctans_incentnow_quota" parent="NULL" relationship="NULL" sys_domain="global" view="bc824a2e3bf73ad05493ddb693e45aae">efc8dbbc3b098310a4cbaddc73e45aa5</list_id>
+            <max_value>false</max_value>
+            <min_value>false</min_value>
+            <position>2</position>
+            <sum>false</sum>
+            <sys_created_by>shroin.mandal</sys_created_by>
+            <sys_created_on>2026-05-22 05:57:46</sys_created_on>
+            <sys_id>abc8dbbc3b098310a4cbaddc73e45aa7</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>shroin.mandal</sys_updated_by>
+            <sys_updated_on>2026-05-22 05:57:46</sys_updated_on>
+        </sys_ui_list_element>
+        <sys_ui_list_element action="INSERT_OR_UPDATE">
+            <average_value>false</average_value>
+            <element>status</element>
+            <list_id display_value="x_ctans_incentnow_quota" element="NULL" name="x_ctans_incentnow_quota" parent="NULL" relationship="NULL" sys_domain="global" view="bc824a2e3bf73ad05493ddb693e45aae">efc8dbbc3b098310a4cbaddc73e45aa5</list_id>
+            <max_value>false</max_value>
+            <min_value>false</min_value>
+            <position>3</position>
+            <sum>false</sum>
+            <sys_created_by>shroin.mandal</sys_created_by>
+            <sys_created_on>2026-05-22 05:57:46</sys_created_on>
+            <sys_id>23c8dbbc3b098310a4cbaddc73e45aa8</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>shroin.mandal</sys_updated_by>
+            <sys_updated_on>2026-05-22 05:57:46</sys_updated_on>
+        </sys_ui_list_element>
+        <sys_ui_list_element action="INSERT_OR_UPDATE">
+            <average_value>false</average_value>
+            <element>quota_metric</element>
+            <list_id display_value="x_ctans_incentnow_quota" element="NULL" name="x_ctans_incentnow_quota" parent="NULL" relationship="NULL" sys_domain="global" view="bc824a2e3bf73ad05493ddb693e45aae">efc8dbbc3b098310a4cbaddc73e45aa5</list_id>
+            <max_value>false</max_value>
+            <min_value>false</min_value>
+            <position>4</position>
+            <sum>false</sum>
+            <sys_created_by>shroin.mandal</sys_created_by>
+            <sys_created_on>2026-05-22 05:57:46</sys_created_on>
+            <sys_id>a7c8dbbc3b098310a4cbaddc73e45aa8</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>shroin.mandal</sys_updated_by>
+            <sys_updated_on>2026-05-22 05:57:46</sys_updated_on>
+        </sys_ui_list_element>
+        <sys_ui_list_element action="INSERT_OR_UPDATE">
+            <average_value>false</average_value>
+            <element>target_value</element>
+            <list_id display_value="x_ctans_incentnow_quota" element="NULL" name="x_ctans_incentnow_quota" parent="NULL" relationship="NULL" sys_domain="global" view="bc824a2e3bf73ad05493ddb693e45aae">efc8dbbc3b098310a4cbaddc73e45aa5</list_id>
+            <max_value>false</max_value>
+            <min_value>false</min_value>
+            <position>5</position>
+            <sum>false</sum>
+            <sys_created_by>shroin.mandal</sys_created_by>
+            <sys_created_on>2026-05-22 05:57:46</sys_created_on>
+            <sys_id>2fc8dbbc3b098310a4cbaddc73e45aa8</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>shroin.mandal</sys_updated_by>
+            <sys_updated_on>2026-05-22 05:57:46</sys_updated_on>
+        </sys_ui_list_element>
+        <sys_ui_list_element action="INSERT_OR_UPDATE">
+            <average_value>false</average_value>
+            <element>sys_created_by</element>
+            <list_id display_value="x_ctans_incentnow_quota" element="NULL" name="x_ctans_incentnow_quota" parent="NULL" relationship="NULL" sys_domain="global" view="bc824a2e3bf73ad05493ddb693e45aae">efc8dbbc3b098310a4cbaddc73e45aa5</list_id>
+            <max_value>false</max_value>
+            <min_value>false</min_value>
+            <position>6</position>
+            <sum>false</sum>
+            <sys_created_by>shroin.mandal</sys_created_by>
+            <sys_created_on>2026-05-22 05:57:46</sys_created_on>
+            <sys_id>a3c8dbbc3b098310a4cbaddc73e45aa9</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>shroin.mandal</sys_updated_by>
+            <sys_updated_on>2026-05-22 05:57:46</sys_updated_on>
+        </sys_ui_list_element>
+        <sys_ui_list action="INSERT_OR_UPDATE">
+            <average_value>false</average_value>
+            <element/>
+            <max_value>false</max_value>
+            <min_value>false</min_value>
+            <name>x_ctans_incentnow_quota</name>
+            <parent/>
+            <position/>
+            <relationship/>
+            <sum>false</sum>
+            <sys_class_name>sys_ui_list</sys_class_name>
+            <sys_created_by>shroin.mandal</sys_created_by>
+            <sys_created_on>2026-05-22 05:57:46</sys_created_on>
+            <sys_domain>global</sys_domain>
+            <sys_domain_path>/</sys_domain_path>
+            <sys_id>efc8dbbc3b098310a4cbaddc73e45aa5</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_name>x_ctans_incentnow_quota</sys_name>
+            <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+            <sys_policy/>
+            <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+            <sys_update_name>sys_ui_list_x_ctans_incentnow_quota_portal_view</sys_update_name>
+            <sys_updated_by>shroin.mandal</sys_updated_by>
+            <sys_updated_on>2026-05-22 05:57:46</sys_updated_on>
+            <sys_user/>
+            <view display_value="Portal View" name="portal_view">bc824a2e3bf73ad05493ddb693e45aae</view>
+            <view_name/>
+        </sys_ui_list>
+    </sys_ui_list>
+</record_update>

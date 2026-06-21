@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element db_object_id="b453db3d3b9f72905493ddb693e45a5d" label="Plan Users" max_length="40" name="x_ctans_incentnow_plan_users" type="collection">
+        <element label="Domain" max_length="32" name="sys_domain" type="domain_id"/>
+        <element attributes="encode_utf8=false" label="Users" mandatory="true" max_length="32" name="x_ctans_incentnow_sales_user" reference="x_ctans_incentnow_user_profile" reference_floats="true" reference_qual="javascript:new IncentNowUtils().getUserByPlanBusinessUnit(current.x_ctans_incentnow_plan)" type="reference" use_reference_qualifier="advanced"/>
+        <element attributes="encode_utf8=false" label="Plan" mandatory="true" max_length="32" name="x_ctans_incentnow_plan" reference="x_ctans_incentnow_plan" reference_floats="true" reference_qual="javascript:new IncentNowUtils().getPlanByUserBusinessUnit(current.x_ctans_incentnow_sales_user)" type="reference" use_reference_qualifier="advanced"/>
+        <index name="index">
+            <element name="sys_domain"/>
+        </index>
+        <index name="index2">
+            <element name="x_ctans_incentnow_plan"/>
+        </index>
+        <index name="index3">
+            <element name="x_ctans_incentnow_sales_user"/>
+        </index>
+    </element>
+</database>

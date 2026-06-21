@@ -1,0 +1,1247 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <client_script><![CDATA[api.controller=function($scope,$rootScope,spUtil) {
+ 
+
+	// -------------------------------
+	// DATA MODEL (GROUPED)
+	// -------------------------------
+	$scope.groups = [
+		{
+			conditions: [
+				{ field: '', operator: '', value: '', operators: [] , join: 'AND'}
+			]
+		}
+	];
+
+	// -------------------------------
+	// OPERATOR MAP (FULL)
+	// -------------------------------
+	$scope.operatorMap = {
+		string: ['=', '!=', 'LIKE', 'NOTLIKE', 'STARTSWITH', 'ENDSWITH'],
+		integer: ['=', '!=', '>', '<', '>=', '<='],
+		decimal: ['=', '!=', '>', '<', '>=', '<='],
+		reference: ['=', '!='],
+		boolean: ['=', '!='],
+		glide_date: ['ON', 'BEFORE', 'AFTER', 'RELATIVE'],
+		glide_date_time: ['ON', 'BEFORE', 'AFTER', 'RELATIVE'],
+		currency:['=' , '>' , '<' , '<=' ,'>=','!=']
+	};
+	
+$scope.isRelative = function (cond) {
+    return cond.operator === 'RELATIVE' && cond.relative;
+};
+
+	// -------------------------------
+	// FIELD CHANGE → UPDATE OPERATORS
+	// -------------------------------
+	$scope.onFieldChange = function (cond,preserve) {
+		
+				if (!preserve || !cond.relative) {
+        cond.relative = {
+            type: 'LT',
+            value: '',
+            unit: 'dayofweek',
+            when: 'ago'
+        };
+    }
+		
+
+		var fieldObj = $scope.data.fields.find(function (f) {
+			return f.name === cond.field;
+		});
+
+		if (!fieldObj) {
+			cond.operators = ['='];
+			return;
+		}
+
+		cond.operators = $scope.operatorMap[fieldObj.type] || ['='];
+		if (!preserve) {
+        cond.operator = '';
+        cond.value = '';
+    }
+	};
+
+	// -------------------------------
+	// ADD CONDITION (AND)
+	// -------------------------------
+	$scope.addCondition = function (groupIndex, joinType) {
+    $scope.groups[groupIndex].conditions.push({
+        field: '',
+        operator: '',
+        value: '',
+        operators: [],
+        join: joinType || 'AND'
+    });
+};
+
+	// -------------------------------
+	// ADD GROUP (OR)
+	// -------------------------------
+	$scope.addGroup = function () {
+		$scope.groups.push({
+			conditions: [
+				{ field: '', operator: '', value: '', operators: [] }
+			]
+		});
+	};
+	
+	$scope.addOrGroup = function (groupIndex) {
+
+    var newGroup = {
+        conditions: [
+            { field: '', operator: '', value: '', operators: [], join: 'AND' }
+        ]
+    };
+
+    $scope.groups.splice(groupIndex + 1, 0, newGroup);
+};
+
+	// -------------------------------
+	// REMOVE CONDITION
+	// -------------------------------
+	$scope.removeCondition = function (group, condition) {
+    var index = group.conditions.indexOf(condition);
+    if (index > -1) {
+        group.conditions.splice(index, 1);
+    }
+};
+
+	// -------------------------------
+	// REMOVE GROUP
+	// -------------------------------
+	$scope.removeGroup = function (groupIndex) {
+		$scope.groups.splice(groupIndex, 1);
+	};
+
+	// -------------------------------
+	// ENCODED QUERY (WITH NQ)
+	// -------------------------------
+	
+	$scope.buildDisplayQuery = function () {
+    var queryParts = [];
+
+    $scope.groups.forEach(function (group) {
+			
+        var groupQuery = '';
+
+        group.conditions.forEach(function (c) {
+
+							if (!c.field) return;
+
+							var fieldObj = $scope.getField(c);
+							var fieldLabel = (fieldObj && fieldObj.label) ? fieldObj.label : c.field;
+
+							var displayVal = '';
+
+							// RELATIVE
+							if (c.relative && c.relative.value) {
+
+									var typeMap = { LT: 'before', GT: 'after' };
+									var unitMap = {
+											minute: 'minutes',
+											hour: 'hours',
+											dayofweek: 'days',
+											month: 'months',
+											quarter: 'quarters',
+											year: 'years'
+									};
+
+									displayVal = (typeMap[c.relative.type] || c.relative.type) + ' ' +
+															 c.relative.value + ' ' +
+															 (unitMap[c.relative.unit] || c.relative.unit) + ' ' +
+															 (c.relative.when === 'ago' ? 'ago' : 'from now');
+
+									displayVal = fieldLabel + ' ' + displayVal;
+
+							} else {
+
+									if (!c.value) return;
+
+									displayVal = fieldLabel + ' ' + c.operator + ' ' + getDisplayValue(c);
+							}
+
+							
+							if (groupQuery) {
+									groupQuery += (c.join === 'OR') ? ' OR ' : ' AND ';
+							}
+
+							groupQuery += displayVal;
+
+					});
+
+        if (groupQuery) {
+            queryParts.push('(' + groupQuery + ')');
+        }
+    });
+
+    return queryParts.join(' OR ');
+};
+	
+	function getDisplayValue(c) {
+
+    var field = $scope.getField(c);
+    if (!field) return c.value;
+
+    // ✅ Reference field
+    if (field.type === 'reference') {
+        return c.displayValue || c.value;
+    }
+
+    // ✅ Choice field
+    if (field.choice) {
+        var choice = field.choices?.find(function (ch) {
+            return ch.value == c.value;
+        });
+        return choice ? choice.label : c.value;
+    }
+
+    // ✅ Boolean
+    if (field.type === 'boolean') {
+        return c.value == 'true' ? 'True' : 'False';
+    }
+
+    return c.value;
+}
+	
+	$scope.buildEncodedQuery = function () {
+		var queryParts = [];
+
+		$scope.groups.forEach(function (group) {
+			var groupQuery = '';
+
+			group.conditions.forEach(function (c, index) {
+
+				//if (!c.field || !c.operator || c.value === '') return;
+				
+				if (!c.field || !c.operator) return;
+
+					if (c.operator === 'RELATIVE') {
+						if (!c.relative || !c.relative.value) return;
+					} else {
+						if (c.value === '') return;
+					}
+
+				if (index > 0) {
+							groupQuery += (c.join === 'OR') ? '^OR' : '^';
+					}
+					//var val = $scope.formatValue(c);
+				//groupQuery += c.field + c.operator + c.value;
+				
+				// RELATIVE HANDLING
+				if (c.operator === 'ON') {
+
+							var val = $scope.formatValue(c);
+
+							groupQuery += c.field +
+														'ON' + val +
+														'@javascript:gs.dateGenerate(\'' + val + '\',\'start\')' +
+														'@javascript:gs.dateGenerate(\'' + val + '\',\'end\')';
+						}
+					else if (c.operator === 'RELATIVE') {
+
+						if (!c.relative || !c.relative.value) return;
+
+						groupQuery += c.field +
+													'RELATIVE' +
+													c.relative.type +
+													'@' + c.relative.unit +
+													'@' + c.relative.when +
+													'@' + c.relative.value;
+					}
+					else if (c.operator === 'BEFORE') {
+
+									var val = $scope.formatValue(c);
+
+									groupQuery += c.field +
+																'<javascript:gs.dateGenerate(\'' + val + '\',\'start\')';
+								}
+
+								// ✅ AFTER
+				 else if (c.operator === 'AFTER') {
+
+									var val = $scope.formatValue(c);
+
+									groupQuery += c.field +
+																'>javascript:gs.dateGenerate(\'' + val + '\',\'end\')';
+								}
+					else {
+
+						var val = $scope.formatValue(c);
+						groupQuery += c.field + c.operator + val;
+					}
+				
+			});
+
+			if (groupQuery) {
+				queryParts.push(groupQuery);
+			}
+		});
+
+		return queryParts.join('^NQ');
+	};
+	
+/*	$scope.$watch('groups', function () {
+
+    var encoded = $scope.buildEncodedQuery();
+    var display = $scope.buildDisplayQuery();
+		var keyValue= $scope.buildKeyValueArray();
+
+    
+    $rootScope.encodedQuery = encoded;
+    $rootScope.displayQuery = display;
+		$rootScope.keyVal= keyValue;
+
+   
+    $scope.query = encoded;
+    $scope.displayQuery = display;
+		$scope.keyVal= keyValue;
+		
+
+}, true); */
+	
+	$scope.getQueryData = function () {
+			return {
+					query: $scope.buildEncodedQuery(),
+					display: $scope.buildDisplayQuery(),
+					keyval: $scope.buildKeyValueArray()
+			};
+	};
+
+	$scope.$on('queryBuilder:request', function () {
+			$scope.$emit('queryBuilder:update', $scope.getQueryData());
+	});
+	// -------------------------------
+// GET FIELD OBJECT
+// -------------------------------
+$scope.getField = function (cond) {
+	return $scope.data.fields.find(function (f) {
+		return f.name === cond.field;
+	});
+};
+	
+
+// -------------------------------
+// TYPE CHECKERS
+// -------------------------------
+$scope.isReference = function (cond) {
+	var f = $scope.getField(cond);
+	return f && f.type === 'reference';
+};
+
+$scope.isChoice = function (cond) {
+	var f = $scope.getField(cond);
+	return f && f.choice;
+};
+
+$scope.isBoolean = function (cond) {
+	var f = $scope.getField(cond);
+	return f && f.type === 'boolean';
+};
+
+$scope.isDate = function (cond) {
+	var f = $scope.getField(cond);
+	return f && f.type === 'glide_date';
+};
+
+$scope.isDateTime = function (cond) {
+	var f = $scope.getField(cond);
+	return f && f.type === 'glide_date_time';
+};
+
+$scope.isNumber = function (cond) {
+	var f = $scope.getField(cond);
+	return f && (f.type === 'integer' || f.type === 'decimal');
+};
+	
+	
+	
+$scope.formatValue = function (c) {
+
+	var field = $scope.getField(c);
+	if (!field || !c.value) return c.value;
+
+	// If already string like "2024-01-10"
+	if (typeof c.value === 'string') {
+
+		// glide_date
+		if (field.type === 'glide_date') {
+			return c.value;
+		}
+
+		/* glide_date_time
+		if (field.type === 'glide_date_time') {
+			return c.value + ' 00:00:00';
+		} */
+	}
+
+	// If it's Date object
+	if (c.value instanceof Date) {
+
+		var year = c.value.getFullYear();
+		var month = ('0' + (c.value.getMonth() + 1)).slice(-2);
+		var day = ('0' + c.value.getDate()).slice(-2);
+
+		var dateStr = year + '-' + month + '-' + day;
+
+		if (field.type === 'glide_date') {
+			return dateStr;
+		}
+
+		if (field.type === 'glide_date_time') {
+			return dateStr + ' 00:00:00';
+		}
+	}
+
+	return c.value;
+};
+	
+	$scope.onDateChange = function (c) {
+
+	if (!c.value) return;
+
+	// Convert Date object → string manually
+	if (c.value instanceof Date) {
+		var year = c.value.getFullYear();
+		var month = ('0' + (c.value.getMonth() + 1)).slice(-2);
+		var day = ('0' + c.value.getDate()).slice(-2);
+
+		c.value = year + '-' + month + '-' + day;
+	}
+};
+	
+	$scope.buildKeyValueArray = function () {
+
+    var result = [];
+
+    $scope.groups.forEach(function (group) {
+
+        group.conditions.forEach(function (c) {
+
+            // only skip if completely empty
+            if (!c.field) return;
+
+            var fieldObj = $scope.getField(c);
+            var key = fieldObj ? fieldObj.label : c.field;
+
+            var value = '';
+
+            if (c.relative && c.relative.value) {
+
+								var typeMap = {
+										LT: 'before',
+										GT: 'after'
+								};
+
+								var unitMap = {
+										minute: 'minutes',
+										hour: 'hours',
+										dayofweek: 'days',
+										month: 'months',
+										quarter: 'quarters',
+										year: 'years'
+								};
+
+								var type = typeMap[c.relative.type] || c.relative.type;
+								var unit = unitMap[c.relative.unit] || c.relative.unit;
+								var when = c.relative.when === 'ago' ? 'ago' : 'from now';
+
+								value = type + ' ' +
+												c.relative.value + ' ' +
+												unit + ' ' +
+												when;
+
+						} else {
+								value = getDisplayValue(c);
+						}
+
+            // skip only if value is truly empty
+            if (value === '' || value === null || value === undefined) return;
+
+            result.push({
+                key: key,
+                value: value
+            });
+
+        });
+
+    });
+
+    return result;
+};
+	
+	
+	$scope.parseEncodedQuery = function (query) {
+
+    if (!query) return;
+		
+		$scope.groups = [];
+
+    var groups = [];
+
+    // Split groups (^NQ)
+    var groupStrings = query.split('^NQ');
+
+    groupStrings.forEach(function (groupStr) {
+
+        var conditions = [];
+
+        // Split conditions but keep OR
+        var parts = groupStr.split(/(\^OR|\^)/);
+
+        var join = 'AND';
+
+        parts.forEach(function (part) {
+
+            if (part === '^') {
+                join = 'AND';
+                return;
+            }
+
+            if (part === '^OR') {
+                join = 'OR';
+                return;
+            }
+
+            if (!part) return;
+
+            // Extract field + operator + value
+					
+											// BEFORE generic match
+						// -----------------------------
+
+						// ON
+						if (part.includes('ON')) {
+
+								var field = part.split('ON')[0];
+								var dateStr = part.split('ON')[1].split('@')[0];
+							
+
+								conditions.push({
+										field: field,
+										operator: 'ON',
+										value: dateStr ? new Date(dateStr) : '',   // ]]>🔥<![CDATA[ FIX HERE
+										operators: [],
+										join: join,
+										relative: null
+								});
+
+								return;
+						}
+
+						// BEFORE
+						if (part.includes('<javascript:gs.dateGenerate')) {
+
+								var field = part.split('<javascript')[0];
+								var dateStr = part.match(/'(\d{4}-\d{2}-\d{2})'/);
+
+								conditions.push({
+										field: field,
+										operator: 'BEFORE',
+										value: dateStr ? new Date(dateStr[1]) : '',  // same pattern as ON
+										operators: [],
+										join: join,
+										relative: null
+								});
+
+								return;
+						}
+
+						// AFTER
+						if (part.includes('>javascript:gs.dateGenerate')) {
+
+								var field = part.split('>javascript')[0];
+								var dateStr = part.match(/'(\d{4}-\d{2}-\d{2})'/);
+
+								conditions.push({
+										field: field,
+										operator: 'AFTER',
+										value: dateStr ? new Date(dateStr[1]) : '',
+										operators: [],
+										join: join,
+										relative: null
+								});
+
+								return;
+						}
+
+						// RELATIVE
+						if (part.includes('RELATIVE')) {
+
+								var field = part.split('RELATIVE')[0];
+								var rel = part.split('RELATIVE')[1].split('@');
+
+								conditions.push({
+										field: field,
+										operator: 'RELATIVE',
+										value: '',
+										operators: [],
+										join: join,
+										relative: {
+												type: rel[0],
+												unit: rel[1],
+												when: rel[2],
+												value: rel[3] ? parseInt(rel[3], 10) : ''
+										}
+								});
+
+								return;
+						}
+            var match = part.match(/^([^=<>!]+)(=|!=|>|<|>=|<=|LIKE|NOTLIKE|STARTSWITH|ENDSWITH)(.+)$/);
+
+            if (!match) return;
+
+            var fieldName = match[1];
+
+						var fieldObj = $scope.data.fields.find(function(f){
+								return f.name === fieldName;
+						});
+
+						var conditionObj = {
+								field: fieldName,
+								operator: match[2],
+								value: match[3],
+								operators: [],
+								join: join
+						};
+
+						// Reference field handling
+						if (fieldObj && fieldObj.reference) {
+
+							conditionObj.refObj = {};
+
+							$scope.getReferenceDetails(
+									fieldObj.reference,
+									match[3]
+							).then(function(response){
+
+									conditionObj.refObj = response.data.ref;
+
+							});
+
+					}
+
+						conditions.push(conditionObj);
+
+        });
+
+        if (conditions.length) {
+            groups.push({ conditions: conditions });
+        }
+
+    });
+
+    if (groups.length) {
+$scope.groups = groups;
+    $scope.groups.forEach(function (g) {
+        g.conditions.forEach(function (c) {
+            $scope.onFieldChange(c, true); // ✅ preserve values
+        });
+    });
+}
+};
+	
+	
+	$scope.$watch('data.fields', function (newVal) {
+    if (newVal && newVal.length && $scope.data.encoded_query) {
+        $scope.parseEncodedQuery($scope.data.encoded_query);
+    }
+});
+	
+	$scope.$watch('groups', function () {
+
+    $scope.groups.forEach(function(group){
+
+        group.conditions.forEach(function(c){
+
+            if (c.refObj) {
+
+                c.value = c.refObj.value;
+                c.displayValue = c.refObj.displayValue;
+
+            }
+
+        });
+
+    });
+
+}, true);
+	
+	$scope.getReferenceDetails = function(table, sysId) {
+
+    return $scope.server.get({
+        action: 'getReferenceDetails',
+        table: table,
+        sys_id: sysId
+    });
+
+};
+	
+	//var testQuery = "column_04=12^column_81<javascript:gs.dateGenerate('2026-04-23','start')^NQcolumn_06LIKEer";
+	//$scope.parseEncodedQuery(testQuery);
+	
+
+
+
+
+
+};]]></client_script>
+        <controller_as>c</controller_as>
+        <css>/* CARD */
+.cb-card {
+	border-radius: 6px;
+	box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+/* HEADER */
+.cb-header {
+	background: #293e40;
+	color: #fff;
+	font-size: 14px;
+}
+
+/* GROUP */
+.cb-group {
+	border: 1px solid #d6d9dc;
+	padding: 12px;
+	border-radius: 6px;
+	background: #f9fafa;
+	margin-bottom: 10px;
+}
+
+.cb-group:hover {
+	border-color: #b8c2cc;
+}
+
+/* ROW */
+.cb-row {
+	margin-bottom: 10px;
+	padding: 6px 4px;
+}
+
+.cb-row:hover {
+	background: #f1f3f5;
+}
+
+/* LABEL */
+.cb-label {
+	font-size: 11px;
+	color: #6b6f73;
+	margin-bottom: 4px;
+	display: block;
+	font-weight: 500;
+}
+
+/* VALUE CONTAINER */
+.cb-value-container {
+	width: 100%;
+}
+
+/* INPUT FIX */
+.cb-input {
+	width: 100% !important;
+	height: 30px !important;
+	padding: 4px 8px !important;
+	font-size: 12px;
+	box-sizing: border-box;
+}
+
+/* DATE FIX */
+.cb-input[type="date"] {
+	line-height: 20px;
+}
+
+/* SELECT FIX */
+select.cb-input {
+	height: 30px !important;
+}
+
+/* REFERENCE FIX */
+.cb-ref-wrapper {
+	width: 100%;
+}
+
+.cb-ref-wrapper .form-control {
+	width: 100% !important;
+	height: 30px !important;
+	padding: 4px 8px !important;
+}
+
+/* ACTION */
+.cb-action {
+	margin-top: 22px;
+}
+
+/* GROUP ACTIONS */
+.cb-group-actions {
+	margin-top: 10px;
+	display: flex;
+	gap: 8px;
+}
+
+/* OR DIVIDER */
+.cb-or-divider {
+	position: relative;
+	text-align: center;
+	margin: 18px 0;
+}
+
+.cb-or-divider:before {
+	content: "";
+	position: absolute;
+	top: 50%;
+	left: 0;
+	width: 100%;
+	height: 1px;
+	background: #d6d9dc;
+}
+
+.cb-or-divider span {
+	position: relative;
+	background: #fff;
+	padding: 5px 14px;
+	border: 1px solid #d6d9dc;
+	border-radius: 20px;
+	font-size: 12px;
+	font-weight: 600;
+	color: #6b6f73;
+}
+
+/* QUERY BOX */
+.cb-query {
+	font-family: monospace;
+	background: #fcfcfc;
+	border: 1px solid #d6d9dc;
+}
+
+/* BUTTON */
+.btn-xs {
+	padding: 4px 8px;
+	font-size: 11px;
+}
+
+.cb-relative {
+	display: flex;
+	gap: 6px;
+}
+
+.cb-relative select,
+.cb-relative input {
+	flex: 1;
+}</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description/>
+        <docs/>
+        <field_list/>
+        <has_preview>true</has_preview>
+        <id>incentnow-querybuilder</id>
+        <internal>false</internal>
+        <link><![CDATA[function link(scope, element, attrs, controller) {
+  
+}]]></link>
+        <name>IncentNow QueryBuilder</name>
+        <option_schema>[{"name":"table","section":"other","label":"Table","type":"string"},{"name":"data_model","section":"other","label":"Data Model","type":"string"}]</option_schema>
+        <public>false</public>
+        <roles>x_ctans_incentnow.user,x_ctans_incentnow.admin</roles>
+        <script><![CDATA[(function () {
+
+	data.table = options.table || 'x_ctans_incentnow_data_lake';
+	//gs.addInfoMessage(input.data_model+ " ++ ");
+	
+	
+	data.dataModel = "";
+
+  // Priority: input (from parent)
+  if (input && input.data_model) {
+    data.dataModel = input.data_model;
+  } 
+  // Fallback: options (if used standalone)
+  else if (options && options.data_model) {
+    data.dataModel = options.data_model;
+  }
+	
+	if (input && input.encoded_query) {
+    data.encoded_query = input.encoded_query;
+		//gs.addInfoMessage("1. "+data.encoded_query);
+  } 
+  // Fallback: options (if used standalone)
+  else if (options && options.encoded_query) {
+    data.encoded_query = options.encoded_query;
+				//gs.addInfoMessage(data.encoded_query);
+
+  }
+	
+	getSourceSystem(data.dataModel);
+	function getSourceSystem(dataM)
+	{
+		var gModel= new GlideRecordSecure('x_ctans_incentnow_data_model_object');
+		if(gModel.get(dataM.toString()))
+			{
+				data.source_system=gModel.data_source_system;
+			}
+	}
+
+	data.fields = [];
+
+	// -------------------------------
+	// Fetch fields from dictionary
+	// -------------------------------
+	
+	if(data.dataModel && data.source_system=="External")
+		{
+			var dict = new GlideRecordSecure('sys_dictionary');
+					dict.addQuery('name', data.table);
+					dict.addQuery('internal_type', '!=', 'collection');
+					dict.addQuery('active', true);
+					dict.orderBy('column_label');
+					dict.query();
+
+					while (dict.next()) {
+						var obj={};
+							obj.name= dict.element.toString();
+							var label=getMappinglabel(data.dataModel,dict.getUniqueValue());
+							if(label=="" || !label || label==null || label==undefined)
+								continue;
+							obj.label= label;//dict.column_label.toString();
+							obj.type= dict.internal_type.toString();
+							obj.reference= dict.reference.toString(); 
+							obj.choice= dict.choice.toString() == '1'; 
+
+
+						data.fields.push(obj);
+					}
+		}
+	else if(data.dataModel && data.source_system=="Internal")
+		{
+			var objTable=""
+			var gModelObj= new GlideRecordSecure('x_ctans_incentnow_data_model_object');
+			if(gModelObj.get(data.dataModel))
+			{
+				objTable=gModelObj.object_table.name.toString();
+				//gs.addErrorMessage(objTable);
+			}
+			
+			var dict = new GlideRecordSecure('sys_dictionary');
+					dict.addQuery('name', objTable);
+					dict.addQuery('internal_type', '!=', 'collection');
+								dict.addQuery('internal_type', '!=', 'GUID');
+
+					dict.addQuery('active', true);
+					dict.orderBy('column_label');
+					dict.query();
+
+					while (dict.next()) {
+						var obj={};
+							obj.name= dict.element.toString();
+							var label=dict.column_label.toString();
+							if(label=="" || !label || label==null || label==undefined)
+								continue;
+							obj.label= label;//dict.column_label.toString();
+							obj.type= dict.internal_type.toString();
+							obj.reference= dict.reference.toString(); 
+							obj.choice= dict.choice.toString() == '1'; 
+
+
+						data.fields.push(obj);
+					}
+			//gs.addErrorMessage(JSON.stringify(data.fields));
+		}
+	
+	
+	
+	function getMappinglabel(dataModel,lakeLabel)
+	{
+		var mappingTable=new GlideRecordSecure("x_ctans_incentnow_metadata_mapping");
+		mappingTable.addQuery("data_model_object_id",dataModel);
+		mappingTable.addQuery("data_lake_field_name",lakeLabel);
+		mappingTable.query();
+		if(mappingTable.next())
+			{
+				return mappingTable.getValue("source_display_name");
+			}
+	}
+
+	if (input && input.action === "getQueryData") {
+
+    data.query = "";   
+    data.display = "";
+    data.keyval = [];
+
+    // we don't compute here, client will send
+}
+	
+	if (input && input.action === 'getReferenceDetails') {
+
+    data.ref = {};
+
+    var grIT = new GlideRecordSecure(input.table);
+
+    if (grIT.get(input.sys_id)) {
+
+        data.ref = {
+            value: grIT.getUniqueValue(),
+            displayValue: grIT.getDisplayValue()
+        };
+
+    }
+
+    return;
+}
+	
+
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>karan.kumar</sys_created_by>
+        <sys_created_on>2026-04-09 09:03:52</sys_created_on>
+        <sys_id>0723664b3b4c0f10ffa00e9693e45ac4</sys_id>
+        <sys_mod_count>162</sys_mod_count>
+        <sys_name>IncentNow QueryBuilder</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sp_widget_0723664b3b4c0f10ffa00e9693e45ac4</sys_update_name>
+        <sys_updated_by>upma.rai</sys_updated_by>
+        <sys_updated_on>2026-06-12 13:38:37</sys_updated_on>
+        <template><![CDATA[<div class="panel panel-default cb-card">
+
+	<!-- HEADER 
+	<div class="panel-heading cb-header">
+		<i class="fa fa-filter"></i>
+		<strong>Condition Builder</strong>
+	</div> -->
+
+  
+	<!-- BODY -->
+	<div class="panel-body">
+
+		<div ng-repeat="group in groups track by $index">
+
+			<!-- OR DIVIDER -->
+			<div class="cb-or-divider" ng-if="$index > 0">
+				<span>OR</span>
+			</div>
+      
+			<!-- GROUP -->
+			<div class="cb-group">
+
+				<!-- CONDITIONS -->
+				<div ng-repeat="c in group.conditions track by $index" class="cb-row">
+
+					<div class="row">
+
+						<!-- FIELD -->
+						<div class="col-md-3">
+							<label class="cb-label">Field</label>
+							<select class="form-control input-sm"
+							        ng-model="c.field"
+							        ng-options="f.name as f.label for f in data.fields"
+							        ng-change="onFieldChange(c)">
+								<option value="">Select field</option>
+							</select>
+						</div>
+
+						<!-- OPERATOR -->
+						<div class="col-md-3">
+							<label class="cb-label">Operator</label>
+							<select class="form-control input-sm"
+							        ng-model="c.operator"
+							        ng-options="op for op in c.operators">
+								<option value="">Select</option>
+							</select>
+						</div>
+
+						<!-- VALUE -->
+						<div class="col-md-4">
+							<label class="cb-label">Value</label>
+
+							<div class="cb-value-container">
+
+								<!-- STRING -->
+								<input type="text"
+								       class="form-control input-sm cb-input"
+								       ng-if="!isReference(c) && !isChoice(c) && !isBoolean(c) && !isDate(c) && !isDateTime(c) && !isNumber(c)"
+								       ng-model="c.value"
+								       placeholder="Enter value">
+
+								<!-- NUMBER -->
+								<input type="number"
+								       class="form-control input-sm cb-input"
+								       ng-if="isNumber(c)"
+								       ng-model="c.value">
+
+								<!-- BOOLEAN -->
+								<select class="form-control input-sm cb-input"
+								        ng-if="isBoolean(c)"
+								        ng-model="c.value">
+									<option value="true">true</option>
+									<option value="false">false</option>
+								</select>
+
+								<!-- REFERENCE -->
+								<div ng-if="isReference(c)" class="cb-ref-wrapper">
+                  <sn-record-picker
+                  field="c.refObj"
+                  table="getField(c).reference"
+                  display-field="'$$display'"
+                  value-field="'sys_id'"
+                  page-size="10">
+              </sn-record-picker>
+								
+								</div>
+
+								<!-- DATE + DATETIME
+								<input type="date"
+								       class="form-control input-sm cb-input"
+								       ng-if="isDate(c) || isDateTime(c)"
+								       ng-model="c.value"
+								       ng-change="onDateChange(c)"> -->
+                
+                <!-- DATE + DATETIME -->
+<div ng-if="isDate(c) || isDateTime(c)">
+
+  <!-- NORMAL DATE -->
+  <input type="date"
+         class="form-control input-sm cb-input"
+         ng-if="!isRelative(c)"
+         ng-model="c.value"
+         ng-change="onDateChange(c)">
+
+  <!-- RELATIVE -->
+  <div class="cb-relative" ng-if="isRelative(c)">
+
+    <!-- 1st: before / after -->
+    <select class="form-control input-sm cb-input"
+            ng-model="c.relative.type">
+      <option value="LT">before</option>
+      <option value="GT">after</option>
+    </select>
+
+    <!-- 2nd: number -->
+    <input type="number"
+           class="form-control input-sm cb-input"
+           ng-model="c.relative.value"
+           placeholder="Value">
+
+    <!-- 3rd: unit -->
+    <select class="form-control input-sm cb-input"
+            ng-model="c.relative.unit">
+      <option value="minute">Minutes</option>
+      <option value="hour">Hours</option>
+      <option value="dayofweek">Days</option>
+      <option value="month">Months</option>
+      <option value="quarter">Quarters</option>
+      <option value="year">Years</option>
+    </select>
+
+    <!-- 4th: ago / from now -->
+    <select class="form-control input-sm cb-input"
+            ng-model="c.relative.when">
+      <option value="ago">ago</option>
+      <option value="ahead">from now</option>
+    </select>
+
+  </div>
+
+</div>
+                
+                
+                
+
+								<!-- CHOICE -->
+								<input type="text"
+								       class="form-control input-sm cb-input"
+								       ng-if="isChoice(c)"
+								       ng-model="c.value"
+								       placeholder="Enter choice">
+
+							</div>
+						</div>
+
+						<!-- DELETE -->
+						<div class="col-md-2 cb-action">
+							<button class="btn btn-danger btn-xs"
+							        ng-click="removeCondition(group, c)"
+							        ng-if="group.conditions.length > 1">
+								<i class="fa fa-trash"></i>
+							</button>
+						</div>
+
+					</div>
+
+				</div>
+
+				<!-- GROUP ACTIONS -->
+				<div class="cb-group-actions">
+
+    <!-- AND -->
+    <button class="btn btn-success btn-xs"
+            ng-click="addCondition($index, 'AND')">
+        <i class="fa fa-plus"></i> AND
+    </button>
+
+    <!-- OR -->
+    <button class="btn btn-warning btn-xs"
+            ng-click="addCondition($index, 'OR')">
+        <i class="fa fa-plus"></i> OR
+    </button>
+
+    <!-- OR GROUP -->
+    <button class="btn btn-info btn-xs"
+            ng-click="addOrGroup($index)">
+        <i class="fa fa-plus"></i> OR Group
+    </button> 
+
+    <!-- REMOVE GROUP -->
+    <button class="btn btn-danger btn-xs"
+            ng-click="removeGroup($index)"
+            ng-if="groups.length > 1">
+        Remove Group
+    </button>
+
+</div>
+
+			</div>
+
+		</div>
+
+		<hr>
+
+		<!-- ADD GROUP  
+		<button class="btn btn-info btn-sm"
+		        ng-click="addGroup()">
+			<i class="fa fa-plus"></i> OR Group
+		</button> -->
+
+	</div>
+
+	<!-- FOOTER 
+	<div class="panel-footer">
+		<label class="cb-label">Encoded Query</label>
+		<textarea class="form-control cb-query" rows="2" readonly>
+{{ buildEncodedQuery() }}
+		</textarea>
+	</div> 
+  
+  <div class="panel-footer">
+		<label class="cb-label">Encoded Display Query</label>
+		<textarea class="form-control cb-query" rows="2" readonly>
+{{ buildDisplayQuery() }}
+		</textarea>
+	</div> 
+  
+  <div class="panel-footer">
+		<label class="cb-label">Encoded Key Value Query</label>
+		<textarea class="form-control cb-query" rows="2" readonly>
+{{ buildKeyValueArray() }}
+		</textarea>
+	</div>   -->
+  
+  
+
+</div>]]></template>
+    </sp_widget>
+</record_update>

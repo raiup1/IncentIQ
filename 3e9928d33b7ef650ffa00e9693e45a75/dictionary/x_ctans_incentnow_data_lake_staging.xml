@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element db_object_id="140798333b03b690ffa00e9693e45a75" extends="sys_import_set_row" label="Data Lake Staging" max_length="40" name="x_ctans_incentnow_data_lake_staging" type="collection">
+        <element label="Row Number" max_length="40" name="row_number" type="integer"/>
+        <element choice="1" label="Validation Status" max_length="40" name="validation_status" type="choice">
+            <choice>
+                <element inactive_on_update="false" label="Valid" sequence="1" value="valid"/>
+                <element inactive_on_update="false" label="In Valid" sequence="2" value="in_valid"/>
+                <element inactive_on_update="false" label="Pending" sequence="0" value="pending"/>
+            </choice>
+        </element>
+        <element label="Validation Error" max_length="4000" name="validation_error" type="string"/>
+        <element attributes="edge_encryption_enabled=true" label="Raw JSON" max_length="10000" name="raw_json" type="string"/>
+        <element attributes="encode_utf8=false" label="Data Model Object" mandatory="true" max_length="32" name="data_model_object" reference="x_ctans_incentnow_data_model_object" type="reference"/>
+        <element label="Domain" max_length="32" name="sys_domain" type="domain_id"/>
+        <element label="Import Run" max_length="32" name="import_run" reference="x_ctans_incentnow_import_run" type="reference"/>
+        <element label="Is Valid" max_length="40" name="is_valid" type="boolean"/>
+        <index name="index">
+            <element name="data_model_object"/>
+        </index>
+        <index name="index2">
+            <element name="import_run"/>
+        </index>
+        <index name="index3">
+            <element name="sys_domain"/>
+        </index>
+    </element>
+</database>

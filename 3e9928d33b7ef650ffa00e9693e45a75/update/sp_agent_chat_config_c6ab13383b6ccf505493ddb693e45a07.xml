@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_agent_chat_config">
+    <sp_agent_chat_config action="INSERT_OR_UPDATE">
+        <active>false</active>
+        <name>Now Assist - IncentIQ Chat Config</name>
+        <order>0</order>
+        <portal>aacbab5f3b6fba505493ddb693e45a1a</portal>
+        <public>false</public>
+        <roles/>
+        <server_script><![CDATA[(function($sp) {
+    return {
+        live_agent_queue: $sp.getDisplayValue('sp_chat_queue')
+    };
+})($sp);]]></server_script>
+        <sys_class_name>sp_agent_chat_config</sys_class_name>
+        <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+        <sys_created_on>2026-04-27 09:38:49</sys_created_on>
+        <sys_id>c6ab13383b6ccf505493ddb693e45a07</sys_id>
+        <sys_mod_count>11</sys_mod_count>
+        <sys_name>Now Assist - IncentIQ Chat Config</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sp_agent_chat_config_c6ab13383b6ccf505493ddb693e45a07</sys_update_name>
+        <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
+        <sys_updated_on>2026-06-14 18:22:00</sys_updated_on>
+    </sp_agent_chat_config>
+    <sys_translated_text action="delete_multiple" query="documentkey=c6ab13383b6ccf505493ddb693e45a07"/>
+</record_update>

@@ -1,0 +1,350 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update sys_domain="global" table="sys_cb_design_topic">
+    <sys_cb_design_topic action="INSERT_OR_UPDATE">
+        <compiled_topic display_value="IncentNow Copilot">6acc85203b1c0310ffa00e9693e45aeb</compiled_topic>
+        <design_definition>{"type":"FlowTopic","triggers":[{"type":"Trigger","name":"4196c869802e493db71ab899f1cb5f40","triggerType":"request","applicability":{"type":"Applicability","mode":"script","value":"true"},"id":"4196c869802e493db71ab899f1cb5f40"}],"goals":[{"name":"primary","trigger_id":"4196c869802e493db71ab899f1cb5f40","nodes":[{"type":"StartGoal","goal_id":"primary","greeting_msg":{"type":"String","mode":"string","value":""},"id":"fd68c84cb92f41a9bd71541c87f5dea9","name":"Start","expert_mode":false},{"type":"TerminateGoal","goal_id":"primary","confirmation_msg":{"type":"String","mode":"string","value":""},"id":"f6e35f9482734e7bac7a9b01bc0badf3","name":"End","expert_mode":false},{"type":"ScriptedAction","script":"(function execute() {\n\n    try {\n\n        var query = \"\";\n\n        // ✅ Safe read from VA input\n        if (typeof vaInputs !== 'undefined' &amp;&amp; vaInputs.user_input) {\n            query = vaInputs.user_input;\n        }\n\n        // ✅ Fallback (VERY IMPORTANT)\n        if ((!query || query === \"\") &amp;&amp; typeof vaVars !== 'undefined' &amp;&amp; vaVars._topic_current_message) {\n            query = vaVars._topic_current_message;\n        }\n\n        // ✅ Final fallback to avoid crash\n        if (!query) {\n            query = \"payout\";\n        }\n\n        var userId = gs.getUserID();\n\n        var service = new x_ctans_incentnow.IncentNowCopilotService();\n        var response = service.getResponse(query, userId);\n\n        vaVars.gptResponse = response;\n\n    } catch (ex) {\n\n        gs.error(\"FINAL VA ERROR: \" + ex.message);\n\n        vaVars.gptResponse = \"⚠️ Something went wrong. Please try again.\";\n    }\n\n})();","id":"7a4bd2c534984ff29d26ca6e58d7c309","name":"Script","goal_id":"primary","applicability":{"type":"Applicability","mode":"script","value":"true"},"expert_mode":false},{"type":"InputPrompt","variable_id":"1fabddb00f784b1a861fa32458efd900","message":{"type":"String","mode":"string","value":"gs.getMessageLang(\"How can I help you with your incentives today?\", vaContext.getRequesterLang())"},"nlu_entity_binding":{"type":"NLUEntityBinding","allow_text_input":false,"use_confirmation_prompt":true},"request_feedback":true,"skippable":{"type":"Applicability","mode":"script","value":"false"},"skipreprompt":{"type":"Applicability","mode":"script","value":"false"},"metadataScript":"","cardName":"","cardFields":[],"id":"74ab4fba40aa48eaba1bfbccc050dac4","name":"user Input","goal_id":"primary","applicability":{"type":"Applicability","mode":"script","value":"true"},"expert_mode":false,"formatType":"Text","validationScript":"","description":""},{"type":"TextOutputPrompt","value":[{"type":"String","mode":"string","value":"{{vaVars.gptResponse}}"}],"request_feedback":true,"isCollapsible":true,"id":"9303fb11360649798f8315d69935fd5e","name":"Bot response","goal_id":"primary","applicability":{"type":"Applicability","mode":"script","value":"true"},"expert_mode":false,"secure":false},{"type":"ChoiceInputPrompt","expression_mode":"simple","metadataScript":"","cardName":"","cardFields":[],"id":"fe8bef208433449fb182e7a7a47b190b","name":"User choice","goal_id":"primary","applicability":{"type":"Applicability","mode":"script","value":"true"},"expert_mode":false,"variable_id":"faf7927d55f74bd498643eb52138dbb0","message":{"type":"String","mode":"string","value":"gs.getMessageLang(\"Do you have any other Questions?\", vaContext.getRequesterLang())"},"request_feedback":false,"skippable":{"type":"Applicability","mode":"script","value":"false"},"skipreprompt":{"type":"Applicability","mode":"script","value":"false"},"nlu_entity_binding":{"type":"NLUEntityBinding","allow_text_input":false,"use_confirmation_prompt":true},"description":""},{"type":"Decision","name":"Decision","branches":[{"type":"Branch","label":"No","expression":{"type":"Applicability","mode":"query","value":"user_choice=No"},"id":"459e376e52c449ff83b5a27ecbc54620","name":"No","expert_mode":false},{"type":"Branch","label":"Yes","expression":{"type":"Applicability","mode":"query","value":"user_choice=Yes"},"id":"83ec584d1e3e420bbd06bf95cb7f825a","name":"Yes","expert_mode":false}],"id":"048c968dd3674589b5d2fe6144bb8dc2","goal_id":"primary","expert_mode":false}],"edges":[{"type":"Edge","source_node_id":"fd68c84cb92f41a9bd71541c87f5dea9","target_node_id":"74ab4fba40aa48eaba1bfbccc050dac4","id":"df73cc6d223d49b78207b5da66454c91"},{"type":"Edge","source_node_id":"74ab4fba40aa48eaba1bfbccc050dac4","target_node_id":"7a4bd2c534984ff29d26ca6e58d7c309","id":"00d4b783556749c2a652efa1ad17711b"},{"type":"Edge","source_node_id":"7a4bd2c534984ff29d26ca6e58d7c309","target_node_id":"9303fb11360649798f8315d69935fd5e","id":"d6e24a82291e4e4cbd6bed29a24879bc"},{"type":"Edge","source_node_id":"9303fb11360649798f8315d69935fd5e","target_node_id":"fe8bef208433449fb182e7a7a47b190b","id":"f159ce5729c54042852b644e560eb7cb"},{"type":"Edge","source_node_id":"fe8bef208433449fb182e7a7a47b190b","target_node_id":"048c968dd3674589b5d2fe6144bb8dc2","id":"80ce70592ef24f4098e58661ea46401f"},{"type":"Edge","source_node_id":"048c968dd3674589b5d2fe6144bb8dc2","target_node_id":"f6e35f9482734e7bac7a9b01bc0badf3","branch_id":"459e376e52c449ff83b5a27ecbc54620","id":"942d22d1de2e4a1fbeb466b88cf87f13","name":"459e376e52c449ff83b5a27ecbc54620"},{"type":"Edge","source_node_id":"048c968dd3674589b5d2fe6144bb8dc2","target_node_id":"74ab4fba40aa48eaba1bfbccc050dac4","branch_id":"83ec584d1e3e420bbd06bf95cb7f825a","id":"74fe8154f00a40d79d9cb10b37d09143","name":"83ec584d1e3e420bbd06bf95cb7f825a"}],"id":"primary"}],"script_variables":[{"type":"String","name":"gptResponse","value":{"type":"String","mode":"string","value":"..."},"list":false,"id":"ae831e060ad042999787031b1b3d08a3","formatType":"text","secure":false,"sensitive":false,"aiInput":false}],"glide_variables":[{"type":"Reference","table":"sys_user","auto_select":false,"id":"current-user","name":"user","formatType":"text","secure":false,"sensitive":false,"aiInput":false,"list":false},{"type":"String","name":"user_input","list":false,"id":"1fabddb00f784b1a861fa32458efd900","formatType":"Text","validationScript":"","secure":false,"sensitive":false,"aiInput":false},{"type":"Choice","choices":[{"name":"Yes","element":"Yes"},{"name":"No","element":"No"}],"id":"faf7927d55f74bd498643eb52138dbb0","name":"user_choice","formatType":"text","secure":false,"sensitive":false,"aiInput":false,"list":false,"label":"User Choice"}],"applicability":{"type":"Applicability","mode":"script","value":"true"},"roles":[],"scope":"3e9928d33b7ef650ffa00e9693e45a75","domain":"global","topic_type":"STANDARD","channels":[],"dialog_acts_enabled":true,"id":"0b3b052c3bd80310ffa00e9693e45a9a","name":"IncentNow Copilot","key_phrases":["IncentNow Copilot"],"nlu_provider":"","nlu_model":"","nlu_model_label":"","nlu_intent":"","nlu_intent_label":"","flexible_conversation_switching":false,"autopilot_topic":false,"design_categories":[],"triggerable_by_notification":false,"description":"AI-powered assistant to help users with incentive payouts, plan creation, and forecasting using smart intent routing.","model_type":"nlu_keyword","foundational":false,"modify_confirmation_enabled":true,"context_profiles":[],"title":"IncentNow Copilot","library":false,"csTopicId":"6acc85203b1c0310ffa00e9693e45aeb","readOnly":false,"nluMapping":"[]"}</design_definition>
+        <design_topic_id>0b3b052c3bd80310ffa00e9693e45a9a</design_topic_id>
+        <graph>{
+  "graph_api_version": "1.0.82",
+  "goals": {
+    "primary": {
+      "id": "primary",
+      "trigger": {
+        "type": "primary"
+      },
+      "name": "primary",
+      "applicability": "",
+      "description": "",
+      "nodes": {
+        "fd68c84cb92f41a9bd71541c87f5dea9": {
+          "id": "fd68c84cb92f41a9bd71541c87f5dea9",
+          "stepType": "Start",
+          "name": "Start",
+          "greetingResponse": {
+            "mode": "simple",
+            "value": ""
+          }
+        },
+        "f6e35f9482734e7bac7a9b01bc0badf3": {
+          "id": "f6e35f9482734e7bac7a9b01bc0badf3",
+          "stepType": "TerminateGoal",
+          "name": "End",
+          "confirmationMessage": {
+            "mode": "simple",
+            "value": ""
+          }
+        },
+        "7a4bd2c534984ff29d26ca6e58d7c309": {
+          "id": "7a4bd2c534984ff29d26ca6e58d7c309",
+          "name": "Script",
+          "script": "(function execute() {\n\n    try {\n\n        var query = \"\";\n\n        // ✅ Safe read from VA input\n        if (typeof vaInputs !== 'undefined' &amp;&amp; vaInputs.user_input) {\n            query = vaInputs.user_input;\n        }\n\n        // ✅ Fallback (VERY IMPORTANT)\n        if ((!query || query === \"\") &amp;&amp; typeof vaVars !== 'undefined' &amp;&amp; vaVars._topic_current_message) {\n            query = vaVars._topic_current_message;\n        }\n\n        // ✅ Final fallback to avoid crash\n        if (!query) {\n            query = \"payout\";\n        }\n\n        var userId = gs.getUserID();\n\n        var service = new x_ctans_incentnow.IncentNowCopilotService();\n        var response = service.getResponse(query, userId);\n\n        vaVars.gptResponse = response;\n\n    } catch (ex) {\n\n        gs.error(\"FINAL VA ERROR: \" + ex.message);\n\n        vaVars.gptResponse = \"⚠️ Something went wrong. Please try again.\";\n    }\n\n})();",
+          "stepType": "ScriptAction",
+          "applicability": {
+            "value": "",
+            "mode": "query"
+          }
+        },
+        "74ab4fba40aa48eaba1bfbccc050dac4": {
+          "id": "74ab4fba40aa48eaba1bfbccc050dac4",
+          "stepType": "TextPrompt",
+          "name": "user Input",
+          "prompt": {
+            "value": [
+              {
+                "type": "paragraph",
+                "children": [
+                  {
+                    "text": "How can I help you with your incentives today?"
+                  }
+                ]
+              }
+            ],
+            "mode": "simple"
+          },
+          "confirmMessage": {
+            "value": "",
+            "mode": "simple"
+          },
+          "acknowledgeMsg": {
+            "value": "",
+            "mode": "simple"
+          },
+          "applicability": {
+            "value": "",
+            "mode": "query"
+          },
+          "skippable": {
+            "value": "",
+            "mode": "query"
+          },
+          "skipReprompt": {
+            "value": "",
+            "mode": "query"
+          },
+          "defaultValue": {
+            "value": "",
+            "mode": "simple"
+          },
+          "hasCardHeader": false,
+          "cardMetadata": {
+            "mode": "card",
+            "metadataScript": "",
+            "cardTemplate": "",
+            "cardFields": {},
+            "cardDefinition": {}
+          },
+          "withNluUserInput": false,
+          "skipIfFulfilled": false,
+          "variableId": "1fabddb00f784b1a861fa32458efd900",
+          "detailDescription": "",
+          "inputType": {
+            "format": "Text",
+            "script": ""
+          },
+          "requestFeedback": true
+        },
+        "9303fb11360649798f8315d69935fd5e": {
+          "id": "9303fb11360649798f8315d69935fd5e",
+          "stepType": "TextOutput",
+          "name": "Bot response",
+          "secure": false,
+          "value": [
+            {
+              "value": [
+                {
+                  "type": "paragraph",
+                  "children": [
+                    {
+                      "text": ""
+                    },
+                    {
+                      "type": "datapill",
+                      "dataPill": {
+                        "value": "{{vaVars.gptResponse}}",
+                        "displayValue": "Script Variables➛gptResponse"
+                      },
+                      "children": [
+                        {
+                          "text": ""
+                        }
+                      ]
+                    },
+                    {
+                      "text": ""
+                    }
+                  ]
+                }
+              ],
+              "mode": "simple",
+              "_key": "7de6b85438db49868e8e9bd48bd36bc7"
+            }
+          ],
+          "isCollapsible": true,
+          "requestFeedback": true,
+          "applicability": {
+            "value": "",
+            "mode": "query"
+          }
+        },
+        "fe8bef208433449fb182e7a7a47b190b": {
+          "name": "User choice",
+          "prompt": {
+            "value": [
+              {
+                "type": "paragraph",
+                "children": [
+                  {
+                    "text": "Do you have any other Questions?"
+                  }
+                ]
+              }
+            ],
+            "mode": "simple"
+          },
+          "confirmMessage": {
+            "value": "",
+            "mode": "simple"
+          },
+          "acknowledgeMsg": {
+            "value": "",
+            "mode": "simple"
+          },
+          "applicability": {
+            "value": "",
+            "mode": "query"
+          },
+          "skippable": {
+            "value": "",
+            "mode": "query"
+          },
+          "skipReprompt": {
+            "value": "",
+            "mode": "query"
+          },
+          "defaultValue": {
+            "value": "",
+            "mode": "simple"
+          },
+          "variableId": "faf7927d55f74bd498643eb52138dbb0",
+          "detailDescription": "",
+          "id": "fe8bef208433449fb182e7a7a47b190b",
+          "stepType": "ChoicePrompt",
+          "hasCardHeader": false,
+          "cardMetadata": {
+            "mode": "card",
+            "metadataScript": "",
+            "cardTemplate": "",
+            "cardFields": {},
+            "cardDefinition": {}
+          },
+          "withNluUserInput": false,
+          "skipIfFulfilled": false
+        },
+        "048c968dd3674589b5d2fe6144bb8dc2": {
+          "id": "048c968dd3674589b5d2fe6144bb8dc2",
+          "stepType": "Decision",
+          "name": "Decision"
+        }
+      },
+      "edges": [
+        {
+          "id": "df73cc6d223d49b78207b5da66454c91",
+          "edgeType": "Edge",
+          "source": "fd68c84cb92f41a9bd71541c87f5dea9",
+          "target": "74ab4fba40aa48eaba1bfbccc050dac4",
+          "sourcePort": "",
+          "targetPort": ""
+        },
+        {
+          "id": "00d4b783556749c2a652efa1ad17711b",
+          "edgeType": "Edge",
+          "source": "74ab4fba40aa48eaba1bfbccc050dac4",
+          "target": "7a4bd2c534984ff29d26ca6e58d7c309",
+          "sourcePort": "",
+          "targetPort": ""
+        },
+        {
+          "id": "d6e24a82291e4e4cbd6bed29a24879bc",
+          "edgeType": "Edge",
+          "source": "7a4bd2c534984ff29d26ca6e58d7c309",
+          "target": "9303fb11360649798f8315d69935fd5e",
+          "sourcePort": "",
+          "targetPort": ""
+        },
+        {
+          "id": "f159ce5729c54042852b644e560eb7cb",
+          "edgeType": "Edge",
+          "source": "9303fb11360649798f8315d69935fd5e",
+          "target": "fe8bef208433449fb182e7a7a47b190b",
+          "sourcePort": "",
+          "targetPort": ""
+        },
+        {
+          "id": "80ce70592ef24f4098e58661ea46401f",
+          "edgeType": "Edge",
+          "source": "fe8bef208433449fb182e7a7a47b190b",
+          "target": "048c968dd3674589b5d2fe6144bb8dc2",
+          "sourcePort": "",
+          "targetPort": ""
+        },
+        {
+          "id": "942d22d1de2e4a1fbeb466b88cf87f13",
+          "edgeType": "Branch",
+          "source": "048c968dd3674589b5d2fe6144bb8dc2",
+          "target": "f6e35f9482734e7bac7a9b01bc0badf3",
+          "sourcePort": "",
+          "targetPort": "",
+          "expression": {
+            "value": "vaInputs.user_choice=No",
+            "mode": "query"
+          },
+          "label": "No"
+        },
+        {
+          "id": "74fe8154f00a40d79d9cb10b37d09143",
+          "edgeType": "Branch",
+          "source": "048c968dd3674589b5d2fe6144bb8dc2",
+          "target": "74ab4fba40aa48eaba1bfbccc050dac4",
+          "sourcePort": "",
+          "targetPort": "",
+          "expression": {
+            "value": "vaInputs.user_choice=Yes",
+            "mode": "query"
+          },
+          "label": "Yes"
+        }
+      ]
+    }
+  },
+  "variables": {
+    "current-user": {
+      "category": "vaInputs",
+      "id": "current-user",
+      "label": "User",
+      "name": "user",
+      "table": "sys_user",
+      "varType": "reference"
+    },
+    "ae831e060ad042999787031b1b3d08a3": {
+      "id": "ae831e060ad042999787031b1b3d08a3",
+      "value": {
+        "mode": "simple",
+        "value": "'...'"
+      },
+      "name": "gptResponse",
+      "label": "gptResponse",
+      "varType": "script",
+      "category": "vaVars"
+    },
+    "1fabddb00f784b1a861fa32458efd900": {
+      "id": "1fabddb00f784b1a861fa32458efd900",
+      "name": "user_input",
+      "label": "User Input",
+      "varType": "string",
+      "secure": false,
+      "category": "vaInputs",
+      "encryptionHashFunction": "SHA-256",
+      "encryptionSalt": {
+        "value": "MTc3NjEwNTEzMTE1OCBWQSBEZXNpZ25lciBpcyBhd2Vzb21l",
+        "mode": "simple"
+      },
+      "nodeId": "74ab4fba40aa48eaba1bfbccc050dac4",
+      "isHidden": false
+    },
+    "faf7927d55f74bd498643eb52138dbb0": {
+      "id": "faf7927d55f74bd498643eb52138dbb0",
+      "name": "user_choice",
+      "label": "User Choice",
+      "varType": "choice",
+      "choices": [
+        {
+          "label": "Yes",
+          "value": "Yes"
+        },
+        {
+          "label": "No",
+          "value": "No"
+        }
+      ],
+      "category": "vaInputs",
+      "nodeId": "fe8bef208433449fb182e7a7a47b190b",
+      "isHidden": false
+    }
+  }
+}</graph>
+        <name>IncentNow Copilot</name>
+        <sys_class_name>sys_cb_design_topic</sys_class_name>
+        <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+        <sys_created_on>2026-04-13 18:20:28</sys_created_on>
+        <sys_domain>global</sys_domain>
+        <sys_id>b2cc85203b1c0310ffa00e9693e45af5</sys_id>
+        <sys_mod_count>40</sys_mod_count>
+        <sys_name>FlowTopic</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_cb_design_topic_b2cc85203b1c0310ffa00e9693e45af5</sys_update_name>
+        <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
+        <sys_updated_on>2026-04-16 22:04:07</sys_updated_on>
+        <type>FlowTopic</type>
+    </sys_cb_design_topic>
+</record_update>

@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update>
+    <sys_ui_section caption="" section_id="dc2115503b2f3e10ffa00e9693e45a8c" sys_domain="global" table="x_ctans_incentnow_credit_results" version="3" view="">
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>number</element>
+            <position>0</position>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-04-27 12:12:09</sys_created_on>
+            <sys_id>88cef7bc3b2883905493ddb693e45af5</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="NULL" display_value="" name="x_ctans_incentnow_credit_results" sys_domain="global" view="Default view">dc2115503b2f3e10ffa00e9693e45a8c</sys_ui_section>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-04-27 12:12:09</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>statement_id</element>
+            <position>1</position>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-04-27 12:12:09</sys_created_on>
+            <sys_id>08cef7bc3b2883905493ddb693e45af6</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="NULL" display_value="" name="x_ctans_incentnow_credit_results" sys_domain="global" view="Default view">dc2115503b2f3e10ffa00e9693e45a8c</sys_ui_section>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-04-27 12:12:09</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>user</element>
+            <position>2</position>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-04-27 12:12:09</sys_created_on>
+            <sys_id>84cef7bc3b2883905493ddb693e45af7</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="NULL" display_value="" name="x_ctans_incentnow_credit_results" sys_domain="global" view="Default view">dc2115503b2f3e10ffa00e9693e45a8c</sys_ui_section>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-04-27 12:12:09</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>earning_rule</element>
+            <position>3</position>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-04-27 12:12:09</sys_created_on>
+            <sys_id>04cef7bc3b2883905493ddb693e45af8</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="NULL" display_value="" name="x_ctans_incentnow_credit_results" sys_domain="global" view="Default view">dc2115503b2f3e10ffa00e9693e45a8c</sys_ui_section>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-04-27 12:12:09</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>source_object</element>
+            <position>4</position>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-04-27 12:12:09</sys_created_on>
+            <sys_id>80cef7bc3b2883905493ddb693e45af9</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="NULL" display_value="" name="x_ctans_incentnow_credit_results" sys_domain="global" view="Default view">dc2115503b2f3e10ffa00e9693e45a8c</sys_ui_section>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-04-27 12:12:09</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>aggregation_type</element>
+            <position>5</position>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-04-27 12:12:09</sys_created_on>
+            <sys_id>00cef7bc3b2883905493ddb693e45afa</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="NULL" display_value="" name="x_ctans_incentnow_credit_results" sys_domain="global" view="Default view">dc2115503b2f3e10ffa00e9693e45a8c</sys_ui_section>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-04-27 12:12:09</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>.split</element>
+            <position>6</position>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-04-27 12:12:09</sys_created_on>
+            <sys_id>8ccef7bc3b2883905493ddb693e45afa</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="NULL" display_value="" name="x_ctans_incentnow_credit_results" sys_domain="global" view="Default view">dc2115503b2f3e10ffa00e9693e45a8c</sys_ui_section>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-04-27 12:12:09</sys_updated_on>
+            <sys_user/>
+            <type>.split</type>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>fiscal_period</element>
+            <position>7</position>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-04-27 12:12:09</sys_created_on>
+            <sys_id>0ccef7bc3b2883905493ddb693e45afb</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="NULL" display_value="" name="x_ctans_incentnow_credit_results" sys_domain="global" view="Default view">dc2115503b2f3e10ffa00e9693e45a8c</sys_ui_section>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-04-27 12:12:09</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>plan</element>
+            <position>8</position>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-04-27 12:12:09</sys_created_on>
+            <sys_id>88cef7bc3b2883905493ddb693e45afc</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="NULL" display_value="" name="x_ctans_incentnow_credit_results" sys_domain="global" view="Default view">dc2115503b2f3e10ffa00e9693e45a8c</sys_ui_section>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-04-27 12:12:09</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>count</element>
+            <position>9</position>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-04-27 12:12:09</sys_created_on>
+            <sys_id>08cef7bc3b2883905493ddb693e45afd</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="NULL" display_value="" name="x_ctans_incentnow_credit_results" sys_domain="global" view="Default view">dc2115503b2f3e10ffa00e9693e45a8c</sys_ui_section>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-04-27 12:12:09</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>credit_value</element>
+            <position>10</position>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-04-27 12:12:09</sys_created_on>
+            <sys_id>84cef7bc3b2883905493ddb693e45afe</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="NULL" display_value="" name="x_ctans_incentnow_credit_results" sys_domain="global" view="Default view">dc2115503b2f3e10ffa00e9693e45a8c</sys_ui_section>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-04-27 12:12:09</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>target_quota</element>
+            <position>11</position>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-04-27 12:12:09</sys_created_on>
+            <sys_id>c8ce3bbc3b2883905493ddb693e45a0b</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="NULL" display_value="" name="x_ctans_incentnow_credit_results" sys_domain="global" view="Default view">dc2115503b2f3e10ffa00e9693e45a8c</sys_ui_section>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-04-27 12:12:09</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_section action="INSERT_OR_UPDATE">
+            <caption/>
+            <header>false</header>
+            <name>x_ctans_incentnow_credit_results</name>
+            <roles/>
+            <sys_class_name>sys_ui_section</sys_class_name>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-03-06 17:13:51</sys_created_on>
+            <sys_domain>global</sys_domain>
+            <sys_domain_path>/</sys_domain_path>
+            <sys_id>dc2115503b2f3e10ffa00e9693e45a8c</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_name>x_ctans_incentnow_credit_results</sys_name>
+            <sys_overrides/>
+            <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+            <sys_policy/>
+            <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+            <sys_update_name>sys_ui_section_dc2115503b2f3e10ffa00e9693e45a8c</sys_update_name>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-03-06 17:13:51</sys_updated_on>
+            <sys_user/>
+            <title>true</title>
+            <view display_value="Default view" name="NULL">Default view</view>
+            <view_name/>
+        </sys_ui_section>
+    </sys_ui_section>
+</record_update>

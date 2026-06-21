@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>package_private</access>
+        <active>false</active>
+        <api_name>x_ctans_incentnow.IncentnowEntryPage</api_name>
+        <caller_access/>
+        <client_callable>false</client_callable>
+        <description/>
+        <mobile_callable>false</mobile_callable>
+        <name>IncentnowEntryPage</name>
+        <sandbox_callable>false</sandbox_callable>
+        <script><![CDATA[var IncentnowEntryPage = Class.create();
+IncentnowEntryPage.prototype = {
+    initialize: function() {
+		this.logVariables = false;
+        this.portal = this.getDefaultPortal();
+    },
+
+    getDefaultPortal: function() {
+        var gr = new GlideRecord("sp_portal");
+        gr.addQuery("default", true);
+        gr.query();
+        if (gr.next())
+            return "/" + gr.getValue("url_suffix") + "/";
+
+        return "/esc/";
+    },
+
+    _isIncentNowUser: function() {
+        if (user.hasRole('admin'))
+            return false;
+
+        var gr = new GlideRecord('sys_user_has_role');
+        gr.addQuery('user', gs.getUserID());
+        gr.addQuery('role.name', 'IN',
+            'x_ctans_incentnow.business_group_admin,' +
+            'x_ctans_incentnow.business_group_executive,' +
+            'x_ctans_incentnow.org_executive,' +
+            'x_ctans_incentnow.sales_manager,' +
+            'x_ctans_incentnow.user'
+        );
+        gr.addActiveQuery();
+        gr.setLimit(1);
+        gr.query();
+        return gr.hasNext();
+    },
+
+    getLoginURL: function() {
+        var session = gs.getSession();
+        var nt = session.getProperty("nav_to");
+        var sPage = session.getProperty("starting_page");
+        if (nt == "welcome.do")
+            session.clearProperty("nav_to");
+
+        if (!sPage && !nt)
+            session.putProperty("starting_page", gs.getProperty("glide.login.home"));
+
+        var portalGR = new GlideRecord("sp_portal");
+        portalGR.addQuery("url_suffix", this.portal.replace(/\//g, ""));
+        portalGR.addNotNullQuery("login_page");
+        portalGR.query();
+        if (portalGR.next())
+            return this.portal + "?id=" + portalGR.login_page.id;
+
+        return this.portal + "?id=login";
+    },
+
+    getFirstPageURL: function() {
+        var session = gs.getSession();
+        this.logProperties('before', session);
+
+        var nt = session.getProperty("nav_to");
+        var isServicePortalURL = new GlideSPScriptable().isServicePortalURL(nt);
+        var redirectURL = session.getProperty("login_redirect");
+
+        // ===== INCENTNOW ROLE-BASED REDIRECT =====
+        gs.log('SPEntryPage DEBUG: user=' + user.getName() + ' isIncentNowUser=' + this._isIncentNowUser());
+
+        if (this._isIncentNowUser()) {
+            gs.log('SPEntryPage DEBUG: redirecting to /incentnow');
+            return '/incentnow';
+        }
+        // ==========================================
+
+        if (user.hasRoles() && !redirectURL && !isServicePortalURL)
+            return;
+
+        if (!redirectURL) {
+            var sPage = session.getProperty("starting_page");
+            if (sPage && nt == "welcome.do")
+                nt = sPage;
+
+            var ep = gs.getProperty("glide.login.home");
+            if (nt) {
+                if (ep == nt)
+                    nt = null;
+            }
+            if (nt == "welcome.do") {
+                session.putProperty("nav_to", ep);
+                return;
+            }
+
+            session.putProperty("login_redirect", nt || "true");
+            return "/login_redirect.do?sysparm_stack=no";
+        }
+
+        session.clearProperty("login_redirect");
+        session.clearProperty("nav_to");
+        if (redirectURL && redirectURL.indexOf("sys_attachment.do") > -1)
+            return redirectURL;
+        var returnUrl = this.portal;
+        if (redirectURL && redirectURL != "true") {
+            var spUrl = new GlideSPScriptable().mapUrlToSPUrl(redirectURL);
+            returnUrl = spUrl ? this.portal + "?" + spUrl : redirectURL;
+            if (!user.hasRoles() && !spUrl && redirectURL.indexOf("home_splash.do") > -1)
+                returnUrl = this.portal;
+        }
+
+        this.logProperties('after', session);
+        if (!this.logVariables) {
+            gs.log('redirectURL: ' + redirectURL);
+            gs.log('User: ' + user.getName());
+            gs.log('is internal: ' + (!user.hasRoles()));
+            gs.log('returnUrl: ' + returnUrl);
+        }
+
+        return returnUrl;
+    },
+
+    logProperties: function(beforeOrAfter, session) {
+        if (!this.logVariables)
+            return;
+
+        gs.log('SPEntryPage: Redirect ------------------------------- ' + beforeOrAfter);
+        gs.log('session.starting_page: ' + session.getProperty("starting_page"));
+        gs.log('session.nav_to: ' + session.getProperty("nav_to"));
+        gs.log('session.login_redirect: ' + session.getProperty("login_redirect"));
+        gs.log('gs.fURI: ' + session.getURI());
+    },
+
+    type: 'IncentnowEntryPage'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>shroin.mandal</sys_created_by>
+        <sys_created_on>2026-05-22 05:17:13</sys_created_on>
+        <sys_id>4e2fc3343bc58310a4cbaddc73e45a87</sys_id>
+        <sys_mod_count>1</sys_mod_count>
+        <sys_name>IncentnowEntryPage</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_script_include_4e2fc3343bc58310a4cbaddc73e45a87</sys_update_name>
+        <sys_updated_by>shroin.mandal</sys_updated_by>
+        <sys_updated_on>2026-05-22 05:29:17</sys_updated_on>
+    </sys_script_include>
+</record_update>

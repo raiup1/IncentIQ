@@ -1,0 +1,689 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>public</access>
+        <active>true</active>
+        <api_name>x_ctans_incentnow.IncentNowPlanHandler</api_name>
+        <caller_access/>
+        <client_callable>false</client_callable>
+        <description/>
+        <mobile_callable>false</mobile_callable>
+        <name>IncentNowPlanHandler</name>
+        <sandbox_callable>false</sandbox_callable>
+        <script><![CDATA[var IncentNowPlanHandler = Class.create();
+
+IncentNowPlanHandler.prototype = {
+
+    initialize: function() {
+
+        this.utils =
+            new IncentIQUtils();
+    },
+
+    handlePlan: function(userId) {
+
+        gs.info("IncentNow :: ENTERED handlePlan()");
+        gs.info("IncentNow :: USER = " + userId);
+
+        /*
+        =====================================================
+        STEP 1: GET USER PROFILE
+        =====================================================
+        */
+
+        var profileId =
+            this.utils.getUserProfileId(userId);
+
+        gs.info(
+            "PLAN_DEBUG :: PROFILE ID = " +
+            profileId
+        );
+
+        var userGR = new GlideRecordSecure(
+            "x_ctans_incentnow_user_profile"
+        );
+
+        if (!userGR.get(profileId)) {
+
+            gs.info(
+                "PLAN_DEBUG :: USER PROFILE NOT FOUND"
+            );
+
+            return "User profile is not available.";
+        }
+
+        var userName =
+            userGR.getDisplayValue("user") ||
+            "the user";
+
+        var businessUnit =
+            userGR.getDisplayValue("business_unit") ||
+            "assigned";
+
+        /*
+        =====================================================
+        STEP 2: GET ASSIGNED PLAN
+        =====================================================
+        */
+
+        var pu = new GlideRecordSecure(
+            "x_ctans_incentnow_plan_users"
+        );
+
+        pu.addQuery(
+            "x_ctans_incentnow_sales_user",
+            profileId
+        );
+
+        pu.setLimit(1);
+        pu.query();
+
+        if (!pu.next()) {
+
+            gs.info(
+                "PLAN_DEBUG :: NO PLAN ASSIGNED"
+            );
+
+            return "No compensation plan assigned.";
+        }
+
+        var planId =
+            pu.getValue("x_ctans_incentnow_plan");
+
+        var planName =
+            pu.getDisplayValue(
+                "x_ctans_incentnow_plan"
+            ) || "a compensation plan";
+
+        gs.info(
+            "PLAN_DEBUG :: PLAN ID = " +
+            planId
+        );
+
+        gs.info(
+            "PLAN_DEBUG :: PLAN NAME = " +
+            planName
+        );
+
+        /*
+        =====================================================
+        FINAL RESPONSE
+        =====================================================
+        */
+
+        return "The assigned plan for " +
+            userName +
+            " is " +
+            planName +
+            " within the " +
+            businessUnit +
+            " business unit.";
+    },
+
+    handlePlanComponents: function(userId) {
+
+        gs.info("IncentNow :: ENTERED handlePlanComponents()");
+        gs.info("IncentNow :: USER = " + userId);
+
+        var profileId =
+            this.utils.getUserProfileId(userId);
+
+        gs.info(
+            "PLAN_COMPONENTS :: PROFILE ID = " +
+            profileId
+        );
+
+        /*
+        =====================================================
+        STEP 1: GET ASSIGNED PLAN
+        =====================================================
+        */
+
+        var pu = new GlideRecordSecure(
+            "x_ctans_incentnow_plan_users"
+        );
+
+        pu.addQuery(
+            "x_ctans_incentnow_sales_user",
+            profileId
+        );
+
+        pu.setLimit(1);
+        pu.query();
+
+        if (!pu.next()) {
+
+            gs.info(
+                "PLAN_COMPONENTS :: NO PLAN ASSIGNED"
+            );
+
+            return "No compensation plan assigned.";
+        }
+
+        var planId =
+            pu.getValue("x_ctans_incentnow_plan");
+
+        var planName =
+            pu.getDisplayValue(
+                "x_ctans_incentnow_plan"
+            );
+
+        gs.info(
+            "PLAN_COMPONENTS :: PLAN ID = " +
+            planId
+        );
+
+        var response =
+            "]]>📄<![CDATA[ Plan Components for " +
+            planName +
+            "\n\n";
+
+        var hasData = false;
+
+        /*
+        =====================================================
+        1. EARNING RULES
+        =====================================================
+        */
+
+        var er = new GlideRecordSecure(
+            "x_ctans_incentnow_earning_rule"
+        );
+
+        er.addQuery("plan", planId);
+        er.orderBy("order");
+        er.query();
+
+        if (er.hasNext()) {
+
+            hasData = true;
+
+            response +=
+                "]]>💰<![CDATA[ Earning Rules\n\n";
+
+            while (er.next()) {
+
+                var ruleName =
+                    er.getValue("rule_name") || "-";
+
+                var sourceObject =
+                    er.getDisplayValue(
+                        "source_object"
+                    ) || "-";
+
+                // FIX ADDED
+                var fieldName =
+                    er.getDisplayValue(
+                        "field"
+                    ) || "-";
+
+                var aggregation =
+                    er.getValue(
+                        "aggregation"
+                    ) || "-";
+
+                var earningLevel =
+                    er.getValue(
+                        "earning_level"
+                    ) || "-";
+
+                response +=
+                    "• " + ruleName + "\n" +
+                    "  Source: " + sourceObject + "\n" +
+                    "  Field: " + fieldName + "\n" +
+                    "  Aggregation: " + aggregation.toUpperCase() + "\n" +
+                    "  Level: " + earningLevel + "\n\n";
+            }
+        }
+
+        /*
+        =====================================================
+        2. LOOKUP RULES
+        =====================================================
+        */
+
+        var lr = new GlideRecordSecure(
+            "x_ctans_incentnow_lookup_rule"
+        );
+
+        lr.addQuery("plan", planId);
+        lr.orderBy("step_number");
+        lr.query();
+
+        if (lr.hasNext()) {
+
+            hasData = true;
+
+            response +=
+                "⚙️ Lookup Rules\n\n";
+
+            while (lr.next()) {
+
+                var stepNumber =
+                    lr.getValue(
+                        "step_number"
+                    ) || "-";
+
+                var stepName =
+                    lr.getDisplayValue(
+                        "step_name"
+                    ) || "Lookup Rule";
+
+                var ruleType =
+                    lr.getValue(
+                        "rule_type"
+                    ) || "-";
+
+                var rateValue =
+                    lr.getValue(
+                        "rate_value"
+                    ) || "";
+
+                var rateUnit =
+                    lr.getValue(
+                        "rate_unit"
+                    ) || "";
+
+                response +=
+                    "• Step " +
+                    stepNumber +
+                    ": " +
+                    stepName +
+                    "\n";
+
+                response +=
+                    "  Type: " +
+                    ruleType +
+                    "\n";
+
+                if (rateValue) {
+
+                    response +=
+                        "  Rate: " +
+                        rateValue;
+
+                    if (
+                        rateUnit ==
+                        "percentage"
+                    ) {
+                        response += "%";
+                    }
+
+                    response += "\n";
+                }
+
+                response += "\n";
+            }
+        }
+
+        /*
+        =====================================================
+        3. PAYOUT SUMMARIES
+        =====================================================
+        */
+
+        var ps = new GlideRecordSecure(
+            "x_ctans_incentnow_payout_summary"
+        );
+
+        ps.addQuery("plan", planId);
+        ps.orderBy("order");
+        ps.query();
+
+        if (ps.hasNext()) {
+
+            hasData = true;
+
+            response +=
+                "]]>📊<![CDATA[ Payout Summaries\n\n";
+
+            while (ps.next()) {
+
+                var payoutRule =
+                    ps.getValue("rule_name") ||
+                    "Payout Rule";
+
+                var operator =
+                    ps.getValue("operator") ||
+                    "-";
+
+                var input1Type =
+                    ps.getDisplayValue("input1_type") ||
+                    "";
+
+                var input2Type =
+                    ps.getDisplayValue("input2_type") ||
+                    "";
+
+                var operand1 = "";
+                var operand2 = "";
+
+                /*
+                =========================================
+                INPUT 1
+                =========================================
+                */
+
+                if (input1Type == "Earning Rule") {
+
+                    operand1 =
+                        ps.getDisplayValue(
+                            "input1_earning_rule"
+                        ) || "";
+
+                } else if (
+                    input1Type == "Data Gathering Step"
+                ) {
+
+                    operand1 =
+                        ps.getDisplayValue(
+                            "input1_id"
+                        ) || "";
+
+                } else if (
+                    input1Type == "Payout Summary Step"
+                ) {
+
+                    operand1 =
+                        ps.getDisplayValue(
+                            "input1_payout"
+                        ) || "";
+                }
+
+                /*
+                =========================================
+                INPUT 2
+                =========================================
+                */
+
+                if (input2Type == "Earning Rule") {
+
+                    operand2 =
+                        ps.getDisplayValue(
+                            "input2_earning_rule"
+                        ) || "";
+
+                } else if (
+                    input2Type == "Data Gathering Step"
+                ) {
+
+                    operand2 =
+                        ps.getDisplayValue(
+                            "input2_id"
+                        ) || "";
+
+                } else if (
+                    input2Type == "Payout Summary Step"
+                ) {
+
+                    operand2 =
+                        ps.getDisplayValue(
+                            "input2_payout"
+                        ) || "";
+                }
+
+                response +=
+                    "• " +
+                    payoutRule +
+                    "\n";
+
+                if (operand1 || operand2) {
+
+                    response +=
+                        "  Formula:\n";
+
+                    response +=
+                        "  " +
+                        operand1 +
+                        " × " +
+                        operand2 +
+                        "\n";
+                }
+
+                response +=
+                    "  Operator: " +
+                    operator +
+                    "\n\n";
+            }
+        }
+
+        /*
+        =====================================================
+        4. PLAN USERS
+        =====================================================
+        */
+
+        var users = new GlideRecordSecure(
+            "x_ctans_incentnow_plan_users"
+        );
+
+        users.addQuery(
+            "x_ctans_incentnow_plan",
+            planId
+        );
+
+        users.query();
+
+        if (users.hasNext()) {
+
+            hasData = true;
+
+            response +=
+                "]]>👥<![CDATA[ Assigned Users\n\n";
+
+            while (users.next()) {
+
+                response +=
+                    "• " +
+                    (
+                        users.getDisplayValue(
+                            "x_ctans_incentnow_sales_user"
+                        ) || "User"
+                    ) +
+                    "\n";
+            }
+
+            response += "\n";
+        }
+
+        /*
+        =====================================================
+        FINAL RETURN
+        =====================================================
+        */
+
+        if (!hasData) {
+
+            gs.info(
+                "PLAN_COMPONENTS :: NO DATA FOUND"
+            );
+
+            return "No plan components found for your compensation plan.";
+        }
+
+        gs.info(
+            "PLAN_COMPONENTS :: RESPONSE = \n" +
+            response
+        );
+
+        return response;
+    },
+
+    handleLookupRules: function(userId) {
+
+        var profileId =
+            this.utils.getUserProfileId(userId);
+
+        var pu = new GlideRecordSecure(
+            "x_ctans_incentnow_plan_users"
+        );
+
+        pu.addQuery(
+            "x_ctans_incentnow_sales_user",
+            profileId
+        );
+
+        pu.setLimit(1);
+        pu.query();
+
+        if (!pu.next()) {
+
+            return "No compensation plan assigned.";
+        }
+
+        var planId =
+            pu.getValue(
+                "x_ctans_incentnow_plan"
+            );
+
+        var planName =
+            pu.getDisplayValue(
+                "x_ctans_incentnow_plan"
+            );
+
+        var response =
+            "⚙️ Lookup Rules for " +
+            planName +
+            "\n\n";
+
+        var hasData = false;
+
+        var lr = new GlideRecordSecure(
+            "x_ctans_incentnow_lookup_rule"
+        );
+
+        lr.addQuery(
+            "plan",
+            planId
+        );
+
+        lr.orderBy("step_number");
+        lr.query();
+
+        while (lr.next()) {
+
+            hasData = true;
+
+            var stepNumber =
+                lr.getValue(
+                    "step_number"
+                ) || "-";
+
+            var stepName =
+                lr.getDisplayValue(
+                    "step_name"
+                ) || "Lookup Rule";
+
+            var ruleType =
+                lr.getValue(
+                    "rule_type"
+                ) || "-";
+
+            var rateValue =
+                lr.getValue(
+                    "rate_value"
+                ) || "";
+
+            var rateUnit =
+                lr.getValue(
+                    "rate_unit"
+                ) || "";
+
+            response +=
+                "• Step " +
+                stepNumber +
+                ": " +
+                stepName +
+                "\n";
+
+            response +=
+                "  Type: " +
+                ruleType +
+                "\n";
+
+            if (rateValue) {
+
+                response +=
+                    "  Rate: " +
+                    rateValue;
+
+                if (
+                    rateUnit ==
+                    "percentage"
+                ) {
+                    response += "%";
+                }
+
+                response += "\n";
+            }
+
+            response += "\n";
+        }
+
+        if (!hasData) {
+
+            return "No lookup rules found for your compensation plan.";
+        }
+
+        return response;
+    },
+
+
+    handleBusinessUnit: function(userId) {
+
+        var profileId =
+            this.utils.getUserProfileId(userId);
+
+        var planuserGR = new GlideRecordSecure(
+            "x_ctans_incentnow_plan_users"
+        );
+
+        planuserGR.addQuery(
+            "x_ctans_incentnow_sales_user",
+            profileId
+        );
+
+        planuserGR.query();
+
+        if (planuserGR.next()) {
+
+            var planId =
+                planuserGR.getValue(
+                    "x_ctans_incentnow_plan"
+                );
+
+            var planGR =
+                new GlideRecordSecure(
+                    "x_ctans_incentnow_plan"
+                );
+
+            if (planGR.get(planId)) {
+
+                var bu =
+                    planGR.getDisplayValue(
+                        "business_unit"
+                    );
+
+                return "Your business unit is " +
+                    bu + ".";
+            }
+        }
+
+        return "No business unit found.";
+    },
+
+    type: 'IncentNowPlanHandler'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+        <sys_created_on>2026-06-10 21:08:27</sys_created_on>
+        <sys_id>e66f901393110f10ddb7f2d89803d646</sys_id>
+        <sys_mod_count>9</sys_mod_count>
+        <sys_name>IncentNowPlanHandler</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_script_include_e66f901393110f10ddb7f2d89803d646</sys_update_name>
+        <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
+        <sys_updated_on>2026-06-17 08:16:23</sys_updated_on>
+    </sys_script_include>
+</record_update>

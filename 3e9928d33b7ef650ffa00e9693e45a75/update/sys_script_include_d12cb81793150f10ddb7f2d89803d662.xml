@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>public</access>
+        <active>true</active>
+        <api_name>x_ctans_incentnow.IncentIQUtils</api_name>
+        <caller_access/>
+        <client_callable>false</client_callable>
+        <description>This is the shared utility library used by:&#13;
+&#13;
+IncentNowPayoutHandler&#13;
+IncentNowQuotaHandler&#13;
+IncentNowPlanHandler</description>
+        <mobile_callable>false</mobile_callable>
+        <name>IncentIQUtils</name>
+        <sandbox_callable>false</sandbox_callable>
+        <script><![CDATA[var IncentIQUtils = Class.create();
+
+IncentIQUtils.prototype = {
+
+    initialize: function() {},
+
+    getUserProfileId: function(userId) {
+
+        if (!userId) {
+            return "";
+        }
+
+        var profileGR = new GlideRecordSecure(
+            "x_ctans_incentnow_user_profile"
+        );
+
+        profileGR.addQuery(
+            "user",
+            userId
+        );
+
+        profileGR.setLimit(1);
+        profileGR.query();
+
+        if (profileGR.next()) {
+
+            return profileGR.getUniqueValue();
+        }
+
+        return userId;
+    },
+
+    extractMonthYear: function(text) {
+
+        if (!text) {
+            return "";
+        }
+
+        var match = text.match(
+            /(january|february|march|april|may|june|july|august|september|october|november|december)\s+\d{4}/i
+        );
+
+        if (match) {
+            return match[0];
+        }
+
+        var yearMatch = text.match(/\b20\d{2}\b/);
+
+        if (yearMatch) {
+            return yearMatch[0];
+        }
+
+        return "";
+    },
+
+    normalizeMonth: function(value) {
+
+        return (value || "")
+            .toString()
+            .toLowerCase()
+            .replace(/\s+/g, " ")
+            .trim();
+    },
+
+    getMonthOrder: function(period) {
+
+        period = (period || "")
+            .toLowerCase();
+
+        if (period.indexOf("january") > -1) return 1;
+        if (period.indexOf("february") > -1) return 2;
+        if (period.indexOf("march") > -1) return 3;
+        if (period.indexOf("april") > -1) return 4;
+        if (period.indexOf("may") > -1) return 5;
+        if (period.indexOf("june") > -1) return 6;
+        if (period.indexOf("july") > -1) return 7;
+        if (period.indexOf("august") > -1) return 8;
+        if (period.indexOf("september") > -1) return 9;
+        if (period.indexOf("october") > -1) return 10;
+        if (period.indexOf("november") > -1) return 11;
+        if (period.indexOf("december") > -1) return 12;
+
+        return 99;
+    },
+
+    createFailureRecord: function(
+        question,
+        intent,
+        handler,
+        stage,
+        errorMessage,
+        sourceChannel,
+        userId
+    ) {
+
+        try {
+
+            var gr = new GlideRecord(
+                "x_ctans_incentnow_ai_execution_failure"
+            );
+
+            gr.initialize();
+
+            gr.question = question || "";
+            gr.detected_intent = intent || "";
+            gr.handler_name = handler || "";
+            gr.failure_stage = stage || "";
+            gr.error_message = errorMessage || "";
+            gr.normalized_question =(question || "").toLowerCase().trim();
+            gr.failure_reason =errorMessage || "";
+            gr.agent_name ="IncentIQ Copilot";
+            gr.source_channel = sourceChannel || "Now Assist";
+            gr.execution_status = "Open";
+            gr.occurrence_count = 1;
+
+            if (userId) {
+
+                var profileId =
+                    this.getUserProfileId(userId);
+
+                var profileGR = new GlideRecordSecure(
+                    "x_ctans_incentnow_user_profile"
+                );
+
+                if (profileGR.get(profileId)) {
+
+                    gr.user = profileId;
+
+                }
+            }
+
+            gr.insert();
+
+
+            gs.info(
+                "INCENTIQ_FAILURE :: Record created for intent = " +
+                intent
+            );
+
+        } catch (ex) {
+
+            gs.error(
+                "INCENTIQ_FAILURE :: Unable to create failure record. Error = " +
+                ex.message
+            );
+
+        }
+    },
+
+    type: 'IncentIQUtils'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+        <sys_created_on>2026-06-10 23:13:57</sys_created_on>
+        <sys_id>d12cb81793150f10ddb7f2d89803d662</sys_id>
+        <sys_mod_count>12</sys_mod_count>
+        <sys_name>IncentIQUtils</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_script_include_d12cb81793150f10ddb7f2d89803d662</sys_update_name>
+        <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
+        <sys_updated_on>2026-06-18 14:24:20</sys_updated_on>
+    </sys_script_include>
+</record_update>

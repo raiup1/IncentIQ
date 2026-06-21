@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update>
+    <sys_choice action="INSERT_OR_UPDATE" field="data_source_system" table="x_ctans_incentnow_data_model_object" version="3">
+        <sys_choice_set action="INSERT_OR_UPDATE">
+            <element>data_source_system</element>
+            <name>x_ctans_incentnow_data_model_object</name>
+            <sys_class_name>sys_choice_set</sys_class_name>
+            <sys_created_by>karan.kumar</sys_created_by>
+            <sys_created_on>2026-05-26 10:40:17</sys_created_on>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_name>data_source_system</sys_name>
+            <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+            <sys_policy/>
+            <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+            <sys_update_name>sys_choice_x_ctans_incentnow_data_model_object_data_source_system</sys_update_name>
+            <sys_updated_by>karan.kumar</sys_updated_by>
+            <sys_updated_on>2026-05-26 10:40:17</sys_updated_on>
+        </sys_choice_set>
+        <sys_choice action="INSERT_OR_UPDATE">
+            <dependent_value/>
+            <element>data_source_system</element>
+            <hint/>
+            <inactive>false</inactive>
+            <label>Internal</label>
+            <language>en</language>
+            <name>x_ctans_incentnow_data_model_object</name>
+            <sequence>0</sequence>
+            <synonyms/>
+            <sys_created_by>karan.kumar</sys_created_by>
+            <sys_created_on>2026-05-26 10:40:17</sys_created_on>
+            <sys_domain>global</sys_domain>
+            <sys_domain_path>/</sys_domain_path>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>karan.kumar</sys_updated_by>
+            <sys_updated_on>2026-05-26 10:40:17</sys_updated_on>
+            <value>Internal</value>
+        </sys_choice>
+        <sys_choice action="INSERT_OR_UPDATE">
+            <dependent_value/>
+            <element>data_source_system</element>
+            <hint/>
+            <inactive>false</inactive>
+            <label>External</label>
+            <language>en</language>
+            <name>x_ctans_incentnow_data_model_object</name>
+            <sequence>1</sequence>
+            <synonyms/>
+            <sys_created_by>karan.kumar</sys_created_by>
+            <sys_created_on>2026-05-26 10:40:18</sys_created_on>
+            <sys_domain>global</sys_domain>
+            <sys_domain_path>/</sys_domain_path>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>karan.kumar</sys_updated_by>
+            <sys_updated_on>2026-05-26 10:40:18</sys_updated_on>
+            <value>External</value>
+        </sys_choice>
+    </sys_choice>
+</record_update>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_ui_action_role">
+    <sys_ui_action_role action="INSERT_OR_UPDATE">
+        <sys_class_name>sys_ui_action_role</sys_class_name>
+        <sys_created_by>upma.rai</sys_created_by>
+        <sys_created_on>2026-06-09 15:44:54</sys_created_on>
+        <sys_id>c4cbc2b63bd14b10a4cbaddc73e45a4a</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>.x_ctans_incentnow.business_group_admin</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_ui_action display_value="Delete">400b02763bd14b10a4cbaddc73e45a31</sys_ui_action>
+        <sys_update_name>sys_ui_action_role_c4cbc2b63bd14b10a4cbaddc73e45a4a</sys_update_name>
+        <sys_updated_by>upma.rai</sys_updated_by>
+        <sys_updated_on>2026-06-09 15:44:54</sys_updated_on>
+        <sys_user_role display_value="x_ctans_incentnow.business_group_admin" name="x_ctans_incentnow.business_group_admin">f6d9799d3bdf3e505493ddb693e45ab7</sys_user_role>
+    </sys_ui_action_role>
+</record_update>

@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>public</access>
+        <active>true</active>
+        <api_name>x_ctans_incentnow.IncentNowDecisionCRUD</api_name>
+        <caller_access/>
+        <client_callable>false</client_callable>
+        <description/>
+        <mobile_callable>false</mobile_callable>
+        <name>IncentNowDecisionCRUD</name>
+        <sandbox_callable>false</sandbox_callable>
+        <script><![CDATA[var IncentNowDecisionCRUD= Class.create();
+IncentNowDecisionCRUD.prototype = {
+
+    initialize: function() {},
+
+    // =====================================
+    // SAVE FULL LOOKUP CONFIGURATION
+    // =====================================
+    saveFullLookup: function(sysId, columns, rows) {
+
+        try {
+
+            if (!sysId) {
+                return { status: "error", message: "Invalid sysId" };
+            }
+
+            // ================= CLEAN OLD =================
+            var oldRes = new GlideRecordSecure('sys_decision_multi_result');
+            oldRes.addQuery('decision_table', sysId);
+            oldRes.query();
+            while (oldRes.next()) oldRes.deleteRecord();
+
+            var oldInput = new GlideRecordSecure('sys_decision_input');
+            oldInput.addQuery('model_id', sysId);
+            oldInput.query();
+            while (oldInput.next()) oldInput.deleteRecord();
+
+            var oldQ = new GlideRecordSecure('sys_decision_question');
+            oldQ.addQuery('decision_table', sysId);
+            oldQ.query();
+            while (oldQ.next()) oldQ.deleteRecord();
+
+            var oldOut = new GlideRecordSecure('sys_decision_multi_result_element');
+            oldOut.addQuery('model_id', sysId);
+            oldOut.query();
+            while (oldOut.next()) oldOut.deleteRecord();
+
+            // ================= CREATE INPUTS =================
+            var inputMap = {};
+            var outputMap = {};
+
+            for (var i = 0; i < columns.length; i++) {
+
+                var col = columns[i];
+
+                if (col.type === 'input') {
+
+                    var inp = new GlideRecordSecure('sys_decision_input');
+                    inp.initialize();
+                    inp.setValue('model_id', sysId);
+                    inp.setValue('name', col.sys_id);
+                    inp.setValue('label', col.name);
+                    inp.setValue('order', i);
+                    var inpId = inp.insert();
+
+                    inputMap[col.sys_id] = col.sys_id;
+                }
+
+                if (col.type === 'output') {
+
+                    var out = new GlideRecordSecure('sys_decision_multi_result_element');
+                    out.initialize();
+                    out.setValue('model_id', sysId);
+                    out.setValue('label', col.name);
+                    out.setValue('order', i);
+                    var outId = out.insert();
+
+                    outputMap[col.sys_id] = outId;
+                }
+            }
+
+            // ================= CREATE ROWS =================
+            for (var r = 0; r < rows.length; r++) {
+
+                var row = rows[r];
+
+                var res = new GlideRecordSecure('sys_decision_multi_result');
+                res.initialize();
+                res.setValue('decision_table', sysId);
+                var resId = res.insert();
+
+                for (var key in row.values) {
+
+                    var value = row.values[key];
+
+                    // VALUES
+                    var val = new GlideRecordSecure('sys_variable_value');
+                    val.initialize();
+                    val.setValue('document_key', resId);
+                    val.setValue('variable', key);
+                    val.setValue('value', value);
+                    val.insert();
+
+                    // CONDITIONS (ONLY FOR INPUTS)
+                    if (inputMap[key]) {
+
+                        var q = new GlideRecordSecure('sys_decision_question');
+                        q.initialize();
+                        q.setValue('decision_table', sysId);
+                        q.setValue('answer', resId);
+                        q.setValue('condition', key + "=" + value);
+                        q.insert();
+                    }
+                }
+            }
+
+            return {
+                status: "success",
+                message: "Lookup saved successfully"
+            };
+
+        } catch (e) {
+
+            gs.error("FULL SAVE ERROR: " + e.message);
+
+            return {
+                status: "error",
+                message: e.message
+            };
+        }
+    },
+
+    type: 'IncentNowDecisionCRUD'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+        <sys_created_on>2026-03-31 14:44:32</sys_created_on>
+        <sys_id>778e515c3bc80b145493ddb693e45ab6</sys_id>
+        <sys_mod_count>8</sys_mod_count>
+        <sys_name>IncentNowDecisionCRUD</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_script_include_778e515c3bc80b145493ddb693e45ab6</sys_update_name>
+        <sys_updated_by>upma.rai</sys_updated_by>
+        <sys_updated_on>2026-05-19 11:57:05</sys_updated_on>
+    </sys_script_include>
+</record_update>

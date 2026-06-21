@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element db_object_id="d718465d3b537e505493ddb693e45a26" label="Plan" max_length="40" name="x_ctans_incentnow_plan" type="collection">
+        <element attributes="encode_utf8=false,ref_auto_completer=AJAXTableCompleter,ref_ac_columns=parent,ref_ac_columns_search=true, tree_picker=true" hint="Choose the business unit this plan applies to (e.g., APAC Enterprise)." label="Business Unit" mandatory="true" max_length="32" name="business_unit" reference="business_unit" reference_qual="javascript:new IncentNowAccessUtils().getUserBusinessUnitQuery();" type="reference" use_reference_qualifier="advanced"/>
+        <element attributes="edge_encryption_enabled=true" choice="1" default="draft" hint="Set the current status of the plan (Active or Inactive). Only active plans are applied." label="Status" mandatory="true" max_length="40" name="status" type="string">
+            <choice>
+                <element inactive_on_update="false" label="Draft" sequence="0" value="draft"/>
+                <element inactive_on_update="false" label="Inactive" sequence="3" value="inactive"/>
+                <element inactive_on_update="false" label="Pending Approval" sequence="1" value="pending_approval"/>
+                <element inactive_on_update="false" label="Active" sequence="2" value="active"/>
+            </choice>
+        </element>
+        <element attributes="edge_encryption_enabled=true" hint="Provide a brief summary of the plan’s purpose, eligibility, or key details." label="Plan Description" max_length="400" name="plan_description" type="string"/>
+        <element attributes="edge_encryption_enabled=true" display="true" hint="Enter a unique name for the incentive plan (e.g., Sales Executive FY2026)." label="Plan Name" mandatory="true" max_length="40" name="plan_name" type="string"/>
+        <element label="Domain" max_length="32" name="sys_domain" type="domain_id"/>
+        <element attributes="encode_utf8=false" label="Fiscal Year" mandatory="true" max_length="32" name="fiscal_year" reference="x_ctans_incentnow_fiscal_calendar" reference_qual="active=true^EQ" reference_qual_condition="active=true^EQ" type="reference"/>
+        <index name="index">
+            <element name="business_unit"/>
+        </index>
+        <index name="index2">
+            <element name="fiscal_year"/>
+        </index>
+        <index name="index3">
+            <element name="sys_domain"/>
+        </index>
+    </element>
+</database>

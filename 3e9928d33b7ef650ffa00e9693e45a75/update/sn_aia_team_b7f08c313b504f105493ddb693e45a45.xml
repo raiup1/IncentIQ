@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update sys_domain="global" table="sn_aia_team">
+    <sn_aia_team action="INSERT_OR_UPDATE">
+        <description>This workflow enables users to access and understand their sales performance, compensation structure, and earnings. It provides detailed payout breakdowns, quota information, compensation plan details, and business unit alignment. Designed for sales professionals seeking a clear and consolidated view of their compensation and performance metrics.</description>
+        <name>Sales Compensation Overview</name>
+        <sys_class_name>sn_aia_team</sys_class_name>
+        <sys_created_by>sneha.potadar@ctrlaltnow.com</sys_created_by>
+        <sys_created_on>2026-04-17 10:01:43</sys_created_on>
+        <sys_domain>global</sys_domain>
+        <sys_id>b7f08c313b504f105493ddb693e45a45</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>Sales Compensation Overview</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sn_aia_team_b7f08c313b504f105493ddb693e45a45</sys_update_name>
+        <sys_updated_by>sneha.potadar@ctrlaltnow.com</sys_updated_by>
+        <sys_updated_on>2026-04-17 10:01:43</sys_updated_on>
+    </sn_aia_team>
+</record_update>

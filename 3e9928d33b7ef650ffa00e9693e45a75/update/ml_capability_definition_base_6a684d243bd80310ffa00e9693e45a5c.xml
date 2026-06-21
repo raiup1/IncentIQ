@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update sys_domain="global" table="ml_capability_definition_base">
+    <ml_capability_definition_base action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <capability display_value="NLU">b4ddf73453c73300d1dcddeeff7b1288</capability>
+        <current_solution_version>1</current_solution_version>
+        <dataset_language>en</dataset_language>
+        <fields/>
+        <filter/>
+        <pretrained>false</pretrained>
+        <request_source>api</request_source>
+        <solution_label>ml_x_ctans_x_ctans_incentnow_global_ea684d243bd80310ffa00e9693e45a5a</solution_label>
+        <solution_name>ml_x_ctans_x_ctans_incentnow_global_ea684d243bd80310ffa00e9693e45a5a</solution_name>
+        <solution_parameters/>
+        <solution_properties>{"authoringModel":{"intents":[{"name":"IncentNow Copilot Intent","description":"Handles user queries related to incentives, payouts, plan creation, and forecasting.","samples":[{"utterance":"explain my payout"},{"utterance":"how is my commission calculated"},{"utterance":"how to design incentive plan"},{"utterance":"how much will I earn"},{"utterance":"calculate my incentive"},{"utterance":"what is my payout for this month"},{"utterance":"why did I get less incentive"},{"utterance":"why is my payout low"},{"utterance":"build a sales plan"},{"utterance":"help me with incentives"},{"utterance":"create incentive plan"},{"utterance":"show my commission details"},{"utterance":"show my earnings"},{"utterance":"forecast payout for next quarter"},{"utterance":"predict my earnings"}],"testSamples":[],"entities":[]},{"name":"NO_INTENT","samples":[],"testSamples":[]}],"schemaVersion":"NY-1","vocabulary":[],"modelPurpose":"virtual_agent","entities":[],"confidenceThreshold":"0.7","lookupSources":[],"name":"ml_x_ctans_x_ctans_incentnow_global_ea684d243bd80310ffa00e9693e45a5a","language":"en","version":"yokohama.0","properties":[{"name":"neuralModelPunctuationCleaning","value":"true"}]},"description":"Train NLU Solution","label":"ml_x_ctans_x_ctans_incentnow_global_ea684d243bd80310ffa00e9693e45a5a","name":"ml_x_ctans_x_ctans_incentnow_global_ea684d243bd80310ffa00e9693e45a5a","nluTrainingMode":"IntentClassifier","schedulingInfo":{"useCase":"Train NLU Solution"},"tags":["Train NLU Solution"],"trainingMode":"sync","trainingPipeline":{"pipelineName":"nlu_training_workflow_v1","pipelineInput":{"config":{"authoring_model":{"name":"ml_x_ctans_x_ctans_incentnow_global_ea684d243bd80310ffa00e9693e45a5a","language":"en","confidenceThreshold":"0.7","modelPurpose":"virtual_agent","schemaVersion":"NY-1","version":"yokohama.0","entities":[],"intents":[{"name":"IncentNow Copilot Intent","description":"Handles user queries related to incentives, payouts, plan creation, and forecasting.","samples":[{"utterance":"explain my payout"},{"utterance":"how is my commission calculated"},{"utterance":"how to design incentive plan"},{"utterance":"how much will I earn"},{"utterance":"calculate my incentive"},{"utterance":"what is my payout for this month"},{"utterance":"why did I get less incentive"},{"utterance":"why is my payout low"},{"utterance":"build a sales plan"},{"utterance":"help me with incentives"},{"utterance":"create incentive plan"},{"utterance":"show my commission details"},{"utterance":"show my earnings"},{"utterance":"forecast payout for next quarter"},{"utterance":"predict my earnings"}],"testSamples":[],"entities":[]},{"name":"NO_INTENT","samples":[],"testSamples":[]}],"vocabulary":[],"lookupSources":[],"properties":[{"name":"neuralModelPunctuationCleaning","value":"true"}]}},"solutions":{},"datasets":{}}},"workflowAsyncCapability":false,"workflowConfiguration":{"trainingFrequency":"run_once"},"instance_name":"ctrlaltnowsolutionsincdemo2","g_bn":"Yokohama","g_jv":"27.fcaebf30.0.0","g_bt":"glide-yokohama-12-18-2024__patch12-hotfix1-02-06-2026","app_node_id":"app138160.aus101.service-now.com:ctrlaltnowsolutionsincdemo2001"}</solution_properties>
+        <stopwords>a6282a25533333008c5bddeeff7b12c3</stopwords>
+        <sys_class_name>ml_capability_definition_base</sys_class_name>
+        <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+        <sys_created_on>2026-04-13 18:01:20</sys_created_on>
+        <sys_domain>global</sys_domain>
+        <sys_domain_path>/</sys_domain_path>
+        <sys_id>6a684d243bd80310ffa00e9693e45a5c</sys_id>
+        <sys_mod_count>6</sys_mod_count>
+        <sys_name>ml_x_ctans_x_ctans_incentnow_global_ea684d243bd80310ffa00e9693e45a5a</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>ml_capability_definition_base_6a684d243bd80310ffa00e9693e45a5c</sys_update_name>
+        <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
+        <sys_updated_on>2026-04-13 18:11:22</sys_updated_on>
+        <table/>
+        <training_frequency>run_once</training_frequency>
+        <triggered_source>API</triggered_source>
+        <word_vector_corpus/>
+    </ml_capability_definition_base>
+</record_update>

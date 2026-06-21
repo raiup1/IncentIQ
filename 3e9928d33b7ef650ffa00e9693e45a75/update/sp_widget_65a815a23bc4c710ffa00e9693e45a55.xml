@@ -1,0 +1,1435 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <client_script><![CDATA[api.controller = function($scope,spUtil,mandatoryValidator,$rootScope,spModal,$location) {
+  var c = this;
+
+  c.showForm = false;
+	
+	
+	/* INIT OPERATOR */
+  c.setDefaultOperator = function() {
+
+    if (!c.data.rules) return;
+
+    c.data.rules.forEach(function(rule) {
+      if (!rule.operator) {
+        rule.operator = "+"; 
+      }
+    });
+  };
+	
+		c.editRecord = function(rulesysid)
+	{
+			var url="?id=incentnow_form&table=x_ctans_incentnow_lookup_rule&sys_id="+rulesysid;
+			$location.url(url);
+		
+	}
+		c.editPayoutRecord = function(payoutysid)
+	{
+		
+		var url ="?id=incentnow_form&table=x_ctans_incentnow_payout_summary&sys_id="+payoutysid;
+	$location.url(url);
+		}
+
+  /* CALL ON LOAD */
+  c.setDefaultOperator();
+	
+	/* GET CONDITIONS */
+c.getConditions = function(rule) {
+  if (!rule || !rule.conditions)
+    return [];
+
+  return rule.conditions.split(',');
+};
+
+/* DELETE PAYOUT */
+c.deletePayout = function(sys_id) {
+
+  if (!confirm("Delete this rule?"))
+    return;
+
+  c.server.get({
+    action: 'deletePayout',
+    sys_id: sys_id
+  }).then(function() {
+    spUtil.update($scope);
+  });
+};
+	
+			c.deleteRecord= function(rulesysid,reqtable)
+			{
+				
+					c.data.action="deleteRecord";
+					c.data.rulesysid= rulesysid;
+					c.data.reqtable=reqtable;
+				//alert(reqtable);
+
+					spModal.open({
+					title: 'Delete Confirmation',
+					message: 'This action cannot be undone. Are you sure?',
+					buttons: [
+							{label: 'Cancel', cancel: true},
+							{label: 'Delete', primary: true}
+					]
+					}).then(function() {
+					 c.server.update().then(function(response){
+
+									if(response.status==true)
+											{
+												spUtil.addInfoMessage("Record deleted successfully.");
+												spUtil.update($scope);
+											}
+									
+											//spUtil.addErrorMessage("No Authorization to perform the action");
+										});
+									});
+					};
+	
+	
+
+  c.openForm = function() {
+    c.showForm = true;
+  };
+
+  c.cancel = function() {
+    c.showForm = false;
+  };
+	
+	c.cancelPayout= function()
+	{
+		c.showPayoutForm=false;
+	};
+
+  c.addStep = function() {
+
+	var result = mandatoryValidator.validate(c.data.f);
+	if (!result.valid) {
+            spUtil.addErrorMessage(result.message);
+            return;
+        } 
+
+    c.data.action = "addStep";
+    c.data.form = c.data.f;
+		c.isSaving=true;
+
+    c.server.update().then(function(res) {
+      c.steps = res.steps;
+      c.showForm = false;
+			c.isSaving=false;
+			
+			$rootScope.$broadcast('summary.refresh');
+    });
+  };
+	
+	c.addPayoutRule= function()
+	{
+			var backup = angular.copy(c.data.payoutsummary);
+			var result = mandatoryValidator.validate(c.data.payoutsummary);
+			if (!result.valid) {
+            spUtil.addErrorMessage(result.message);
+            return;
+        } 
+		c.data.action="addPayout";
+		c.data.payoutform=c.data.payoutsummary;
+		c.isPayout=true;
+		c.server.update().then(function(res) {
+			
+			if(res.status)
+			{c.showPayoutForm=false;
+			c.setDefaultOperator();			
+			$rootScope.$broadcast('summary.refresh');}
+			else
+				{
+					c.data.payoutsummary = backup;
+				}
+		c.isPayout=false;	
+		});
+		
+		
+	};
+
+  c.deleteStep = function(sys_id) {
+
+    c.data.action = "deleteStep";
+    c.data.sys_id = sys_id;
+
+    c.server.update().then(function(res) {
+      c.steps = res.steps;
+    });
+  };
+	
+	// PHASE 2 ONLY
+c.showPayoutForm = false;
+
+c.payoutRule = {
+  name: "",
+  items: []
+};
+
+c.openPayoutForm = function() {
+  c.showPayoutForm = true;
+
+  c.payoutRule = {
+    name: "",
+    items: [{}]
+  };
+};
+
+c.cancelPayoutForm = function() {
+  c.showPayoutForm = false;
+};
+
+c.addPayoutInput = function() {
+  c.payoutRule.items.push({});
+};
+
+c.savePayoutRule = function() {
+
+  var result = 0;
+
+  c.payoutRule.items.forEach(function(item, i) {
+    var val = parseFloat(item.value) || 0;
+
+    if (i === 0) result = val;
+    else {
+      var prevOp = c.payoutRule.items[i - 1].operator;
+
+      if (prevOp === "+") result += val;
+      if (prevOp === "-") result -= val;
+      if (prevOp === "*") result *= val;
+      if (prevOp === "/") result /= val;
+    }
+  });
+
+  c.payoutRule.result = result;
+
+  c.rules.push(angular.copy(c.payoutRule));
+
+  c.showPayoutForm = false;
+};
+
+  // INIT
+  c.steps = c.data.steps || [];
+};]]></client_script>
+        <controller_as>c</controller_as>
+        <css>.rule-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.action-icon svg {
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.2;
+  white-space: nowrap;
+  box-shadow: none;
+}
+
+.action-btn:focus,
+.action-btn:active:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(81, 163, 255, 0.25);
+}
+
+
+.action-btn-ghost {
+  background: transparent;
+  border: 1px solid transparent;
+  color: #111827;
+}
+
+.action-btn-ghost:hover,
+.action-btn-ghost:focus {
+  background: #f3f4f6;
+  /*color: #111827; */
+}
+
+.delete-icon
+{
+color: red;
+}
+
+
+.dg-wrapper {
+  margin-top: 20px;
+}
+
+.dg-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dg-header h3 {
+  margin: 0;
+}
+
+.dg-header p {
+  margin: 4px 0 0;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.dg-count {
+  background: #f3f4f6;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+}
+
+/* ADD BUTTON */
+.dg-add-btn {
+  margin-top: 12px;
+  padding: 14px;
+  border: 2px dashed #d1d5db;
+  border-radius: 10px;
+  text-align: center;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.dg-add-btn:hover {
+  background: #f9fafb;
+}
+
+/* EMPTY */
+.dg-empty {
+  margin-top: 20px;
+  padding: 40px;
+  text-align: center;
+  color: #6b7280;
+  border: 2px dashed #e5e7eb;
+  border-radius: 10px;
+}
+
+/* FORM */
+.dg-form {
+  margin-top: 16px;
+  padding: 20px;
+  border: 2px solid #3b82f6;
+  border-radius: 12px;
+  background: #fff;
+}
+
+/* ACTIONS */
+.dg-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.primary {
+  flex: 1;
+  background: #050521;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.secondary {
+  flex: 1;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+}
+
+/* CARD */
+.dg-card {
+  background: #eff6ff;
+  border: 2px solid #bfdbfe;
+  border-radius: 14px;
+  padding: 16px;
+  margin-top: 16px;
+}
+
+/* HEADER */
+.dg-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.dg-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* STEP NUMBER */
+.step-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #2563eb;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+}
+
+/* ICON */
+.step-icon {
+  font-size: 14px;
+  color: #7c3aed;
+}
+
+/* DELETE */
+.delete-btn {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: #dc2626;
+  font-size: 16px;
+}
+
+/* TITLE */
+.dg-title {
+  margin: 6px 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* BADGE */
+.dg-badge {
+  display: inline-block;
+  font-size: 11px;
+  background: #e5e7eb;
+  padding: 3px 8px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+}
+
+/* DETAILS */
+.dg-details {
+  font-size: 12px;
+  color: #374151;
+}
+
+.dg-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.dg-icon {
+  font-size: 12px;
+}
+
+/* RESULT */
+.dg-result-box {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #93c5fd;
+}
+
+.dg-result-label {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.dg-result-value {
+  font-size: 18px;
+  font-weight: bold;
+  color: #1e3a8a;
+}
+
+.step-index {
+  background: #3b82f6;
+  color: white;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+
+/* BODY */
+.dg-card-body h4 {
+  margin: 10px 0 6px;
+}
+
+.badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 8px;
+  background: #e5e7eb;
+  font-size: 12px;
+}
+
+.result {
+  margin-top: 10px;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.ip-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 32px;
+  height: 32px;
+
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* hover effect (like Tailwind hover:bg-accent) */
+.ip-icon-btn:hover {
+  background: #f3f4f6;
+}
+
+/* focus ring */
+.ip-icon-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #c7d2fe;
+}
+
+/* disabled */
+.ip-icon-btn:disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* icon */
+.ip-icon {
+  width: 16px;
+  height: 16px;
+  color: #dc2626; /* red-600 */
+}
+
+.ps-wrapper {
+  margin-top: 30px;
+}
+
+/* HEADER */
+.ps-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ps-count {
+  background: #f3f4f6;
+  padding: 6px 12px;
+  border-radius: 20px;
+}
+
+/* ADD BUTTON */
+.ps-add-btn {
+  margin-top: 12px;
+  padding: 14px;
+  border: 2px dashed #d1d5db;
+  border-radius: 10px;
+  text-align: center;
+  cursor: pointer;
+}
+
+/* EMPTY */
+.ps-empty {
+  margin-top: 20px;
+  padding: 40px;
+  text-align: center;
+  border: 2px dashed #e5e7eb;
+  border-radius: 10px;
+}
+
+/* FORM */
+.ps-form {
+  margin-top: 16px;
+  padding: 20px;
+  border: 2px solid #a78bfa;
+  border-radius: 12px;
+}
+
+.ps-form input,
+.ps-form select {
+  width: 100%;
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+/* FORMULA */
+.ps-formula {
+  margin-top: 20px;
+}
+
+.ps-formula-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.ps-input-block {
+  display: grid;
+  grid-template-columns: 40px 1fr 1fr 80px;
+  gap: 10px;
+  margin-bottom: 10px;
+  align-items: center;
+}
+
+.ps-index {
+  background: #6b7280;
+  color: #fff;
+  border-radius: 50%;
+  text-align: center;
+  padding: 8px;
+}
+
+/* BUTTONS */
+.ps-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.ps-primary {
+  flex: 1;
+  background: #050521;
+  color: white;
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.ps-secondary {
+  flex: 1;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+}
+
+/* CARD */
+.ps-card {
+  margin-top: 16px;
+  border: 2px solid #ead6fe;
+  border-radius: 14px;
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  background: #faf5ff;
+}
+
+.ps-card-left {
+  display: flex;
+  gap: 12px;
+  width: 100%; /* ADD THIS */
+}
+
+.ps-circle {
+  width: 40px;
+  height: 40px;
+  background: #7c3aed;
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* CHIPS */
+.ps-chips {
+  margin-top: 6px;
+  width: 100%;
+  background: #ffffff;       /* white background */
+  border-radius: 10px;
+  padding: 10px 12px;
+
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.chip {
+  //background: #e5e7eb;
+  background:#ffffff;
+  padding: 4px 8px;
+  border-radius: 6px;
+  margin-right: 4px;
+  font-size: 12px;
+  
+}
+
+/* RIGHT */
+.ps-card-right h2 {
+  color: #15803d;
+}
+
+.ps-card-right{
+display: flex;
+}
+
+/* SUMMARY */
+.ps-summary {
+  margin-top: 20px;
+  border: 2px solid #86efac;
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.ps-summary-row {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+}
+
+.ps-operator {
+  display: flex;
+  justify-content: center;
+  margin: 10px 0;
+}
+
+.operator-select {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  font-weight: 600;
+  cursor: pointer;
+  background: #fff;
+}
+
+.operator-select:disabled {
+  background: #f3f4f6;
+  color: #6d28d9;
+  border: 1px solid #ddd;
+  cursor: not-allowed;
+  font-weight: 600;
+}
+
+
+.formula-preview {
+  margin-top: 10px;
+  padding: 12px;
+  background: #eefdf4;
+  border-radius: 10px;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-align: center;
+}
+
+.formula-preview span {
+  margin: 0 4px;
+}
+
+
+.ps-summary {
+  margin-top: 20px;
+  padding: 16px;
+  border: 2px solid #90f3b6;
+  border-radius: 12px;
+  background: #eefdf4;
+}
+
+
+
+.op {
+  margin: 0 8px;
+  color: #7c3aed;
+  font-weight: bold;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.col-md-4 {
+  display: flex;
+}
+
+.dg-card {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.dg-details {
+  max-height: 100px;
+  overflow-y: auto;
+}
+
+.divider {
+  width: 100%;
+  border-top: 2px dashed #d1d5db; /* same as gray-300 */
+  margin: 12px 0;
+}
+
+
+
+</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description/>
+        <docs/>
+        <field_list/>
+        <has_preview>true</has_preview>
+        <id>incentive-commission-rules</id>
+        <internal>false</internal>
+        <link><![CDATA[function link(scope, element, attrs, controller) {
+  
+}]]></link>
+        <name>Incentive Commission Rules</name>
+        <option_schema/>
+        <public>false</public>
+        <roles>x_ctans_incentnow.admin,x_ctans_incentnow.user</roles>
+        <script><![CDATA[(function() {
+  
+  data.table = $sp.getParameter('table');
+  data.plansysid = $sp.getParameter('sys_id') || "-1";
+  data.isEarningRuleExist = isEarningRuleExist();
+
+  function isEarningRuleExist() {
+    var gEarning = new GlideRecordSecure('x_ctans_incentnow_earning_rule');
+    gEarning.addQuery("plan" , data.plansysid);
+    gEarning.query();
+    if (gEarning.hasNext()) return "1";
+    return "-1";
+  }
+
+  var table = "x_ctans_incentnow_lookup_rule";
+
+  // LOAD FORM
+  data.f = $sp.getForm(table, "-1", '', 'default');
+	data.payoutsummary=$sp.getForm('x_ctans_incentnow_payout_summary',"-1",'','default');
+	
+	data.f=new x_ctans_incentnow.IncentNowPortalUtils().applyPlaceholders(data.f);
+	data.payoutsummary=new x_ctans_incentnow.IncentNowPortalUtils().applyPlaceholders(data.payoutsummary);
+
+
+	//gs.addErrorMessage(data.payoutsummary);
+  setPolicies(data.f);
+	setPolicies(data.payoutsummary);
+	
+	//gs.addErrorMessage(data.f._fields);
+  function setPolicies(formJson) {
+    if (data.plansysid && formJson && formJson._fields && formJson._fields.plan) {
+
+      var planGR = new GlideRecordSecure('x_ctans_incentnow_plan'); 
+      if (planGR.get(data.plansysid)) {
+
+        formJson._fields.plan.value = data.plansysid;
+        formJson._fields.plan.displayValue = planGR.getDisplayValue();
+				
+      }
+    }
+  }
+
+  
+  if (input && input.action == "addStep") {
+
+    if (!input.form || !input.form._fields) {
+      gs.addErrorMessage("Form data missing");
+      return;
+    }
+
+    var fields = input.form._fields;
+		insertRecords(table,fields);
+    
+  }
+	
+	if (input && input.action == "addPayout") {
+
+    if (!input.payoutform || !input.payoutform._fields) {
+      gs.addErrorMessage("Form data missing");
+      return;
+    }
+
+    var fields = input.payoutform._fields;
+		insertRecords("x_ctans_incentnow_payout_summary",fields);
+    
+  }
+	
+	function insertRecords(table, fields) {
+  try {
+    var grNew = new GlideRecordSecure(table);
+    grNew.initialize();
+
+    for (var key in fields) {
+      if (fields[key].value !== undefined) {
+        grNew.setValue(key, fields[key].value);
+      }
+    }
+
+    var sysId = grNew.insert();
+
+    if (gs.nil(sysId)) {
+      data.status = false;
+      data.error = "Insert failed (no sys_id returned)";
+    } else {
+      data.status = true;
+      data.sys_id = sysId;
+    }
+
+  } catch (e) {
+    data.status = false;
+    data.error = e.message;
+  }
+}
+
+  // DELETE
+  if (input && input.action == "deleteStep") {
+    var grDel = new GlideRecordSecure(table);
+    if (grDel.get(input.sys_id)) {
+      grDel.deleteRecord();
+    }
+  }
+	if(input && input.action=="deleteRecord")
+		{
+			try{
+				var grearning = new GlideRecordSecure(input.reqtable);
+				grearning.addQuery("sys_id",input.rulesysid);
+				grearning.query();
+				//gs.addErrorMessage(grearning.getEncodedQuery());
+			if(grearning.next())
+				{
+					//gs.addErrorMessage("testing");
+					data.status=grearning.deleteRecord();
+				}
+			}
+			catch(e)
+				{
+					gs.addErrorMessage(e.message);
+				}
+			
+			
+				
+		}
+	
+	//Fetch Fields Keys
+	
+var allowedFields = getFormTableFields("x_ctans_incentnow_lookup_rule");
+		function getFormTableFields(tableName)
+	{data.lookupData = [];
+
+    var table = '';
+
+    data.tableForm = $sp.getForm(tableName, "-1", '', 'default');
+
+    if (data.tableForm && data.tableForm._fields) {
+
+        Object.keys(data.tableForm._fields).forEach(function(fieldName) {
+
+            data.lookupData.push({
+                key: fieldName
+            });
+
+        });
+
+    }
+	return data.lookupData;
+	}
+
+
+	
+			/* FETCH PAYOUT RULES */
+		data.rules = [];
+
+		var payoutGR = new GlideRecordSecure('x_ctans_incentnow_payout_summary');
+		payoutGR.addQuery("plan" , data.plansysid);
+		payoutGR.orderBy("sys_created_on");
+		payoutGR.query();
+
+		while (payoutGR.next()) {
+
+			data.rules.push({
+				sys_id: payoutGR.getUniqueValue(),
+				name: payoutGR.getDisplayValue('rule_name'),
+				payout: payoutGR.getValue('output_unit'), // use value for number
+				conditions: getPayoutSummary(payoutGR.getUniqueValue()),//payoutGR.getValue('payout_type')
+				payout_type: payoutGR.getValue('payout_type')
+			});
+
+		}
+	
+	function getPayoutSummary(sysid)
+	{
+				var grPayout= new GlideRecordSecure("x_ctans_incentnow_payout_summary");
+				if(grPayout.get(sysid))
+					{
+						var input1=new x_ctans_incentnow.IncentNowPayoutEngine().resolveSummaryInput(grPayout,'1','','');
+						input1=input1.trace[0].name;
+
+
+						var input2=new x_ctans_incentnow.IncentNowPayoutEngine().resolveSummaryInput(grPayout,'2','','');
+						input2=input2.trace[0].name;
+
+						var operator=grPayout.operator;
+						if(operator=="subtract" || operator=="Subtract")
+						{
+							operator=" - ";
+						}
+						if(operator=="divide" || operator=="Divide")
+						{
+							operator=" ÷ ";
+						}
+						if(operator=="add" || operator=="Add")
+						{
+							operator=" + ";
+						}
+						if(operator=="multiply" || operator=="Multiply")
+						{
+							operator=" x ";
+						}
+
+						return input1+operator+input2;
+					}
+				
+	}
+
+  
+	
+
+    data.elements = [{element:'sys_id',label:"Sys Id"}];
+
+    var grDic = new GlideRecordSecure('sys_dictionary'); // lookup rule table fields
+		grDic.addEncodedQuery("name=x_ctans_incentnow_lookup_rule^elementNOT LIKEsys_^element!=active");
+    grDic.query();
+
+    while (grDic.next()) {
+				
+        data.elements.push({
+            element: grDic.getValue('element'),
+						label:grDic.getValue('column_label')
+        });
+    }
+	
+
+
+  data.steps = [];
+
+  var grTab = new GlideRecordSecure(table);
+  grTab.addQuery("plan" ,data.plansysid);
+  grTab.orderBy("sys_created_on");
+  grTab.query();
+
+  while (grTab.next()) {
+		
+		var obj={};
+		for(var i=0;i<data.elements.length;i++)
+			{
+				if(grTab.getDisplayValue(data.elements[i].element))
+				obj[data.elements[i].element]=grTab.getDisplayValue(data.elements[i].element);
+			}
+   
+		
+		data.steps.push(obj);
+    
+  }
+
+
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>karan.kumar</sys_created_by>
+        <sys_created_on>2026-04-07 14:05:11</sys_created_on>
+        <sys_id>65a815a23bc4c710ffa00e9693e45a55</sys_id>
+        <sys_mod_count>186</sys_mod_count>
+        <sys_name>Incentive Commission Rules</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sp_widget_65a815a23bc4c710ffa00e9693e45a55</sys_update_name>
+        <sys_updated_by>karan.kumar</sys_updated_by>
+        <sys_updated_on>2026-06-12 05:21:44</sys_updated_on>
+        <template><![CDATA[<div>
+<div class="ip-info ip-info-purple">
+         <h3 class="ip-info-title">About Commission Rules</h3>
+         <p class="ip-info-text">
+            Commission rules define how to calculate the final payout based on the earning rule results. 
+            You can use lookup tables for rates, calculate quota-based commissions with tiered structures, 
+            or award bonuses based on specific criteria.
+         </p>
+         <div class="ip-info-list">
+            <div><strong>1. Flat Commission:</strong> Apply a rate from a lookup table × ARR</div>
+            <div><strong>2. Quota-Based:</strong> Calculate attainment and apply tiered rates</div>
+            <div><strong>3. Bonus/SPIFF:</strong> Award fixed or variable bonuses based on criteria</div>
+         </div>
+      </div>
+      <!-- <div class="ip-alert ip-alert-orange" ng-if="data.isEarningRuleExist==-1">
+         <div class="ip-alert-row">
+            <!-- ICON 
+            <div class="ip-alert-icon orange">!</div>
+            <!-- CONTENT 
+            <div>
+               <h4 class="ip-alert-title">Earning Rules Required</h4>
+               <p class="ip-alert-text">
+                  You must configure at least one earning rule before setting up commission rules. 
+                  Go to the "Earning Rules" tab to get started.
+               </p>
+            </div>
+         </div>
+      </div> -->
+  
+  <div class="dg-wrapper">
+
+  <!-- HEADER -->
+  <div class="dg-header">
+    <div>
+      <h3>Phase 1: Data Gathering Steps</h3>
+      <p>Calculate intermediate values like quota attainment, rates, and bonuses</p>
+    </div>
+    <span class="dg-count">{{c.steps.length}} Steps</span>
+    
+    
+  </div>
+    
+    <!-- ADD BUTTON -->
+  <div class="dg-add-btn"
+       ng-if="!c.showForm"
+       ng-click="c.openForm()">
+    + Add Data Gathering Step
+  </div>
+    
+      <!-- EMPTY -->
+  <div class="dg-empty"
+       ng-if="!c.steps.length && !c.showForm">
+    No Data Gathering Steps
+  </div>
+
+  <!-- FORM -->
+  <div class="dg-form" ng-if="c.showForm">
+
+    <h4>Configure Data Gathering Step {{c.steps.length + 1}}</h4>
+
+    <form>
+      <sp-model form_model="c.data.f"></sp-model>
+    </form>
+
+    <div class="dg-actions">
+      <button class="primary"
+              ng-click="c.addStep()" ng-disabled='c.isSaving'>
+        + Add Step
+      </button>
+
+      <button class="secondary"
+              ng-click="c.cancel()">
+        Cancel
+      </button>
+    </div>
+
+  </div>
+
+    <!-- CARDS -->
+  <!-- <div class="dg-card"
+       ng-repeat="step in c.steps track by step.sys_id">
+
+    <div class="dg-card-header">
+      <div class="step-index">{{$index + 1}}</div>
+
+      <button class="delete-btn"
+              ng-click="c.deleteStep(step.sys_id)">
+        ]]>🗑
+<![CDATA[      </button>
+    </div>
+
+    <div class="dg-card-body">
+      <h4>{{step.name}}</h4>
+
+      <span class="badge">{{step.rule_type_display}}</span>
+
+      <p><strong>Input:</strong> {{step.input_display}}</p>
+      <p><strong>Table:</strong> {{step.table_display}}</p>
+
+      <div class="result">
+        {{step.result}}
+      </div>
+    </div>
+
+  </div> -->
+    <div class="row">
+
+  <div class="col-md-4"
+       ng-repeat="step in c.steps track by step.sys_id">
+		<div class="dg-card">
+
+      <!-- HEADER -->
+      <div class="dg-card-header">
+
+        <div class="dg-left">
+          <div class="step-circle">{{$index + 1}}</div>
+          <div class="step-icon">{{step.rate_unit}}</div>
+        </div>
+           <div class="rule-actions">
+          <button type="button"
+                class="btn action-btn action-btn-ghost"
+                ng-click="c.editRecord(step.sys_id)">
+             <span class="action-icon" aria-hidden="true">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                    viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="size-4 mr-1">
+                    <path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"></path>
+                  </svg>
+                </span>
+                <span>Edit</span>
+                
+           </button>
+             
+             <button
+                  type="button"
+                  class="btn delete-icon action-btn action-btn-ghost"
+                  ng-click="c.deleteRecord(step.sys_id,'x_ctans_incentnow_lookup_rule')">
+
+                  <span class="action-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="3 6 5 6 21 6"></polyline>
+                      <path d="M19 6l-2 14H7L5 6"></path>
+                      <path d="M10 11v6"></path>
+                      <path d="M14 11v6"></path>
+                      <path d="M9 6V4h6v2"></path>
+                    </svg>
+                  </span>
+               <span>Delete</span>
+                </button>
+          </div>
+       
+      </div>
+    
+		<!-- TITLE -->
+      <h4 class="dg-title">{{step.step_name}}</h4>
+      
+      <!-- BADGE -->
+      <span class="dg-badge">{{step.rule_type}}</span>
+      
+      <div class="dg-details">
+
+        
+        <div ng-repeat="el in data.elements track by $index">
+
+        <div class="dg-row" ng-if="step[el.element] && !['sys_id','step_name','rule_type','description','display_name','step_number'].includes(el.element)">
+          <span class="dg-icon">→</span>
+          <span>{{el.label}}: {{step[el.element]}}</span>
+        </div>
+
+      </div>
+       <!-- <div class="dg-row" ng-if="step.rule_type">
+          <span class="dg-icon">→</span>
+          <span>Rule Type: {{step.rule_type}}</span>
+        </div>
+        <div class="dg-row" ng-if="step.input_type">
+          <span class="dg-icon">→</span>
+          <span>Input Type: {{step.input_type}}</span>
+        </div>
+        <div class="dg-row" ng-if="step.earning_rule">
+          <span class="dg-icon">→</span>
+          <span>Rule: {{step.earning_rule}}</span>
+        </div> -->
+      </div>
+      
+      <!-- RESULT -->
+      <div class="dg-result-box">
+        
+        <div class="dg-result-value">
+          {{step.description}}
+        </div>
+      </div>
+    </div>
+      
+      </div>
+
+</div>
+  
+
+
+
+
+  <!-- ADD AGAIN 
+  <div class="dg-add-btn"
+       ng-if="c.steps.length && !c.showForm"
+       ng-click="c.openForm()">
+    + Add Data Gathering Step
+  </div>-->
+
+</div>
+  
+  <div class="ps-wrapper">
+
+  <!-- HEADER -->
+  <div class="ps-header">
+    <div>
+      <h3>Phase 2: Payout Summary Rules</h3>
+      <p>Combine multiple earning rules and data steps using formulas</p>
+    </div>
+    <span class="ps-count">{{c.rules.length}} Rules</span>
+  </div>
+
+  <!-- ADD BUTTON -->
+  <div class="ps-add-btn"
+       ng-if="!c.showPayoutForm"
+       ng-click="c.openPayoutForm()">
+    + Add Payout Summary Rule
+  </div>
+
+  <!-- EMPTY STATE -->
+  <div class="ps-empty"
+       ng-if="c.rules.length==0">
+    No Payout Rules
+  </div>
+
+  <!-- FORM -->
+  <div class="ps-form" ng-if="c.showPayoutForm">
+    
+    <form>
+      <sp-model form_model="data.payoutsummary"></sp-model>
+    </form>
+    
+    
+    <div class="dg-actions">
+      <button class="primary" 
+              ng-click="c.addPayoutRule()" ng-disabled="c.isPayout">
+        + Add Payout Rule
+      </button>
+
+      <button class="secondary"
+              ng-click="c.cancelPayout()">
+        Cancel
+      </button>
+    </div>
+    
+  </div>
+  <!-- RULE CARDS -->
+  <div>
+
+  <div ng-repeat="rule in c.data.rules track by rule.sys_id">
+
+    <!-- CARD -->
+    <div class="ps-card">
+
+      <div class="ps-card-left">
+
+        <div class="ps-circle">
+          P{{$index + 1}}
+        </div>
+
+        <div>
+
+          <h4>{{rule.name}}</h4>
+
+          <!-- CONDITIONS -->
+          <div class="ps-chips">
+            <span class="chip"
+                  ng-repeat="cond in c.getConditions(rule) track by $index">
+              {{cond}}
+            </span>
+          </div>
+
+        </div>
+
+      </div>
+
+      <div class="ps-card-right">
+        <button type="button"
+                class="btn action-btn action-btn-ghost"
+                ng-click="c.editPayoutRecord(rule.sys_id)">
+             <span class="action-icon" aria-hidden="true">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                    viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="size-4 mr-1">
+                    <path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"></path>
+                  </svg>
+                </span>
+                <span>Edit</span>
+                
+           </button>
+        <button
+                  type="button"
+                  class="btn delete-icon action-btn action-btn-ghost"
+                  ng-click="c.deleteRecord(rule.sys_id,'x_ctans_incentnow_payout_summary')">
+
+                  <span class="action-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="3 6 5 6 21 6"></polyline>
+                      <path d="M19 6l-2 14H7L5 6"></path>
+                      <path d="M10 11v6"></path>
+                      <path d="M14 11v6"></path>
+                      <path d="M9 6V4h6v2"></path>
+                    </svg>
+                  </span>
+               <span>Delete</span>
+                </button>
+        
+      </div>
+
+    </div>
+
+    <!--  OPERATOR -->
+    <div class="ps-operator" ng-if="!$last">
+
+  <select class="operator-select"
+          ng-model="rule.operator"
+          disabled>
+
+    <option value="+">+</option>
+
+  </select>
+
+</div>
+
+  </div>
+
+</div>
+    
+
+    
+    <div class="divider"></div>
+    <div class="divider"></div>
+    <div class="ps-summary" ng-if="c.data.rules.length">
+
+  <h4>Grand Payout Summary</h4>
+
+  <div class="formula-preview">
+
+    <span ng-repeat="rule in c.data.rules track by $index">
+      <span ng-if="rule.payout_type=='payable'">
+      {{rule.name}}
+
+      <!-- operator between rules -->
+      <span ng-if="!$last" class="op">
+        {{rule.operator || '+'}}
+      </span>  
+      </span>
+      
+
+    </span>
+
+  </div>
+
+</div>
+
+</div>
+</div>]]></template>
+    </sp_widget>
+</record_update>

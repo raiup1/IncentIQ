@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update sys_domain="global" table="sys_script">
+    <sys_script action="INSERT_OR_UPDATE">
+        <abort_action>false</abort_action>
+        <access>package_private</access>
+        <action_delete>false</action_delete>
+        <action_insert>false</action_insert>
+        <action_query>false</action_query>
+        <action_update>true</action_update>
+        <active>true</active>
+        <add_message>false</add_message>
+        <advanced>true</advanced>
+        <change_fields>false</change_fields>
+        <client_callable>false</client_callable>
+        <collection>x_ctans_incentnow_import_run</collection>
+        <condition>current.status == "Draft" &amp;&amp; previous.status != "Draft"</condition>
+        <description/>
+        <execute_function>false</execute_function>
+        <filter_condition/>
+        <is_rest>false</is_rest>
+        <message/>
+        <name>Execute IncentNow Transform</name>
+        <order>100</order>
+        <priority>100</priority>
+        <rest_method/>
+        <rest_method_text/>
+        <rest_service/>
+        <rest_service_text/>
+        <rest_variables/>
+        <role_conditions/>
+        <script><![CDATA[(function executeRule(current, previous) {
+
+    try {
+
+        // Move to Running
+        current.setValue("status", "Running");
+        current.setValue("started_at", new GlideDateTime());
+        current.update();
+
+        var runId = current.getUniqueValue();
+
+        /* =========================
+           1️⃣ VALIDATION
+        ========================= */
+
+        var validator = new IncentNowValidationEngine();
+        var validationResult = validator.validateRun(runId);
+
+        if (!validationResult || validationResult.valid == 0) {
+
+            current.setValue("status", "Failed");
+            current.setValue("completed_at", new GlideDateTime());
+            current.update();
+            return;
+        }
+
+        /* =========================
+           2️⃣ DRY RUN CHECK
+        ========================= */
+
+        if (current.getValue("is_dry_run") == "true") {
+
+            current.setValue("status", "Completed");
+            current.setValue("completed_at", new GlideDateTime());
+            current.update();
+            return;
+        }
+
+        /* =========================
+           3️⃣ TRANSFORM
+        ========================= */
+
+        var engine = new IncentNowTransformEngine();
+        engine.execute(runId);
+
+        /* =========================
+           4️⃣ COMPLETE
+        ========================= */
+
+        current.setValue("status", "Completed");
+        current.setValue("completed_at", new GlideDateTime());
+        current.update();
+
+    } catch (ex) {
+
+        current.setValue("status", "Failed");
+        current.setValue("completed_at", new GlideDateTime());
+        current.update();
+
+        gs.error("Ingestion execution failed: " + ex);
+    }
+
+})(current, previous);]]></script>
+        <sys_class_name>sys_script</sys_class_name>
+        <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+        <sys_created_on>2026-02-21 19:12:05</sys_created_on>
+        <sys_domain>global</sys_domain>
+        <sys_domain_path>/</sys_domain_path>
+        <sys_id>994fa2403bd3ba90ffa00e9693e45aca</sys_id>
+        <sys_mod_count>10</sys_mod_count>
+        <sys_name>Execute IncentNow Transform</sys_name>
+        <sys_overrides/>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_script_994fa2403bd3ba90ffa00e9693e45aca</sys_update_name>
+        <sys_updated_by>upma.rai</sys_updated_by>
+        <sys_updated_on>2026-05-18 11:06:35</sys_updated_on>
+        <template/>
+        <when>after</when>
+    </sys_script>
+    <sys_translated_text action="delete_multiple" query="documentkey=994fa2403bd3ba90ffa00e9693e45aca"/>
+</record_update>

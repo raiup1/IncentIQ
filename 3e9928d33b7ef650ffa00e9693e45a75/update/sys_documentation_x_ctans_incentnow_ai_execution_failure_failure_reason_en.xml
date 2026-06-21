@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update>
+    <sys_documentation element="failure_reason" label="Failure Reason" language="en" table="x_ctans_incentnow_ai_execution_failure">
+        <sys_documentation action="INSERT_OR_UPDATE">
+            <element>failure_reason</element>
+            <help/>
+            <hint/>
+            <label>Failure Reason</label>
+            <language>en</language>
+            <name>x_ctans_incentnow_ai_execution_failure</name>
+            <plural>Failure Reasons</plural>
+            <sys_class_name>sys_documentation</sys_class_name>
+            <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+            <sys_created_on>2026-06-18 07:33:08</sys_created_on>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_name>Failure Reason</sys_name>
+            <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+            <sys_policy/>
+            <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+            <sys_update_name>sys_documentation_x_ctans_incentnow_ai_execution_failure_failure_reason_en</sys_update_name>
+            <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
+            <sys_updated_on>2026-06-18 07:33:08</sys_updated_on>
+            <url/>
+            <url_target/>
+        </sys_documentation>
+    </sys_documentation>
+</record_update>

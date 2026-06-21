@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>package_private</access>
+        <active>true</active>
+        <api_name>x_ctans_incentnow.IncentNowSystemConfigUtil</api_name>
+        <caller_access/>
+        <client_callable>false</client_callable>
+        <description/>
+        <mobile_callable>false</mobile_callable>
+        <name>IncentNowSystemConfigUtil</name>
+        <sandbox_callable>false</sandbox_callable>
+        <script><![CDATA[var IncentNowSystemConfigUtil = Class.create();
+IncentNowSystemConfigUtil.prototype = {
+
+    initialize: function() {
+
+        this.UNITS = {
+            CURRENCY: 'currency',
+            PERCENTAGE: 'percentage'
+        };
+
+        // Apply defaults ONLY if empty/null
+
+        this.currencySymbol = this._getProp('x_ctans_incentnow.currency_symbol', this._getSystemCurrencySymbol());
+        this.currencyPosition = this._getProp('x_ctans_incentnow.currency_position', 'before');
+
+        var dp = this._getProp('x_ctans_incentnow.decimal_places', '2');
+        this.decimalPlaces = parseInt(dp, 10);
+        if (isNaN(this.decimalPlaces)) {
+            this.decimalPlaces = 2;
+        }
+
+        this.useThousandsSeparator = this._getProp('x_ctans_incentnow.thousand_separator', 'true') == 'true';
+    },
+
+    // -----------------------------------------
+    // FORMATTERS
+    // -----------------------------------------
+
+    formatCurrency: function(value) {
+
+        var val = parseFloat(value) || 0;
+
+        val = this._formatSmartDecimal(val);
+
+        if (this.useThousandsSeparator) {
+            val = this._addThousandsSeparator(val);
+        }
+
+        if (this.currencyPosition == 'before') {
+            return this.currencySymbol + val;
+        } else {
+            return val + ' ' + this.currencySymbol;
+        }
+    },
+
+    formatPercentage: function(value) {
+        var val = parseFloat(value) || 0;
+        val = this._formatSmartDecimal(val);
+        return val + '%';
+    },
+
+    formatNumber: function(value) {
+        var val = parseFloat(value) || 0;
+        return this._formatSmartDecimal(val);
+    },
+
+    format: function(value, unit) {
+
+        if (unit == this.UNITS.CURRENCY) {
+            return this.formatCurrency(value);
+        }
+
+        if (unit == this.UNITS.PERCENTAGE) {
+            return this.formatPercentage(value);
+        }
+
+        return this.formatNumber(value);
+    },
+
+    // -----------------------------------------
+    // HELPERS
+    // -----------------------------------------
+
+    // Smart decimal handling
+    _formatSmartDecimal: function(val) {
+
+        var fixed = val.toFixed(this.decimalPlaces);
+
+        // Remove trailing .00 or .0
+        if (parseFloat(fixed) == parseInt(fixed, 10)) {
+            return parseInt(fixed, 10).toString();
+        }
+
+        return fixed;
+    },
+
+    //  Property fallback only when empty/null
+    _getProp: function(name, defaultValue) {
+
+        var val = gs.getProperty(name);
+
+        if (val === null || val === undefined || val === '') {
+            return defaultValue;
+        }
+
+        return val;
+    },
+
+    _addThousandsSeparator: function(numStr) {
+        return numStr.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    },
+
+	_getSystemCurrencySymbol: function() {
+
+    var currencyCode = gs.getProperty('glide.i18n.single_currency.code', 'USD');
+
+    var currencyGR = new GlideRecordSecure('fx_currency');
+    currencyGR.addQuery('code', currencyCode);
+    currencyGR.addQuery('active', true);
+    currencyGR.setLimit(1);
+    currencyGR.query();
+
+    if (currencyGR.next()) {
+        return currencyGR.getValue('symbol') || currencyCode;
+    }
+
+    return currencyCode;
+},
+
+    type: 'IncentNowSystemConfigUtil'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>upma.rai</sys_created_by>
+        <sys_created_on>2026-04-13 17:23:46</sys_created_on>
+        <sys_id>e13cf8a83bd803105493ddb693e45a6a</sys_id>
+        <sys_mod_count>11</sys_mod_count>
+        <sys_name>IncentNowSystemConfigUtil</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_script_include_e13cf8a83bd803105493ddb693e45a6a</sys_update_name>
+        <sys_updated_by>upma.rai</sys_updated_by>
+        <sys_updated_on>2026-06-08 13:04:53</sys_updated_on>
+    </sys_script_include>
+</record_update>

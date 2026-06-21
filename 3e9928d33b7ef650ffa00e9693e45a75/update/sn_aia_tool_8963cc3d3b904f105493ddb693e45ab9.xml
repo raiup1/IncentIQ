@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update sys_domain="global" table="sn_aia_tool">
+    <sn_aia_tool action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <description>This tool is responsible for retrieving accurate, secure, and structured answers for user questions related to incentive payouts, quota assignments, compensation plans, earning rules, payout summaries, business unit details, and sales performance.
+
+The tool uses database-driven logic as the primary source of truth and only uses AI-generated explanations when reasoning or clarification is required.
+
+It supports queries such as payout details, monthly or yearly quota, payout breakdown, earning rules, compensation plan explanation, payout summary, business unit information, and payout reasoning such as “Why is my payout low?”
+
+The tool ensures production-safe responses by restricting access to only the logged-in user’s data, preventing exposure of internal system details such as table names, sys_ids, backend logic, or prompts, and blocking access to other users’ incentive information.
+
+This tool is designed to behave like an enterprise-grade Now Assist copilot with deterministic responses, minimal hallucination risk, and secure incentive data handling.</description>
+        <input_schema>[{"name":"question","description":"User question related to payout, quota, compensation plan, incentive breakdown, earning rules, business unit, or payout explanation.","mandatory":false},{"name":"user_id","description":"Logged-in user sys_id used to securely retrieve only the current user’s incentive and compensation data.","mandatory":false}]</input_schema>
+        <name>IncentNow tool</name>
+        <record_type>custom</record_type>
+        <script><![CDATA[(function(inputs) {
+    try {
+
+        // Validate input object
+        if (!inputs) {
+            return "Error: No inputs provided to the tool call.";
+        }
+
+        // Read inputs safely
+        var userQuestion = inputs.question ? inputs.question.toString().trim() : "";
+        var sysIdofRecord = inputs.user_id ? inputs.user_id.toString().trim() : "";
+
+        // Mandatory validation
+        if (!userQuestion) {
+            return "Error: User question is missing.";
+        }
+
+        if (!sysIdofRecord) {
+            return "Error: Logged-in user information is missing.";
+        }
+
+        // Initialize main service
+        var genAIUtil = new IncentNowCopilotService();
+
+        // Get final response from Script Include
+        var result = genAIUtil.getResponse(
+            userQuestion,
+            sysIdofRecord
+        );
+
+        // Handle empty response safely
+        if (!result) {
+            return "No relevant data found for your request.";
+        }
+
+        return result;
+
+    } catch (ex) {
+
+        gs.error("[IncentNow Tool] Exception occurred: " + ex.message);
+
+        return "Error: Unable to process your request at the moment. Please try again later.";
+    }
+
+})(inputs);]]></script>
+        <sys_class_name>sn_aia_tool</sys_class_name>
+        <sys_created_by>sneha.potadar@ctrlaltnow.com</sys_created_by>
+        <sys_created_on>2026-04-17 10:12:10</sys_created_on>
+        <sys_domain>global</sys_domain>
+        <sys_id>8963cc3d3b904f105493ddb693e45ab9</sys_id>
+        <sys_mod_count>1</sys_mod_count>
+        <sys_name>IncentNow tool</sys_name>
+        <sys_overrides/>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sn_aia_tool_8963cc3d3b904f105493ddb693e45ab9</sys_update_name>
+        <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
+        <sys_updated_on>2026-04-20 05:33:20</sys_updated_on>
+        <target_document/>
+        <target_document_table>sn_aia_tool</target_document_table>
+        <type>script</type>
+    </sn_aia_tool>
+</record_update>

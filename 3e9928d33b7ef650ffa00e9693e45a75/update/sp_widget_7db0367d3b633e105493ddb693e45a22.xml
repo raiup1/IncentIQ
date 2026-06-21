@@ -1,0 +1,378 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <client_script><![CDATA[api.controller = function() {
+
+    var c = this;
+
+    /* Initialization */
+
+    c.rule = {};
+    c.tables = c.data.tables || [];
+    c.fields = [];
+    c.aggregationTypes = c.data.aggregationTypes || [];
+    c.rule_sys_id = "";
+
+
+    /* Load fields when Target Table changes */
+
+    c.loadFields = function() {
+
+        if (!c.rule.target_table)
+            return;
+
+        c.server.get({
+            action: "getFields",
+            target_table: c.rule.target_table
+        }).then(function(response) {
+
+            console.log("Fields loaded:", response.data.fields);
+
+            if (response.data && response.data.fields)
+                c.fields = response.data.fields;
+            else
+                c.fields = [];
+
+        });
+
+    };
+
+
+    /* Save Rule */
+
+    c.saveRule = function() {
+
+        if (!c.rule.rule_name) {
+            alert("Rule Name is required");
+            return;
+        }
+
+        if (!c.rule.target_table) {
+            alert("Please select Target Table");
+            return;
+        }
+
+        if (!c.rule.target_field) {
+            alert("Please select Target Field");
+            return;
+        }
+
+        c.server.get({
+            action: "saveRule",
+            rule: c.rule
+        }).then(function(response) {
+
+            console.log("Save response:", response);
+
+            if (response.data && response.data.rule_sys_id) {
+
+                c.rule_sys_id = response.data.rule_sys_id;
+
+                alert("Rule Created Successfully");
+
+            }
+
+        });
+
+    };
+
+};]]></client_script>
+        <controller_as>c</controller_as>
+        <css>.row {&#13;
+  margin-bottom: 15px;&#13;
+}&#13;
+&#13;
+.panel-heading h4 {&#13;
+  font-weight: 600;&#13;
+}</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description/>
+        <docs/>
+        <field_list/>
+        <has_preview>false</has_preview>
+        <id>incentnow_rule_info</id>
+        <internal>false</internal>
+        <link><![CDATA[function link(scope, element, attrs, controller) {
+  
+}]]></link>
+        <name>IncentNow Rule Info</name>
+        <option_schema/>
+        <public>false</public>
+        <roles>x_ctans_incentnow.user,x_ctans_incentnow.admin</roles>
+        <script><![CDATA[(function() {
+
+    /* Initial load */
+
+    if (!input) {
+
+        data.tables = [];
+        data.aggregationTypes = [];
+
+        /* Load Target Tables */
+
+        var grObj = new GlideRecordSecure("x_ctans_incentnow_data_model_object");
+        grObj.query();
+
+        while (grObj.next()) {
+
+            data.tables.push({
+                label: grObj.getDisplayValue(),
+                value: grObj.getUniqueValue()
+            });
+
+        }
+
+
+        /* Load Aggregation Type Choices */
+
+        var grChoice = new GlideRecordSecure("sys_choice");
+
+        grChoice.addQuery("name", "x_ctans_incentnow_rule_master");
+        grChoice.addQuery("element", "aggregation_type");
+        grChoice.addQuery("inactive", false);
+        grChoice.orderBy("sequence");
+        grChoice.query();
+
+        while (grChoice.next()) {
+
+            data.aggregationTypes.push({
+                label: grChoice.getValue("label"),
+                value: grChoice.getValue("value")
+            });
+
+        }
+
+        return;
+    }
+
+
+
+    /* Load Target Fields */
+
+    if (input.action == "getFields") {
+
+        data.fields = [];
+
+        var grField = new GlideRecordSecure("x_ctans_incentnow_metadata_mapping");
+
+        grField.addQuery("data_model_object_id", input.target_table);
+        grField.query();
+
+        while (grField.next()) {
+
+            data.fields.push({
+                label: grField.getValue("source_field_name"),
+                value: grField.getUniqueValue()
+            });
+
+        }
+
+        return;
+    }
+
+
+
+    /* Save Rule */
+
+    if (input.action == "saveRule") {
+
+        var rule = new GlideRecordSecure("x_ctans_incentnow_rule_master");
+        rule.initialize();
+
+        rule.rule_name = input.rule.rule_name || "";
+        rule.target_table = input.rule.target_table || "";
+        rule.target_field = input.rule.target_field || "";
+        rule.aggregation_type = input.rule.aggregation_type || "";
+        rule.rule_type = input.rule.rule_type || "";
+        rule.split_method = input.rule.split_method || "";
+        rule.split_percentage = input.rule.split_percentage || "";
+        rule.description = input.rule.description || "";
+        rule.active = true;
+
+        var ruleSysId = rule.insert();
+
+        data.rule_sys_id = ruleSysId;
+
+        return;
+    }
+
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+        <sys_created_on>2026-03-11 16:03:35</sys_created_on>
+        <sys_id>7db0367d3b633e105493ddb693e45a22</sys_id>
+        <sys_mod_count>13</sys_mod_count>
+        <sys_name>IncentNow Rule Info</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sp_widget_7db0367d3b633e105493ddb693e45a22</sys_update_name>
+        <sys_updated_by>shroin.mandal</sys_updated_by>
+        <sys_updated_on>2026-06-11 12:14:14</sys_updated_on>
+        <template><![CDATA[<div class="panel panel-default">
+
+  <div class="panel-heading">
+    <h4>Step 1 — Rule Information</h4>
+  </div>
+
+  <div class="panel-body">
+
+    <!-- Row 1 -->
+    <div class="row">
+
+      <div class="col-md-6">
+        <div class="form-group">
+          <label>Rule Name</label>
+          <input type="text"
+                 class="form-control"
+                 ng-model="c.rule.rule_name"
+                 placeholder="Enter Rule Name">
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="form-group">
+          <label>Target Table</label>
+
+          <select class="form-control"
+                  ng-model="c.rule.target_table"
+                  ng-options="t.value as t.label for t in c.tables"
+                  ng-change="c.loadFields()">
+
+            <option value="">Select Target Table</option>
+
+          </select>
+
+        </div>
+      </div>
+
+    </div>
+
+
+    <!-- Row 2 -->
+    <div class="row">
+
+      <div class="col-md-6">
+        <div class="form-group">
+          <label>Target Field</label>
+
+          <select class="form-control"
+                  ng-model="c.rule.target_field"
+                  ng-options="f.value as f.label for f in c.fields">
+
+            <option value="">Select Target Field</option>
+
+          </select>
+
+        </div>
+      </div>
+
+
+      <div class="col-md-6">
+        <div class="form-group">
+          <label>Aggregation Type</label>
+
+          <select class="form-control"
+                  ng-model="c.rule.aggregation_type"
+                  ng-options="a.value as a.label for a in c.aggregationTypes">
+
+            <option value="">None</option>
+
+          </select>
+
+        </div>
+      </div>
+
+    </div>
+
+
+    <!-- Row 3 -->
+    <div class="row">
+
+      <div class="col-md-6">
+        <div class="form-group">
+          <label>Rule Type</label>
+
+          <select class="form-control"
+                  ng-model="c.rule.rule_type">
+
+            <option value="">Select Rule Type</option>
+            <option value="direct">Direct Credit</option>
+            <option value="indirect">Indirect Credit</option>
+
+          </select>
+
+        </div>
+      </div>
+
+
+      <div class="col-md-6">
+        <div class="form-group">
+          <label>Split Method</label>
+
+          <input type="text"
+                 class="form-control"
+                 ng-model="c.rule.split_method"
+                 placeholder="Enter Split Method">
+
+        </div>
+      </div>
+
+    </div>
+
+
+    <!-- Row 4 -->
+    <div class="row">
+
+      <div class="col-md-6">
+        <div class="form-group">
+          <label>Split Percentage</label>
+
+          <input type="number"
+                 class="form-control"
+                 ng-model="c.rule.split_percentage"
+                 placeholder="Enter Split Percentage">
+
+        </div>
+      </div>
+
+    </div>
+
+
+    <!-- Description -->
+    <div class="row">
+
+      <div class="col-md-12">
+        <div class="form-group">
+          <label>Description</label>
+
+          <textarea class="form-control"
+                    ng-model="c.rule.description"
+                    rows="3"
+                    placeholder="Enter Rule Description">
+          </textarea>
+
+        </div>
+      </div>
+
+    </div>
+
+
+    <div class="text-right">
+
+      <button class="btn btn-primary"
+              ng-click="c.saveRule()">
+
+        Save & Continue
+
+      </button>
+
+    </div>
+
+  </div>
+
+</div>]]></template>
+    </sp_widget>
+</record_update>

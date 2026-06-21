@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <client_script><![CDATA[api.controller=function($location) {
+  /* widget controller */
+  var c = this;
+	
+	c.goBack = function() {
+        window.history.back();
+    };
+	
+	c.goTo = function(view) {
+
+        c.view = view;
+		
+        
+			 if (view === 'viewDataModel') {
+            var url = '/incentiq?id=view_data_model_internal';
+            $location.url(url);
+            return;
+        }
+		else if (view === 'createModel') {
+            var url = '/incentiq?id=create_data_model_internal';
+            $location.url(url);
+            return;
+        }
+		
+		//view_data_model
+	}
+};]]></client_script>
+        <controller_as>c</controller_as>
+        <css>.admin-main h1 {
+  font-weight: 600;
+  color: #111827;
+}
+
+.admin-card-row {
+  display: flex;
+  gap: 20px;
+  align-items: stretch;
+}
+
+.admin-card-col {
+  display: flex;
+  flex: 1;
+}
+
+.admin-card {
+  width: 100%;
+  padding: 22px;
+  border-radius: 18px;
+  border: 1px solid #e6e8ec;
+  background: linear-gradient(180deg, #ffffff, #f9fafb);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-card i {
+  font-size: 22px;
+  margin-bottom: 10px;
+}
+
+.admin-card h4 {
+  font-weight: 600;
+  margin-top: 6px;
+}
+
+.admin-card:hover {
+  transform: translateY(-6px) scale(1.01);
+  box-shadow: 0 14px 40px rgba(0,0,0,0.12);
+}
+
+
+.admin-back-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  cursor: pointer;
+  color: #374151;
+  flex-shrink: 0;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.admin-back-btn:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+}
+
+.admin-page-topbar-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: #0f172a;
+  flex: 1;
+}
+
+
+
+.admin-page-header p {
+  margin: 4px 0 0;
+  color: #6b7280;
+}
+
+.admin-page-topbar {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+
+.card-container {
+  background: #ffffff;
+  padding: 16px 20px;
+  border-radius: 16px;
+  border: 1px solid #e6e8ec;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.05);
+}
+
+.admin-card-row {
+  display: flex;
+  gap: 20px;
+}
+
+.admin-card-col {
+  flex: 1;
+  display: flex;
+}
+
+
+
+
+@media (max-width: 768px) {
+  .admin-card-row {
+    flex-direction: column;
+  }
+}
+
+</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description/>
+        <docs/>
+        <field_list/>
+        <has_preview>true</has_preview>
+        <id>import_internal_container</id>
+        <internal>false</internal>
+        <link><![CDATA[function link(scope, element, attrs, controller) {
+  
+}]]></link>
+        <name>Import Internal Container</name>
+        <option_schema/>
+        <public>false</public>
+        <roles>x_ctans_incentnow.admin,x_ctans_incentnow.user</roles>
+        <script><![CDATA[(function() {
+  /* populate the 'data' object */
+  /* e.g., data.table = $sp.getValue('table'); */
+
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>karan.kumar</sys_created_by>
+        <sys_created_on>2026-06-10 17:25:55</sys_created_on>
+        <sys_id>158caf8b3b990f10a4cbaddc73e45a0c</sys_id>
+        <sys_mod_count>5</sys_mod_count>
+        <sys_name>Import Internal Container</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sp_widget_158caf8b3b990f10a4cbaddc73e45a0c</sys_update_name>
+        <sys_updated_by>karan.kumar</sys_updated_by>
+        <sys_updated_on>2026-06-15 11:25:36</sys_updated_on>
+        <template><![CDATA[<div class="admin-main">
+
+  <div class="admin-page-topbar">
+
+  <button class="admin-back-btn" ng-click="c.goBack()">
+    <svg width="18" height="18" viewBox="0 0 24 24"
+         fill="none" stroke="currentColor" stroke-width="2.5">
+      <circle cx="12" cy="12" r="10"></circle>
+      <polyline points="12 8 8 12 12 16"></polyline>
+      <line x1="16" y1="12" x2="8" y2="12"></line>
+    </svg>
+  </button>
+
+  <div class="admin-page-header">
+    <h1>Mapping Center for Internal</h1>
+    <p>Mapping for internal tables</p>
+  </div>
+
+</div>
+  
+    <div class="card-container">
+
+  <div class="admin-card-row">
+
+    <div class="admin-card-col">
+      <div class="panel panel-default admin-card" ng-click="c.goTo('createModel')">
+        <i class="fa fa-address-book text-primary"></i>
+        <h4>Create Model</h4>
+        <p>Create new data model, map</p>
+      </div>
+    </div>
+
+    <div class="admin-card-col">
+      <div class="panel panel-default admin-card" ng-click="c.goTo('viewDataModel')">
+        <i class="fa fa-folder-open text-success"></i>
+        <h4>View Data Model</h4>
+        <p>View existing data model and their mappings</p>
+      </div>
+    </div>
+
+   <!-- <div class="admin-card-col">
+      <div class="panel panel-default admin-card" ng-click="c.goTo('importData')">
+        <i class="fa fa-upload text-warning"></i>
+        <h4>Upload data in existing data model</h4>
+        <p>Upload data in existing data model</p>
+      </div>
+    </div> -->
+
+  </div>
+
+</div>
+  
+</div>
+  
+  
+
+  ]]></template>
+    </sp_widget>
+</record_update>

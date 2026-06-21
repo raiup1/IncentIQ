@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_ui_message">
+    <sys_ui_message action="INSERT_OR_UPDATE">
+        <application>Virtual Agent</application>
+        <code/>
+        <commented_message/>
+        <key>how can i help you with your incentives today?</key>
+        <language>en</language>
+        <message>How can I help you with your incentives today?</message>
+        <sys_class_name>sys_ui_message</sys_class_name>
+        <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+        <sys_created_on>2026-04-13 18:33:25</sys_created_on>
+        <sys_id>a4cf85283b1c0310ffa00e9693e45a28</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>how can i help you with your incentives today?</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_ui_message_a4cf85283b1c0310ffa00e9693e45a28</sys_update_name>
+        <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
+        <sys_updated_on>2026-04-13 18:33:25</sys_updated_on>
+    </sys_ui_message>
+</record_update>

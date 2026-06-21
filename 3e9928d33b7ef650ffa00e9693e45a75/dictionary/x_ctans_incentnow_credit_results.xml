@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element db_object_id="9b6055dc3beb3e10ffa00e9693e45af3" label="Earning Credit Results" max_length="40" name="x_ctans_incentnow_credit_results" type="collection">
+        <element attributes="encode_utf8=false" label="User" max_length="32" name="user" reference="x_ctans_incentnow_user_profile" type="reference"/>
+        <element attributes="edge_encryption_enabled=true" choice="1" choice_field="aggregation" choice_table="x_ctans_incentnow_earning_rule" label="Aggregation Type" max_length="40" name="aggregation_type" type="string">
+            <choice>
+                <element inactive_on_update="false" label="Min" sequence="3" value="min"/>
+                <element inactive_on_update="false" label="Count" sequence="1" value="count"/>
+                <element inactive_on_update="false" label="Sum" sequence="4" value="sum"/>
+                <element inactive_on_update="false" label="Avg" sequence="0" value="avg"/>
+                <element inactive_on_update="false" label="Max" sequence="2" value="max"/>
+            </choice>
+        </element>
+        <element label="Target Quota" max_length="15" name="target_quota" type="decimal"/>
+        <element label="Count" max_length="40" name="count" type="integer"/>
+        <element attributes="encode_utf8=false" label="Source Object" max_length="32" name="source_object" reference="x_ctans_incentnow_data_model_object" type="reference"/>
+        <element attributes="encode_utf8=false" label="Statement ID" max_length="32" name="statement_id" reference="x_ctans_incentnow_incentive_statement" type="reference"/>
+        <element attributes="ignore_filter_on_new=true" default="javascript:global.getNextObjNumberPadded();" label="Number" max_length="40" name="number" read_only="true" type="string"/>
+        <element attributes="encode_utf8=false" label="Fiscal Period" max_length="32" name="fiscal_period" reference="x_ctans_incentnow_fiscal_period" type="reference"/>
+        <element label="Domain" max_length="32" name="sys_domain" type="domain_id"/>
+        <element label="Credit Value" max_length="15" name="credit_value" type="decimal"/>
+        <element attributes="encode_utf8=false" label="Earning Rule" max_length="32" name="earning_rule" reference="x_ctans_incentnow_earning_rule" reference_qual="null" reference_qual_condition="null" type="reference"/>
+        <element attributes="encode_utf8=false" label="Plan" max_length="32" name="plan" reference="x_ctans_incentnow_plan" type="reference"/>
+        <index name="index">
+            <element name="earning_rule"/>
+        </index>
+        <index name="index2">
+            <element name="fiscal_period"/>
+        </index>
+        <index name="index3">
+            <element name="plan"/>
+        </index>
+        <index name="index4">
+            <element name="source_object"/>
+        </index>
+        <index name="index5">
+            <element name="statement_id"/>
+        </index>
+        <index name="index6">
+            <element name="sys_domain"/>
+        </index>
+        <index name="index7">
+            <element name="user"/>
+        </index>
+    </element>
+</database>

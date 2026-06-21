@@ -1,0 +1,3052 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>public</access>
+        <active>false</active>
+        <api_name>x_ctans_incentnow.IncentNowCopilotService</api_name>
+        <caller_access/>
+        <client_callable>false</client_callable>
+        <description/>
+        <mobile_callable>false</mobile_callable>
+        <name>IncentNowCopilotService</name>
+        <sandbox_callable>false</sandbox_callable>
+        <script><![CDATA[var IncentNowCopilotService = Class.create();
+IncentNowCopilotService.prototype = {
+
+    getUserProfileId: function(userId) {
+
+        var profileGR = new GlideRecord("x_ctans_incentnow_user_profile");
+        profileGR.addQuery("user", userId);
+        profileGR.setLimit(1);
+        profileGR.query();
+
+        if (profileGR.next()) {
+            return profileGR.getUniqueValue();
+        }
+
+        return userId;
+    },
+
+    getResponse: function(query, userId) {
+
+        gs.info("IncentNow :: RAW QUERY RECEIVED = " + query);
+        gs.info("IncentNow :: USER ID RECEIVED = " + userId);
+
+        try {
+
+            query = (query || "")
+                .toString()
+                .toLowerCase()
+                .replace(/[^a-z0-9\s]/g, "")
+                .replace(/\s+/g, " ")
+                .trim();
+
+            if (!query) {
+                return "Please enter your question.";
+            }
+
+            var intent = this.classifyIntentUsingAI(query);
+
+            gs.info("IncentNow :: FINAL DETECTED INTENT = " + intent);
+
+            if (intent == "security_block") {
+
+                gs.info("IncentNow :: SECURITY BLOCK TRIGGERED");
+
+                return "⚠️ You can only view your own incentive data.";
+            }
+
+            if (intent == "unknown") {
+
+                gs.info("IncentNow :: UNKNOWN QUERY → LEARNING REPOSITORY");
+
+                return this.storeUnknownQuestion(
+                    query,
+                    userId,
+                    "unknown"
+                );
+            }
+
+            var router = new IncentNowIntentRouter();
+
+            return router.executeIntent(
+                intent,
+                userId,
+                query
+            );
+
+        } catch (ex) {
+
+            gs.error("IncentNow :: Exception = " + ex.message);
+
+            return "Unable to process your request at the moment.";
+        }
+    },
+
+    classifyIntentUsingAI: function(question) {
+
+        try {
+
+            gs.info("IncentNow :: ENTERED classifyIntentUsingAI()");
+            gs.info("IncentNow :: QUESTION = " + question);
+
+            var query = (question || "")
+                .toString()
+                .toLowerCase()
+                .replace(/[^a-z0-9\s]/g, " ")
+                .replace(/\s+/g, " ")
+                .trim();
+
+            if (!query) {
+                return "unknown";
+            }
+
+            if (
+                query.indexOf("plan components") > -1 ||
+                query.indexOf("what are my plan components") > -1 ||
+                query.indexOf("show my plan components") > -1 ||
+                query.indexOf("components of my plan") > -1 ||
+                (query.indexOf("components") > -1 &&
+                    (query.indexOf("plan") > -1 ||
+                        query.indexOf("compensation") > -1 ||
+                        query.indexOf("incentive") > -1))
+            ) {
+                gs.info("IncentNow :: HARDCODED MATCH = plan_components");
+                return "plan_components";
+            }
+
+            if (
+                query.indexOf("incentive statement") > -1 ||
+                query.indexOf("commission statement") > -1 ||
+                query.indexOf("earnings statement") > -1 ||
+                query.indexOf("show my statement") > -1 ||
+                query.indexOf("latest statement") > -1
+            ) {
+
+                gs.info(
+                    "IncentNow :: HARDCODED MATCH = incentive_statement"
+                );
+
+                return "incentive_statement";
+            }
+
+            if (
+                query === "plan" ||
+                query === "my plan" ||
+                query.indexOf("what is my plan") === 0 ||
+                query.indexOf("show my plan") === 0
+            ) {
+                gs.info("IncentNow :: HARDCODED MATCH = plan");
+                return "plan";
+            }
+
+            if (
+                query.indexOf("ytd") > -1 ||
+                query.indexOf("year to date") > -1
+            ) {
+                gs.info("IncentNow :: SAFE MATCH = ytd_payout");
+                return "ytd_payout";
+            }
+
+            if (
+                query.indexOf("qtd") > -1 ||
+                query.indexOf("quarter to date") > -1
+            ) {
+                gs.info("IncentNow :: SAFE MATCH = qtd_payout");
+                return "qtd_payout";
+            }
+
+            if (
+                query.indexOf("monthly payout") > -1 ||
+                query.indexOf("monthly payouts") > -1 ||
+                query.indexOf("show my monthly payouts") > -1 ||
+                query.indexOf("what are my monthly payouts") > -1 ||
+                query.indexOf("month wise payout") > -1 ||
+                query.indexOf("month wise payouts") > -1 ||
+                query.indexOf("monthwise payout") > -1 ||
+                query.indexOf("monthwise payouts") > -1
+            ) {
+                gs.info("IncentNow :: HARDCODED MATCH = monthly_payout");
+                return "monthly_payout";
+            }
+
+            if (
+                query.indexOf("breakdown") > -1 ||
+                query.indexOf("payout breakdown") > -1 ||
+                query.indexOf("commission breakdown") > -1 ||
+                query.indexOf("earnings breakdown") > -1 ||
+                query.indexOf("show my payout breakdown") > -1
+            ) {
+                gs.info("IncentNow :: HARDCODED MATCH = breakdown");
+                return "breakdown";
+            }
+
+            if (
+                query.indexOf("earning rules") > -1 ||
+                query.indexOf("earning rule") > -1 ||
+                query.indexOf("show my earning rules") > -1 ||
+                query.indexOf("what are my earning rules") > -1
+            ) {
+
+                gs.info(
+                    "IncentNow :: HARDCODED MATCH = earning_rules"
+                );
+
+                return "earning_rules";
+            }
+            if (
+                query.indexOf("payout components") > -1 ||
+                query.indexOf("show my payout components") > -1 ||
+                query.indexOf("commission components") > -1 ||
+                query.indexOf("earning components") > -1 ||
+                query.indexOf("incentive components") > -1 ||
+                query.indexOf("payout details by component") > -1 ||
+                query.indexOf("commission split") > -1
+            ) {
+
+                gs.info(
+                    "IncentNow :: HARDCODED MATCH = payout_components"
+                );
+
+                return "payout_components";
+            }
+
+            if (
+                query.indexOf("payout summary") > -1 ||
+                query.indexOf("show my payout summary") > -1 ||
+                query.indexOf("summary") > -1
+            ) {
+                gs.info("IncentNow :: HARDCODED MATCH = summary");
+                return "summary";
+            }
+
+            if (
+                query.indexOf("explain") > -1 &&
+                (
+                    query.indexOf("payout") > -1 ||
+                    query.indexOf("commission") > -1 ||
+                    query.indexOf("earnings") > -1 ||
+                    query.indexOf("incentive") > -1
+                )
+            ) {
+
+                gs.info(
+                    "IncentNow :: HARDCODED MATCH = ai_explanation"
+                );
+
+                return "ai_explanation";
+            }
+
+            if (
+                query.indexOf("payout") > -1 ||
+                query.indexOf("my payout") > -1 ||
+                query.indexOf("latest payout") > -1 ||
+                query.indexOf("total payout") > -1
+            ) {
+                gs.info("IncentNow :: HARDCODED MATCH = payout");
+                return "payout";
+            }
+            if (
+                query === "bu" ||
+                query.indexOf("business unit") > -1 ||
+                query.indexOf("my bu") > -1
+            ) {
+                gs.info("IncentNow :: HARDCODED MATCH = business_unit");
+                return "business_unit";
+            }
+
+            var configGR = new GlideRecord("x_ctans_incentnow_ai_intent_configuration");
+            configGR.addQuery("active", true);
+            configGR.addNotNullQuery("keywords");
+            configGR.orderByDesc("priority");
+            configGR.query();
+
+            while (configGR.next()) {
+
+                var intentName = (configGR.getValue("intent_name") || "")
+                    .toLowerCase()
+                    .trim();
+
+                var keywords = (configGR.getValue("keywords") || "")
+                    .toLowerCase()
+                    .trim();
+
+                if (!keywords) {
+                    continue;
+                }
+
+                var keywordList = keywords.split(",");
+
+                for (var i = 0; i < keywordList.length; i++) {
+
+                    var keyword = (keywordList[i] || "")
+                        .toLowerCase()
+                        .trim();
+
+                    if (!keyword) {
+                        continue;
+                    }
+
+                    if (query.indexOf(keyword) > -1) {
+
+                        gs.info(
+                            "IncentNow :: CONFIG MATCH FOUND = " +
+                            intentName +
+                            " using keyword = " +
+                            keyword
+                        );
+
+                        return intentName;
+                    }
+                }
+            }
+
+            gs.info("IncentNow :: No config match found");
+
+            return "unknown";
+
+        } catch (ex) {
+
+            gs.error(
+                "IncentNow :: classifyIntentUsingAI Error = " +
+                ex
+            );
+
+            return "unknown";
+        }
+    },
+
+    normalizeMonth: function(text) {
+
+        if (!text)
+            return "";
+
+        var map = {
+            jan: "january",
+            january: "january",
+
+            feb: "february",
+            february: "february",
+
+            mar: "march",
+            march: "march",
+
+            apr: "april",
+            april: "april",
+
+            may: "may",
+
+            jun: "june",
+            june: "june",
+
+            jul: "july",
+            july: "july",
+
+            aug: "august",
+            august: "august",
+
+            sep: "september",
+            sept: "september",
+            september: "september",
+
+            oct: "october",
+            october: "october",
+
+            nov: "november",
+            november: "november",
+
+            dec: "december",
+            december: "december"
+        };
+
+        text = (text || "")
+            .toString()
+            .toLowerCase()
+            .replace(/[^a-z0-9\s]/g, " ")
+            .replace(/\s+/g, " ")
+            .trim();
+
+        for (var key in map) {
+            var reg = new RegExp("\\b" + key + "\\b", "g");
+            text = text.replace(reg, map[key]);
+        }
+
+        text = text
+            .replace(/\s+/g, " ")
+            .trim();
+
+        gs.info("IncentNow :: NORMALIZED MONTH TEXT = " + text);
+
+        return text;
+    },
+
+    extractMonthYear: function(query) {
+
+        query = this.normalizeMonth(query || "");
+
+        var months = [
+            "january", "february", "march", "april",
+            "may", "june", "july", "august",
+            "september", "october", "november", "december"
+        ];
+
+        var month = "";
+        var year = "";
+
+        for (var i = 0; i < months.length; i++) {
+            if (query.indexOf(months[i]) > -1) {
+                month = months[i];
+                break;
+            }
+        }
+
+        var yearMatch = query.match(/\b(20\d{2})\b/);
+
+        if (yearMatch)
+            year = yearMatch[0];
+
+        gs.info("IncentNow :: EXTRACTED MONTH = " + month);
+        gs.info("IncentNow :: EXTRACTED YEAR = " + year);
+
+        if (month && year)
+            return month + " " + year;
+
+        if (month)
+            return month;
+
+        if (year)
+            return year;
+
+        return "";
+    },
+
+    normalizeQuestion: function(question) {
+
+        if (!question) {
+            return "";
+        }
+
+        var normalized = question.toString().toLowerCase();
+
+        normalized = normalized.replace(/\s+/g, " ");
+        normalized = normalized.replace(/[^\w\s]/gi, "");
+        normalized = normalized.trim();
+
+        return normalized;
+    },
+
+    storeUnknownQuestion: function(question, userId, detectedIntent) {
+
+        try {
+
+            var normalizedQuestion = this.normalizeQuestion(question);
+
+            var existingGR = new GlideRecord("x_ctans_incentnow_ai_learning_repository");
+            existingGR.addQuery("normalized_question", normalizedQuestion);
+            existingGR.query();
+
+            if (existingGR.next()) {
+
+                var currentCount =
+                    parseInt(existingGR.getValue("frequency_count"), 10) || 0;
+
+                existingGR.setValue(
+                    "frequency_count",
+                    currentCount + 1
+                );
+
+                existingGR.setValue(
+                    "last_asked",
+                    new GlideDateTime()
+                );
+
+                existingGR.update();
+
+                gs.info(
+                    "IncentNow :: Existing learning record updated = " +
+                    question
+                );
+
+                return "Your request has been captured for improvement. Our team is enhancing IncentNow Copilot for this scenario.";
+            }
+
+            var learnGR = new GlideRecord("x_ctans_incentnow_ai_learning_repository");
+            learnGR.initialize();
+
+            learnGR.setValue("question", question);
+            learnGR.setValue(
+                "normalized_question",
+                normalizedQuestion
+            );
+
+            if (detectedIntent) {
+                learnGR.setValue(
+                    "detected_intent",
+                    detectedIntent
+                );
+            }
+
+            learnGR.setValue("status", "New");
+            learnGR.setValue("frequency_count", 1);
+            learnGR.setValue(
+                "last_asked",
+                new GlideDateTime()
+            );
+            learnGR.setValue("source_channel", "Portal");
+
+            learnGR.insert();
+
+            gs.info(
+                "IncentNow :: Learning record created for question = " +
+                question
+            );
+
+            return "Your request has been captured for improvement. Our team is enhancing IncentNow Copilot for this scenario.";
+
+        } catch (ex) {
+
+            gs.error("========== SELF LEARNING ERROR START ==========");
+            gs.error("Question = " + question);
+            gs.error("UserId = " + userId);
+            gs.error("Detected Intent = " + detectedIntent);
+            gs.error("Exception = " + ex);
+            gs.error("Exception Message = " + ex.message);
+            gs.error("========== SELF LEARNING ERROR END ==========");
+
+            return "We could not process your request at the moment. Please try again later.";
+        }
+    },
+
+    handleQuotaAttainment: function(userId) {
+
+        try {
+
+            var profileId = this.getUserProfileId(userId);
+
+            var stmtGR = new GlideRecord(
+                "x_ctans_incentnow_incentive_statement"
+            );
+
+            stmtGR.addQuery("user", profileId);
+            stmtGR.orderByDesc("sys_created_on");
+            stmtGR.setLimit(1);
+            stmtGR.query();
+
+            if (!stmtGR.next()) {
+                return "]]>📈<![CDATA[ Your quota attainment is 0.00%";
+            }
+
+            var attainment = parseFloat(
+                stmtGR.getValue("quota_attainment")
+            );
+
+            if (isNaN(attainment)) {
+                attainment = 0;
+            }
+
+            return "]]>📈<![CDATA[ Your quota attainment is " +
+                attainment.toFixed(2) + "%";
+
+        } catch (ex) {
+
+            gs.error(
+                "IntentRouter :: handleQuotaAttainment Error = " +
+                ex.message
+            );
+
+            return "Unable to retrieve quota attainment details at the moment.";
+        }
+    },
+
+    handleYTDPayout: function(userId) {
+
+        try {
+
+            var profileId = this.getUserProfileId(userId);
+
+            var metricGR = new GlideRecord("x_ctans_incentnow_metric_report");
+
+            metricGR.addQuery("user", profileId);
+            metricGR.addQuery("period_type", "month");
+            metricGR.query();
+
+            var totalCommission = 0;
+
+            while (metricGR.next()) {
+                totalCommission += parseFloat(
+                    metricGR.getValue("total_commission") || 0
+                );
+            }
+
+            gs.info(
+                "IntentRouter :: YTD Commission Calculated = " +
+                totalCommission +
+                " | Profile = " +
+                profileId
+            );
+
+            return "Your Year-to-Date (YTD) commission is $" +
+                totalCommission.toFixed(2);
+
+        } catch (ex) {
+
+            gs.error(
+                "IntentRouter :: Error in handleYTDPayout() :: " +
+                ex.message
+            );
+
+            return "Unable to retrieve your Year-to-Date commission at this time.";
+        }
+    },
+
+    handleMonthlyPayout: function(userId) {
+
+        try {
+
+            var profileId = this.getUserProfileId(userId);
+
+            var gr = new GlideRecord(
+                "x_ctans_incentnow_payout_results"
+            );
+
+            var qc = gr.addQuery("user", userId);
+            qc.addOrCondition("user", profileId);
+
+            gr.orderBy("fiscal_period");
+            gr.query();
+
+            if (!gr.next()) {
+                return "No monthly payout data available.";
+            }
+
+            var monthlyData = {};
+            var totalPayout = 0;
+
+            do {
+
+                var fiscalPeriod =
+                    gr.getDisplayValue("fiscal_period") ||
+                    "Unknown Period";
+
+                var payoutValue =
+                    parseFloat(
+                        gr.getValue("payout_value")
+                    ) || 0;
+
+                if (!monthlyData[fiscalPeriod]) {
+                    monthlyData[fiscalPeriod] = 0;
+                }
+
+                monthlyData[fiscalPeriod] += payoutValue;
+                totalPayout += payoutValue;
+
+            } while (gr.next());
+
+            var months = [];
+
+            for (var month in monthlyData) {
+                months.push(month);
+            }
+
+            var monthOrder = {
+                "January": 1,
+                "February": 2,
+                "March": 3,
+                "April": 4,
+                "May": 5,
+                "June": 6,
+                "July": 7,
+                "August": 8,
+                "September": 9,
+                "October": 10,
+                "November": 11,
+                "December": 12
+            };
+
+            months.sort(function(a, b) {
+
+                var aParts = a.split(" ");
+                var bParts = b.split(" ");
+
+                var aYear = parseInt(aParts[1], 10);
+                var bYear = parseInt(bParts[1], 10);
+
+                if (aYear !== bYear) {
+                    return aYear - bYear;
+                }
+
+                return monthOrder[aParts[0]] -
+                    monthOrder[bParts[0]];
+            });
+
+            var response =
+                "]]>📊<![CDATA[ Here are your monthly payouts:\n\n";
+
+            for (var i = 0; i < months.length; i++) {
+
+                var month = months[i];
+
+                response +=
+                    "• " +
+                    month +
+                    ": $" +
+                    monthlyData[month].toLocaleString(
+                        "en-US", {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                        }
+                    ) +
+                    "\n";
+            }
+
+            response +=
+                "\n——————————————\n" +
+                "]]>💰<![CDATA[ Total Monthly Payout: $" +
+                totalPayout.toLocaleString(
+                    "en-US", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    }
+                );
+
+            return response;
+
+        } catch (ex) {
+
+            gs.error(
+                "IntentRouter :: handleMonthlyPayout Error = " +
+                ex.message
+            );
+
+            return "Unable to fetch monthly payout details at the moment.";
+        }
+    },
+
+    //Handlelookup
+    // handleLookupRules: function(userId) {
+
+    //     gs.error("LOOKUP_DEBUG :: ENTERED");
+
+    //     return "ASHOK_LOOKUP_TEST_123456789";
+    // },
+
+
+
+    handleQTDPayout: function(userId) {
+
+        gs.error("QTD_DEBUG :: START");
+
+        try {
+
+            var profileId = this.getUserProfileId(userId);
+
+            gs.error("QTD_DEBUG :: PROFILE = " + profileId);
+
+            var gr = new GlideRecord("x_ctans_incentnow_metric_report");
+
+            gr.addQuery("user", profileId);
+            gr.addQuery("period_type", "month");
+            gr.orderByDesc("sys_created_on");
+            gr.query();
+
+            gs.error("QTD_DEBUG :: COUNT = " + gr.getRowCount());
+
+            var totalCommission = 0;
+            var recordCount = 0;
+            var periods = [];
+
+            while (gr.next()) {
+
+                var commission =
+                    parseFloat(gr.getValue("total_commission")) || 0;
+
+                totalCommission += commission;
+                recordCount++;
+
+                periods.push(
+                    gr.getDisplayValue("fiscal_period")
+                );
+
+                gs.error(
+                    "QTD_DEBUG :: RECORD = " +
+                    gr.getValue("number") +
+                    " | COMMISSION = " +
+                    commission
+                );
+            }
+
+            gs.error(
+                "QTD_DEBUG :: TOTAL = " +
+                totalCommission
+            );
+
+            if (recordCount === 0) {
+
+                return "No QTD commission data found.";
+            }
+
+            return "Your QTD commission is $" +
+                totalCommission.toFixed(2);
+
+        } catch (ex) {
+
+            gs.error(
+                "QTD_DEBUG :: ERROR = " +
+                ex.message
+            );
+
+            return "Unable to retrieve QTD commission details.";
+        }
+    },
+
+    _getMonthOrder: function(text) {
+
+        var months = [
+            "january", "february", "march",
+            "april", "may", "june",
+            "july", "august", "september",
+            "october", "november", "december"
+        ];
+
+        for (var i = 0; i < months.length; i++) {
+            if (text.indexOf(months[i]) > -1) {
+                return i;
+            }
+        }
+
+        return -1;
+    },
+
+    _getQuarterFromMonthIndex: function(index) {
+
+        if (index <= 2) return "Q1";
+        if (index <= 5) return "Q2";
+        if (index <= 8) return "Q3";
+        return "Q4";
+    },
+
+    handlePayout: function(userId, query) {
+
+        gs.info("IntentRouter :: ENTERED handlePayout()");
+        gs.info("IntentRouter :: USER = " + userId);
+        gs.info("IntentRouter :: QUERY = " + query);
+
+        try {
+
+            var profileId = this.getUserProfileId(userId);
+
+            gs.info("IntentRouter :: PROFILE = " + profileId);
+
+            var periodFromQuery = this.extractMonthYear(query || "");
+
+            gs.info(
+                "IntentRouter :: EXTRACTED PERIOD = " +
+                periodFromQuery
+            );
+
+            var stmtGR = new GlideRecord(
+                "x_ctans_incentnow_incentive_statement"
+            );
+
+            stmtGR.addQuery("user", profileId);
+            stmtGR.orderByDesc("sys_created_on");
+            stmtGR.query();
+
+            var fallback = null;
+
+            while (stmtGR.next()) {
+
+                var fiscalPeriod =
+                    stmtGR.getDisplayValue("fiscal_period") || "";
+
+                var normalizedPeriod =
+                    this.normalizeMonth(fiscalPeriod);
+
+                var payout =
+                    parseFloat(
+                        stmtGR.getValue("total_commission")
+                    ) || 0;
+
+                // Exact Month/Year Match
+                if (periodFromQuery) {
+
+                    var normalizedQuery =
+                        this.normalizeMonth(periodFromQuery);
+
+                    if (
+                        normalizedPeriod === normalizedQuery ||
+                        normalizedPeriod.indexOf(normalizedQuery) > -1
+                    ) {
+
+                        return "]]>💰<![CDATA[ Your payout for " +
+                            fiscalPeriod +
+                            " is $" +
+                            payout.toLocaleString(
+                                "en-US", {
+                                    minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2
+                                }
+                            );
+                    }
+                }
+
+                // Latest record fallback
+                if (!fallback) {
+
+                    fallback = {
+                        period: fiscalPeriod,
+                        payout: payout
+                    };
+                }
+            }
+
+            // User requested specific month but none found
+            if (periodFromQuery) {
+
+                return "No payout data available for " +
+                    periodFromQuery + ".";
+            }
+
+            // Latest payout
+            if (fallback) {
+
+                return "]]>💰<![CDATA[ Your payout for " +
+                    fallback.period +
+                    " is $" +
+                    fallback.payout.toLocaleString(
+                        "en-US", {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                        }
+                    );
+            }
+
+            return "No payout data available.";
+
+        } catch (ex) {
+
+            gs.error(
+                "IntentRouter :: handlePayout Error = " +
+                ex.message
+            );
+
+            return "Unable to fetch payout details at this time.";
+        }
+    },
+
+    getMonthOrder: function(period) {
+
+        period = (period || "").toLowerCase();
+
+        if (period.indexOf("january") > -1) return 1;
+        if (period.indexOf("february") > -1) return 2;
+        if (period.indexOf("march") > -1) return 3;
+        if (period.indexOf("april") > -1) return 4;
+        if (period.indexOf("may") > -1) return 5;
+        if (period.indexOf("june") > -1) return 6;
+        if (period.indexOf("july") > -1) return 7;
+        if (period.indexOf("august") > -1) return 8;
+        if (period.indexOf("september") > -1) return 9;
+        if (period.indexOf("october") > -1) return 10;
+        if (period.indexOf("november") > -1) return 11;
+        if (period.indexOf("december") > -1) return 12;
+
+        return 99;
+    },
+
+    handleQuota: function(userId, query) {
+
+        var profileId = this.getUserProfileId(userId);
+
+        gs.info("QUOTA_DEBUG :: USER ID = " + userId);
+        gs.info("QUOTA_DEBUG :: PROFILE ID = " + profileId);
+
+        gs.info("IncentNow :: ENTERED handleQuota()");
+
+        var originalQuery = query || "";
+        var periodFromQuery = this.extractMonthYear(originalQuery);
+
+        gs.info("IncentNow :: EXTRACTED PERIOD = " + periodFromQuery);
+
+        query = (query || "").toLowerCase();
+
+        /*
+        =====================================================
+        NEW USE CASE FLAGS
+        =====================================================
+        */
+
+        var isMonthlyQuotaQuery =
+            query.includes("monthly quota") ||
+            query.includes("month wise quota") ||
+            query.includes("monthwise quota") ||
+            query.includes("show monthly quota") ||
+            query.includes("what is my monthly quota") ||
+            query.includes("my monthly quota");
+
+        var isQuarterQuotaQuery =
+            query.includes("quarter quota") ||
+            query.includes("quota for quarter") ||
+            query.includes("quarterly quota") ||
+            query.includes("quarter quota details") ||
+            query.includes("current quarter") ||
+            query.includes("this quarter") ||
+            query.includes("my quarter quota") ||
+            query.includes("quota for current quarter") ||
+            query.includes("what is my quota for quarter") ||
+            query.includes("q1") ||
+            query.includes("q2") ||
+            query.includes("q3") ||
+            query.includes("q4") ||
+            query.includes("quarter 1") ||
+            query.includes("quarter 2") ||
+            query.includes("quarter 3") ||
+            query.includes("quarter 4");
+
+        var isQuotaAttainmentQuery =
+            query.includes("quota attainment") ||
+            query.includes("quota achievement") ||
+            query.includes("quota achievement percentage") ||
+            query.includes("attainment percentage") ||
+            query.includes("achievement percentage");
+
+        var isMonthYearQuery = false;
+        var isMonthOnlyQuery = false;
+        var isYearOnlyQuery = false;
+
+        /*
+        =====================================================
+        VERY IMPORTANT PORTAL FIX
+        Prevent "monthly quota" from being treated as month query
+        =====================================================
+        */
+
+        if (!isMonthlyQuotaQuery) {
+
+            if (
+                periodFromQuery &&
+                periodFromQuery.indexOf(" ") > -1 &&
+                periodFromQuery.match(/\b20\d{2}\b/)
+            ) {
+                isMonthYearQuery = true;
+            } else if (
+                periodFromQuery &&
+                !periodFromQuery.match(/\b20\d{2}\b/)
+            ) {
+                isMonthOnlyQuery = true;
+            } else if (
+                periodFromQuery &&
+                periodFromQuery.match(/^\d{4}$/)
+            ) {
+                isYearOnlyQuery = true;
+            }
+        }
+
+        /*
+        =====================================================
+        EXISTING LOGIC
+        Get User Quota Assignment
+        =====================================================
+        */
+
+        var assignGR = new GlideRecord("x_ctans_incentnow_user_quota_assignment");
+        assignGR.addQuery("user", profileId);
+        assignGR.orderByDesc("sys_created_on");
+        assignGR.setLimit(1);
+        assignGR.query();
+
+        if (!assignGR.next()) {
+            gs.info("IncentNow :: No quota assignment found");
+            return "No quota assigned.";
+        }
+
+        var quotaId = assignGR.getValue("quota");
+
+        gs.info("IncentNow :: QUOTA ID = " + quotaId);
+
+        if (!quotaId) {
+            return "No quota assigned.";
+        }
+
+        /*
+        =====================================================
+        EXISTING LOGIC
+        Get Yearly Quota
+        =====================================================
+        */
+
+        var quotaGR = new GlideRecord("x_ctans_incentnow_quota");
+
+        if (!quotaGR.get(quotaId)) {
+            gs.info("IncentNow :: Quota record not found");
+            return "Quota details not found.";
+        }
+
+        var yearlyQuota =
+            parseFloat(quotaGR.getValue("target_value")) || 0;
+
+        var fiscalYear =
+            quotaGR.getDisplayValue("fiscal_year") ||
+            quotaGR.getDisplayValue("fiscal_period") ||
+            "FY 2026";
+
+        gs.info("IncentNow :: YEARLY QUOTA = " + yearlyQuota);
+        gs.info("IncentNow :: FISCAL YEAR = " + fiscalYear);
+
+        /*
+        =====================================================
+        NEW USE CASE
+        Quota Attainment
+        =====================================================
+        */
+
+        if (isQuotaAttainmentQuery) {
+
+            var stmtGR = new GlideRecord("x_ctans_incentnow_incentive_statement");
+            stmtGR.addQuery("user", profileId);
+            stmtGR.orderByDesc("sys_created_on");
+            stmtGR.setLimit(1);
+            stmtGR.query();
+
+            if (stmtGR.next()) {
+
+                var attainment =
+                    parseFloat(stmtGR.getValue("quota_attainment")) || 0;
+
+                if (attainment > 0) {
+                    return "]]>📈<![CDATA[ Your quota attainment is " +
+                        attainment.toLocaleString("en-IN") +
+                        "%";
+                }
+            }
+
+            return "Quota attainment details are not available.";
+        }
+
+        /*
+        =====================================================
+        MONTHLY QUOTA PERIOD RECORDS
+        =====================================================
+        */
+
+        var qpGR = new GlideRecord("x_ctans_incentnow_quota_period");
+        qpGR.addQuery("quota", quotaId);
+        qpGR.addQuery("period_type", "month");
+        qpGR.orderBy("parent_period");
+        qpGR.query();
+
+        var latestMonthMatch = null;
+        var yearExists = false;
+
+        var monthlyResponse = "";
+        var firstParentPeriod = "";
+        var latestQuarter = "";
+        var quarterTotal = 0;
+
+        var requestedQuarter = "";
+
+        if (query.includes("q1") || query.includes("quarter 1")) {
+            requestedQuarter = "Q1";
+        } else if (query.includes("q2") || query.includes("quarter 2")) {
+            requestedQuarter = "Q2";
+        } else if (query.includes("q3") || query.includes("quarter 3")) {
+            requestedQuarter = "Q3";
+        } else if (query.includes("q4") || query.includes("quarter 4")) {
+            requestedQuarter = "Q4";
+        }
+
+        var monthlyQuotaMap = {};
+
+        while (qpGR.next()) {
+
+            var period =
+                qpGR.getDisplayValue("fiscal_period") || "";
+
+            var parentPeriod =
+                qpGR.getDisplayValue("parent_period") || "";
+
+            if (!parentPeriod) {
+
+                if (
+                    period.indexOf("January") > -1 ||
+                    period.indexOf("February") > -1 ||
+                    period.indexOf("March") > -1
+                ) {
+                    parentPeriod = "Q1";
+                } else if (
+                    period.indexOf("April") > -1 ||
+                    period.indexOf("May") > -1 ||
+                    period.indexOf("June") > -1
+                ) {
+                    parentPeriod = "Q2";
+                } else if (
+                    period.indexOf("July") > -1 ||
+                    period.indexOf("August") > -1 ||
+                    period.indexOf("September") > -1
+                ) {
+                    parentPeriod = "Q3";
+                } else {
+                    parentPeriod = "Q4";
+                }
+            }
+
+            var normalizedPeriod =
+                this.normalizeMonth(period);
+
+            var monthlyQuota =
+                parseFloat(qpGR.getValue("target_value")) || 0;
+
+            var monthOrder =
+                this.getMonthOrder(period);
+
+            gs.info("IncentNow :: CHECKING PERIOD = " + period);
+            gs.info("IncentNow :: PARENT PERIOD = " + parentPeriod);
+            gs.info("IncentNow :: MONTHLY VALUE = " + monthlyQuota);
+            gs.info("IncentNow :: MONTH ORDER = " + monthOrder);
+
+            if (!firstParentPeriod && parentPeriod) {
+                firstParentPeriod = parentPeriod;
+                latestQuarter = parentPeriod;
+            }
+
+            /*
+            =====================================================
+            MONTHLY QUOTA GROUPING
+            =====================================================
+            */
+
+            if (isMonthlyQuotaQuery) {
+
+                if (!monthlyQuotaMap[parentPeriod]) {
+                    monthlyQuotaMap[parentPeriod] = [];
+                }
+
+                monthlyQuotaMap[parentPeriod].push({
+                    period: period,
+                    amount: monthlyQuota,
+                    monthOrder: monthOrder
+                });
+            }
+
+            /*
+            =====================================================
+            QUARTER QUOTA
+            =====================================================
+            */
+
+            if (isQuarterQuotaQuery) {
+
+                if (
+                    requestedQuarter &&
+                    parentPeriod.indexOf(requestedQuarter) > -1
+                ) {
+                    latestQuarter = parentPeriod;
+                    quarterTotal += monthlyQuota;
+                } else if (
+                    !requestedQuarter &&
+                    parentPeriod === firstParentPeriod
+                ) {
+                    latestQuarter = parentPeriod;
+                    quarterTotal += monthlyQuota;
+                }
+            }
+
+            /*
+            =====================================================
+            SPECIFIC MONTH + YEAR
+            =====================================================
+            */
+
+            if (isMonthYearQuery) {
+
+                var normalizedQuery =
+                    this.normalizeMonth(periodFromQuery);
+
+                if (
+                    normalizedPeriod === normalizedQuery ||
+                    normalizedPeriod.indexOf(normalizedQuery) > -1
+                ) {
+                    return "]]>🎯<![CDATA[ Your quota for " +
+                        period +
+                        " is $" +
+                        monthlyQuota.toLocaleString("en-IN");
+                }
+            }
+
+            /*
+            =====================================================
+            MONTH ONLY
+            =====================================================
+            */
+
+            if (isMonthOnlyQuery) {
+
+                if (
+                    normalizedPeriod.indexOf(periodFromQuery) > -1 &&
+                    !latestMonthMatch
+                ) {
+                    latestMonthMatch = {
+                        period: period,
+                        amount: monthlyQuota
+                    };
+                }
+            }
+
+            /*
+            =====================================================
+            YEAR ONLY
+            =====================================================
+            */
+
+            if (isYearOnlyQuery) {
+                if (period.indexOf(periodFromQuery) > -1) {
+                    yearExists = true;
+                }
+            }
+        }
+
+        /*
+        =====================================================
+        FINAL BUILD
+        Monthly Quota Response with Proper Month Order
+        =====================================================
+        */
+
+        if (isMonthlyQuotaQuery) {
+
+            for (var quarter in monthlyQuotaMap) {
+
+                monthlyResponse +=
+                    "]]>🎯<![CDATA[ " + quarter + ":\n\n";
+
+                monthlyQuotaMap[quarter].sort(function(a, b) {
+                    return a.monthOrder - b.monthOrder;
+                });
+
+                for (var i = 0; i < monthlyQuotaMap[quarter].length; i++) {
+
+                    monthlyResponse +=
+                        "• " +
+                        monthlyQuotaMap[quarter][i].period +
+                        " → $" +
+                        monthlyQuotaMap[quarter][i].amount.toLocaleString("en-IN") +
+                        "\n";
+                }
+
+                monthlyResponse += "\n";
+            }
+
+            if (monthlyResponse) {
+                return monthlyResponse.trim();
+            }
+        }
+
+        /*
+        =====================================================
+        QUARTER QUOTA RETURN
+        =====================================================
+        */
+
+        /*
+        =====================================================
+        MONTH ONLY RETURN
+        =====================================================
+        */
+
+        if (isMonthOnlyQuery && latestMonthMatch) {
+            return "]]>🎯<![CDATA[ Your quota for " +
+                latestMonthMatch.period +
+                " is $" +
+                latestMonthMatch.amount.toLocaleString("en-IN");
+        }
+
+        /*
+        =====================================================
+        MONTH NOT FOUND
+        =====================================================
+        */
+
+        if (isMonthYearQuery || isMonthOnlyQuery) {
+            return "Commission data is not yet available for the selected period. Please check again later.";
+        }
+
+        /*
+        =====================================================
+        YEAR QUERY
+        =====================================================
+        */
+
+        if (isYearOnlyQuery) {
+
+            if (yearExists || yearlyQuota > 0) {
+                return "]]>🎯<![CDATA[ Your total yearly quota for " +
+                    periodFromQuery +
+                    " is $" +
+                    yearlyQuota.toLocaleString("en-IN");
+            }
+
+            return "Commission data is not yet available for the selected period. Please check again later.";
+        }
+
+        /*
+        =====================================================
+        DEFAULT YEARLY QUOTA
+        =====================================================
+        */
+
+        if (isQuarterQuotaQuery && quarterTotal > 0) {
+            return "]]>🎯<![CDATA[ Your quota for " +
+                latestQuarter +
+                " is $" +
+                quarterTotal.toLocaleString("en-IN");
+        }
+
+        if (yearlyQuota > 0) {
+            return "]]>🎯<![CDATA[ Your total yearly quota for " +
+                fiscalYear +
+                " is $" +
+                yearlyQuota.toLocaleString("en-IN");
+        }
+
+        return "Quota not found.";
+    },
+
+    handleBusinessUnit: function(userId) {
+
+        var profileId =
+            this.getUserProfileId(userId);
+
+        var gr = new GlideRecord(
+            "x_ctans_incentnow_plan_users"
+        );
+
+        gr.addQuery(
+            "x_ctans_incentnow_sales_user",
+            profileId
+        );
+
+        gr.query();
+
+        if (gr.next()) {
+
+            var planId =
+                gr.getValue(
+                    "x_ctans_incentnow_plan"
+                );
+
+            var planGR =
+                new GlideRecord(
+                    "x_ctans_incentnow_plan"
+                );
+
+            if (planGR.get(planId)) {
+
+                var bu =
+                    planGR.getDisplayValue(
+                        "business_unit"
+                    );
+
+                return "Your business unit is " +
+                    bu + ".";
+            }
+        }
+
+        return "No business unit found.";
+    },
+	
+    handleBreakdown: function(userId, question) {
+
+        gs.info("IncentNow :: ENTERED handleBreakdown()");
+        gs.info("IncentNow :: QUESTION = " + question);
+
+        try {
+
+            var profileId = this.getUserProfileId(userId);
+
+            var query = (question || "").toLowerCase();
+            var requestedMonth = "";
+            var requestedYear = "";
+            var quarterMonths = [];
+            var fiscalPeriodIds = [];
+            var displayPeriod = "";
+
+            var months = [
+                "january",
+                "february",
+                "march",
+                "april",
+                "may",
+                "june",
+                "july",
+                "august",
+                "september",
+                "october",
+                "november",
+                "december"
+            ];
+
+            for (var i = 0; i < months.length; i++) {
+                if (query.indexOf(months[i]) > -1) {
+                    requestedMonth =
+                        months[i].charAt(0).toUpperCase() +
+                        months[i].slice(1);
+                    break;
+                }
+            }
+
+            var yearMatch = query.match(/\b(20\d{2})\b/);
+
+            if (yearMatch) {
+                requestedYear = yearMatch[0];
+            } else {
+                requestedYear = "2026";
+            }
+
+            if (
+                query.indexOf("q1") > -1 ||
+                query.indexOf("quarter 1") > -1
+            ) {
+                quarterMonths = ["January", "February", "March"];
+                displayPeriod = "Q1 " + requestedYear;
+            }
+
+            if (
+                query.indexOf("q2") > -1 ||
+                query.indexOf("quarter 2") > -1
+            ) {
+                quarterMonths = ["April", "May", "June"];
+                displayPeriod = "Q2 " + requestedYear;
+            }
+
+            if (
+                query.indexOf("q3") > -1 ||
+                query.indexOf("quarter 3") > -1
+            ) {
+                quarterMonths = ["July", "August", "September"];
+                displayPeriod = "Q3 " + requestedYear;
+            }
+
+            if (
+                query.indexOf("q4") > -1 ||
+                query.indexOf("quarter 4") > -1
+            ) {
+                quarterMonths = ["October", "November", "December"];
+                displayPeriod = "Q4 " + requestedYear;
+            }
+
+            if (
+                query.indexOf("yearly") > -1 ||
+                query.indexOf("year") > -1 ||
+                query.indexOf("ytd") > -1
+            ) {
+                quarterMonths = [
+                    "January", "February", "March",
+                    "April", "May", "June",
+                    "July", "August", "September",
+                    "October", "November", "December"
+                ];
+
+                displayPeriod = "Year " + requestedYear;
+            }
+
+            if (requestedMonth && quarterMonths.length === 0) {
+
+                displayPeriod = requestedMonth + " " + requestedYear;
+
+                var singleMonthGR = new GlideRecord("x_ctans_incentnow_payout_results");
+                singleMonthGR.addQuery("user", profileId);
+                singleMonthGR.query();
+
+                while (singleMonthGR.next()) {
+
+                    var fpDisplay =
+                        singleMonthGR.getDisplayValue("fiscal_period") || "";
+
+                    if (
+                        fpDisplay.toLowerCase() ===
+                        displayPeriod.toLowerCase()
+                    ) {
+                        fiscalPeriodIds.push(
+                            singleMonthGR.getValue("fiscal_period")
+                        );
+                        break;
+                    }
+                }
+            }
+
+            if (quarterMonths.length > 0) {
+
+                var periodGR = new GlideRecord("x_ctans_incentnow_payout_results");
+                periodGR.addQuery("user", profileId);
+                periodGR.query();
+
+                while (periodGR.next()) {
+
+                    var quarterDisplay =
+                        periodGR.getDisplayValue("fiscal_period") || "";
+
+                    for (var j = 0; j < quarterMonths.length; j++) {
+
+                        if (
+                            quarterDisplay.indexOf(quarterMonths[j]) > -1 &&
+                            quarterDisplay.indexOf(requestedYear) > -1
+                        ) {
+                            var fpId =
+                                periodGR.getValue("fiscal_period");
+
+                            if (
+                                fiscalPeriodIds.indexOf(fpId) === -1
+                            ) {
+                                fiscalPeriodIds.push(fpId);
+                            }
+
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (
+                !requestedMonth &&
+                quarterMonths.length === 0 &&
+                fiscalPeriodIds.length === 0
+            ) {
+
+                var latestGR = new GlideRecord("x_ctans_incentnow_payout_results");
+                latestGR.addQuery("user", profileId);
+                latestGR.orderByDesc("fiscal_period");
+                latestGR.setLimit(1);
+                latestGR.query();
+
+                if (latestGR.next()) {
+
+                    fiscalPeriodIds.push(
+                        latestGR.getValue("fiscal_period")
+                    );
+
+                    displayPeriod =
+                        latestGR.getDisplayValue("fiscal_period");
+                }
+            }
+
+            if (fiscalPeriodIds.length === 0) {
+                return "No payout breakdown available for the requested period.";
+            }
+
+            var gr = new GlideRecord("x_ctans_incentnow_payout_results");
+            gr.addQuery("user", profileId);
+            gr.addQuery(
+                "fiscal_period",
+                "IN",
+                fiscalPeriodIds.join(",")
+            );
+            gr.orderBy("step_number");
+            gr.query();
+
+            if (!gr.hasNext()) {
+                return "No payout breakdown available for " + displayPeriod + ".";
+            }
+
+            var groupedData = {};
+            var totalPayout = 0;
+
+            while (gr.next()) {
+
+                var payoutRule =
+                    gr.getDisplayValue("payout_summary_rule") || "";
+
+                var formula =
+                    gr.getValue("formula") || "";
+
+                var payoutValue =
+                    parseFloat(gr.getValue("payout_value")) || 0;
+
+                if (!groupedData[payoutRule]) {
+                    groupedData[payoutRule] = {
+                        total: 0,
+                        formulas: []
+                    };
+                }
+
+                groupedData[payoutRule].total += payoutValue;
+
+                if (formula) {
+                    groupedData[payoutRule].formulas.push(formula);
+                }
+
+                totalPayout += payoutValue;
+            }
+
+            var response =
+                "]]>📊<![CDATA[ Your payout breakdown for " +
+                displayPeriod +
+                " is as follows:\n\n";
+
+            for (var rule in groupedData) {
+
+                response += "• " + rule + "\n";
+
+                if (groupedData[rule].formulas.length > 0) {
+                    response +=
+                        "Formula Summary: " +
+                        groupedData[rule].formulas.join(" + ") +
+                        "\n";
+                }
+
+                response +=
+                    "Final Payable Amount: $" +
+                    groupedData[rule].total.toLocaleString("en-IN") +
+                    "\n\n";
+            }
+
+            response += "——————————————\n";
+            response +=
+                "]]>💰<![CDATA[ Total Breakdown Amount: $" +
+                totalPayout.toLocaleString("en-IN");
+
+            gs.info(
+                "BREAKDOWN_DEBUG :: RESPONSE = \n" +
+                response
+            );
+
+            return response;
+
+        } catch (ex) {
+
+            gs.error(
+                "IncentNow :: handleBreakdown Error = " + ex
+            );
+
+            return "Unable to fetch payout breakdown details at the moment.";
+        }
+    },
+
+    handleSummary: function(userId) {
+
+        gs.info("IncentNow :: ENTERED handleSummary()");
+        gs.info("IncentNow :: handleSummary USER = " + userId);
+
+        var profileId = this.getUserProfileId(userId);
+
+        gs.info("SUMMARY_DEBUG :: PROFILE ID = " + profileId);
+        gs.info("SUMMARY_DEBUG :: USER ID = " + userId);
+
+        var pu = new GlideRecord("x_ctans_incentnow_plan_users");
+        pu.addQuery("x_ctans_incentnow_sales_user", profileId);
+        pu.setLimit(1);
+        pu.query();
+
+        if (!pu.next()) {
+
+            gs.info(
+                "IncentNow :: No plan assigned for profile = " +
+                profileId
+            );
+
+            return "No compensation plan assigned.";
+        }
+
+        var planId = pu.getValue(
+            "x_ctans_incentnow_plan"
+        );
+
+        gs.info(
+            "IncentNow :: PLAN ID = " +
+            planId
+        );
+
+        var ps = new GlideRecord(
+            "x_ctans_incentnow_payout_summary"
+        );
+
+        ps.addQuery("plan", planId);
+        ps.orderBy("order");
+        ps.query();
+
+        var response =
+            "]]>📊<![CDATA[ Payout Summary Details\n\n";
+
+        var hasData = false;
+
+        while (ps.next()) {
+
+            hasData = true;
+
+            var ruleName =
+                ps.getValue("rule_name") || "";
+
+            var operator =
+                ps.getValue("operator") || "";
+
+            var input1Earning =
+                ps.getDisplayValue("input1_earning_rule") || "";
+
+            var input1Lookup =
+                ps.getDisplayValue("input1_id") || "";
+
+            var input2Earning =
+                ps.getDisplayValue("input2_earning_rule") || "";
+
+            var input2Lookup =
+                ps.getDisplayValue("input2_id") || "";
+
+            gs.info(
+                "SUMMARY_DEBUG :: RULE = " +
+                ruleName
+            );
+
+            response +=
+                "]]>🔹<![CDATA[ " + ruleName + "\n";
+
+            var formulaParts = [];
+
+            if (input1Earning) {
+                formulaParts.push(input1Earning);
+            }
+
+            if (input1Lookup) {
+                formulaParts.push(input1Lookup);
+            }
+
+            if (input2Earning) {
+                formulaParts.push(input2Earning);
+            }
+
+            if (input2Lookup) {
+                formulaParts.push(input2Lookup);
+            }
+
+            var operatorText = "";
+
+            switch ((operator || "").toLowerCase()) {
+
+                case "multiply":
+                    operatorText = " × ";
+                    break;
+
+                case "add":
+                    operatorText = " + ";
+                    break;
+
+                case "subtract":
+                    operatorText = " - ";
+                    break;
+
+                case "divide":
+                    operatorText = " ÷ ";
+                    break;
+
+                default:
+                    operatorText = " " + operator + " ";
+            }
+
+            if (formulaParts.length > 0) {
+
+                response +=
+                    formulaParts.join(operatorText) +
+                    "\n";
+            }
+
+            response += "\n";
+        }
+
+        if (!hasData) {
+
+            gs.info(
+                "IncentNow :: No payout summary records found"
+            );
+
+            return "No payout summary found for your compensation plan.";
+        }
+
+        gs.info(
+            "SUMMARY_DEBUG :: RESPONSE = \n" +
+            response
+        );
+
+        return response;
+    },
+
+    handleEarningRules: function(userId) {
+
+        gs.info("IncentNow :: ENTERED handleEarningRules()");
+        gs.info("IncentNow :: handleEarningRules USER = " + userId);
+
+        var profileId = this.getUserProfileId(userId);
+
+        gs.info("EARNING_DEBUG :: PROFILE ID = " + profileId);
+        gs.info("EARNING_DEBUG :: USER ID = " + userId);
+
+        var pu = new GlideRecord("x_ctans_incentnow_plan_users");
+        pu.addQuery(
+            "x_ctans_incentnow_sales_user",
+            profileId
+        );
+        pu.setLimit(1);
+        pu.query();
+
+        if (!pu.next()) {
+
+            gs.info(
+                "IncentNow :: No plan assigned for earning rules"
+            );
+
+            return "No compensation plan assigned.";
+        }
+
+        var planId =
+            pu.getValue("x_ctans_incentnow_plan");
+
+        gs.info(
+            "IncentNow :: PLAN ID (Earning Rules) = " +
+            planId
+        );
+
+        var er = new GlideRecord(
+            "x_ctans_incentnow_earning_rule"
+        );
+
+        er.addQuery("plan", planId);
+        er.orderBy("order");
+        er.query();
+
+        var response =
+            "]]>💰<![CDATA[ Earning Rules\n\n";
+
+        var hasData = false;
+        var count = 0;
+
+        while (er.next()) {
+
+            hasData = true;
+            count++;
+
+            var ruleName =
+                er.getValue("rule_name") || "";
+
+            var aggregation =
+                er.getValue("aggregation") || "";
+
+            var sourceObject =
+                er.getDisplayValue("source_object") || "";
+
+            var earningLevel =
+                er.getDisplayValue("earning_level") || "";
+
+            gs.info(
+                "EARNING_DEBUG :: RULE " +
+                count +
+                " = " +
+                ruleName
+            );
+
+            response +=
+                "]]>🔹<![CDATA[ " + ruleName + "\n";
+
+            if (sourceObject) {
+
+                response +=
+                    "Source: " +
+                    sourceObject +
+                    "\n";
+            }
+
+            if (aggregation) {
+
+                response +=
+                    "Aggregation: " +
+                    aggregation +
+                    "\n";
+            }
+
+            if (earningLevel) {
+
+                response +=
+                    "Level: " +
+                    earningLevel +
+                    "\n";
+            }
+
+            response += "\n";
+        }
+
+        if (!hasData) {
+
+            gs.info(
+                "IncentNow :: No earning rules found"
+            );
+
+            return "No earning rules found for your compensation plan.";
+        }
+
+        gs.info(
+            "EARNING_DEBUG :: RESPONSE = \n" +
+            response
+        );
+
+        return response;
+    },
+
+    handlePayoutComponents: function(userId) {
+
+        try {
+
+            gs.info("IncentNow :: ENTERED handlePayoutComponents()");
+            gs.info("PAYOUT_COMPONENT_DEBUG :: USER ID = " + userId);
+
+            var profileId = this.getUserProfileId(userId);
+
+            gs.info(
+                "PAYOUT_COMPONENT_DEBUG :: PROFILE ID = " +
+                profileId
+            );
+
+            var stmtGR = new GlideRecord(
+                "x_ctans_incentnow_incentive_statement"
+            );
+
+            stmtGR.addQuery("user", profileId);
+            stmtGR.orderByDesc("sys_created_on");
+            stmtGR.setLimit(1);
+            stmtGR.query();
+
+            if (!stmtGR.next()) {
+
+                gs.info(
+                    "PAYOUT_COMPONENT_DEBUG :: NO INCENTIVE STATEMENT FOUND"
+                );
+
+                return "No payout component details found for your profile.";
+            }
+
+            gs.info(
+                "PAYOUT_COMPONENT_DEBUG :: STATEMENT SYS_ID = " +
+                stmtGR.getUniqueValue()
+            );
+
+            gs.info(
+                "PAYOUT_COMPONENT_DEBUG :: PERIOD = " +
+                stmtGR.getDisplayValue("fiscal_period")
+            );
+
+            var fiscalPeriod =
+                stmtGR.getDisplayValue("fiscal_period") || "";
+
+            var totalCommission =
+                stmtGR.getValue("total_commission") || "0";
+
+            var payoutResults =
+                stmtGR.getValue("payout_results") || "";
+
+            var statementHTML =
+                stmtGR.getValue("statement") || "";
+
+            if (!payoutResults) {
+
+                gs.info(
+                    "PAYOUT_COMPONENT_DEBUG :: PAYOUT RESULTS EMPTY"
+                );
+
+                return "No payout components found for your latest incentive statement.";
+            }
+
+            var parsedResults = JSON.parse(payoutResults);
+
+            if (!parsedResults || parsedResults.length === 0) {
+
+                gs.info(
+                    "PAYOUT_COMPONENT_DEBUG :: PARSED RESULTS EMPTY"
+                );
+
+                return "No payout components found for your latest incentive statement.";
+            }
+
+            var lookupMatches = [];
+            var regex =
+                /<div class="trace-lookup"><b>Lookup:<\/b>\s*(.*?)\s*→/g;
+
+            var match;
+
+            while ((match = regex.exec(statementHTML)) !== null) {
+
+                lookupMatches.push(match[1]);
+            }
+
+            var lookupIndex = 0;
+
+            var response = "";
+
+            response +=
+                "]]>📊<![CDATA[ Payout Components - " +
+                fiscalPeriod +
+                "\n\n";
+
+            for (var i = 0; i < parsedResults.length; i++) {
+
+                var item = parsedResults[i];
+
+                var ruleName =
+                    item.ruleName || "Payout Component";
+
+                var payoutValue =
+                    item.payoutValue || "0";
+
+                var formula =
+                    item.formula || "";
+
+                gs.info(
+                    "PAYOUT_COMPONENT_DEBUG :: RULE = " +
+                    ruleName
+                );
+
+                response +=
+                    "]]>🔹<![CDATA[ " +
+                    ruleName +
+                    "\n";
+
+                if (item.trace && item.trace.length > 0) {
+
+                    for (var t = 0; t < item.trace.length; t++) {
+
+                        var trace = item.trace[t];
+
+                        var traceType =
+                            trace.type || "";
+
+                        var traceName = "";
+
+                        if (
+                            typeof trace.name === "string"
+                        ) {
+                            traceName = trace.name;
+                        }
+
+                        var traceValue =
+                            trace.value || "";
+
+                        var traceOutput =
+                            trace.output || "";
+
+                        if (traceType == "earning") {
+
+                            response +=
+                                "Earning: ";
+
+                            if (
+                                traceName &&
+                                traceValue
+                            ) {
+
+                                response +=
+                                    traceName +
+                                    " → " +
+                                    traceValue +
+                                    "\n";
+
+                            } else if (traceName) {
+
+                                response +=
+                                    traceName +
+                                    "\n";
+
+                            } else {
+
+                                response +=
+                                    traceValue +
+                                    "\n";
+                            }
+                        }
+
+                        if (traceType == "lookup") {
+
+                            var dynamicLookupName = "";
+
+                            if (
+                                lookupMatches[
+                                    lookupIndex
+                                ]
+                            ) {
+
+                                dynamicLookupName =
+                                    lookupMatches[
+                                        lookupIndex
+                                    ];
+
+                                lookupIndex++;
+                            }
+
+                            response +=
+                                "Lookup: ";
+
+                            if (
+                                dynamicLookupName &&
+                                traceOutput
+                            ) {
+
+                                response +=
+                                    dynamicLookupName +
+                                    " → " +
+                                    traceOutput +
+                                    "\n";
+
+                            } else if (
+                                traceOutput
+                            ) {
+
+                                response +=
+                                    traceOutput +
+                                    "\n";
+
+                            } else {
+
+                                response +=
+                                    "Lookup value not available\n";
+                            }
+                        }
+
+                        if (
+                            traceType ==
+                            "calculation" &&
+                            trace.formula
+                        ) {
+
+                            response +=
+                                "Calculation: " +
+                                trace.formula;
+
+                            if (
+                                trace.result
+                            ) {
+
+                                response +=
+                                    " = " +
+                                    trace.result;
+                            }
+
+                            response +=
+                                "\n";
+                        }
+                    }
+
+                } else if (formula) {
+
+                    response +=
+                        "Calculation: " +
+                        formula +
+                        "\n";
+                }
+
+                response +=
+                    "Commission: $" +
+                    parseFloat(
+                        payoutValue || 0
+                    ).toLocaleString(
+                        "en-IN"
+                    ) +
+                    "\n\n";
+            }
+
+            response +=
+                "]]>💰<![CDATA[ Total Commission: $" +
+                parseFloat(
+                    totalCommission || 0
+                ).toLocaleString(
+                    "en-IN"
+                );
+
+            gs.info(
+                "PAYOUT_COMPONENT_DEBUG :: RESPONSE = \n" +
+                response
+            );
+
+            return response.trim();
+
+        } catch (ex) {
+
+            gs.error(
+                "PAYOUT_COMPONENT_DEBUG :: ERROR = " +
+                ex
+            );
+
+            return "Unable to retrieve payout component details at the moment.";
+        }
+    },
+
+    handlePlanComponents: function(userId) {
+
+        gs.info("IncentNow :: ENTERED handlePlanComponents()");
+        gs.info("IncentNow :: USER = " + userId);
+
+        var profileId = this.getUserProfileId(userId);
+
+        gs.info(
+            "PLAN_COMPONENTS :: PROFILE ID = " +
+            profileId
+        );
+
+        /*
+        =====================================================
+        STEP 1: GET ASSIGNED PLAN
+        =====================================================
+        */
+
+        var pu = new GlideRecord(
+            "x_ctans_incentnow_plan_users"
+        );
+
+        pu.addQuery(
+            "x_ctans_incentnow_sales_user",
+            profileId
+        );
+
+        pu.setLimit(1);
+        pu.query();
+
+        if (!pu.next()) {
+
+            gs.info(
+                "PLAN_COMPONENTS :: NO PLAN ASSIGNED"
+            );
+
+            return "No compensation plan assigned.";
+        }
+
+        var planId =
+            pu.getValue("x_ctans_incentnow_plan");
+
+        var planName =
+            pu.getDisplayValue(
+                "x_ctans_incentnow_plan"
+            );
+
+        gs.info(
+            "PLAN_COMPONENTS :: PLAN ID = " +
+            planId
+        );
+
+        var response =
+            "]]>📄<![CDATA[ Plan Components for " +
+            planName +
+            "\n\n";
+
+        var hasData = false;
+
+        /*
+        =====================================================
+        1. EARNING RULES
+        =====================================================
+        */
+
+        var er = new GlideRecord(
+            "x_ctans_incentnow_earning_rule"
+        );
+
+        er.addQuery("plan", planId);
+        er.orderBy("order");
+        er.query();
+
+        if (er.hasNext()) {
+
+            hasData = true;
+
+            response +=
+                "]]>💰<![CDATA[ Earning Rules\n\n";
+
+            while (er.next()) {
+
+                var ruleName =
+                    er.getValue("rule_name") || "-";
+
+                var sourceObject =
+                    er.getDisplayValue(
+                        "source_object"
+                    ) || "-";
+
+                // FIX ADDED
+                var fieldName =
+                    er.getDisplayValue(
+                        "field"
+                    ) || "-";
+
+                var aggregation =
+                    er.getValue(
+                        "aggregation"
+                    ) || "-";
+
+                var earningLevel =
+                    er.getValue(
+                        "earning_level"
+                    ) || "-";
+
+                response +=
+                    "• " + ruleName + "\n" +
+                    "  Source: " + sourceObject + "\n" +
+                    "  Field: " + fieldName + "\n" +
+                    "  Aggregation: " + aggregation.toUpperCase() + "\n" +
+                    "  Level: " + earningLevel + "\n\n";
+            }
+        }
+
+        /*
+        =====================================================
+        2. LOOKUP RULES
+        =====================================================
+        */
+
+        var lr = new GlideRecord(
+            "x_ctans_incentnow_lookup_rule"
+        );
+
+        lr.addQuery("plan", planId);
+        lr.orderBy("step_number");
+        lr.query();
+
+        if (lr.hasNext()) {
+
+            hasData = true;
+
+            response +=
+                "⚙️ Lookup Rules\n\n";
+
+            while (lr.next()) {
+
+                var stepNumber =
+                    lr.getValue(
+                        "step_number"
+                    ) || "-";
+
+                var stepName =
+                    lr.getDisplayValue(
+                        "step_name"
+                    ) || "Lookup Rule";
+
+                var ruleType =
+                    lr.getValue(
+                        "rule_type"
+                    ) || "-";
+
+                var rateValue =
+                    lr.getValue(
+                        "rate_value"
+                    ) || "";
+
+                var rateUnit =
+                    lr.getValue(
+                        "rate_unit"
+                    ) || "";
+
+                response +=
+                    "• Step " +
+                    stepNumber +
+                    ": " +
+                    stepName +
+                    "\n";
+
+                response +=
+                    "  Type: " +
+                    ruleType +
+                    "\n";
+
+                if (rateValue) {
+
+                    response +=
+                        "  Rate: " +
+                        rateValue;
+
+                    if (
+                        rateUnit ==
+                        "percentage"
+                    ) {
+                        response += "%";
+                    }
+
+                    response += "\n";
+                }
+
+                response += "\n";
+            }
+        }
+
+        /*
+        =====================================================
+        3. PAYOUT SUMMARIES
+        =====================================================
+        */
+
+        var ps = new GlideRecord(
+            "x_ctans_incentnow_payout_summary"
+        );
+
+        ps.addQuery("plan", planId);
+        ps.orderBy("order");
+        ps.query();
+
+        if (ps.hasNext()) {
+
+            hasData = true;
+
+            response +=
+                "]]>📊<![CDATA[ Payout Summaries\n\n";
+
+            while (ps.next()) {
+
+                var payoutRule =
+                    ps.getValue(
+                        "rule_name"
+                    ) || "Payout Rule";
+
+                var operator =
+                    ps.getValue(
+                        "operator"
+                    ) || "-";
+
+                var earningRule =
+                    ps.getDisplayValue(
+                        "input1_earning_rule"
+                    ) || "";
+
+                var lookupRule =
+                    ps.getDisplayValue(
+                        "input2_id"
+                    ) || "";
+
+                response +=
+                    "• " +
+                    payoutRule +
+                    "\n";
+
+                if (
+                    earningRule ||
+                    lookupRule
+                ) {
+
+                    response +=
+                        "  Formula:\n";
+
+                    response +=
+                        "  " +
+                        earningRule +
+                        " × " +
+                        lookupRule +
+                        "\n";
+                }
+
+                response +=
+                    "  Operator: " +
+                    operator +
+                    "\n\n";
+            }
+        }
+
+        /*
+        =====================================================
+        4. PLAN USERS
+        =====================================================
+        */
+
+        var users = new GlideRecord(
+            "x_ctans_incentnow_plan_users"
+        );
+
+        users.addQuery(
+            "x_ctans_incentnow_plan",
+            planId
+        );
+
+        users.query();
+
+        if (users.hasNext()) {
+
+            hasData = true;
+
+            response +=
+                "]]>👥<![CDATA[ Assigned Users\n\n";
+
+            while (users.next()) {
+
+                response +=
+                    "• " +
+                    (
+                        users.getDisplayValue(
+                            "x_ctans_incentnow_sales_user"
+                        ) || "User"
+                    ) +
+                    "\n";
+            }
+
+            response += "\n";
+        }
+
+        /*
+        =====================================================
+        FINAL RETURN
+        =====================================================
+        */
+
+        if (!hasData) {
+
+            gs.info(
+                "PLAN_COMPONENTS :: NO DATA FOUND"
+            );
+
+            return "No plan components found for your compensation plan.";
+        }
+
+        gs.info(
+            "PLAN_COMPONENTS :: RESPONSE = \n" +
+            response
+        );
+
+        return response;
+    },
+
+    handlePlan: function(userId) {
+
+        gs.info("IncentNow :: ENTERED handlePlan()");
+        gs.info("IncentNow :: USER = " + userId);
+
+        /*
+        =====================================================
+        STEP 1: GET USER PROFILE
+        =====================================================
+        */
+
+        var profileId = this.getUserProfileId(userId);
+
+        gs.info(
+            "PLAN_DEBUG :: PROFILE ID = " +
+            profileId
+        );
+
+        var userGR = new GlideRecord(
+            "x_ctans_incentnow_user_profile"
+        );
+
+        if (!userGR.get(profileId)) {
+
+            gs.info(
+                "PLAN_DEBUG :: USER PROFILE NOT FOUND"
+            );
+
+            return "User profile is not available.";
+        }
+
+        var userName =
+            userGR.getDisplayValue("user") ||
+            "the user";
+
+        var businessUnit =
+            userGR.getDisplayValue("business_unit") ||
+            "assigned";
+
+        /*
+        =====================================================
+        STEP 2: GET ASSIGNED PLAN
+        =====================================================
+        */
+
+        var pu = new GlideRecord(
+            "x_ctans_incentnow_plan_users"
+        );
+
+        pu.addQuery(
+            "x_ctans_incentnow_sales_user",
+            profileId
+        );
+
+        pu.setLimit(1);
+        pu.query();
+
+        if (!pu.next()) {
+
+            gs.info(
+                "PLAN_DEBUG :: NO PLAN ASSIGNED"
+            );
+
+            return "No compensation plan assigned.";
+        }
+
+        var planId =
+            pu.getValue("x_ctans_incentnow_plan");
+
+        var planName =
+            pu.getDisplayValue(
+                "x_ctans_incentnow_plan"
+            ) || "a compensation plan";
+
+        gs.info(
+            "PLAN_DEBUG :: PLAN ID = " +
+            planId
+        );
+
+        gs.info(
+            "PLAN_DEBUG :: PLAN NAME = " +
+            planName
+        );
+
+        /*
+        =====================================================
+        FINAL RESPONSE
+        =====================================================
+        */
+
+        return "The assigned plan for " +
+            userName +
+            " is " +
+            planName +
+            " within the " +
+            businessUnit +
+            " business unit.";
+    },
+
+    // handleBU: function(userId) {
+
+    //     gs.info("IncentNow :: ENTERED handleBU()");
+    //     gs.info("IncentNow :: handleBU USER = " + userId);
+
+    //     var userGR = new GlideRecord("x_ctans_incentnow_user_profile");
+
+    //     if (!userGR.get(userId)) {
+    //         gs.info("IncentNow :: User profile not found");
+    //         return "Business unit details are not available.";
+    //     }
+
+    //     var businessUnit = (userGR.getDisplayValue("business_unit") || "").trim();
+
+    //     gs.info("IncentNow :: USER BUSINESS UNIT = " + businessUnit);
+
+    //     if (!businessUnit)
+    //         return "Business unit is not assigned.";
+
+    //     return "]]>🏢<![CDATA[ Your Business Unit: " + businessUnit;
+    // },
+
+    handleIncentiveStatement: function(userId, query) {
+
+        gs.info("IncentNow :: ENTERED handleIncentiveStatement()");
+        gs.info("IncentNow :: Statement Query = " + query);
+        gs.info("IncentNow :: USER = " + userId);
+
+        var profileId = this.getUserProfileId(userId);
+
+        gs.info(
+            "STATEMENT_DEBUG :: PROFILE ID = " +
+            profileId
+        );
+
+        var periodFromQuery =
+            this.extractMonthYear(query) || "";
+
+        gs.info(
+            "IncentNow :: Extracted Statement Period = " +
+            periodFromQuery
+        );
+
+        var isMonthYearQuery = false;
+        var isMonthOnlyQuery = false;
+        var isYearOnlyQuery = false;
+
+        if (
+            periodFromQuery &&
+            periodFromQuery.indexOf(" ") > -1 &&
+            periodFromQuery.match(/\b20\d{2}\b/)
+        ) {
+
+            isMonthYearQuery = true;
+
+        } else if (
+            periodFromQuery &&
+            !periodFromQuery.match(/\b20\d{2}\b/)
+        ) {
+
+            isMonthOnlyQuery = true;
+
+        } else if (
+            periodFromQuery &&
+            periodFromQuery.match(/^\d{4}$/)
+        ) {
+
+            isYearOnlyQuery = true;
+        }
+
+        var currentYear =
+            parseInt(
+                new GlideDateTime().getYearLocalTime(),
+                10
+            );
+
+        var requestedYearMatch =
+            periodFromQuery.match(/\b(20\d{2})\b/);
+
+        if (requestedYearMatch) {
+
+            var requestedYear =
+                parseInt(
+                    requestedYearMatch[0],
+                    10
+                );
+
+            if (requestedYear > currentYear) {
+
+                return "Commission data is not yet available for the selected period. Please check again later.";
+            }
+        }
+
+        var stmtGR = new GlideRecord(
+            "x_ctans_incentnow_incentive_statement"
+        );
+
+        stmtGR.addQuery(
+            "user",
+            profileId
+        );
+
+        stmtGR.orderByDesc("sys_created_on");
+        stmtGR.query();
+
+        var latestMonthMatch = null;
+        var latestYearMatch = null;
+        var fallback = null;
+
+        while (stmtGR.next()) {
+
+            var fiscalPeriod =
+                stmtGR.getDisplayValue(
+                    "fiscal_period"
+                ) || "";
+
+            var normalizedPeriod =
+                this.normalizeMonth(
+                    fiscalPeriod
+                );
+
+            var totalCommission =
+                parseFloat(
+                    stmtGR.getValue(
+                        "total_commission"
+                    )
+                ) || 0;
+
+            gs.info(
+                "STATEMENT_DEBUG :: PERIOD = " +
+                fiscalPeriod
+            );
+
+            if (isMonthYearQuery) {
+
+                var normalizedQuery =
+                    this.normalizeMonth(
+                        periodFromQuery
+                    );
+
+                if (
+                    normalizedPeriod === normalizedQuery ||
+                    normalizedPeriod.indexOf(
+                        normalizedQuery
+                    ) > -1
+                ) {
+
+                    return "]]>📄<![CDATA[ Incentive Statement\n\n" +
+                        "]]>📅<![CDATA[ Period: " +
+                        fiscalPeriod +
+                        "\n" +
+                        "]]>💰<![CDATA[ Total Commission: $" +
+                        totalCommission.toLocaleString("en-IN") +
+                        "\n\nStatement available for the selected fiscal period.";
+                }
+            }
+
+            if (isMonthOnlyQuery) {
+
+                if (
+                    normalizedPeriod.indexOf(
+                        periodFromQuery.toLowerCase()
+                    ) > -1 &&
+                    !latestMonthMatch
+                ) {
+
+                    latestMonthMatch = {
+                        period: fiscalPeriod,
+                        amount: totalCommission
+                    };
+                }
+            }
+
+            if (isYearOnlyQuery) {
+
+                if (
+                    fiscalPeriod.indexOf(
+                        periodFromQuery
+                    ) > -1 &&
+                    !latestYearMatch
+                ) {
+
+                    latestYearMatch = {
+                        period: fiscalPeriod,
+                        amount: totalCommission
+                    };
+                }
+            }
+
+            if (!fallback) {
+
+                fallback = {
+                    period: fiscalPeriod,
+                    amount: totalCommission
+                };
+            }
+        }
+
+        if (
+            isMonthOnlyQuery &&
+            latestMonthMatch
+        ) {
+
+            return "]]>📄<![CDATA[ Incentive Statement\n\n" +
+                "]]>📅<![CDATA[ Period: " +
+                latestMonthMatch.period +
+                "\n" +
+                "]]>💰<![CDATA[ Total Commission: $" +
+                latestMonthMatch.amount.toLocaleString("en-IN");
+        }
+
+        if (
+            isYearOnlyQuery &&
+            latestYearMatch
+        ) {
+
+            return "]]>📄<![CDATA[ Incentive Statement\n\n" +
+                "]]>📅<![CDATA[ Period: " +
+                latestYearMatch.period +
+                "\n" +
+                "]]>💰<![CDATA[ Total Commission: $" +
+                latestYearMatch.amount.toLocaleString("en-IN");
+        }
+
+        if (
+            isMonthYearQuery ||
+            isMonthOnlyQuery ||
+            isYearOnlyQuery
+        ) {
+
+            return "Commission data is not yet available for the selected period. Please check again later.";
+        }
+
+        if (fallback) {
+
+            return "]]>📄<![CDATA[ Latest Incentive Statement\n\n" +
+                "]]>📅<![CDATA[ Period: " +
+                fallback.period +
+                "\n" +
+                "]]>💰<![CDATA[ Total Commission: $" +
+                fallback.amount.toLocaleString("en-IN");
+        }
+
+        return "No incentive statement found.";
+    },
+
+    handleAIExplanation: function(userId, query) {
+
+        gs.info("IncentNow :: ENTERED handleAIExplanation()");
+        gs.info("IncentNow :: AI Explanation Query = " + query);
+        gs.info("IncentNow :: USER = " + userId);
+
+        var profileId = this.getUserProfileId(userId);
+
+        gs.info(
+            "AI_EXPLANATION :: PROFILE ID = " +
+            profileId
+        );
+
+        var stmtGR = new GlideRecord(
+            "x_ctans_incentnow_incentive_statement"
+        );
+
+        stmtGR.addQuery(
+            "user",
+            profileId
+        );
+
+        stmtGR.orderByDesc("sys_created_on");
+        stmtGR.setLimit(1);
+        stmtGR.query();
+
+        if (!stmtGR.next()) {
+
+            gs.info(
+                "AI_EXPLANATION :: NO PAYOUT DATA FOUND"
+            );
+
+            return "No payout data available.";
+        }
+
+        var payout =
+            parseFloat(
+                stmtGR.getValue(
+                    "total_commission"
+                )
+            ) || 0;
+
+        var fiscalPeriod =
+            stmtGR.getDisplayValue(
+                "fiscal_period"
+            ) || "";
+
+        gs.info(
+            "AI_EXPLANATION :: PAYOUT = " +
+            payout
+        );
+
+        gs.info(
+            "AI_EXPLANATION :: PERIOD = " +
+            fiscalPeriod
+        );
+
+        var payoutLevel = "";
+
+        if (payout < 5000) {
+
+            payoutLevel = "LOW";
+
+        } else if (payout < 20000) {
+
+            payoutLevel = "MEDIUM";
+
+        } else {
+
+            payoutLevel = "HIGH";
+        }
+
+        var response =
+            "Payout Context\n\n" +
+            "Fiscal Period: " +
+            fiscalPeriod +
+            "\n" +
+            "Current Commission: $" +
+            payout.toLocaleString("en-IN") +
+            "\n" +
+            "Payout Level: " +
+            payoutLevel +
+            "\n" +
+            "Evaluation Factors: quota attainment, earning rules, lookup rules, payout summaries, bonus thresholds, and sales performance.\n\n" +
+            "Use this factual information to explain how the payout was determined.";
+
+        return response;
+    },
+
+
+    type: 'IncentNowCopilotService'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+        <sys_created_on>2026-04-14 14:59:18</sys_created_on>
+        <sys_id>8a87a5fc3b98c310ffa00e9693e45a39</sys_id>
+        <sys_mod_count>292</sys_mod_count>
+        <sys_name>IncentNowCopilotService</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_script_include_8a87a5fc3b98c310ffa00e9693e45a39</sys_update_name>
+        <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
+        <sys_updated_on>2026-06-16 19:11:12</sys_updated_on>
+    </sys_script_include>
+</record_update>

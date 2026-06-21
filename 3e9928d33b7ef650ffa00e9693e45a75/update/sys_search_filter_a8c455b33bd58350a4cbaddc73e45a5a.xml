@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_search_filter">
+    <sys_search_filter action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <ais_search_source display_value="Custom skills">fc4703dbe4cf9a10f877f4c9ef9e2d17</ais_search_source>
+        <label>Generative AI Skill</label>
+        <name>Custom skills</name>
+        <order>600</order>
+        <search_context_config display_value="Now Assist - IncentIQ">61abdbf43b6ccf505493ddb693e45ab2</search_context_config>
+        <sys_class_name>sys_search_filter</sys_class_name>
+        <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+        <sys_created_on>2026-06-12 14:18:19</sys_created_on>
+        <sys_id>a8c455b33bd58350a4cbaddc73e45a5a</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>Custom skills</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_search_filter_a8c455b33bd58350a4cbaddc73e45a5a</sys_update_name>
+        <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
+        <sys_updated_on>2026-06-12 14:18:19</sys_updated_on>
+    </sys_search_filter>
+</record_update>

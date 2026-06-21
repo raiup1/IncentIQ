@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update sys_domain="global" table="sys_script_client">
+    <sys_script_client action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <applies_extended>false</applies_extended>
+        <condition/>
+        <description/>
+        <field>fiscal_start</field>
+        <global>true</global>
+        <isolate_script>true</isolate_script>
+        <messages/>
+        <name>IncentNow - Set Fiscal Dates</name>
+        <order/>
+        <script><![CDATA[function onChange(control, oldValue, newValue, isLoading, isTemplate) {
+   if (isLoading || newValue === '') {
+      return;
+   }
+
+   var fiscalYear = g_form.getValue('fiscal_year');
+    if (!fiscalYear) return;
+
+    var ga = new GlideAjax('IncentNowClientUtils');
+    ga.addParam('sysparm_name', 'getFiscalDates');
+    ga.addParam('sysparm_fiscalYear', fiscalYear);
+    ga.addParam('sysparm_fiscalStartMonth', newValue);
+
+    ga.getXMLAnswer(function (answer) {
+        if (!answer) {
+            g_form.showFieldMsg('fiscal_start', 'Could not calculate fiscal dates', 'error');
+            return;
+        }
+
+        try {
+            var data = JSON.parse(answer);
+
+            if (data.start_date)
+                g_form.setValue('start_date', data.start_date);
+
+            if (data.end_date)
+                g_form.setValue('end_date', data.end_date);
+
+            if (data.fiscal_end)
+                g_form.setValue('fiscal_end', data.fiscal_end); // numeric choice value
+
+        } catch (e) {
+            g_form.showFieldMsg('fiscal_start', 'Error calculating fiscal dates', 'error');
+        }
+    });
+   
+}]]></script>
+        <sys_class_name>sys_script_client</sys_class_name>
+        <sys_created_by>karan.kumar</sys_created_by>
+        <sys_created_on>2026-02-25 19:29:11</sys_created_on>
+        <sys_domain>global</sys_domain>
+        <sys_domain_path>/</sys_domain_path>
+        <sys_id>f42997953b53f6d0ffa00e9693e45a21</sys_id>
+        <sys_mod_count>2</sys_mod_count>
+        <sys_name>IncentNow - Set Fiscal Dates</sys_name>
+        <sys_overrides/>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_script_client_f42997953b53f6d0ffa00e9693e45a21</sys_update_name>
+        <sys_updated_by>upma.rai</sys_updated_by>
+        <sys_updated_on>2026-03-30 17:09:18</sys_updated_on>
+        <table>x_ctans_incentnow_fiscal_calendar</table>
+        <type>onChange</type>
+        <ui_type>10</ui_type>
+        <view/>
+    </sys_script_client>
+</record_update>

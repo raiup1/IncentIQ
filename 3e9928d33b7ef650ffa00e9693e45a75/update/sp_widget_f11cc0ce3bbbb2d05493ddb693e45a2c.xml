@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <client_script><![CDATA[api.controller=function($scope, spUtil,$location,spModal) {
+  /* widget controller */
+  var c = this;
+	c.data=c.data||{};
+
+		$scope.$on('openFiscalPeriods', function(event, data) {
+
+			var sys_id = data.sys_id;
+			spUtil.get("incentnow-fiscal-period-nd", {   
+				calendar_sys_id: sys_id,
+				table: "x_ctans_incentnow_fiscal_period"
+			}).then(function(response) {
+
+				c.periodWidget = response;
+				setTimeout(function() {
+				var el = document.getElementById("fiscalPeriodSection");
+				if (el) {
+					el.scrollIntoView({ behavior: "smooth", block: "start" });
+				}
+				}, 100);
+
+			});
+
+			});
+
+
+	
+	c.createFiscalCalendar = function() {
+ 
+		sessionStorage.setItem('prevPage', $location.absUrl());
+  $location.url("?id=incentnow_form&table="+'x_ctans_incentnow_fiscal_calendar'+"&sys_id=-1");
+};
+	
+	
+	c.openModal=function(){
+		
+		spModal.open({
+				title: 'Fiscal Calendar',
+				widget: 'incentnow-modal-of-form',
+				widgetInput: {
+					sys_id: '0bb7c9563b3b36d0ffa00e9693e45af8',
+					table: 'x_ctans_incentnow_fiscal_calendar',
+					view: 'portal_view'
+				}
+			});
+	}
+};]]></client_script>
+        <controller_as>c</controller_as>
+        <css>.fiscal-btn {
+  background-color: #050521; /* dark navy */
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 20px;
+  font-size: 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+}
+
+.fiscal-btn .icon {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.fiscal-btn:hover {
+  background-color: #0a0a3a;
+}
+
+.btn-container {
+  text-align: right;
+  margin-bottom:5px;
+}</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description/>
+        <docs/>
+        <field_list/>
+        <has_preview>false</has_preview>
+        <id>incentnow-widget-container</id>
+        <internal>false</internal>
+        <link><![CDATA[function link(scope, element, attrs, controller) {
+  
+}]]></link>
+        <name>IncentNow Widget Container</name>
+        <option_schema/>
+        <public>false</public>
+        <roles>x_ctans_incentnow.admin,x_ctans_incentnow.user</roles>
+        <script><![CDATA[(function() {
+  /* populate the 'data' object */
+  /* e.g., data.table = $sp.getValue('table'); */
+	data.fiscalCalendar   = $sp.getWidget('incentnow-table-widget',{ table: 'x_ctans_incentnow_fiscal_calendar',view:'default view',viewperiod:'true'});
+	data.reportWidget=$sp.getWidget('incentnow-fiscal-report');
+
+	
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>karan.kumar</sys_created_by>
+        <sys_created_on>2026-03-24 08:57:42</sys_created_on>
+        <sys_id>f11cc0ce3bbbb2d05493ddb693e45a2c</sys_id>
+        <sys_mod_count>66</sys_mod_count>
+        <sys_name>IncentNow Widget Container</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sp_widget_f11cc0ce3bbbb2d05493ddb693e45a2c</sys_update_name>
+        <sys_updated_by>karan.kumar</sys_updated_by>
+        <sys_updated_on>2026-05-18 11:04:29</sys_updated_on>
+        <template><![CDATA[<div>
+
+  <div>
+    <sp-widget widget="data.reportWidget"></sp-widget>
+  </div>
+   <div class="btn-container">
+      <button class="fiscal-btn" ng-click="c.createFiscalCalendar()">
+      <span class="icon">+</span>
+      <span>New Fiscal Calendar</span>
+      </button>
+      <!--<button class="fiscal-btn" ng-click="c.openModal()">
+         <span class="icon">+</span>
+         <span>Test Calendar</span>
+         </button> -->
+   </div>
+   <sp-widget widget="data.fiscalCalendar"></sp-widget>
+   <div id="fiscalPeriodSection" style="margin-top:20px;">
+      <sp-widget ng-if="c.periodWidget" widget="c.periodWidget"></sp-widget>
+   </div>
+</div>]]></template>
+    </sp_widget>
+</record_update>

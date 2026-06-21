@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>package_private</access>
+        <active>true</active>
+        <api_name>x_ctans_incentnow.MetadataMappingUtils</api_name>
+        <caller_access/>
+        <client_callable>false</client_callable>
+        <description/>
+        <mobile_callable>false</mobile_callable>
+        <name>MetadataMappingUtils</name>
+        <sandbox_callable>false</sandbox_callable>
+        <script><![CDATA[var MetadataMappingUtils = Class.create();
+
+MetadataMappingUtils.prototype = {
+
+    initialize: function() {
+    },
+
+    getFieldTypeQualifier: function(current) {
+
+        var dataModel = current.data_model_object_id;
+
+        if (!dataModel)
+            return '';
+
+        var dataModelGR = new GlideRecordSecure('x_ctans_incentnow_data_model_object');
+
+        if (dataModelGR.get(dataModel)) {
+
+            if (dataModelGR.data_source_system == 'External') {
+
+                return "nameINinteger,decimal,string,glide_date_time,currency";
+
+            }
+
+        }
+
+        return '';
+
+    },
+
+    type: 'MetadataMappingUtils'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>shroin.mandal</sys_created_by>
+        <sys_created_on>2026-05-28 08:22:07</sys_created_on>
+        <sys_id>42f2be7693c90750ddb7f2d89803d6cf</sys_id>
+        <sys_mod_count>3</sys_mod_count>
+        <sys_name>MetadataMappingUtils</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_script_include_42f2be7693c90750ddb7f2d89803d6cf</sys_update_name>
+        <sys_updated_by>upma.rai</sys_updated_by>
+        <sys_updated_on>2026-06-12 12:41:18</sys_updated_on>
+    </sys_script_include>
+</record_update>

@@ -1,0 +1,776 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>sp_platform</category>
+        <client_script><![CDATA[api.controller = function($scope, spUtil, $location, $window,$rootScope,mandatoryValidator) {
+    var c = this;
+	
+		c.showForm = false;
+	
+			c.openForm = function() {
+
+						c.data.sys_id = "-1";
+						c.data.action = "load_record";
+
+						c.server.update().then(function(response) {
+
+								// ONLY open form if server allows
+								if (response.loadForm) {
+
+										c.data.f = response.f;
+										c.data.filterwidget = null;
+										c.showForm = true;
+
+								} else {
+
+										c.showForm = false;
+
+								}
+
+						});
+				};
+	
+	c.cancel = function() {
+			c.showForm = false;
+			c.data.f = null;
+			c.data.filterwidget = null;
+		
+};
+			
+	
+		$scope.$on('queryBuilder:update', function (e, data) {
+					$scope.queryData = data;
+			});
+	
+		$scope.$on("earningrule.edit", function(event, data) {
+
+				c.showForm = true;
+			
+			c.removeFilter();
+
+				c.data.sys_id = data.sys_id;
+				c.data.action = "load_record";
+
+				c.server.update().then(function(response) {
+					c.data.f = response.f;
+					
+					setTimeout(function() {
+						var el = document.getElementById("ruleBuilderForm");
+						if (el) {
+							el.scrollIntoView({ behavior: "smooth", block: "start" });
+						}
+					}, 100);
+					
+				});
+			});
+	
+			c.createNew = function() {
+
+			c.data.action = "load_record";
+			c.data.sys_id = "-1";
+
+			c.server.update().then(function(response) {
+				c.data.f = response.f;
+				c.data.filterwidget = null;
+			});
+		};
+
+
+		c.save = function() {
+
+			var result = mandatoryValidator.validate(c.data.f);
+			if (!result.valid) {
+				spUtil.addErrorMessage(result.message);
+				return;
+			}
+
+			if (c.data.plansysid && c.data.f && c.data.f._fields.plan) {
+				c.data.f._fields.plan.value = c.data.plansysid;
+			}
+
+			var childScope = angular.element(document.querySelector('.cb-card')).scope();
+
+			var data = {
+					query: "",
+					display: "",
+					keyval: ""
+			};
+
+			if (childScope && childScope.getQueryData) {
+					data = childScope.getQueryData();
+			}
+			
+			c.data.action='save';
+			c.data.form=c.data.f;
+			c.data.query=data.query;
+			c.data.display=data.display;
+			c.data.keyval= data.keyval;
+			c.enableEarning=true;
+    		c.server.update().then(function(response) {
+				
+        $rootScope.$broadcast("earningruleupdation");
+				$rootScope.$broadcast('summary.refresh');
+				c.showForm=false;
+				c.data.f=null;
+				c.enableEarning=false;
+				c.data.filterwidget=null;
+    		});
+};
+	
+	
+	
+	c.generateFiscal = function()
+	{
+		 c.data.action = "generateFiscal";
+    	c.server.update().then(function(response){
+      //spUtil.addInfoMessage("Display Names Saved");
+				var newSysId = response.sys_id;
+					$location.url("?id=incentnow_form&sys_id=" + response.sys_id);
+    });
+	}
+	
+	c.goBack=function () {
+		
+  const prev = sessionStorage.getItem('prevPage');
+		//alert(prev);
+  
+  if (prev) {
+    $location.url(prev);
+  } else {
+    // fallback if nothing stored
+    window.history.back();
+  }
+}
+	
+	c.addFilter = function() {
+
+			var sourceObject = c.data.f?._fields?.source_object?.value;
+
+  if (!sourceObject) {
+    spUtil.addInfoMessage("Please select Source Object first");
+    return;
+  }
+
+  // preserve form
+  c.data.form = c.data.f;
+
+  c.data.action = "load_filter_widget";
+  c.data.source_object = sourceObject;
+
+  c.server.update();
+		};
+	
+	c.removeFilter =function()
+	{
+		c.data.filterwidget=null;
+	}
+};]]></client_script>
+        <controller_as>c</controller_as>
+        <css>
+.dg-add-btn {
+  margin-top: 12px;
+  padding: 14px;
+  border: 2px dashed #d1d5db;
+  border-radius: 10px;
+  text-align: center;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.dg-add-btn:hover {
+  background: #f9fafb;
+}
+
+.dg-form {
+  margin-top: 16px;
+  padding: 20px;
+  border: 2px solid #3b82f6;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.dg-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+  margin-left:20px;
+  margin-right:20px;
+  margin-bottom:20px;
+}
+.primary {
+  flex: 1;
+  background: #050521;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.secondary {
+  flex: 1;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+}
+.footer-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.fiscal-pill {
+  background-color: #050521; /* same dark color */
+  color: #fff;
+  border: none;
+  border-radius: 5px; /* makes it fully rounded */
+  padding: 8px 18px;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.fiscal-pill:hover {
+  background-color: #0a0a3a;
+}
+
+/*.back-btn {
+  background: #f5f5f5;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 14px;
+} */
+
+.back-btn:hover {
+  background: #e0e0e0;
+}
+
+.panel-heading {
+  display: flex;
+  align-items: center;   /* vertically center */
+  gap: 10px;             /* space between button &amp; text */
+}
+
+.back-btn {
+  border: none;
+  background: transparent;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.panel-heading h4 {
+  margin: 0;  /* removes default spacing issue */
+}
+
+
+/* MAIN CARD */
+.modern-card {
+  border-radius: 14px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+  overflow: hidden;
+  transition: all 0.25s ease;
+  margin-top:20px;
+}
+
+/* hover effect */
+.modern-card:hover {
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+}
+
+/* HEADER */
+.modern-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(to right, #f9fafb, #f3f4f6);
+  border-bottom: 1px solid #e5e7eb;
+  padding: 14px 18px;
+}
+
+/* TITLE */
+.modern-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+/* BACK BUTTON */
+.back-btn {
+  background: #f3f4f6;
+  border: none;
+  border-radius: 8px;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.back-btn img {
+  width: 20px;
+  height: 20px;
+}
+
+.back-btn:hover {
+  background: #e5e7eb;
+}
+
+/* BODY */
+.modern-body {
+  padding: 20px;
+  background: #ffffff;
+}
+
+/* FOOTER */
+.modern-footer {
+  display: flex;
+  justify-content: flex-end;
+  background: #fafafa;
+  border-top: 1px solid #e5e7eb;
+  padding: 12px 18px;
+}
+
+/* BUTTON */
+.modern-btn {
+  border-radius: 8px;
+  padding: 8px 18px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  background: #000000;
+}
+
+.modern-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+}
+
+
+.ip-filter {
+  margin:20px;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.ip-filter-header {
+  display: flex;
+  justify-content: flex-end;   /* move to right */
+  align-items: center;
+  gap: 10px;                   /* space between buttons */
+  margin-right: 10px;          /* optional: push slightly inside */
+}
+
+/* EMPTY BOX */
+.ip-empty-box {
+  border: 1px dashed #d1d5db;
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+/* SMALL BUTTON */
+.ip-btn-secondary.small {
+  height: 32px;
+  padding: 0 12px;
+  font-size: 13px;
+}
+
+/* FULL BUTTON */
+.ip-btn-primary.full {
+  width: 100%;
+ 	margin: 16px 0 0 0;
+  
+}
+
+.ip-btn-secondary {
+  height: 36px;
+  padding: 0 16px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;  /* softer border */
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #111827;
+  cursor: pointer;
+}
+
+.ip-btn-secondary:hover {
+  background: #f9fafb;
+  border-color: #d1d5db;
+}
+
+.ip-btn-primary {
+  height: 40px;
+  justify-content: center;
+  background: #000000;
+  color: #fff;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.ip-btn-primary:hover {
+  background: #4338ca;
+}
+
+.ip-btn-primary:disabled {
+  background: #c7d2fe;
+  cursor: not-allowed;
+}
+
+/* LARGE PRIMARY (matches your Tailwind h-10 px-6) */
+.ip-btn-large {
+  height: 40px;
+  padding: 0 20px;
+}</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description/>
+        <docs/>
+        <field_list/>
+        <has_preview>true</has_preview>
+        <id>incentnow-rule-builder-form</id>
+        <internal>false</internal>
+        <link><![CDATA[function link(){
+	
+}]]></link>
+        <name>IncentNow Rule Builder Form</name>
+        <option_schema>[{"name":"disableUIActions","section":"Behavior","label":"Disable UI Actions on Form","type":"boolean"},{"name":"showFormView","section":"Behavior","label":"Display current form view","type":"boolean"},{"name":"omitHeaderOptions","section":"Behavior","label":"Omit header options icon","type":"boolean"},{"name":"table","section":"other","label":"Table","type":"string"},{"name":"view","section":"other","label":"View","type":"string"},{"name":"sys_id","section":"other","label":"Sys ID","type":"string"}]</option_schema>
+        <public>false</public>
+        <roles>x_ctans_incentnow.admin,x_ctans_incentnow.user</roles>
+        <script><![CDATA[(function() {
+
+	
+	
+		/*data.table  = (input && input.table)  || options.table  || $sp.getParameter('table')  || "x_ctans_incentnow_earning_rule";
+		data.sys_id = "-1";//(input && input.sys_id) || options.sys_id || $sp.getParameter('sys_id') || "-1";
+		data.view   = (input && input.view)   || options.view   || $sp.getParameter('view')   || "portal_view";
+		data.plansysid = $sp.getParameter('sys_id') || "-1"; */
+	
+	data.table  = (input && input.table)  || options.table  || $sp.getParameter('table')  || "x_ctans_incentnow_earning_rule";
+
+	data.view   = (input && input.view)   || options.view   || $sp.getParameter('view')   || "portal_view";
+
+	// plan sys_id from URL
+	data.plansysid = $sp.getParameter('sys_id') || "-1";
+
+	// earning rule sys_id ONLY from input
+	data.sys_id = (input && input.sys_id) ? input.sys_id : "-1";
+	
+	//data.f = input && input.form? input.form : $sp.getForm(data.table, data.sys_id, '', data.view);
+	
+	var utils = new x_ctans_incentnow.IncentNowPortalUtils();
+    data.f = utils.applyPlaceholders(data.f);
+	
+	
+		if (input && input.action == "load_record") 
+		{
+
+			data.loadForm = false;
+
+			if (data.plansysid) {
+
+					var planGR = new GlideRecordSecure('x_ctans_incentnow_plan');
+
+					if (planGR.get(data.plansysid)) {
+
+							if (planGR.getValue('status') == 'draft') {
+
+									data.loadForm = true;
+
+							} else {
+
+									gs.addErrorMessage(
+											"Plan should be in Draft state to create earning rule."
+									);
+							}
+					}
+			}
+
+			if (data.loadForm)
+			{
+				data.sys_id = input.sys_id;
+				data.f = $sp.getForm(data.table, data.sys_id, '', data.view);
+				data.filterwidget = null;
+
+				var rule_condition_query="";
+				var source_object= data.f._fields.source_object;
+				var gRule = new GlideRecordSecure('x_ctans_incentnow_earning_rule');
+					if (gRule.get(input.sys_id)) {
+							rule_condition_query = gRule.getValue("rule_condition_query");
+					}
+
+
+				if(rule_condition_query)
+					{
+						data.filterwidget = $sp.getWidget("incentnow-querybuilder", {
+						"data_model": source_object.value,
+						"encoded_query": rule_condition_query
+						});
+					}
+
+					var utils = new x_ctans_incentnow.IncentNowPortalUtils();
+					data.f = utils.applyPlaceholders(data.f);
+
+					}
+			
+
+		}
+	
+			if (input && input.action == "load_filter_widget") {
+
+					if (!input.source_object) {
+							gs.addInfoMessage("Source Object is required");
+							return;
+					}
+
+					data.filterwidget = $sp.getWidget("incentnow-querybuilder", {
+							"data_model": input.source_object
+					});
+			}
+		
+  		setPolicies();
+
+	
+			function setPolicies()
+			{
+				if (data.plansysid && data.f && data.f._fields && data.f._fields.plan) {
+
+
+				var planGR = new GlideRecordSecure('x_ctans_incentnow_plan'); 
+				if (planGR.get(data.plansysid)) {
+
+						data.f._fields.plan.value = data.plansysid;
+						data.f._fields.plan.displayValue = planGR.getDisplayValue();
+						data.f._fields.plan.readonly = true;
+
+				}
+				}
+			}
+		
+		var tablelabel= new GlideRecordSecure(data.table);
+		data.table_label=tablelabel.getLabel();
+	
+		/*data.fetchButtonName="Save";
+		if(data.table=="x_ctans_incentnow_fiscal_calendar" && data.sys_id=="-1")
+			{
+				data.fetchButtonName="Create Fiscal Calendar & Generate Periods"
+			}	 */
+	
+	if (input && input.action == "save") {
+		
+		
+    var table = data.table;
+    var sysId = data.sys_id;
+
+    if (!input.form || !input.form._fields) {
+        gs.addErrorMessage("Form data missing");
+        return;
+    }
+
+    var fields = input.form._fields;
+		var insertion="0";
+
+    var tableGR = new GlideRecordSecure(table);
+
+    //  Creation
+    if (sysId == "-1") {
+
+        tableGR.initialize();
+
+        for (var key in fields) {
+            if (fields[key].value !== undefined) {
+                tableGR.setValue(key, fields[key].value);
+            }
+						
+        }
+			if (input.query)
+				tableGR.rule_condition_query=input.query;
+				
+			if(input.display)
+				tableGR.condition_query_display=input.display;
+			
+			if(input.keyval)
+			{
+			 tableGR.dimension=JSON.stringify(input.keyval);
+			 
+			}
+					
+        var newSysId = tableGR.insert();
+				
+				if(newSysId && newSysId!=-1)
+				{gs.addInfoMessage(tableGR.getDisplayValue()+" created successfully ");
+				data.sys_id = newSysId;}
+			
+			/*if(data.table=="x_ctans_incentnow_fiscal_calendar")
+				{
+					try {
+							 var gen = new x_ctans_incentnow.IncentNowFiscalPeriodGenerator();
+									gen.generatePeriods(data.sys_id);
+									gs.addInfoMessage('Fiscal periods generated successfully.');
+							} catch (e) {
+									gs.addErrorMessage('Error generating fiscal periods: ' + e.message);
+							}	
+				} */
+        
+
+    } 
+    // Updation
+    else {
+
+        if (!tableGR.get(sysId)) {
+            gs.addErrorMessage("Record not found");
+            return;
+        }
+
+        for (var key in fields) {
+            if (fields[key].value !== undefined) {
+                tableGR.setValue(key, fields[key].value);
+            }
+        }
+			
+				if (input.query)
+						tableGR.setValue("rule_condition_query", input.query);
+
+				if (input.display)
+						tableGR.setValue("condition_query_display", input.display);
+
+				if (input.keyval)
+						tableGR.setValue("dimension", JSON.stringify(input.keyval));
+
+        data.sys_id=tableGR.update();
+				if(data.sys_id && data.sys_id!=-1)
+        gs.addInfoMessage(tableGR.getDisplayValue()+" updated successfully");
+    }
+		
+		//data.f=$sp.getForm(data.table,"-1",'',data.view);
+		setPolicies();
+		//data.filterwidget=null;
+}
+	
+	/*if(input)
+		{
+			if(input.action=="generateFiscal")
+					{
+						//gs.addErrorMessage("Generate Fiscal Running");
+						try {
+						 var gen = new x_ctans_incentnow.IncentNowFiscalPeriodGenerator();
+								gen.generatePeriods(data.sys_id);
+
+								gs.addInfoMessage('Fiscal periods generated successfully.');
+						} catch (e) {
+								gs.addErrorMessage('Error generating fiscal periods: ' + e.message);
+						}
+
+					}
+		} */
+	
+	
+	
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>karan.kumar</sys_created_by>
+        <sys_created_on>2026-04-07 04:31:36</sys_created_on>
+        <sys_id>2285575e3b808710ffa00e9693e45acc</sys_id>
+        <sys_mod_count>214</sys_mod_count>
+        <sys_name>IncentNow Rule Builder Form</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sp_widget_2285575e3b808710ffa00e9693e45acc</sys_update_name>
+        <sys_updated_by>shroin.mandal</sys_updated_by>
+        <sys_updated_on>2026-06-11 10:12:01</sys_updated_on>
+        <template><![CDATA[<div>
+  
+  <div class="dg-add-btn"
+     ng-if="!c.showForm"
+     ng-click="c.openForm()">
+  		+ Add Earning Rule
+		</div>
+  <div class="panel panel-default modern-card" ng-if="c.showForm" id="ruleBuilderForm">
+    
+    <!-- BODY -->
+    <div class="ip-form" >
+    <div class="panel-body modern-body">
+      <form>
+        <sp-model form_model="data.f"></sp-model>
+      </form>
+    </div>
+    
+    <div class="ip-filter">
+      <label>Filter Conditions</label>
+            <div class="ip-filter-header">
+               
+               <button class="ip-btn-secondary small"
+                  ng-click="c.addFilter()">
+               + Add Condition
+               </button>
+              <button class="ip-btn-secondary small"
+                  ng-click="c.removeFilter()">
+               + Remove All Condition
+               </button>
+            </div>
+            <!-- EMPTY -->
+            <div class="ip-empty-box" ng-if="!c.data.filterwidget">
+               No conditions added
+            </div>
+      
+      			
+      			<div ng-if="c.data.filterwidget">
+                <sp-widget widget="c.data.filterwidget"></sp-widget>
+              </div>
+            <!-- FILTER LIST 
+            <div ng-repeat="f in c.rule.filters" class="ip-condition-row">
+               <input placeholder="Field" ng-model="f.field">
+               <input placeholder="Value" ng-model="f.value">
+            </div> -->
+      
+       <!-- ADD BUTTON 
+         <button class="ip-btn-primary full"
+            ng-click="c.save()"
+            >
+         + Add Earning Rule
+         </button>
+      
+      	<button class="ip-btn-primary full"
+            ng-click="c.save()">
+      			{{c.data.sys_id != "-1" ? "Update Earning Rule" : "+ Add Earning Rule"}}
+    		</button>
+      
+     <!-- <button class="ip-btn-secondary full"
+        ng-if="c.data.sys_id != '-1'"
+        ng-click="c.createNew()">
+  + New
+</button> -->
+         </div>
+      
+    <div class="dg-actions">
+
+        <button class="primary"
+                ng-click="c.save()" ng-disabled="c.enableEarning">
+          {{c.data.sys_id != "-1" ? "Update Earning Rule" : "+ Add Earning Rule"}}
+        </button>
+
+        <button class="secondary"
+                ng-click="c.cancel()">
+          Cancel
+        </button>
+
+  		</div>
+        
+
+    <!-- FOOTER 
+    <div class="panel-footer footer-actions modern-footer">
+      <button class="btn btn-primary modern-btn"
+              ng-click="c.save()">
+        {{data.fetchButtonName}}
+      </button>
+    </div> -->
+
+  </div>
+  </div>
+</div>]]></template>
+    </sp_widget>
+</record_update>

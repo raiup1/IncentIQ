@@ -1,0 +1,2144 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <client_script><![CDATA[api.controller = function($scope, $timeout,spUtil) {
+    var c = this;
+
+    c.activeTab = 'createModel';
+    c.dataModels = [];
+    c.previewHeaders = [];
+    c.previewRows = [];
+    c.mappings = [];
+    c.pagedMappings = [];
+    c.batchId = '';
+    c.error = '';
+    c.totalPreviewCount = 0;
+    c.pageNumber = 1;
+    c.pageSize = 15;
+    c.totalPages = 1;
+    c.mappingPageNumber = 1;
+    c.mappingPageSize = 10;  /* CHANGE 1: was 5, now 10 rows per page */
+    c.mappingTotalPages = 1;
+    c.allHeaders = [];
+    c.newModel = {};
+    c.disclaimer = {};
+    c.modelCreated = false;
+    c.modelMessage = '';
+    c.modelError = '';
+    c.mappingError = '';
+    c.mappingSuccess = '';
+    c.uploadSuccess = false;
+    c.uploadLoading = false;  /* CHANGE 2: new flag for upload button fade */
+    c.modelLoading = false;
+    c.saveMappingDone = false;
+    c.transformDone = false;
+		c.newModel.data_source_system="External";
+
+    c.sourceTypeOptions = [{
+            label: "File Upload",
+            value: "file_upload"
+        },
+        {
+            label: "API",
+            value: "api"
+        },
+        {
+            label: "Database",
+            value: "database"
+        }
+    ];
+
+    c.dataTypes = [{
+            label: "String",
+            value: "string"
+        },
+        {
+            label: "Integer",
+            value: "integer"
+        },
+        {
+            label: "Decimal",
+            value: "decimal"
+        },
+        {
+            label: "Currency",
+            value: "currency"
+        },
+        {
+            label: "Date/Time",
+            value: "glide_date_time"
+        }
+    ];
+	
+	if (c.data.prefillModel && c.data.prefillModel.sys_id) {
+
+    c.newModel.source_name = c.data.prefillModel.source_name;
+    c.newModel.source_type = c.data.prefillModel.source_type;
+    c.newModel.object_name = c.data.prefillModel.object_name;
+    c.newModel.data_source_system = c.data.prefillModel.data_source_system;
+
+    // Upload tab dropdown value
+    c.dataModelObject = c.data.prefillModel.sys_id;
+}
+	
+	
+
+	getModels();
+		function getModels()
+	{
+		 c.server.get({
+        action: 'getDataModels'
+    }).then(function(res) {
+        c.dataModels = res.data.dataModels;
+    });
+	}
+   
+
+    c.setTab = function(tab) {
+        if (tab === 'preview' && !c.batchId) return;
+        if (tab === 'mapping' && !c.previewHeaders.length) return;
+        if (tab === 'upload') { c.uploadSuccess = false; }
+        c.activeTab = tab;
+    };
+
+    /* REQ-1: Create Model — fades on click, stays faded after success */
+    c.createModel = function() {
+        c.modelCreated = false;
+        c.modelMessage = '';
+        c.modelError = '';
+
+        if (!c.newModel.source_name ||
+            !c.newModel.source_type ||
+            !c.newModel.object_name) {
+            c.modelError = 'All fields are required.';
+            return;
+        }
+
+        c.modelLoading = true;   /* fade immediately on click */
+        c.data.action = 'createModel';
+        c.data.model = c.newModel;
+
+        c.server.update().then(function(response) {
+            var d = response.data;
+						if(!response.success)
+							spUtil.addErrorMessage(response.error);
+					
+					getModels();
+
+            if (d.error && d.error !== '') {
+                $timeout(function() {
+                    c.modelLoading = false;
+                    c.modelError = d.error;
+                    c.modelCreated = false;
+                });
+                return;
+            }
+
+            $timeout(function() {
+                c.modelLoading = false;
+                c.modelError = '';
+                c.modelCreated = true;
+                c.modelMessage = 'Data Model Created Successfully.';
+
+                /* REQ-2: Push new model directly — use data returned from server */
+                var newEntry = {
+                    sys_id: d.newModelId || '',
+                    name: d.newModelName || ''
+                };
+                if (newEntry.sys_id && newEntry.name) {
+                    c.dataModels.push(newEntry);
+                }
+
+                c.newModel = {};
+            });
+        });
+    };
+
+    c.loadPreview = function() {
+			
+			
+        c.server.get({
+            action: 'preview',
+            batchId: c.batchId,
+            pageNumber: c.pageNumber,
+            pageSize: c.pageSize,
+						dataModelObject:c.dataModelObject
+        }).then(function(res) {
+            c.previewHeaders = res.data.previewHeaders;
+            c.previewRows = res.data.previewRows;
+					  c.existingMappings = res.data.existingMappings || {};
+						c.filtered= res.data.filtered || {};
+						//spUtil.addErrorMessage("c "+JSON.stringify(c.filtered))
+					
+					if (c.filtered) {
+								for (var key in c.filtered) {
+										var item = c.filtered[key];
+
+										if (item.targetField === "transaction_date") {
+												c.disclaimer.transactionDate = key;
+										}
+
+										if (item.targetField === "user_id") {
+												c.disclaimer.targetUserId = key;
+										}
+								}
+						}
+            c.totalPreviewCount = res.data.totalPreviewCount;
+            c.totalPages = res.data.totalPages || 1;
+            if (!c.mappings.length) c.generateMappings();
+            c.activeTab = 'preview';
+        });
+    };
+
+    c.nextPage = function() {
+        if (c.pageNumber < c.totalPages) {
+            c.pageNumber++;
+            c.loadPreview();
+        }
+    };
+    c.prevPage = function() {
+        if (c.pageNumber > 1) {
+            c.pageNumber--;
+            c.loadPreview();
+        }
+    };
+
+    c.generateMappings = function() {
+        c.mappings = [];
+        c.previewHeaders.forEach(function(header) {
+					var existing = c.existingMappings[header] || {};
+            c.mappings.push({
+                source: header,
+                dataType: existing.fieldType || '',
+                targetField: existing.targetField || '',
+                isPrimary: false,
+                sourceDisplayName: header,
+                availableSources: c.previewHeaders.slice(),
+                availableTargets: [],
+                allTargets: []
+            });
+        });
+				//spUtil.addErrorMessage(JSON.stringify(c.mappings));
+			c.mappings.forEach(function(map) {
+        if (map.dataType) {
+            c.loadTargetFields(map);
+        }
+    });
+			
+        c.mappingPageNumber = 1;
+        c.updateMappingPagination();
+    };
+
+    c.updateMappingPagination = function() {
+        var start = (c.mappingPageNumber - 1) * c.mappingPageSize;
+        c.pagedMappings = c.mappings.slice(start, start + c.mappingPageSize);
+        c.mappingTotalPages = Math.ceil(c.mappings.length / c.mappingPageSize);
+    };
+
+    c.nextMappingPage = function() {
+        if (c.mappingPageNumber < c.mappingTotalPages) {
+            c.mappingPageNumber++;
+            c.updateMappingPagination();
+        }
+    };
+    c.prevMappingPage = function() {
+        if (c.mappingPageNumber > 1) {
+            c.mappingPageNumber--;
+            c.updateMappingPagination();
+        }
+    };
+
+    c.isDisclaimerField = function(source) {
+        return (c.disclaimer.targetUserId && c.disclaimer.targetUserId === source) ||
+            (c.disclaimer.transactionDate && c.disclaimer.transactionDate === source);
+    };
+
+    c.updateFilteredMappings = function() {
+        c.mappingPageNumber = 1;
+        c.updateMappingPagination();
+    };
+
+    /* REQ-3: Upload — show success banner then navigate to preview */
+    c.upload = function() {
+        c.error = '';
+        c.uploadSuccess = false;
+
+        if (!c.dataModelObject) {
+            c.error = "Please select Data Model";
+            return;
+        }
+        var fi = document.getElementById('fileInput');
+        if (!fi || !fi.files.length) {
+            c.error = "Please select CSV file";
+            return;
+        }
+
+        c.uploadLoading = true;  /* fade button on click, stays faded through success message */
+
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            var rows = parseCSV(e.target.result);
+					var headers=getCSVHeaders(e.target.result);
+					
+					//spUtil.addErrorMessage(JSON.stringify(headers))
+					
+            if (!rows.length) {
+                c.uploadLoading = false;
+                c.error = "CSV parsing failed.";
+                return;
+            }
+					
+					c.data.action = 'validateHeaders';
+					c.data.headers = headers;
+					c.data.dataModelObject = c.dataModelObject;
+
+					c.server.update().then(function(response) {
+
+						
+							if (response.error) {
+								spUtil.addErrorMessage(response.error);
+	
+									c.uploadLoading = false;
+									
+									return;
+							}
+						
+						c.data.action = 'ingest';
+            c.data.rows = rows;
+            c.data.dataModelObject = c.dataModelObject;
+            c.server.update().then(function() {
+                if (c.data.error) {
+                    $timeout(function() {
+                        c.uploadLoading = false;
+                        c.error = c.data.error;
+                    });
+                    return;
+                }
+
+                $timeout(function() {
+                    c.uploadSuccess = true;  /* show banner, button stays faded */
+                    c.batchId = c.data.batchId;
+                    c.pageNumber = 1;
+                });
+
+                setTimeout(function() {
+                    c.uploadSuccess = false;
+                    c.loadPreview();
+                    /* uploadLoading stays true — resets when user clicks back to Upload tab */
+                }, 1500);
+            });
+						
+					});
+					return;
+					
+            
+        };
+        reader.readAsText(fi.files[0]);
+    };
+
+    c.loadTargetFields = function(map) {
+        if (!map.dataType) {
+            map.availableTargets = [];
+            return;
+        }
+        c.server.get({
+            action: 'getTargetFields',
+            dataType: map.dataType
+        }).then(function(res) {
+            map.allTargets = res.data.targetFields || [];
+            c.refreshDropdownOptions();
+        });
+    };
+
+    c.refreshDropdownOptions = function() {
+        var ss = c.mappings.filter(function(m) {
+            return m.source;
+        }).map(function(m) {
+            return m.source;
+        });
+        var st = c.mappings.filter(function(m) {
+            return m.targetField;
+        }).map(function(m) {
+            return m.targetField;
+        });
+        c.mappings.forEach(function(map) {
+            map.availableSources = c.allHeaders.filter(function(h) {
+                return map.source === h || ss.indexOf(h) === -1;
+            });
+            if (map.allTargets)
+                map.availableTargets = map.allTargets.filter(function(t) {
+                    return map.targetField === t.name || st.indexOf(t.name) === -1;
+                });
+        });
+    };
+
+    c.enforceSinglePrimary = function(sel) {
+        if (!sel.isPrimary) return;
+        c.mappings.forEach(function(m) {
+            if (m !== sel) m.isPrimary = false;
+        });
+    };
+
+    c.validateMandatoryFields = function() {
+        c.mappingError = '';
+        c.mappingSuccess = '';
+
+        if (!c.disclaimer.targetUserId || !c.disclaimer.transactionDate) {
+            c.mappingError = 'All fields are required. Please select User ID and Transaction Date.';
+            return false;
+        }
+
+        var visibleMappings = c.mappings.filter(function(m) {
+            return !c.isDisclaimerField(m.source);
+        });
+
+        var missingDisplay = visibleMappings.some(function(m) {
+            return !m.sourceDisplayName || m.sourceDisplayName.trim() === '';
+        });
+
+        if (missingDisplay) {
+            c.mappingError = 'All fields are required. Please fill in all Source Display Name fields.';
+            return false;
+        }
+
+        return true;
+    };
+
+    /* REQ-4: Save Mapping — stays faded until user closes the success banner */
+    c.saveMapping = function() {
+        if (!c.validateMandatoryFields()) return;
+
+        //c.saveMappingDone = true;   /* fade button immediately, stays faded */
+
+        var clean = [];
+        c.mappings.forEach(function(m) {
+            if (c.isDisclaimerField(m.source)) return;
+            clean.push({
+                source: m.source || '',
+                dataType: m.dataType || '',
+                targetField: m.targetField || '',
+                isPrimary: m.isPrimary ? true : false,
+                sourceDisplayName: m.sourceDisplayName || ''
+            });
+        });
+
+        if (c.disclaimer.targetUserId) {
+            clean.push({
+                source: c.disclaimer.targetUserId,
+                targetField: 'user_id',
+                dataType: 'string',
+                isPrimary: false
+            });
+        }
+
+        if (c.disclaimer.transactionDate) {
+            clean.push({
+                source: c.disclaimer.transactionDate,
+                targetField: 'transaction_date',
+                dataType: 'glide_date_time',
+                isPrimary: false
+            });
+        }
+
+        c.data.action = 'saveMapping';
+        c.data.dataModelObject = c.dataModelObject;
+        c.data.mappings = clean;
+
+        c.server.update().then(function(r) {
+            $timeout(function() {
+                /* NOTE: saveMappingDone stays true — button stays faded */
+                /* It is reset to false only when user closes the success banner (in HTML) */
+                if (r.data.error) {
+                    c.saveMappingDone = false;   /* re-enable only on error */
+                    c.mappingError = r.data.error;
+                    c.mappingSuccess = '';
+                } else {
+                    c.mappingSuccess = 'Mapping saved successfully';
+                    c.mappingError = '';
+                }
+            });
+        });
+    };
+
+    /* REQ-4: Run Transform — stays faded until user closes the success banner */
+    c.runTransform = function() {
+        if (!c.validateMandatoryFields()) return;
+
+        if (!c.batchId) {
+            c.mappingError = 'No batch available.';
+            return;
+        }
+
+        c.transformDone = true;   /* fade button immediately, stays faded */
+
+        c.data.action = 'runTransform';
+        c.data.batchId = c.batchId;
+        c.server.update().then(function(r) {
+            $timeout(function() {
+                /* NOTE: transformDone stays true — button stays faded */
+                /* It is reset to false only when user closes the success banner (in HTML) */
+                if (r.data.error) {
+                    c.transformDone = false;   /* re-enable only on error */
+                    c.mappingError = r.data.error;
+                    c.mappingSuccess = '';
+                } else {
+                    c.mappingSuccess = 'Transform started successfully.';
+                    c.mappingError = '';
+                }
+            });
+        });
+    };
+	
+	c.getSelectedModelName = function() {
+    var model = c.dataModels.find(function(m) {
+        return m.sys_id == c.dataModelObject;
+    });
+
+    return model ? model.name : '';
+};
+	
+
+    function parseCSV(text) {
+        var rows = [],
+            cur = '',
+            row = [],
+            inQ = false;
+        text = text.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+        for (var i = 0; i < text.length; i++) {
+            var ch = text[i];
+            if (ch === '"') {
+                if (inQ && text[i + 1] === '"') {
+                    cur += '"';
+                    i++;
+                } else inQ = !inQ;
+            } else if (ch === ',' && !inQ) {
+                row.push(cur);
+                cur = '';
+            } else if (ch === '\n' && !inQ) {
+                row.push(cur);
+                rows.push(row);
+                row = [];
+                cur = '';
+            } else {
+                cur += ch;
+            }
+        }
+        if (cur.length || row.length) {
+            row.push(cur);
+            rows.push(row);
+        }
+        if (rows.length < 2) return [];
+        var hdrs = rows[0],
+            data = [];
+        for (var r = 1; r < rows.length; r++) {
+            if (!rows[r].length) continue;
+            var obj = {};
+            for (var ci = 0; ci < hdrs.length; ci++)
+                obj[hdrs[ci].trim()] = rows[r][ci] ? rows[r][ci].trim() : '';
+            data.push(obj);
+        }
+        return data;
+    }
+	
+	function getCSVHeaders(text) {
+    text = text.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+
+    var firstLine = text.split("\n")[0];
+    var headers = [];
+
+    var current = '';
+    var inQuotes = false;
+
+    for (var i = 0; i < firstLine.length; i++) {
+        var ch = firstLine[i];
+
+        if (ch === '"') {
+            if (inQuotes && firstLine[i + 1] === '"') {
+                current += '"';
+                i++;
+            } else {
+                inQuotes = !inQuotes;
+            }
+        } else if (ch === ',' && !inQuotes) {
+            headers.push(current.trim());
+            current = '';
+        } else {
+            current += ch;
+        }
+    }
+
+    headers.push(current.trim());
+
+    return headers;
+}
+	
+
+};]]></client_script>
+        <controller_as>c</controller_as>
+        <css>/* ===============================================================
+   UPLOAD WIDGET
+=============================================================== */
+
+html, body {
+  height: 100%;
+  margin: 0;
+  background: #f0f2f5;
+  font-family: "Inter", "Segoe UI", Roboto, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.upload-page-wrap {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  background: #f0f2f5;
+}
+select:disabled {
+    background-color: #f3f4f6;
+    cursor: not-allowed;
+    opacity: 1;
+}
+
+input:disabled {
+    background-color: #f3f4f6;
+    cursor: not-allowed;
+    opacity: 1;
+}
+
+.file-container {
+  	
+  	padding:inherit;
+    
+}
+
+.mapping-action-disc {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+}
+
+
+/* ================= TOPBAR — blended with page background ================= */
+
+.upload-page-topbar {
+  background: transparent;
+  padding: 0;
+  margin-bottom: 0;
+  border-bottom: none;
+}
+
+.upload-page-topbar-inner {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 24px 28px 8px;
+}
+
+.upload-back-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #e2e8f0;
+  border: none;
+  cursor: pointer;
+  color: #374151;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+
+.upload-back-btn:hover {
+  background: #cbd5e1;
+}
+
+.upload-back-btn svg {
+  stroke: #374151;
+}
+
+.upload-page-topbar-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #111827;
+  letter-spacing: 0;
+}
+
+/* ================= STEP TABS ================= */
+
+.upload-step-tabs {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin: 24px 32px 20px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 12px 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.upload-step-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 18px;
+  background: transparent;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #6b7280;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+
+.upload-step-tab-active {
+  background: #0f172a;
+  color: #ffffff !important;
+}
+
+.upload-step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.08);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.upload-step-tab-active .upload-step-num {
+  background: rgba(255,255,255,0.25);
+}
+
+.upload-step-tab:not(.upload-step-tab-active):hover {
+  background: #f1f5f9;
+  color: #111827;
+}
+
+.upload-step-divider {
+  flex: 1;
+  height: 1px;
+  background: #e2e8f0;
+  margin: 0 4px;
+  max-width: 40px;
+}
+
+/* ================= CONTENT AREA ================= */
+
+.upload-content-area {
+  flex: 1;
+  padding: 0 32px 40px;
+  background: #f0f2f5;
+  overflow-y: auto;
+}
+
+/* ================= CARD ================= */
+
+.section-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 30px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 26px;
+  color: #111827;
+}
+
+/* ================= FORM CONTROLS ================= */
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 6px;
+}
+
+.form-control,
+.custom-select,
+.custom-file {
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  height: 40px;
+  padding: 0 14px;
+  font-size: 14px;
+  font-family: inherit;
+  color: #111827;
+  box-sizing: border-box;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.form-control:focus,
+.custom-select:focus,
+.custom-file:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+  outline: none;
+}
+
+/* ================= NOTIFICATION BANNERS ============ */
+
+.sn-notify {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 400;
+  margin-bottom: 16px;
+  border: 1px solid transparent;
+}
+
+.sn-notify-success {
+  background: #dff0d8;
+  border-color: #a3d98b;
+  color: #2d6a2d;
+}
+
+.sn-notify-error {
+  background: #fdf2f2;
+  border-color: #f5b7b1;
+  color: #922b21;
+}
+
+.sn-notify-icon {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  font-size: 16px;
+}
+
+.sn-notify-text {
+  flex: 1;
+  line-height: 1.4;
+}
+
+.sn-notify-close {
+  cursor: pointer;
+  font-size: 16px;
+  opacity: 0.6;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.sn-notify-close:hover {
+  opacity: 1;
+}
+
+/* ================= TABLES ================= */
+
+.preview-table-wrapper,
+.mapping-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: auto;
+  background: #ffffff;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.preview-table,
+.mapping-table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 13px;
+}
+
+.preview-table th,
+.mapping-table th {
+  background: #0f172a;
+  color: #ffffff;
+  padding: 12px 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.preview-table td,
+.mapping-table td {
+  padding: 10px 14px;
+  border-bottom: 1px solid #f0f2f5;
+  color: #374151;
+  white-space: nowrap;
+}
+
+.preview-table tbody tr:hover,
+.mapping-table tbody tr:hover {
+  background: #eef2ff;
+}
+
+/* ================= MAPPING TABLE INPUTS ================= */
+
+.mapping-input,
+.mapping-select {
+  width: 100%;
+  height: 34px;
+  font-size: 13px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  padding: 0 10px;
+  font-family: inherit;
+  color: #111827;
+  transition: border-color 0.2s;
+}
+
+.mapping-input:focus,
+.mapping-select:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37,99,235,0.1);
+  outline: none;
+}
+
+.mapping-table { table-layout: fixed; }
+
+.mapping-table td:last-child {
+  text-align: center;
+  vertical-align: middle;
+}
+
+/* ================= BUTTONS ================= */
+
+.action-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #f0f2f5;
+}
+
+.mapping-action-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+
+
+.upload-btn,
+.save-btn,
+.run-btn,
+.page-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 20px;
+  border-radius: 8px;
+  border: none;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s, transform 0.15s, opacity 0.3s;
+}
+
+.primary-btn {
+  background: #0f172a;
+  color: #ffffff;
+}
+
+.primary-btn:hover:not(:disabled) {
+  background: #1e293b;
+  transform: translateY(-1px);
+}
+
+.secondary-btn {
+  background: #ffffff;
+  color: #374151;
+  border: 1.5px solid #d1d5db;
+}
+
+.secondary-btn:hover:not(:disabled) {
+  background: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.page-btn {
+  background: #0f172a;
+  color: #ffffff;
+  padding: 6px 14px;
+  font-size: 13px;
+}
+
+.page-btn:disabled {
+  background: #e5e7eb;
+  color: #9ca3af;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* REQ-1, 3, 4: Faded read-only button state */
+.btn-faded {
+  opacity: 0.45;
+  cursor: not-allowed !important;
+  transform: none !important;
+  pointer-events: none;
+}
+
+/* ================= ERROR CARD ================= */
+
+.error-card {
+  margin-top: 18px;
+  padding: 14px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  font-size: 14px;
+  color: #991b1b;
+}
+
+/* ================= PAGINATION ================= */
+
+.pagination-controls {
+  margin-top: 14px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+/* Mapping bottom row: pagination left, buttons right, same line */
+.mapping-bottom-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  margin-top: 8px;
+  border-top: 1px solid #f0f2f5;
+}
+
+.mapping-pagination-center {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.page-indicator {
+  font-weight: 500;
+  color: #374151;
+  font-size: 14px;
+}
+
+/* ===============================================================
+   METADATA MAPPING TAB
+=============================================================== */
+
+/* --- TOP: Disclaimer box --- */
+
+.disclaimer-box {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 18px 22px;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+}
+
+.disclaimer-text {
+  font-size: 13px;
+  color: #111827;
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+
+.disclaimer-header-row {
+  display: flex;
+  align-items: center;
+  padding-left: 18px;
+  margin-bottom: 8px;
+}
+
+.dis-col-target {
+  width: 200px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #111827;
+  flex-shrink: 0;
+}
+
+.dis-col-source {
+  font-size: 14px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.disclaimer-field-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 10px;
+}
+
+.dis-target-cell {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.dis-target-box {
+  width: 180px;
+  height: 36px;
+  border: 1.5px solid #374151;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+  background: #ffffff;
+  box-sizing: border-box;
+}
+
+.dis-source-cell {
+  flex: 1;
+  max-width: 280px;
+}
+
+.dis-select {
+  width: 100%;
+  height: 36px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: #ffffff;
+  font-size: 13px;
+  font-family: inherit;
+  color: #374151;
+  padding: 0 10px;
+  box-sizing: border-box;
+  cursor: pointer;
+}
+
+.dis-select:focus {
+  border-color: #2563eb;
+  outline: none;
+}
+
+.req-star {
+  color: #c0392b;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+/* --- BOTTOM: Mapping table --- */
+
+.mapping-body-layout {
+  width: 100%;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+  overflow: hidden;
+}
+
+.sdname-col {
+  display: table-cell;
+  width: 190px;
+  vertical-align: top;
+  border-right: none;
+}
+
+.sdname-label {
+  background: #0f172a;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 12px 14px;
+  border-bottom: 1px solid #1e293b;
+  white-space: nowrap;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.sdname-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 10px;
+  border-bottom: 1px solid #f0f2f5;
+  min-height: 54px;
+  box-sizing: border-box;
+}
+
+.sdname-input {
+  flex: 1;
+  height: 34px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  background: #ffffff;
+  font-size: 13px;
+  font-family: inherit;
+  color: #111827;
+  padding: 0 8px;
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+.sdname-input:focus {
+  border-color: #2563eb;
+  outline: none;
+}
+
+.sdname-select {
+  flex: 1;
+  height: 34px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  background: #ffffff;
+  font-size: 13px;
+  font-family: inherit;
+  color: #111827;
+  padding: 0 8px;
+  box-sizing: border-box;
+  min-width: 0;
+  cursor: pointer;
+}
+
+.sdname-select:focus {
+  border-color: #2563eb;
+  outline: none;
+}
+
+/* RIGHT column — mapping table + controls */
+.mapping-right-col {
+  display: block;
+  width: 100%;
+  padding: 0;
+}
+
+.mapping-table td .req-star {
+  margin-right: 4px;
+  vertical-align: middle;
+}</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description/>
+        <docs/>
+        <field_list/>
+        <has_preview>false</has_preview>
+        <id>incent_excel_upload</id>
+        <internal>false</internal>
+        <link><![CDATA[function link(scope, element, attrs, controller) {
+  
+}]]></link>
+        <name>IncentNow Excel Upload</name>
+        <option_schema/>
+        <public>false</public>
+        <roles>x_ctans_incentnow.user,x_ctans_incentnow.admin</roles>
+        <script><![CDATA[(function() {
+
+    data.dataModels = [];
+    data.targetFields = [];
+    data.previewHeaders = [];
+    data.previewRows = [];
+    data.totalPreviewCount = 0;
+    data.error = "";
+    data.message = "";
+    data.success = false;
+
+    if (!gs.hasRole('x_ctans_incentnow.admin')) {
+        data.error = "Access Denied";
+        return;
+    }
+	
+	data.sourcesystem=[];
+		var grChoice = new GlideRecordSecure("sys_choice");
+		grChoice.addEncodedQuery("name=x_ctans_incentnow_data_model_object^element=data_source_system^inactive=false^language=en");
+		grChoice.query();
+		while(grChoice.next())
+			{
+				var obj={};
+				obj.label=grChoice.getValue("label");
+				obj.value=grChoice.getValue("value");
+				data.sourcesystem.push(obj);
+			}
+	
+	
+data.prefillModel = {};
+
+var modelSysId = $sp.getParameter('sys_id');
+
+if (modelSysId) {
+
+    var dm = new GlideRecordSecure('x_ctans_incentnow_data_model_object');
+
+    if (dm.get(modelSysId)) {
+
+        data.prefillModel = {
+            sys_id: dm.getUniqueValue(),
+            source_name: dm.getValue('source_name'),
+            source_type: dm.getValue('source_type'),
+            object_name: dm.getValue('object_name'),
+            data_source_system: dm.getValue('data_source_system')
+        };
+    }
+}
+	
+	
+
+    /* -------------- CREATE MODEL -------------- */
+
+    if (input && input.action === 'createModel') {
+
+
+        if (!input.model ||
+            !input.model.source_name ||
+            !input.model.source_type ||
+            !input.model.object_name) {
+            data.error = "All fields are required.";
+            data.success = false;
+            return;
+        }
+
+        var check = new GlideRecordSecure('x_ctans_incentnow_data_model_object');
+        check.addQuery('source_name', input.model.source_name);
+        check.addQuery('object_name', input.model.object_name);
+        check.query();
+
+        if (check.next()) {
+            data.error = "Model already exists.";
+            data.success = false;
+            return;
+        }
+
+        var dm = new GlideRecordSecure('x_ctans_incentnow_data_model_object');
+        dm.initialize();
+        dm.source_name = input.model.source_name;
+        dm.source_type = input.model.source_type;
+        dm.object_name = input.model.object_name;
+        dm.active = true;
+        var newId = dm.insert();
+        gs.addInfoMessage('Data Model Created Successfully:' + input.model.source_name);
+
+        data.success    = true;
+        data.error      = "";
+        data.message    = "Data Model Created Successfully";
+        data.newModelId   = newId + '';
+        data.newModelName = input.model.source_name + " - " + input.model.object_name;
+        return;
+    }
+
+    /* -------------- GET DATA MODELS -------------- */
+
+    if (typeof input === "undefined" || input.action === 'getDataModels') {
+
+        var dmList = new GlideRecordSecure('x_ctans_incentnow_data_model_object');
+        dmList.addQuery('active', true);
+        dmList.orderBy('object_name');
+        dmList.query();
+
+        while (dmList.next()) {
+            data.dataModels.push({
+                sys_id: dmList.getUniqueValue(),
+                name: dmList.source_name + " - " + dmList.object_name
+            });
+        }
+        return;
+    }
+
+    /* -------------- INGEST CSV -------------- */
+
+    if (input.action === 'ingest') {
+
+        if (!input.rows || !input.rows.length) {
+            data.error = "No rows received.";
+            return;
+        }
+
+        var impSet = new GlideRecordSecure('sys_import_set');
+        impSet.initialize();
+        impSet.state = "loading";
+        impSet.table_name = "x_ctans_incentnow_data_lake_staging";
+        impSet.short_description = "IncentNow Portal Upload";
+        var batchId = impSet.insert();
+
+        for (var i = 0; i < input.rows.length; i++) {
+            var row = input.rows[i];
+            if (!row) continue;
+
+            var isEmpty = true;
+            for (var key in row) {
+                if (row[key] && row[key].toString().trim() !== "") {
+                    isEmpty = false;
+                    break;
+                }
+            }
+            if (isEmpty) continue;
+
+            var staging = new GlideRecordSecure('x_ctans_incentnow_data_lake_staging');
+            staging.initialize();
+            staging.sys_import_set = batchId;
+            staging.raw_json = JSON.stringify(row);
+            staging.row_number = i + 1;
+            staging.data_model_object = input.dataModelObject;
+            staging.insert();
+        }
+
+        data.batchId = batchId;
+        return;
+    }
+
+    /* -------------- PREVIEW -------------- */
+
+    if (input.action === 'preview') {
+			//gs.addErrorMessage("inof "+input.dataModelObject);
+
+        /* FIX: use pageSize sent from client instead of hardcoded 5 */
+        var pageSize   = input.pageSize ? parseInt(input.pageSize) : 15;
+        var pageNumber = input.pageNumber || 1;
+        var start      = (pageNumber - 1) * pageSize;
+        var end        = start + pageSize;
+
+        var grLake = new GlideRecordSecure('x_ctans_incentnow_data_lake_staging');
+        grLake.addQuery('sys_import_set', input.batchId);
+        grLake.orderBy('row_number');
+        grLake.chooseWindow(start, end);
+        grLake.query();
+
+        var headerSet = false;
+        while (grLake.next()) {
+            var rowObj = JSON.parse(grLake.getValue("raw_json") || "{}");
+            if (!headerSet) {
+                for (var k in rowObj) data.previewHeaders.push(k);
+                headerSet = true;
+            }
+            data.previewRows.push(rowObj);
+        }
+				//gs.addErrorMessage(JSON.stringify(data.previewRows));
+
+        var countGR = new GlideAggregate('x_ctans_incentnow_data_lake_staging');
+				countGR.addQuery('sys_import_set', input.batchId);
+				countGR.addAggregate('COUNT');
+				countGR.query();
+
+				if (countGR.next()) {
+						data.totalPreviewCount = parseInt(countGR.getAggregate('COUNT'), 10);
+				}
+        data.totalPages = Math.ceil(data.totalPreviewCount / pageSize);
+			
+			
+				data.existingMappings = {};
+				
+			
+	
+				var mapGR = new GlideRecordSecure('x_ctans_incentnow_metadata_mapping');
+				mapGR.addQuery('data_model_object_id', input.dataModelObject);
+				//mapGR.addQuery('source_field_name',data.previewHeaders[i]);
+				mapGR.addQuery('active', true);
+				mapGR.query();
+
+				while (mapGR.next()) {
+
+						data.existingMappings[
+								mapGR.getValue('source_field_name')
+						] = {
+								targetField: mapGR.data_lake_field_name.element.toString(),
+								sourceDisplayName: mapGR.getValue('source_display_name'),
+								fieldType: mapGR.field_type.name.toString()
+						};
+				}
+			
+					data.filtered = {};
+
+				for (var key in data.existingMappings) {
+						if (
+								data.existingMappings[key].targetField === "transaction_date" ||
+								data.existingMappings[key].targetField === "user_id"
+						) {
+								data.filtered[key] = data.existingMappings[key];
+						}
+				}
+
+//gs.addErrorMessage(JSON.stringify(filtered));
+			
+			//gs.addErrorMessage(JSON.stringify(data.existingMappings))
+			
+			
+			
+        return;
+    }
+	
+	
+			if (input.action === 'validateHeaders') {
+
+    var mappedHeaders = [];
+
+    var grMetaData = new GlideRecordSecure('x_ctans_incentnow_metadata_mapping');
+
+    grMetaData.addQuery('data_model_object_id', input.dataModelObject);
+    grMetaData.addQuery('active', true);
+    grMetaData.query();
+
+    while (grMetaData.next()) {
+        mappedHeaders.push(
+            grMetaData.getValue('source_field_name').trim().toLowerCase()
+        );
+    }
+				//gs.addInfoMessage("Mapped hea "+JSON.stringify(mappedHeaders))
+
+    var csvHeaders = input.headers || [];
+
+    if (csvHeaders.length != mappedHeaders.length) {
+
+        data.error =
+            'CSV column count (' + csvHeaders.length +
+            ') does not match metadata mapping count (' +
+            mappedHeaders.length + ').';
+			//gs.addErrorMessage(" AM i here "+data.error)
+
+        return;
+    }
+
+    var lookup = {};
+
+    mappedHeaders.forEach(function(h) {
+        lookup[h] = true;
+    });
+
+		var notMatchedArr=[]; 
+    for (var i = 0; i < csvHeaders.length; i++) {
+
+        var header = csvHeaders[i].trim().toLowerCase();
+
+        if (!lookup[header]) {
+						
+					notMatchedArr.push(csvHeaders[i]);
+            
+        }
+    }
+				//gs.addErrorMessage(JSON.stringify(notMatchedArr) + " ---- "+notMatchedArr.join(','));
+				
+				if(notMatchedArr.length>0)
+				{
+					data.error =
+                'Column "' + notMatchedArr.join(',') +
+                '" does not exist in metadata mapping.';
+
+            return;}
+				
+
+    data.success = true;
+    return;
+}
+	
+
+    /* -------------- GET TARGET FIELDS -------------- */
+
+    if (input.action === 'getTargetFields') {
+
+        if (!input.dataType) return;
+
+        var typeGR = new GlideRecordSecure('sys_glide_object');
+        typeGR.addQuery('name', input.dataType);
+        typeGR.query();
+        if (!typeGR.next()) return;
+
+        var fieldTypeSysId = typeGR.getUniqueValue();
+		var dictGR = new GlideRecordSecure('sys_dictionary');
+		new DataLakeUtils().applyColumnFilter(
+						dictGR,
+						fieldTypeSysId
+					);
+
+		dictGR.query();
+
+        while (dictGR.next()) {
+            data.targetFields.push({
+                name: dictGR.getValue('element'),
+                label: dictGR.getValue('column_label')
+            });
+        }
+			
+		
+        return;
+    }
+
+    /* -------------- SAVE MAPPING -------------- */
+
+    if (input.action === 'saveMapping') {
+
+        if (!input.dataModelObject || !input.mappings || !input.mappings.length) {
+            data.error = "Invalid mapping payload.";
+            return;
+        }
+																				 //gs.addErrorMessage(input.dataModelObject);
+
+        //var old = new GlideRecordSecure('x_ctans_incentnow_metadata_mapping');
+        //old.addQuery('data_model_object_id', input.dataModelObject);
+        //old.deleteMultiple();
+
+        for (var i = 0; i < input.mappings.length; i++) {
+            var m = input.mappings[i];
+            if (!m.source || !m.targetField) continue;
+
+            var dict = new GlideRecordSecure('sys_dictionary');
+            dict.addQuery('name', 'x_ctans_incentnow_data_lake');
+            dict.addQuery('element', m.targetField);
+            dict.query();
+            if (!dict.next()) continue;
+
+            var grMap = new GlideRecordSecure('x_ctans_incentnow_metadata_mapping');
+
+						grMap.addQuery('data_model_object_id', input.dataModelObject);
+						grMap.addQuery('source_field_name', m.source.trim());
+						grMap.query();
+
+						var isUpdate = grMap.next();
+
+						if (!isUpdate) {
+								grMap.initialize();
+						}
+            grMap.data_model_object_id = input.dataModelObject;
+            grMap.source_field_name = m.source.trim();
+            grMap.data_lake_field_name = dict.getUniqueValue();
+            grMap.data_lake_column_name = dict.getValue("element");
+            grMap.source_display_name = m.sourceDisplayName || m.source;
+
+            if (m.dataType) {
+                gs.info("IncentNow - Looking up field type: " + m.dataType);
+                var fieldTypeGR = new GlideRecordSecure('sys_glide_object');
+                fieldTypeGR.addQuery('name', m.dataType);
+                fieldTypeGR.query();
+                if (fieldTypeGR.next()) {
+                    //gs.addInfoMessage("Mapping Saved Successfully");
+                    grMap.field_type = fieldTypeGR.getUniqueValue();
+                }
+            }
+
+            grMap.is_primary_key = m.isPrimary ? true : false;
+            grMap.active = true;
+           if (isUpdate) {
+								grMap.update();
+						} else {
+								grMap.insert();
+						}
+        }
+
+        gs.addInfoMessage("Mapping Saved Successfully");
+        return;
+				
+    }
+
+    /* -------------- RUN TRANSFORM -------------- */
+
+    if (input.action === 'runTransform') {
+
+        gs.addInfoMessage("Transform has started. Please refer to Import Runs and Import Errors for the status");
+
+        if (!input.batchId) {
+            data.error = "Invalid Batch ID.";
+            gs.info("IncentNow - ERROR: Batch ID missing");
+            return;
+        }
+
+        var stagingCheck = new GlideRecordSecure('x_ctans_incentnow_data_lake_staging');
+        stagingCheck.addQuery('sys_import_set', input.batchId);
+        stagingCheck.setLimit(1);
+        stagingCheck.query();
+
+        if (!stagingCheck.next()) {
+            data.error = "No staging records found.";
+            gs.info("IncentNow - ERROR: No staging records found");
+            return;
+        }
+
+        var dataModelId = stagingCheck.getValue("data_model_object");
+        gs.info("IncentNow - Data Model ID: " + dataModelId);
+
+        var runGR = new GlideRecordSecure("x_ctans_incentnow_import_run");
+        runGR.initialize();
+        runGR.status = "Processing";
+        runGR.batch_id = input.batchId;
+        runGR.data_model_object = dataModelId;
+        runGR.run_by = gs.getUserID();
+        var runSysId = runGR.insert();
+        gs.addInfoMessage("IncentNow - Import Run Created: " + runGR.number);
+
+        var mappings = [];
+        var pkSource = "";
+        var pkTarget = "";
+
+        var mapGR = new GlideRecordSecure('x_ctans_incentnow_metadata_mapping');
+        mapGR.addQuery('data_model_object_id', dataModelId);
+        mapGR.addQuery('active', true);
+        mapGR.query();
+
+        while (mapGR.next()) {
+            var source = mapGR.getValue('source_field_name');
+            var dictSysId = mapGR.getValue('data_lake_field_name');
+            var target = "";
+
+            if (!gs.nil(dictSysId)) {
+                var dictGR2 = new GlideRecordSecure('sys_dictionary');
+                if (dictGR2.get(dictSysId)) {
+                    target = dictGR2.getValue('element');
+                    gs.info("IncentNow - Mapping Found: " + source + " -> " + target);
+                } else {
+                    gs.info("IncentNow - ERROR: Dictionary not found for sys_id: " + dictSysId);
+                }
+            }
+
+            if (!source || !target) continue;
+
+            mappings.push({
+                source: source,
+                target: target
+            });
+
+            if (mapGR.getValue('is_primary_key') == "1") {
+                pkSource = source;
+                pkTarget = target;
+                gs.info("IncentNow - Primary Key Mapping: " + pkSource + " -> " + pkTarget);
+            }
+        }
+
+        gs.info("IncentNow - Total Mappings Loaded: " + mappings.length);
+
+        var stagingGR = new GlideRecordSecure('x_ctans_incentnow_data_lake_staging');
+        stagingGR.addQuery('sys_import_set', input.batchId);
+        stagingGR.orderBy('row_number');
+        stagingGR.query();
+
+        while (stagingGR.next()) {
+            var raw = stagingGR.getValue("raw_json");
+            if (!raw) {
+                gs.info("IncentNow - Skipping empty raw_json row");
+                continue;
+            }
+
+            var rowData = JSON.parse(raw);
+            gs.info("IncentNow - Processing Row: " + stagingGR.row_number);
+            gs.info("IncentNow - Raw JSON: " + raw);
+
+            if (pkSource && !rowData[pkSource]) {
+                gs.info("IncentNow - ERROR: Primary Key missing for row: " + stagingGR.row_number);
+                var errPK = new GlideRecordSecure('x_ctans_incentnow_import_error');
+                errPK.initialize();
+                errPK.batch_id = input.batchId;
+                errPK.data_model_object = dataModelId;
+                errPK.row_number = stagingGR.row_number;
+                errPK.error_message = "Primary Key missing: " + pkSource;
+                errPK.raw_json = raw;
+                errPK.insert();
+                continue;
+            }
+
+            var targetGR = new GlideRecordSecure('x_ctans_incentnow_data_lake');
+            var exists = false;
+
+            if (pkSource && pkTarget && rowData[pkSource]) {
+                gs.info("IncentNow - Searching existing record using PK: " + pkTarget + "=" + rowData[pkSource]);
+                targetGR.addQuery(pkTarget, rowData[pkSource]);
+                targetGR.query();
+                if (targetGR.next()) {
+                    exists = true;
+                    gs.info("IncentNow - Updating existing record");
+                }
+            }
+
+            if (!exists) {
+                gs.info("IncentNow - Creating new Data Lake record");
+                targetGR.initialize();
+                targetGR.setValue("data_model_object", dataModelId);
+            }
+
+            for (var mi = 0; mi < mappings.length; mi++) {
+                var sourceField = mappings[mi].source;
+                var targetColumn = mappings[mi].target;
+                var value = rowData[sourceField];
+                gs.info("IncentNow - Checking field: " + sourceField + " -> " + targetColumn + " | Value: " + value);
+                if (value !== undefined && value !== null) {
+                    gs.info("IncentNow - Setting value: " + targetColumn + " = " + value);
+                    targetGR.setValue(targetColumn, value);
+                }
+            }
+
+            if (exists) targetGR.update();
+            else targetGR.insert();
+
+            /* FIX: set processing_status to processed after successful insert/update */
+            targetGR.setValue('processing_status', 'processed');
+            targetGR.update();
+
+            stagingGR.is_valid = true;
+            stagingGR.primary_key_value = rowData[pkSource] || "";
+            stagingGR.update();
+            gs.info("IncentNow - Row processed successfully");
+        }
+
+				if(runGR.get(runSysId))
+					{
+						runGR.status = "Completed";
+        		runGR.update();
+        		gs.info("IncentNow - Transform Completed. Run Number: " + runGR.number);
+
+        		data.message = "Transform completed successfully. Run Number: " + runGR.number;
+					}
+        
+        
+        return;
+    }
+
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+        <sys_created_on>2026-02-15 09:02:20</sys_created_on>
+        <sys_id>274a6d423b477650ffa00e9693e45ac3</sys_id>
+        <sys_mod_count>326</sys_mod_count>
+        <sys_name>IncentNow Excel Upload</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sp_widget_274a6d423b477650ffa00e9693e45ac3</sys_update_name>
+        <sys_updated_by>karan.kumar</sys_updated_by>
+        <sys_updated_on>2026-06-19 05:33:32</sys_updated_on>
+        <template><![CDATA[<div class="upload-page-wrap">
+
+  <!-- TOPBAR — updated to match standard portal banner -->
+  <div class="upload-page-topbar">
+    <div class="upload-page-topbar-inner">
+      <button class="upload-back-btn" onclick="history.back()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12 8 8 12 12 16"/>
+          <line x1="16" y1="12" x2="8" y2="12"/>
+        </svg>
+      </button>
+      <span class="upload-page-topbar-title">Import Data</span>
+    </div>
+  </div>
+
+  <!-- STEP TABS -->
+  <div class="upload-step-tabs">
+    <button class="upload-step-tab"
+            ng-class="{'upload-step-tab-active': c.activeTab === 'createModel'}"
+            ng-click="c.setTab('createModel')">
+      <span class="upload-step-num">1</span> View Data Model
+    </button>
+    <div class="upload-step-divider"></div>
+    <button class="upload-step-tab"
+            ng-class="{'upload-step-tab-active': c.activeTab === 'upload'}"
+            ng-click="c.setTab('upload')">
+      <span class="upload-step-num">2</span> Upload File
+    </button>
+    <div class="upload-step-divider"></div>
+    <button class="upload-step-tab"
+            ng-class="{'upload-step-tab-active': c.activeTab === 'preview'}"
+            ng-click="c.setTab('preview')">
+      <span class="upload-step-num">3</span> Preview Records
+    </button>
+    <div class="upload-step-divider"></div>
+    <button class="upload-step-tab"
+            ng-class="{'upload-step-tab-active': c.activeTab === 'mapping'}"
+            ng-click="c.setTab('mapping')">
+      <span class="upload-step-num">4</span> Metadata Mapping
+    </button>
+  </div>
+
+  <!-- CONTENT AREA -->
+  <div class="upload-content-area">
+
+    <!-- CREATE DATA MODEL -->
+    <div ng-show="c.activeTab==='createModel'">
+      <div class="section-card">
+        <div class="section-title">View Data Model</div>
+        <div class="form-group">
+          <label class="form-label">Data Source System</label>
+          <select class="form-control custom-select smooth-input" ng-model="c.newModel.data_source_system" ng-disabled="true" ng-readonly="true">
+            <option ng-repeat="opt in c.data.sourcesystem" value="{{opt.value}}">{{opt.label}}</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Source Name</label>
+          <input type="text" class="form-control smooth-input" ng-model="c.newModel.source_name" ng-disabled="true" ng-readonly="true">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Source Type</label>
+          <select class="form-control custom-select smooth-input" ng-model="c.newModel.source_type" ng-disabled="true" ng-readonly="true">
+            <option ng-repeat="opt in c.sourceTypeOptions" value="{{opt.value}}">{{opt.label}}</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Object Name</label>
+          <input type="text" class="form-control smooth-input" ng-model="c.newModel.object_name" ng-disabled="true" ng-readonly="true">
+        </div>
+        <div class="sn-notify sn-notify-success" ng-show="c.modelCreated">
+          <span class="sn-notify-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="10" fill="#3d8b3d"/>
+              <polyline points="8 12 11 15 16 9" stroke="#fff" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          <span class="sn-notify-text">{{c.modelMessage}}</span>
+          <span class="sn-notify-close" ng-click="c.modelCreated=false">&times;</span>
+        </div>
+        <div class="sn-notify sn-notify-error" ng-show="c.modelError">
+          <span class="sn-notify-icon">&#9888;</span>
+          <span class="sn-notify-text">{{c.modelError}}</span>
+          <span class="sn-notify-close" ng-click="c.modelError=''">&#10005;</span>
+        </div>
+        <!-- <div class="action-row">
+          <!-- REQ-1: fades on click via modelLoading, stays faded after success via modelCreated -->
+          <!-- <button class="save-btn primary-btn"
+                  ng-click="c.createModel()"
+                  ng-disabled="c.modelLoading || c.modelCreated"
+                  ng-class="{'btn-faded': c.modelLoading || c.modelCreated}">
+            Create Model
+          </button> 
+        </div>-->
+      </div>
+    </div>
+
+    <!-- UPLOAD FILE -->
+    <div ng-show="c.activeTab==='upload'">
+      <div class="section-card">
+        <div class="section-title">Upload CSV File</div>
+        <div class="form-group">
+          <label class="form-label">Data Model Object</label>
+          <select class="form-control custom-select smooth-input"
+            ng-model="c.dataModelObject"
+            ng-options="obj.sys_id as obj.name for obj in c.dataModels" ng-disabled="true">
+            <option value="">-- Select --</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Select CSV File</label>
+          
+        		<input  type="file" id="fileInput" class="form-control custom-file smooth-input file-container" accept=".csv,text/csv">
+    		
+        </div>
+
+        <!-- REQ-3: Upload success banner -->
+        <div class="sn-notify sn-notify-success" ng-show="c.uploadSuccess">
+          <span class="sn-notify-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="10" fill="#3d8b3d"/>
+              <polyline points="8 12 11 15 16 9" stroke="#fff" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          <span class="sn-notify-text">Upload has been completed. Moving to Preview Records...</span>
+          <span class="sn-notify-close" ng-click="c.uploadSuccess=false">&times;</span>
+        </div>
+
+        <div class="action-row">
+          <!-- CHANGE: Upload button fades while uploading and during success message -->
+          <button class="upload-btn primary-btn"
+                  ng-click="c.upload()"
+                  ng-disabled="c.uploadLoading"
+                  ng-class="{'btn-faded': c.uploadLoading}">
+            Upload
+          </button>
+        </div>
+        <div class="error-card" ng-if="c.error">{{c.error}}</div>
+      </div>
+    </div>
+
+    <!-- PREVIEW RECORDS -->
+    <div ng-show="c.activeTab==='preview'">
+      <div class="section-card">
+        <div class="section-title">Preview Records</div>
+        <div class="preview-table-wrapper" ng-if="c.previewRows.length > 0">
+          <table class="preview-table modern-table">
+            <thead>
+              <tr>
+                <th ng-repeat="header in c.previewHeaders track by $index">{{header}}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="row in c.previewRows track by $index">
+                <td ng-repeat="header in c.previewHeaders track by $index">{{row[header]}}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pagination-controls modern-pagination" ng-if="c.totalPages > 1">
+          <button class="page-btn" ng-disabled="c.pageNumber === 1" ng-click="c.prevPage()">◀ Previous</button>
+          <span class="page-indicator">Page {{c.pageNumber}} of {{c.totalPages}}</span>
+          <button class="page-btn" ng-disabled="c.pageNumber === c.totalPages" ng-click="c.nextPage()">Next ▶</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- METADATA MAPPING -->
+    <div ng-show="c.activeTab==='mapping'">
+      <!--<div class="selected-object-banner" ng-if="c.dataModelObject">
+    <strong>Data Model Object:</strong>
+    {{c.getSelectedModelName()}}
+</div> -->
+      
+
+      <!-- TOP SECTION: Disclaimer box -->
+      <div class="disclaimer-box">
+        <div class="disclaimer-text">
+          <strong>Disclaimer:</strong><br>
+          <strong>•User ID:</strong> Must be mapped to the column identifying the Sales Representative who is the primary owner of the order. This value should uniquely identify the sales user (e.g., Employee ID, Sales Rep ID, or System User ID).<br>
+          <strong>•Transaction Date:</strong> Must be mapped to the column containing the Order Date (or equivalent transaction date) associated with the sale. This date is used to determine the applicable incentive period.<br>
+          Incorrect mapping may result in inaccurate credit assignment and commission calculation.
+        </div>
+
+        <div class="disclaimer-header-row">
+          <span class="dis-col-target">Target</span>
+          <span class="dis-col-source">Source</span>
+        </div>
+
+        <!-- User ID -->
+        <div class="disclaimer-field-row">
+          <div class="dis-target-cell">
+            <span class="req-star">*</span>
+            <div class="dis-target-box">User ID</div>
+          </div>
+          <div class="dis-source-cell">
+            <select class="dis-select smooth-input" ng-model="c.disclaimer.targetUserId"
+              ng-options="h for h in c.previewHeaders"
+              ng-change="c.updateFilteredMappings()" ng-disabled="true">
+              <option value="">-- Select --</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Transaction Date -->
+        <div class="disclaimer-field-row">
+          <div class="dis-target-cell">
+            <span class="req-star">*</span>
+            <div class="dis-target-box">Transaction Date</div>
+          </div>
+          <div class="dis-source-cell">
+            <select class="dis-select smooth-input" ng-model="c.disclaimer.transactionDate"
+              ng-options="h for h in c.previewHeaders"
+              ng-change="c.updateFilteredMappings()" ng-disabled="true">
+              <option value="">-- Select --</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- MAPPING ERROR / SUCCESS BANNERS -->
+      <div class="sn-notify sn-notify-error" ng-show="c.mappingError">
+        <span class="sn-notify-icon">&#9888;</span>
+        <span class="sn-notify-text">{{c.mappingError}}</span>
+        <span class="sn-notify-close" ng-click="c.mappingError=''">&#10005;</span>
+      </div>
+
+      <!-- SUCCESS BANNER: close also re-enables the buttons -->
+      <div class="sn-notify sn-notify-success" ng-show="c.mappingSuccess">
+        <span class="sn-notify-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="10" fill="#3d8b3d"/>
+            <polyline points="8 12 11 15 16 9" stroke="#fff" stroke-width="2.5"
+              stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+        <span class="sn-notify-text">{{c.mappingSuccess}}</span>
+        <span class="sn-notify-close"
+              ng-click="c.mappingSuccess=''; c.saveMappingDone=false; c.transformDone=false;">&#10005;</span>
+      </div>
+
+      <!-- BOTTOM SECTION: Mapping Table -->
+      <div class="mapping-body-layout">
+        <div class="mapping-right-col">
+          <div class="mapping-table-wrapper" ng-if="c.pagedMappings.length > 0">
+            <table class="mapping-table modern-table">
+              <thead>
+                <tr>
+                  <th style="width:25%;">Source</th>
+                  <th style="width:25%;">Source Display Name</th>
+                  <th style="width:25%;">Type</th>
+                  <th style="width:25%;">Target</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr ng-repeat="map in c.pagedMappings track by $index"
+                    ng-hide="c.isDisclaimerField(map.source)">
+                  <td><input type="text" class="mapping-input smooth-input" ng-model="map.source" ng-disabled="true"></td>
+                  <td>
+                    <span class="req-star">*</span>
+                    <input type="text" class="mapping-input smooth-input" ng-model="map.sourceDisplayName" placeholder="" ng-disabled="true">
+                  </td>
+                  <td>
+                    <select class="mapping-select smooth-input" ng-model="map.dataType"
+                      ng-options="t.value as t.label for t in c.dataTypes"
+                      ng-change="c.loadTargetFields(map)" ng-disabled="true">
+                      <option value="">-- Select --</option>
+                    </select>
+                  </td>
+                  <td>
+                    <select class="mapping-select smooth-input" ng-model="map.targetField"
+                      ng-options="f.name as f.label for f in map.availableTargets" ng-disabled="true">
+                      <option value="">-- Select --</option>
+                    </select>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div><!-- /mapping-body-layout -->
+
+      <!-- BOTTOM ROW: Pagination left, Buttons right -->
+      <div class="mapping-bottom-row">
+        <div class="mapping-pagination-center" ng-if="c.mappingTotalPages > 1">
+          <button class="page-btn" ng-disabled="c.mappingPageNumber === 1" ng-click="c.prevMappingPage()">◀ Previous</button>
+          <span class="page-indicator">Page {{c.mappingPageNumber}} of {{c.mappingTotalPages}}</span>
+          <button class="page-btn" ng-disabled="c.mappingPageNumber === c.mappingTotalPages" ng-click="c.nextMappingPage()">Next ▶</button>
+        </div>
+      </div>
+      <div class="mapping-action-disc">
+          <!-- REQ-4: stays faded until success banner is dismissed 
+          <button class="save-btn primary-btn"
+                  ng-click="c.saveMapping()"
+                  ng-disabled="c.saveMappingDone"
+                  ng-class="{'btn-faded': c.saveMappingDone}">
+            Save Mapping
+          </button>
+          <!-- REQ-4: stays faded until success banner is dismissed -->
+          <button class="run-btn secondary-btn"
+                  ng-click="c.runTransform()"
+                  ng-disabled="c.transformDone"
+                  ng-class="{'btn-faded': c.transformDone}">
+            Run Transform
+          </button>
+        </div>
+      
+
+    </div><!-- /mapping tab -->
+
+  </div><!-- /upload-content-area -->
+</div><!-- /upload-page-wrap -->]]></template>
+    </sp_widget>
+</record_update>

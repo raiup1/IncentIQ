@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update sys_domain="global" table="sn_aia_ltm_category">
+    <sn_aia_ltm_category action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <ai_created>true</ai_created>
+        <description>Stores user-specific preferences, historical queries, or common patterns related to their compensation, payouts, quotas, and earning rules.</description>
+        <internal_name>global.x_ctans_incentnow.Compensation Preferences</internal_name>
+        <name>Compensation Preferences</name>
+        <sys_class_name>sn_aia_ltm_category</sys_class_name>
+        <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+        <sys_created_on>2026-06-18 14:57:52</sys_created_on>
+        <sys_domain>global</sys_domain>
+        <sys_id>665790fd3be14790a4cbaddc73e45ad2</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>Compensation Preferences</sys_name>
+        <sys_overrides/>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sn_aia_ltm_category_665790fd3be14790a4cbaddc73e45ad2</sys_update_name>
+        <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
+        <sys_updated_on>2026-06-18 14:57:52</sys_updated_on>
+    </sn_aia_ltm_category>
+</record_update>

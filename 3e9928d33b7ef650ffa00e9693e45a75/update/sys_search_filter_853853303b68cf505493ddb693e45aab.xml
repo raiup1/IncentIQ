@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_search_filter">
+    <sys_search_filter action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <ais_search_source/>
+        <label>Catalog Item</label>
+        <name>Now Assist Multi-Turn Catalog Ordering</name>
+        <order>600</order>
+        <search_context_config/>
+        <sys_class_name>sys_search_filter</sys_class_name>
+        <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+        <sys_created_on>2026-04-27 09:23:44</sys_created_on>
+        <sys_id>853853303b68cf505493ddb693e45aab</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>Now Assist Multi-Turn Catalog Ordering</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_search_filter_853853303b68cf505493ddb693e45aab</sys_update_name>
+        <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
+        <sys_updated_on>2026-04-27 09:23:44</sys_updated_on>
+    </sys_search_filter>
+</record_update>

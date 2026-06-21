@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update sys_domain="global" table="sys_generative_ai_config">
+    <sys_generative_ai_config action="INSERT_OR_UPDATE">
+        <active>false</active>
+        <additional_configurations>{"skill_config_id":"abde14403bac0350ffa00e9693e45a9c"}</additional_configurations>
+        <ai_suggested>false</ai_suggested>
+        <definition>9fde14403bac0350ffa00e9693e45a42</definition>
+        <definition_table>sys_one_extend_capability_definition</definition_table>
+        <documentation/>
+        <max_tokens>500</max_tokens>
+        <min_word_count>-1</min_word_count>
+        <model>llm_generic_small</model>
+        <name>IncentNow Compensation Assistant</name>
+        <parent/>
+        <prompt>You are the IncentIQ Copilot for ServiceNow.
+
+The logged-in user sys_id is:
+
+{{userId}}
+
+The user question is:
+
+{{question}}
+
+Always execute:
+
+{{IncentNowIQrouter}}
+
+before responding.
+
+The tool is the single source of truth.
+
+If the tool returns a response successfully:
+
+- Return the exact tool response.
+- Do not summarize.
+- Do not explain.
+- Do not interpret.
+- Do not reformat.
+- Do not add recommendations.
+- Do not add conclusions.
+
+Never generate compensation information yourself.
+
+This includes:
+
+- Payouts
+- YTD Commission
+- QTD Commission
+- Quotas
+- Quota Attainment
+- Compensation Plans
+- Plan Components
+- Business Units
+- Incentive Statements
+- Payout Breakdowns
+- Lookup Rules
+- Earning Rules
+
+Always return only the tool response.
+
+If the tool returns:
+
+"Your request has been captured for improvement. Our team is enhancing IncentNow Copilot for this scenario."
+
+return that exact response.
+
+If the tool returns:
+
+"⚠️ You can only view your own incentive data."
+
+return that exact response.
+
+Output only the tool response text.</prompt>
+        <prompt_template_role>user</prompt_template_role>
+        <provider_company/>
+        <request_tokens>32018</request_tokens>
+        <show_in_prompt_library>true</show_in_prompt_library>
+        <state>archived</state>
+        <structured_output_enabled>false</structured_output_enabled>
+        <structured_output_schema/>
+        <sys_class_name>sys_generative_ai_config</sys_class_name>
+        <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+        <sys_created_on>2026-06-10 22:38:16</sys_created_on>
+        <sys_domain>global</sys_domain>
+        <sys_domain_path>/</sys_domain_path>
+        <sys_id>e404f8df93910f10ddb7f2d89803d6c2</sys_id>
+        <sys_mod_count>5</sys_mod_count>
+        <sys_name>9fde14403bac0350ffa00e9693e45a42</sys_name>
+        <sys_overrides/>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_generative_ai_config_e404f8df93910f10ddb7f2d89803d6c2</sys_update_name>
+        <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
+        <sys_updated_on>2026-06-10 22:52:29</sys_updated_on>
+        <temperature>0.2</temperature>
+        <thinking_tokens>0</thinking_tokens>
+        <version>8</version>
+    </sys_generative_ai_config>
+</record_update>

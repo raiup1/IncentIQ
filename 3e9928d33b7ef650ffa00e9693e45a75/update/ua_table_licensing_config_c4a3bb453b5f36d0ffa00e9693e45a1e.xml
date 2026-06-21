@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="ua_table_licensing_config">
+    <ua_table_licensing_config action="INSERT_OR_UPDATE">
+        <is_fulfillment>false</is_fulfillment>
+        <license_condition/>
+        <license_model>none</license_model>
+        <license_roles/>
+        <name>x_ctans_incentnow_fiscal_calendar</name>
+        <op_delete>true</op_delete>
+        <op_insert>true</op_insert>
+        <op_update>true</op_update>
+        <owner_condition/>
+        <sys_class_name>ua_table_licensing_config</sys_class_name>
+        <sys_created_by>karan.kumar</sys_created_by>
+        <sys_created_on>2026-02-25 02:43:32</sys_created_on>
+        <sys_id>c4a3bb453b5f36d0ffa00e9693e45a1e</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>x_ctans_incentnow_fiscal_calendar</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>ua_table_licensing_config_c4a3bb453b5f36d0ffa00e9693e45a1e</sys_update_name>
+        <sys_updated_by>karan.kumar</sys_updated_by>
+        <sys_updated_on>2026-02-25 02:43:32</sys_updated_on>
+    </ua_table_licensing_config>
+</record_update>

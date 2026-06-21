@@ -1,0 +1,336 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>public</access>
+        <active>true</active>
+        <api_name>x_ctans_incentnow.IncentIQIntentMatcher</api_name>
+        <caller_access/>
+        <client_callable>false</client_callable>
+        <description/>
+        <mobile_callable>false</mobile_callable>
+        <name>IncentIQIntentMatcher</name>
+        <sandbox_callable>false</sandbox_callable>
+        <script><![CDATA[var IncentIQIntentMatcher = Class.create();
+
+IncentIQIntentMatcher.prototype = {
+
+    initialize: function() {},
+
+    classifyIntentUsingAI: function(question) {
+
+        try {
+
+            gs.info("INCENTIQ_MATCHER :: ENTERED classifyIntentUsingAI()");
+            gs.info("INCENTIQ_MATCHER :: QUESTION = " + question);
+
+            var query = (question || "")
+                .toString()
+                .toLowerCase()
+                .replace(/[^a-z0-9\s]/g, " ")
+                .replace(/\s+/g, " ")
+                .trim();
+
+            gs.info(
+                "INCENTIQ_MATCHER :: NORMALIZED QUERY = " +
+                query
+            );
+
+            if (!query) {
+                return "unknown";
+            }
+
+            // =====================================================
+            // TEMPORARY SAFE MATCHES
+            // =====================================================
+
+            if (
+                query.indexOf("plan components") > -1 ||
+                query.indexOf("what are my plan components") > -1 ||
+                query.indexOf("show my plan components") > -1
+            ) {
+                return "plan_components";
+            }
+
+
+            if (
+                query.indexOf("payout components") > -1 ||
+                query.indexOf("show my payout components") > -1 ||
+                query.indexOf("commission components") > -1 ||
+                query.indexOf("incentive components") > -1
+            ) {
+                return "payout_components";
+            }
+
+            if (
+                query.indexOf("monthly payout") > -1
+            ) {
+                return "monthly_payout";
+            }
+
+            if (
+                query.indexOf("ytd") > -1 ||
+                query.indexOf("year to date") > -1
+            ) {
+                return "ytd_payout";
+            }
+
+            if (
+                query.indexOf("qtd") > -1 ||
+                query.indexOf("quarter to date") > -1
+            ) {
+                return "qtd_payout";
+            }
+
+            if (
+                query.indexOf("breakdown") > -1
+            ) {
+                return "breakdown";
+            }
+
+            if (
+                query.indexOf("business unit") > -1 ||
+                query.indexOf("my bu") > -1
+            ) {
+                return "business_unit";
+            }
+
+            // =====================================================
+            // CONFIGURATION DRIVEN MATCHING
+            // =====================================================
+
+            var configGR = new GlideRecordSecure(
+                "x_ctans_incentnow_ai_intent_configuration"
+            );
+
+            configGR.addQuery("active", true);
+            configGR.addNotNullQuery("keywords");
+            configGR.orderByDesc("priority");
+            configGR.query();
+
+            gs.info("MATCHER USER = " + gs.getUserName());
+            gs.info("MATCHER USER ID = " + gs.getUserID());
+            gs.info("MATCHER SCOPE = " + gs.getCurrentScopeName());
+
+
+            while (configGR.next()) {
+
+                var intentName =
+                    (configGR.getValue("intent_name") || "")
+                    .toLowerCase()
+                    .trim();
+
+                var keywords =
+                    (configGR.getValue("keywords") || "")
+                    .toLowerCase()
+                    .trim();
+
+                gs.info(
+                    "INCENTIQ_MATCHER :: CHECKING INTENT = " +
+                    intentName +
+                    " | KEYWORDS = " +
+                    keywords
+                );
+
+                if (!keywords) {
+                    continue;
+                }
+
+                var keywordList = keywords.split(",");
+
+                for (var i = 0; i < keywordList.length; i++) {
+
+                    var keyword =
+                        (keywordList[i] || "")
+                        .toLowerCase()
+                        .trim();
+
+                    if (!keyword) {
+                        continue;
+                    }
+
+                    if (query.indexOf(keyword) > -1) {
+
+                        gs.info(
+                            "INCENTIQ_MATCHER :: MATCH FOUND = " +
+                            intentName +
+                            " | KEYWORD = " +
+                            keyword +
+                            " | QUERY = " +
+                            query
+                        );
+
+                        return intentName;
+                    }
+                }
+            }
+
+            gs.info(
+                "INCENTIQ_MATCHER :: NO MATCH FOUND"
+            );
+
+            return "unknown";
+
+        } catch (ex) {
+
+            gs.error(
+                "INCENTIQ_MATCHER :: ERROR = " +
+                ex.message
+            );
+
+            return "unknown";
+        }
+    },
+
+    normalizeQuestion: function(question) {
+
+        if (!question) {
+            return "";
+        }
+
+        var normalized =
+            question.toString().toLowerCase();
+
+        normalized =
+            normalized.replace(/\s+/g, " ");
+
+        normalized =
+            normalized.replace(/[^\w\s]/gi, "");
+
+        normalized =
+            normalized.trim();
+
+        return normalized;
+    },
+
+    storeUnknownQuestion: function(
+        question,
+        userId,
+        detectedIntent
+    ) {
+
+        try {
+
+            var normalizedQuestion =
+                this.normalizeQuestion(question);
+
+            var existingGR = new GlideRecordSecure(
+                "x_ctans_incentnow_ai_learning_repository"
+            );
+
+            existingGR.addQuery(
+                "normalized_question",
+                normalizedQuestion
+            );
+
+            existingGR.query();
+
+            if (existingGR.next()) {
+
+                var currentCount =
+                    parseInt(
+                        existingGR.getValue(
+                            "frequency_count"
+                        ),
+                        10
+                    ) || 0;
+
+                existingGR.setValue(
+                    "frequency_count",
+                    currentCount + 1
+                );
+
+                existingGR.setValue(
+                    "last_asked",
+                    new GlideDateTime()
+                );
+
+                existingGR.update();
+
+                return "Your request has been captured for improvement. Our team is enhancing IncentIQ Copilot for this scenario.";
+            }
+
+            var learnGR = new GlideRecordSecure(
+                "x_ctans_incentnow_ai_learning_repository"
+            );
+
+            learnGR.initialize();
+
+            learnGR.setValue(
+                "question",
+                question
+            );
+
+            learnGR.setValue(
+                "normalized_question",
+                normalizedQuestion
+            );
+
+            learnGR.setValue(
+                "detected_intent",
+                detectedIntent || "unknown"
+            );
+
+            learnGR.setValue(
+                "status",
+                "New"
+            );
+
+            learnGR.setValue(
+                "frequency_count",
+                1
+            );
+
+            learnGR.setValue(
+                "last_asked",
+                new GlideDateTime()
+            );
+
+            learnGR.setValue(
+                "source_channel",
+                "Portal"
+            );
+
+            var utils = new IncentIQUtils();
+
+            var profileId =
+                utils.getUserProfileId(userId);
+
+            if (profileId) {
+
+                learnGR.setValue(
+                    "user",
+                    profileId
+                );
+
+            }
+
+            learnGR.insert();
+
+            return "Your request has been captured for improvement. Our team is enhancing IncentIQ Copilot for this scenario.";
+
+        } catch (ex) {
+
+            gs.error(
+                "INCENTIQ_MATCHER :: LEARNING ERROR = " +
+                ex.message
+            );
+
+            return "We could not process your request at the moment. Please try again later.";
+        }
+    },
+
+    type: 'IncentIQIntentMatcher'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+        <sys_created_on>2026-06-10 22:17:46</sys_created_on>
+        <sys_id>a73f245393910f10ddb7f2d89803d6e0</sys_id>
+        <sys_mod_count>9</sys_mod_count>
+        <sys_name>IncentIQIntentMatcher</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_script_include_a73f245393910f10ddb7f2d89803d6e0</sys_update_name>
+        <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
+        <sys_updated_on>2026-06-18 15:46:27</sys_updated_on>
+    </sys_script_include>
+</record_update>

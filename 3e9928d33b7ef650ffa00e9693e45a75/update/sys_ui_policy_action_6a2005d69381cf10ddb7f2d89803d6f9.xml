@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_ui_policy_action">
+    <sys_ui_policy_action action="INSERT_OR_UPDATE">
+        <cleared>false</cleared>
+        <disabled>true</disabled>
+        <field>data_source_system</field>
+        <field_message/>
+        <field_message_type>none</field_message_type>
+        <mandatory>ignore</mandatory>
+        <sys_class_name>sys_ui_policy_action</sys_class_name>
+        <sys_created_by>karan.kumar</sys_created_by>
+        <sys_created_on>2026-05-26 10:42:02</sys_created_on>
+        <sys_id>6a2005d69381cf10ddb7f2d89803d6f9</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>data_source_system</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_ui_policy_action_6a2005d69381cf10ddb7f2d89803d6f9</sys_update_name>
+        <sys_updated_by>karan.kumar</sys_updated_by>
+        <sys_updated_on>2026-05-26 10:42:02</sys_updated_on>
+        <table>x_ctans_incentnow_data_model_object</table>
+        <ui_policy display_value="Apply UI Policies on Load">c8fff8969381cf10ddb7f2d89803d652</ui_policy>
+        <value/>
+        <value_action>ignore</value_action>
+        <visible>ignore</visible>
+    </sys_ui_policy_action>
+    <sys_translated_text action="delete_multiple" query="documentkey=6a2005d69381cf10ddb7f2d89803d6f9"/>
+</record_update>

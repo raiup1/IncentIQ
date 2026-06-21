@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update>
+    <sys_ui_section caption="" section_id="e36670763b0c4b105493ddb693e45ad3" sys_domain="global" table="x_ctans_incentnow_payout_summary" version="3" view="portal_view">
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>rule_name</element>
+            <position>0</position>
+            <sys_created_by>karan.kumar</sys_created_by>
+            <sys_created_on>2026-05-25 16:02:33</sys_created_on>
+            <sys_id>8400494a934d0f10ddb7f2d89803d61b</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="NULL" display_value="" name="x_ctans_incentnow_payout_summary" sys_domain="global" view="bc824a2e3bf73ad05493ddb693e45aae">e36670763b0c4b105493ddb693e45ad3</sys_ui_section>
+            <sys_updated_by>karan.kumar</sys_updated_by>
+            <sys_updated_on>2026-05-25 16:02:33</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>plan</element>
+            <position>1</position>
+            <sys_created_by>karan.kumar</sys_created_by>
+            <sys_created_on>2026-05-25 16:02:33</sys_created_on>
+            <sys_id>cc00494a934d0f10ddb7f2d89803d61c</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="NULL" display_value="" name="x_ctans_incentnow_payout_summary" sys_domain="global" view="bc824a2e3bf73ad05493ddb693e45aae">e36670763b0c4b105493ddb693e45ad3</sys_ui_section>
+            <sys_updated_by>karan.kumar</sys_updated_by>
+            <sys_updated_on>2026-05-25 16:02:33</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>payout_type</element>
+            <position>2</position>
+            <sys_created_by>karan.kumar</sys_created_by>
+            <sys_created_on>2026-05-25 16:02:33</sys_created_on>
+            <sys_id>4c00494a934d0f10ddb7f2d89803d61d</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="NULL" display_value="" name="x_ctans_incentnow_payout_summary" sys_domain="global" view="bc824a2e3bf73ad05493ddb693e45aae">e36670763b0c4b105493ddb693e45ad3</sys_ui_section>
+            <sys_updated_by>karan.kumar</sys_updated_by>
+            <sys_updated_on>2026-05-25 16:02:33</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>u_earning</element>
+            <position>3</position>
+            <sys_created_by>karan.kumar</sys_created_by>
+            <sys_created_on>2026-05-25 16:02:33</sys_created_on>
+            <sys_id>c800494a934d0f10ddb7f2d89803d61e</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="NULL" display_value="" name="x_ctans_incentnow_payout_summary" sys_domain="global" view="bc824a2e3bf73ad05493ddb693e45aae">e36670763b0c4b105493ddb693e45ad3</sys_ui_section>
+            <sys_updated_by>karan.kumar</sys_updated_by>
+            <sys_updated_on>2026-05-25 16:02:33</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_section action="INSERT_OR_UPDATE">
+            <caption/>
+            <header>false</header>
+            <name>x_ctans_incentnow_payout_summary</name>
+            <roles/>
+            <sys_class_name>sys_ui_section</sys_class_name>
+            <sys_created_by>karan.kumar</sys_created_by>
+            <sys_created_on>2026-04-08 06:13:23</sys_created_on>
+            <sys_domain>global</sys_domain>
+            <sys_domain_path>/</sys_domain_path>
+            <sys_id>e36670763b0c4b105493ddb693e45ad3</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_name>x_ctans_incentnow_payout_summary</sys_name>
+            <sys_overrides/>
+            <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+            <sys_policy/>
+            <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+            <sys_update_name>sys_ui_section_e36670763b0c4b105493ddb693e45ad3</sys_update_name>
+            <sys_updated_by>karan.kumar</sys_updated_by>
+            <sys_updated_on>2026-04-08 06:13:23</sys_updated_on>
+            <sys_user/>
+            <title>false</title>
+            <view display_value="Portal View" name="portal_view">bc824a2e3bf73ad05493ddb693e45aae</view>
+            <view_name/>
+        </sys_ui_section>
+    </sys_ui_section>
+</record_update>

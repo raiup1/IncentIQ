@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <client_script><![CDATA[api.controller=function($scope) {
+  /* widget controller */
+  var c = this;
+	
+	$scope.$on('summary.refresh', function() {
+    c.server.update(); // reload data from server
+  });
+};]]></client_script>
+        <controller_as>c</controller_as>
+        <css/>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description/>
+        <docs/>
+        <field_list/>
+        <has_preview>true</has_preview>
+        <id>incentive-summary</id>
+        <internal>false</internal>
+        <link><![CDATA[function link(scope, element, attrs, controller) {  }]]></link>
+        <name>Incentive summary</name>
+        <option_schema/>
+        <public>false</public>
+        <roles>x_ctans_incentnow.user</roles>
+        <script><![CDATA[(function() {
+  /* populate the 'data' object */
+  /* e.g., data.table = $sp.getValue('table'); */
+	
+	var plansysid= $sp.getParameter('sys_id');
+	var table=$sp.getParameter("table")
+	
+	if(plansysid && table)
+		{
+			
+		
+					var gPlan= new GlideRecordSecure(table);
+					if(gPlan.get(plansysid))
+
+					{
+						data.plan_name=gPlan.getDisplayValue('plan_name');
+						data.status=gPlan.getDisplayValue('status');
+					}
+
+	
+	
+	 				var grEarning = new GlideAggregate('x_ctans_incentnow_earning_rule');
+					grEarning.addQuery('plan', plansysid);
+					grEarning.addAggregate('COUNT');
+					grEarning.query();
+
+					if (grEarning.next()) {
+							data.earningrules = parseInt(grEarning.getAggregate('COUNT'), 10);
+					}
+
+
+					var grLook = new GlideAggregate('x_ctans_incentnow_lookup_rule');
+					grLook.addQuery('plan', plansysid);
+					grLook.addAggregate('COUNT');
+					grLook.query();
+
+					if (grLook.next()) {
+							data.commissionrules = parseInt(grLook.getAggregate('COUNT'), 10);
+					}
+			
+		
+	
+		}
+	
+
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>karan.kumar</sys_created_by>
+        <sys_created_on>2026-04-09 05:13:05</sys_created_on>
+        <sys_id>3d32b5473bc80f105493ddb693e45a5f</sys_id>
+        <sys_mod_count>19</sys_mod_count>
+        <sys_name>Incentive summary</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sp_widget_3d32b5473bc80f105493ddb693e45a5f</sys_update_name>
+        <sys_updated_by>karan.kumar</sys_updated_by>
+        <sys_updated_on>2026-05-18 11:04:47</sys_updated_on>
+        <template><![CDATA[<div>
+<!-- your widget template -->
+  
+  <!-- PLAN SUMMARY (NOW BELOW - FIXED) -->
+         <div class="ip-card ip-summary">
+            <h3 class="ip-card-title">Plan Summary</h3>
+            <div class="ip-summary-row"><span>Plan Name:</span><b>{{data.plan_name}}</b></div>
+            <div class="ip-summary-row"><span>Earning Rules:</span><b>{{data.earningrules}} configured</b></div>
+            <div class="ip-summary-row"><span>Commission Rules:</span><b>{{data.commissionrules}} configured</b></div>
+           <div class="ip-summary-row"><span>Status:</span><span><b>{{data.status}}</b></span></div>
+         </div>
+</div>]]></template>
+    </sp_widget>
+    <sys_es_latest_script action="INSERT_OR_UPDATE">
+        <id>3d32b5473bc80f105493ddb693e45a5f</id>
+        <sys_created_by>karan.kumar</sys_created_by>
+        <sys_created_on>2026-04-09 05:13:05</sys_created_on>
+        <sys_id>3d32b1c73bc80f105493ddb693e45ad1</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>karan.kumar</sys_updated_by>
+        <sys_updated_on>2026-04-09 05:13:05</sys_updated_on>
+        <table>sp_widget</table>
+        <use_es_latest>true</use_es_latest>
+    </sys_es_latest_script>
+</record_update>

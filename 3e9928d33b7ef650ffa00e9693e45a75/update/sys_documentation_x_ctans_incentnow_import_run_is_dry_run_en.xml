@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update>
+    <sys_documentation element="is_dry_run" label="Is Dry Run" language="en" table="x_ctans_incentnow_import_run">
+        <sys_documentation action="INSERT_OR_UPDATE">
+            <element>is_dry_run</element>
+            <help/>
+            <hint/>
+            <label>Is Dry Run</label>
+            <language>en</language>
+            <name>x_ctans_incentnow_import_run</name>
+            <plural/>
+            <sys_class_name>sys_documentation</sys_class_name>
+            <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+            <sys_created_on>2026-02-22 06:49:30</sys_created_on>
+            <sys_mod_count>3</sys_mod_count>
+            <sys_name>Is Dry Run</sys_name>
+            <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+            <sys_policy/>
+            <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+            <sys_update_name>sys_documentation_x_ctans_incentnow_import_run_is_dry_run_en</sys_update_name>
+            <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
+            <sys_updated_on>2026-02-22 06:49:31</sys_updated_on>
+            <url/>
+            <url_target/>
+        </sys_documentation>
+    </sys_documentation>
+</record_update>

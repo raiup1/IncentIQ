@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element db_object_id="082e9bff3bfbf214ffa00e9693e45ac7" label="Earning Rule" max_length="40" name="x_ctans_incentnow_earning_rule" type="collection">
+        <element attributes="edge_encryption_enabled=true" hint="Define conditions in a human-readable format to filter records." label="Condition Query" max_length="1000" name="condition_query_display" type="string"/>
+        <element attributes="encode_utf8=false" hint="Choose the field from the source object that will be evaluated or aggregated." label="Field" mandatory="true" max_length="32" name="field" reference="x_ctans_incentnow_metadata_mapping" reference_qual="javascript:'data_model_object_id=' + current.source_object + '^active=true';" type="reference" use_reference_qualifier="advanced"/>
+        <element attributes="edge_encryption_enabled=true" hint="System-generated encoded query used internally for filtering records. Modify only if you understand encoded query syntax." label="Encoded Query" max_length="1000" name="rule_condition_query" type="string"/>
+        <element attributes="edge_encryption_enabled=true" choice="1" hint="Define whether the rule applies at an individual level or a grouped level." label="Earning Level" mandatory="true" max_length="40" name="earning_level" type="string">
+            <choice>
+                <element inactive_on_update="false" label="Individual" sequence="0" value="individual"/>
+                <element inactive_on_update="false" label="Manager (Rollup)" sequence="1" value="manager_rollup"/>
+            </choice>
+        </element>
+        <element attributes="encode_utf8=false" hint="Select the source data object (e.g., Salesforce Deal) on which this rule will run." label="Source Object" mandatory="true" max_length="32" name="source_object" reference="x_ctans_incentnow_data_model_object" reference_qual="active=true^EQ" reference_qual_condition="active=true^EQ" type="reference"/>
+        <element label="Order" max_length="40" name="order" read_only="true" type="integer"/>
+        <element attributes="edge_encryption_enabled=true,json_view=true" label="Dimension" max_length="4000" name="dimension" type="string"/>
+        <element default="true" hint="Enable or disable this rule. Only active rules will be executed." label="Active" max_length="40" name="active" type="boolean"/>
+        <element attributes="edge_encryption_enabled=true" choice="1" hint="Select how the field values should be calculated (e.g., Max, Min, Sum, Count)." label="Aggregation" mandatory="true" max_length="40" name="aggregation" type="string">
+            <choice>
+                <element inactive_on_update="false" label="Sum" sequence="4" value="sum"/>
+                <element inactive_on_update="false" label="Max" sequence="2" value="max"/>
+                <element inactive_on_update="false" label="Avg" sequence="0" value="avg"/>
+                <element inactive_on_update="false" label="Min" sequence="3" value="min"/>
+                <element inactive_on_update="false" label="Count" sequence="1" value="count"/>
+            </choice>
+        </element>
+        <element attributes="encode_utf8=false, readonly_clickthrough=true" hint="Displays the associated plan under which this rule is created." label="Plan" mandatory="true" max_length="32" name="plan" read_only="true" reference="x_ctans_incentnow_plan" type="reference"/>
+        <element attributes="edge_encryption_enabled=true" display="true" hint="Enter a unique name for this rule to identify its purpose." label="Rule Name" mandatory="true" max_length="100" name="rule_name" type="string"/>
+        <element label="Domain" max_length="32" name="sys_domain" type="domain_id"/>
+        <element attributes="edge_encryption_enabled=true" hint="Provide a brief explanation of what this rule does and when it should be used." label="Description" max_length="4000" name="description" type="string"/>
+        <index name="index">
+            <element name="field"/>
+        </index>
+        <index name="index2">
+            <element name="plan"/>
+        </index>
+        <index name="index3">
+            <element name="source_object"/>
+        </index>
+        <index name="index4">
+            <element name="sys_domain"/>
+        </index>
+    </element>
+</database>

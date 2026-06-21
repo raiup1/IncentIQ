@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update>
+    <sys_ui_related sys_domain="global" table="x_ctans_incentnow_rule_condition_group" version="2" view="">
+        <sys_ui_related_list_entry action="INSERT_OR_UPDATE">
+            <filter/>
+            <list_id display_value="x_ctans_incentnow_rule_condition_group - Default view" name="x_ctans_incentnow_rule_condition_group" related_list="NULL" sys_domain="global" view="Default view">ec2705bc3b5b32d0ffa00e9693e45ab7</list_id>
+            <order_by/>
+            <position>0</position>
+            <related_list>x_ctans_incentnow_rule_condition.group</related_list>
+            <sys_class_name>sys_ui_related_list_entry</sys_class_name>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-02-23 19:31:26</sys_created_on>
+            <sys_id>f82705bc3b5b32d0ffa00e9693e45aba</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-02-23 19:31:26</sys_updated_on>
+        </sys_ui_related_list_entry>
+        <sys_ui_related_list action="INSERT_OR_UPDATE">
+            <calculated_name>x_ctans_incentnow_rule_condition_group - Default view</calculated_name>
+            <filter/>
+            <name>x_ctans_incentnow_rule_condition_group</name>
+            <order_by/>
+            <position/>
+            <related_list/>
+            <sys_class_name>sys_ui_related_list</sys_class_name>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-02-23 19:31:26</sys_created_on>
+            <sys_domain>global</sys_domain>
+            <sys_domain_path>/</sys_domain_path>
+            <sys_id>ec2705bc3b5b32d0ffa00e9693e45ab7</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_name>Rule Condition Group - Default view</sys_name>
+            <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+            <sys_policy/>
+            <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+            <sys_update_name>sys_ui_related_x_ctans_incentnow_rule_condition_group_null</sys_update_name>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-02-23 19:31:26</sys_updated_on>
+            <sys_user/>
+            <view display_value="Default view" name="NULL">Default view</view>
+            <view_name/>
+        </sys_ui_related_list>
+    </sys_ui_related>
+</record_update>

@@ -1,0 +1,965 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>package_private</access>
+        <active>true</active>
+        <api_name>x_ctans_incentnow.IncentNowAccessUtils</api_name>
+        <caller_access/>
+        <client_callable>false</client_callable>
+        <description/>
+        <mobile_callable>false</mobile_callable>
+        <name>IncentNowAccessUtils</name>
+        <sandbox_callable>false</sandbox_callable>
+        <script><![CDATA[var IncentNowAccessUtils = Class.create();
+IncentNowAccessUtils.prototype = {
+    initialize: function() {},
+
+    // =====================================================
+    // PLAN SECTION
+    // =====================================================
+
+    shouldSkipForPlan: function() {
+        return this._hasAnyRole([
+            'admin',
+            'x_ctans_incentnow.business_group_executive',
+            'x_ctans_incentnow.org_executive',
+            'x_ctans_incentnow.manager'
+        ]);
+    },
+
+    shouldSkipForPlanExe: function() {
+        return this._hasAnyRole([
+            'admin',
+            'x_ctans_incentnow.org_executive',
+            'x_ctans_incentnow.manager'
+        ]);
+    },
+
+    applyPlanUsersRoleFilter: function(current) {
+
+        // Full access
+        if (
+            (gs.getUser().hasRole('admin')) ||
+            gs.hasRole('x_ctans_incentnow.admin') ||
+            gs.hasRole('x_ctans_incentnow.org_executive')
+        ) {
+            return;
+        }
+
+        // Manager
+        if (gs.hasRole('x_ctans_incentnow.manager')) {
+
+            var userIds = this.getUserAndReportees(gs.getUserID());
+
+            var profileIds = [];
+
+            var userProfileGR = new GlideRecordSecure('x_ctans_incentnow_user_profile');
+            userProfileGR.addQuery('user', 'IN', userIds.join(','));
+            userProfileGR.query();
+
+            while (userProfileGR.next()) {
+                profileIds.push(userProfileGR.getUniqueValue());
+            }
+
+            if (profileIds.length === 0) {
+                current.addEncodedQuery('sys_idISEMPTY');
+                return;
+            }
+
+            current.addQuery(
+                'x_ctans_incentnow_sales_user',
+                'IN',
+                profileIds.join(',')
+            );
+
+            return;
+        }
+
+        // Sales User
+        if (gs.hasRole('x_ctans_incentnow.user')) {
+
+            var profileId = this.getCurrentUserProfileId();
+
+            if (!profileId) {
+                current.addEncodedQuery('sys_idISEMPTY');
+                return;
+            }
+
+            current.addQuery(
+                'x_ctans_incentnow_sales_user',
+                profileId
+            );
+        }
+    },
+
+    applyPlanUserBasedFilter: function(current, userIds) {
+
+        if (!userIds || userIds.length === 0) {
+            current.addEncodedQuery('sys_idISEMPTY');
+            return;
+        }
+
+        var profileIds = [];
+        var userProfile = new GlideRecordSecure('x_ctans_incentnow_user_profile');
+
+        userProfile.addQuery('user', 'IN', userIds.join(','));
+        userProfile.query();
+
+        while (userProfile.next()) {
+            profileIds.push(userProfile.getUniqueValue());
+        }
+
+        if (profileIds.length === 0) {
+            current.addEncodedQuery('sys_idISEMPTY');
+            return;
+        }
+
+        // STEP 1: fetch plan IDs from plan_users table
+        var planIds = [];
+        var pu = new GlideRecordSecure('x_ctans_incentnow_plan_users');
+
+        pu.addQuery('x_ctans_incentnow_sales_user', 'IN', profileIds.join(','));
+        pu.query();
+
+        while (pu.next()) {
+            var planId = pu.getValue('x_ctans_incentnow_plan');
+            if (planId && planIds.indexOf(planId) === -1) {
+                planIds.push(planId);
+            }
+        }
+
+        // STEP 2: apply to Plan table
+        if (planIds.length === 0) {
+            current.addEncodedQuery('sys_idISEMPTY');
+            return;
+        }
+
+        current.addQuery('sys_id', 'IN', planIds.join(','));
+    },
+
+    getCurrentUserProfileId: function() {
+
+        var profileGR = new GlideRecordSecure('x_ctans_incentnow_user_profile');
+        profileGR.addQuery('user', gs.getUserID());
+        profileGR.query();
+
+        if (profileGR.next()) {
+            return profileGR.getUniqueValue();
+        }
+
+        return '';
+    },
+
+    applyManagerPlanFilter: function(current) {
+
+        gs.info('=== applyManagerPlanFilter START ===');
+
+        gs.info('Current User: ' + gs.getUserID());
+
+        gs.info('Admin: ' + gs.hasRole('x_ctans_incentnow.admin'));
+        gs.info('Manager: ' + gs.hasRole('x_ctans_incentnow.manager'));
+
+        if (
+            gs.hasRole('x_ctans_incentnow.admin') ||
+            gs.hasRole('x_ctans_incentnow.business_group_admin') ||
+            gs.hasRole('x_ctans_incentnow.business_group_executive') ||
+            gs.hasRole('x_ctans_incentnow.org_executive')
+        ) {
+            gs.info('Skipped because privileged role');
+            return;
+        }
+
+        if (!gs.hasRole('x_ctans_incentnow.manager')) {
+            gs.info('User is not manager');
+            return;
+        }
+
+        var userIds = this.getUserAndReportees(gs.getUserID());
+
+        gs.info('User IDs: ' + userIds.join(','));
+
+        var profileIds = [];
+
+        var profileGR = new GlideRecordSecure('x_ctans_incentnow_user_profile');
+        profileGR.addQuery('user', 'IN', userIds.join(','));
+        profileGR.query();
+
+        while (profileGR.next()) {
+            profileIds.push(profileGR.getUniqueValue());
+        }
+
+        gs.info('Profile Count: ' + profileIds.length);
+        gs.info('Profile IDs: ' + profileIds.join(','));
+
+        if (profileIds.length === 0) {
+            gs.info('No profiles found');
+            current.addEncodedQuery('sys_idISEMPTY');
+            return;
+        }
+
+        var planIds = [];
+
+        var planUserGR = new GlideRecordSecure('x_ctans_incentnow_plan_users');
+        planUserGR.addQuery('x_ctans_incentnow_sales_user', 'IN', profileIds.join(','));
+        planUserGR.query();
+
+        gs.info('Plan User Query = ' + planUserGR.getEncodedQuery());
+        gs.info('Plan User Has Rows = ' + planUserGR.hasNext());
+
+        while (planUserGR.next()) {
+
+            var planId = planUserGR.getValue('x_ctans_incentnow_plan');
+
+            gs.info('Found Plan ID: ' + planId);
+
+            if (planId && planIds.indexOf(planId) === -1) {
+                planIds.push(planId);
+            }
+        }
+
+        gs.info('Plan Count: ' + planIds.length);
+        gs.info('Plan IDs: ' + planIds.join(','));
+
+        if (planIds.length > 0) {
+
+            gs.info('Applying Filter');
+
+            current.addQuery('sys_id', 'IN', planIds.join(','));
+
+        } else {
+
+            gs.info('No Plans Found');
+
+            current.addEncodedQuery('sys_idISEMPTY');
+        }
+
+        gs.info('=== applyManagerPlanFilter END ===');
+    },
+
+    applyPlanBUFilter: function(current) {
+
+        if (gs.getUser().hasRole('admin')) return;
+
+        var buList = this.getUserBusinessUnits(gs.getUserID());
+
+        if (this._applyEmptyCheck(current, buList)) return;
+
+        current.addQuery('business_unit', 'IN', buList.join(','));
+    },
+
+    // =====================================================
+    // QUOTA SECTION
+    // =====================================================
+
+    shouldSkip: function() {
+        return this._hasAnyRole([
+            'x_ctans_incentnow.business_group_admin',
+            'x_ctans_incentnow.business_group_executive',
+            'x_ctans_incentnow.org_executive',
+            'x_ctans_incentnow.manager'
+        ]);
+    },
+
+    applyManagerQuotaFilter: function(current) {
+
+        var userId = gs.getUserID();
+
+        if (
+            gs.hasRole('x_ctans_incentnow.business_group_admin') ||
+            gs.hasRole('x_ctans_incentnow.business_group_executive') ||
+            gs.hasRole('x_ctans_incentnow.org_executive')
+        ) return;
+
+        if (!gs.hasRole('x_ctans_incentnow.manager')) return;
+
+        var userIds = this.getUserAndReportees(userId);
+
+        var profileGR = new GlideRecordSecure('x_ctans_incentnow_user_profile');
+        profileGR.addQuery('user', 'IN', userIds.join(','));
+        profileGR.query();
+
+        var profileIds = [];
+        while (profileGR.next()) {
+            profileIds.push(profileGR.getUniqueValue());
+        }
+
+        if (profileIds.length === 0) {
+            current.addEncodedQuery('sys_idISEMPTY');
+            return;
+        }
+
+        var qa = new GlideRecordSecure('x_ctans_incentnow_user_quota_assignment');
+        qa.addQuery('user', 'IN', profileIds.join(','));
+        qa.query();
+
+        var quotaIds = [];
+        while (qa.next()) {
+            var q = qa.getValue('quota');
+            if (q && quotaIds.indexOf(q) === -1) quotaIds.push(q);
+        }
+
+        if (quotaIds.length > 0) {
+            current.addQuery('sys_id', 'IN', quotaIds.join(','));
+        } else {
+            return;
+        }
+    },
+
+    applyBusinessGroupExecutiveQuotaFilter: function(current) {
+
+        if (gs.getUser().hasRole('admin')) return;
+        if (!gs.hasRole('x_ctans_incentnow.business_group_executive')) return;
+
+        var buList = this.getUserBusinessUnits(gs.getUserID());
+
+        if (this._applyEmptyCheck(current, buList)) return;
+
+        current.addQuery('business_unit', 'IN', buList.join(','));
+    },
+
+    // =====================================================
+    // QUOTA ASSIGNMENT SECTION
+    // =====================================================
+
+    applyQuotaAssignmentFilter: function(current) {
+
+        var userId = gs.getUserID();
+
+        if (
+            gs.getUser().hasRole('admin') ||
+            gs.hasRole('x_ctans_incentnow.admin') ||
+            gs.hasRole('x_ctans_incentnow.org_executive')
+        ) return;
+
+        // BUSINESS GROUP EXECUTIVE
+        if (gs.hasRole('x_ctans_incentnow.business_group_executive')) {
+
+            var buList = this.getUserBusinessUnits(userId);
+
+            if (this._applyEmptyCheck(current, buList)) return;
+
+            current.addQuery('user.business_unit', 'IN', buList.join(','));
+            return;
+        }
+
+        // BUSINESS GROUP ADMIN
+        if (gs.hasRole('x_ctans_incentnow.business_group_admin')) {
+
+            var buList2 = this.getUserBusinessUnits(userId);
+
+            if (!buList2 || buList2.length === 0) {
+                current.addEncodedQuery('sys_idISEMPTY');
+                return;
+            }
+
+            current.addQuery('user.business_unit', 'IN', buList2.join(','));
+            return;
+        }
+
+        // MANAGER
+        if (gs.hasRole('x_ctans_incentnow.manager')) {
+
+            var users = this.getUserAndReportees(userId);
+
+            var profileGR = new GlideRecordSecure('x_ctans_incentnow_user_profile');
+            profileGR.addQuery('user', 'IN', users.join(','));
+            profileGR.query();
+
+            var profileIds = [];
+            while (profileGR.next()) profileIds.push(profileGR.getUniqueValue());
+
+            if (profileIds.length === 0) {
+                current.addEncodedQuery('sys_idISEMPTY');
+                return;
+            }
+
+            current.addQuery('user', 'IN', profileIds.join(','));
+            return;
+        }
+
+        if (gs.hasRole('x_ctans_incentnow.user')) {
+
+            var profileId = this.getCurrentUserProfileId();
+
+            if (!profileId) {
+                current.addEncodedQuery('sys_idISEMPTY');
+                return;
+            }
+
+            current.addQuery('user', profileId);
+            return;
+        }
+    },
+
+    // =====================================================
+    // Profile table
+    // =====================================================
+
+
+    applyBusinessGroupAdminUserProfileFilter: function(current) {
+
+        var buList = this.getUserBusinessUnits(gs.getUserID());
+
+        if (!buList || buList.length === 0) {
+            current.addEncodedQuery('sys_idISEMPTY');
+            return;
+        }
+
+        current.addQuery(
+            'business_unit',
+            'IN',
+            buList.join(',')
+        );
+    },
+
+    // =====================================================
+    // PLAN USER table
+    // =====================================================
+
+
+    applyManagerPlanUsersFilter: function(current) {
+
+        // Skip full access roles
+        if (
+            gs.getUser().hasRole('admin') ||
+            gs.hasRole('x_ctans_incentnow.admin') ||
+            gs.hasRole('x_ctans_incentnow.org_executive')
+        ) {
+            return;
+        }
+
+        // Only Manager
+        if (!gs.hasRole('x_ctans_incentnow.manager')) {
+            return;
+        }
+
+        var userIds = this.getUserAndReportees(gs.getUserID());
+
+        if (!userIds || userIds.length === 0) {
+            current.addEncodedQuery('sys_idISEMPTY');
+            return;
+        }
+
+        var profileIds = [];
+
+        var userProf = new GlideRecordSecure('x_ctans_incentnow_user_profile');
+        userProf.addQuery('user', 'IN', userIds.join(','));
+        userProf.query();
+
+        while (userProf.next()) {
+            profileIds.push(userProf.getUniqueValue());
+        }
+
+        if (profileIds.length === 0) {
+            current.addEncodedQuery('sys_idISEMPTY');
+            return;
+        }
+
+        current.addQuery(
+            'x_ctans_incentnow_plan_user', // adjust if field name differs
+            'IN',
+            profileIds.join(',')
+        );
+    },
+
+
+    applyPlanUsersBGAFilter: function(current) {
+
+        // Skip full access users
+        if (
+            gs.getUser().hasRole('admin') ||
+            gs.hasRole('x_ctans_incentnow.admin') ||
+            gs.hasRole('x_ctans_incentnow.org_executive')
+        ) {
+            return;
+        }
+
+        // Only Business Group Admin restriction
+        if (!gs.hasRole('x_ctans_incentnow.business_group_admin')) {
+            return;
+        }
+
+        var buList = this.getUserBusinessUnits(gs.getUserID());
+
+        if (!buList || buList.length === 0) {
+            current.addEncodedQuery('sys_idISEMPTY');
+            return;
+        }
+
+        current.addQuery(
+            'x_ctans_incentnow_plan.business_unit',
+            'IN',
+            buList.join(',')
+        );
+    },
+
+    // =====================================================
+    // STATEMENT SECTION (FIXED)
+    // =====================================================
+
+    applyBusinessGroupAdminStatementFilter: function(current) {
+
+        // Skip admins
+        if (
+            gs.getUser().hasRole('admin') ||
+            gs.hasRole('x_ctans_incentnow.admin')
+        ) {
+            return;
+        }
+
+        // Only Business Group Admin
+        if (!gs.hasRole('x_ctans_incentnow.business_group_admin')) {
+            return;
+        }
+
+        var buList = this.getUserBusinessUnits(gs.getUserID());
+
+        if (!buList || buList.length === 0) {
+            current.addEncodedQuery('sys_idISEMPTY');
+            return;
+        }
+
+        current.addQuery(
+            'user.business_unit',
+            'IN',
+            buList.join(',')
+        );
+    },
+
+    applyManagerStatementFilter: function(current) {
+
+        if (!gs.hasRole('x_ctans_incentnow.manager')) return;
+
+        var userIds = this.getUserAndReportees(gs.getUserID());
+
+        var profileGR = new GlideRecordSecure('x_ctans_incentnow_user_profile');
+        profileGR.addQuery('user', 'IN', userIds.join(','));
+        profileGR.query();
+
+        var profileIds = [];
+        while (profileGR.next()) profileIds.push(profileGR.getUniqueValue());
+
+        if (profileIds.length === 0) {
+            current.addEncodedQuery('sys_idISEMPTY');
+            return;
+        }
+
+        current.addQuery('user', 'IN', profileIds.join(','));
+    },
+
+    applySalesRepStatementFilter: function(current) {
+        if (gs.hasRole('x_ctans_incentnow.user')) {
+
+            var profileId = this.getCurrentUserProfileId();
+
+            if (!profileId) {
+                current.addEncodedQuery('sys_idISEMPTY');
+                return;
+            }
+
+            current.addQuery('user', profileId);
+            return;
+        }
+    },
+
+    // =====================================================
+    // BUSINESS UNIT HELPERS
+    // =====================================================
+
+    getUserBusinessUnits: function(userId) {
+
+        var buList = [];
+
+        var profileGR = new GlideRecordSecure('x_ctans_incentnow_user_profile');
+        profileGR.addQuery('user', userId);
+        profileGR.query();
+
+        while (profileGR.next()) {
+            var buId = profileGR.getValue('business_unit');
+            if (buId && buList.indexOf(buId) === -1) {
+                buList.push(buId);
+                this._getChildBUs(buId, buList);
+            }
+        }
+
+        return buList;
+    },
+
+    _getChildBUs: function(parentId, list) {
+
+        var buGR = new GlideRecordSecure('business_unit');
+        buGR.addQuery('parent', parentId);
+        buGR.query();
+
+        while (buGR.next()) {
+            var id = buGR.getUniqueValue();
+            if (list.indexOf(id) === -1) {
+                list.push(id);
+                this._getChildBUs(id, list);
+            }
+        }
+    },
+
+    getUserAndReportees: function(userId) {
+
+        var users = [userId];
+
+        var userGR = new GlideRecordSecure('sys_user');
+        userGR.addQuery('manager', userId);
+        userGR.query();
+
+        while (userGR.next()) {
+
+            gs.info('REPORTEE=' + userGR.getDisplayValue());
+
+            var reporteeId = userGR.getUniqueValue();
+
+            if (users.indexOf(reporteeId) === -1) {
+                users.push(reporteeId);
+            }
+        }
+
+        gs.info('FINAL USERS=' + users.join(','));
+
+        return users;
+    },
+
+    _applyEmptyCheck: function(current, list) {
+        if (list.length === 0) {
+            return true;
+        }
+        return false;
+    },
+
+    _hasAnyRole: function(roles) {
+        return roles.some(function(r) {
+            return gs.hasRole(r);
+        });
+    },
+
+    // =====================================================
+    // METRIC REPORT SECTION
+    // =====================================================
+
+    applyManagerMetricReportFilter: function(current) {
+        if (!gs.hasRole('x_ctans_incentnow.manager')) return;
+
+        var userIds = this.getUserAndReportees(gs.getUserID());
+
+        var profileGR = new GlideRecordSecure('x_ctans_incentnow_user_profile');
+        profileGR.addQuery('user', 'IN', userIds.join(','));
+        profileGR.query();
+
+        var profileIds = [];
+        while (profileGR.next()) profileIds.push(profileGR.getUniqueValue());
+
+        if (profileIds.length === 0) {
+            current.addEncodedQuery('sys_idISEMPTY');
+            return;
+        }
+
+        current.addQuery('user', 'IN', profileIds.join(','));
+    },
+
+    applySalesRepMetricReportFilter: function(current) {
+        if (gs.hasRole('x_ctans_incentnow.user')) {
+
+            var profileId = this.getCurrentUserProfileId();
+
+            if (!profileId) {
+                current.addEncodedQuery('sys_idISEMPTY');
+                return;
+            }
+
+            current.addQuery('user', profileId);
+            return;
+        }
+    },
+
+    // METRIC REPORT - BUSINESS GROUP ADMIN FILTER
+    applyBusinessGroupAdminMetricReportFilter: function(current) {
+
+        // Skip admins
+        if (
+            gs.getUser().hasRole('admin') ||
+            gs.hasRole('x_ctans_incentnow.admin')
+        ) {
+            return;
+        }
+
+        // Only Business Group Admin
+        if (!gs.hasRole('x_ctans_incentnow.business_group_admin')) {
+            return;
+        }
+
+        var buList = this.getUserBusinessUnits(gs.getUserID());
+
+        // No BU access
+        if (buList.length === 0) {
+            current.addEncodedQuery('sys_idISEMPTY');
+            return;
+        }
+
+        // Apply BU filter
+        current.addQuery(
+            'business_unit',
+            'IN',
+            buList.join(',')
+        );
+    },
+
+    // METRIC REPORT - BUSINESS GROUP EXECUTIVE FILTER
+    applyBusinessGroupExecutiveMetricReportFilter: function(current) {
+
+        // Skip admins
+        if (
+            gs.getUser().hasRole('admin') ||
+            gs.hasRole('x_ctans_incentnow.admin')
+        ) {
+            return;
+        }
+
+        // Only Business Group Executive
+        if (!gs.hasRole('x_ctans_incentnow.business_group_executive')) {
+            return;
+        }
+
+        var buList = this.getUserBusinessUnits(gs.getUserID());
+
+        // No BU access
+        if (buList.length === 0) {
+            current.addEncodedQuery('sys_idISEMPTY');
+            return;
+        }
+
+        // Apply BU filter
+        current.addQuery(
+            'business_unit',
+            'IN',
+            buList.join(',')
+        );
+    },
+
+    // =====================================================
+    // Earning CREDIT RESULTS SECTION
+    // =====================================================
+
+    // CREDIT RESULTS - BUSINESS GROUP ADMIN FILTER
+    applyBusinessGroupAdminCreditResultsFilter: function(current) {
+
+        // Skip admins
+        if (
+            gs.getUser().hasRole('admin') ||
+            gs.hasRole('x_ctans_incentnow.admin')
+        ) {
+            return;
+        }
+
+        // Only Business Group Admin
+        if (!gs.hasRole('x_ctans_incentnow.business_group_admin')) {
+            return;
+        }
+
+        var buList = this.getUserBusinessUnits(gs.getUserID());
+
+        // No BU found
+        if (buList.length === 0) {
+            current.addEncodedQuery('sys_idISEMPTY');
+            return;
+        }
+
+        // Filter through Plan Business Unit
+        current.addQuery(
+            'plan.business_unit',
+            'IN',
+            buList.join(',')
+        );
+    },
+
+    // =====================================================
+    // LOOKUP RESULTS SECTION
+    // =====================================================
+
+    // LOOKUP RESULTS - BUSINESS GROUP ADMIN FILTER
+    applyBusinessGroupAdminLookupResultsFilter: function(current) {
+
+        // Skip admins
+        if (
+            gs.getUser().hasRole('admin') ||
+            gs.hasRole('x_ctans_incentnow.admin')
+        ) {
+            return;
+        }
+
+        // Only Business Group Admin
+        if (!gs.hasRole('x_ctans_incentnow.business_group_admin')) {
+            return;
+        }
+
+        var buList = this.getUserBusinessUnits(gs.getUserID());
+
+        // No BU found
+        if (buList.length === 0) {
+            current.addEncodedQuery('sys_idISEMPTY');
+            return;
+        }
+
+        // Filter through Plan Business Unit
+        current.addQuery(
+            'plan.business_unit',
+            'IN',
+            buList.join(',')
+        );
+    },
+
+    // =====================================================
+    // PAYOUT RESULTS SECTION
+    // =====================================================
+
+    // PAYOUT RESULTS - BUSINESS GROUP ADMIN FILTER
+    applyBusinessGroupAdminPayoutResultsFilter: function(current) {
+
+        // Skip admins
+        if (
+            gs.getUser().hasRole('admin') ||
+            gs.hasRole('x_ctans_incentnow.admin')
+        ) {
+            return;
+        }
+
+        // Only Business Group Admin
+        if (!gs.hasRole('x_ctans_incentnow.business_group_admin')) {
+            return;
+        }
+
+        var buList = this.getUserBusinessUnits(gs.getUserID());
+
+        // No BU found
+        if (buList.length === 0) {
+            current.addEncodedQuery('sys_idISEMPTY');
+            return;
+        }
+
+        // Filter through Plan Business Unit
+        current.addQuery(
+            'plan.business_unit',
+            'IN',
+            buList.join(',')
+        );
+    },
+
+    //USER HELPER
+
+    getUserQuotaIds: function(userId) {
+
+        var quotaIds = [];
+
+        var profileGR = new GlideRecordSecure('x_ctans_incentnow_user_profile');
+        profileGR.addQuery('user', userId);
+        profileGR.query();
+
+        var profileIds = [];
+
+        while (profileGR.next()) {
+            profileIds.push(profileGR.getUniqueValue());
+        }
+
+        if (profileIds.length === 0)
+            return [];
+
+        var qa = new GlideRecordSecure('x_ctans_incentnow_user_quota_assignment');
+        qa.addQuery('user', 'IN', profileIds.join(','));
+        qa.query();
+
+        while (qa.next()) {
+
+            var quotaId = qa.getValue('quota');
+
+            if (quotaId && quotaIds.indexOf(quotaId) === -1)
+                quotaIds.push(quotaId);
+        }
+
+        return quotaIds;
+    },
+
+    getUserPlanIds: function(userId) {
+
+        var planIds = [];
+
+        var profileGR = new GlideRecordSecure('x_ctans_incentnow_user_profile');
+        profileGR.addQuery('user', userId);
+        profileGR.query();
+
+        var profileIds = [];
+
+        while (profileGR.next()) {
+            profileIds.push(profileGR.getUniqueValue());
+        }
+
+        if (profileIds.length === 0)
+            return [];
+
+        var planAssignGR = new GlideRecordSecure('x_ctans_incentnow_plan_users');
+        planAssignGR.addQuery('user', 'IN', profileIds.join(','));
+        planAssignGR.query();
+
+        while (planAssignGR.next()) {
+
+            var planId = planAssignGR.getValue('plan');
+
+            if (planId && planIds.indexOf(planId) === -1)
+                planIds.push(planId);
+        }
+
+        return planIds;
+    },
+
+	getUserBusinessUnitQuery: function() {
+
+		if (gs.getUser().hasRole('x_ctans_incentnow.admin') || gs.getUser().hasRole('admin')) {
+        return []; 
+    }
+
+
+    var profile = new GlideRecordSecure('x_ctans_incentnow_user_profile');
+    profile.addQuery('user', gs.getUserID());
+    profile.query();
+
+    if (!profile.next())
+        return [];
+
+    var result = [];
+
+    function collectChildren(buSysId) {
+
+        result.push(buSysId);
+
+        var childBU = new GlideRecordSecure('business_unit');
+        childBU.addQuery('parent', buSysId);
+        childBU.query();
+
+        while (childBU.next()) {
+            collectChildren(childBU.getUniqueValue());
+        }
+    }
+
+    collectChildren(profile.business_unit.toString());
+	gs.addErrorMessage(JSON.stringify(result));
+    return "sys_idIN"+result.join(",");
+},
+
+    type: 'IncentNowAccessUtils'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>shroin.mandal</sys_created_by>
+        <sys_created_on>2026-05-08 06:54:59</sys_created_on>
+        <sys_id>c1de97d43bb043d0a4cbaddc73e45a26</sys_id>
+        <sys_mod_count>99</sys_mod_count>
+        <sys_name>IncentNowAccessUtils</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_script_include_c1de97d43bb043d0a4cbaddc73e45a26</sys_update_name>
+        <sys_updated_by>upma.rai</sys_updated_by>
+        <sys_updated_on>2026-06-15 10:18:36</sys_updated_on>
+    </sys_script_include>
+</record_update>

@@ -1,0 +1,421 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>sp_platform</category>
+        <client_script><![CDATA[api.controller = function($scope, spUtil, $location, $window,mandatoryValidator) {
+    var c = this;
+
+    c.save = function() {
+			
+			var result = mandatoryValidator.validate(c.data.f);
+			if(!result.valid)
+				{
+					spUtil.addErrorMessage(result.message);
+            return;
+				}
+
+        c.data.action = "save";
+        c.data.form = c.data.f;
+				c.isSaving=true;
+        c.server.update().then(function(response) {
+						var newSysId = response.sys_id;
+					//alert(newSysId);
+						if(newSysId && newSysId!=-1)
+							{
+								
+								if(c.data.table=="x_ctans_incentnow_fiscal_calendar")
+									{
+											var url ="?id=incentnow_admin&action=fiscal"
+											$location.url(url);
+											
+									}
+								spUtil.update($scope);
+							}
+						else
+							{
+								c.data.f=c.data.form;
+							}
+						//$window.location.href = "?id=incentnow_form&"+"table="+c.data.table+"&sys_id=" + newSysId;
+						c.isSaving=false;
+        });
+
+    };
+	
+	
+	
+	c.goBack=function () {
+		if(c.data.table=="x_ctans_incentnow_fiscal_calendar")
+			{
+					var url = "?id=incentnow_admin&action=fiscal";
+				$location.url(url);
+			}
+		else
+			{
+				const prev = sessionStorage.getItem('prevPage');
+					//alert(prev);
+
+				if (prev) {
+					
+					$location.url(prev);
+				} else {
+					// fallback if nothing stored
+					window.history.back();
+				}
+			}
+  
+}
+};]]></client_script>
+        <controller_as>c</controller_as>
+        <css>.modern-body input.form-control::placeholder {
+  color: #e2e8f0 !important;
+  opacity: 1 !important;
+}
+
+.modern-body textarea.form-control::placeholder {
+  color: #e2e8f0 !important;
+  opacity: 1 !important;
+}
+
+.modern-body .select2-default .select2-chosen {
+  color: #e2e8f0 !important;
+}
+
+.modern-body .select2-chosen {
+  color: #0f172a !important;
+}
+
+.qa-back-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  cursor: pointer;
+  color: #374151;
+  transition: background 0.15s, border-color 0.15s;
+  flex-shrink: 0;
+}
+
+.qa-back-btn:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+}
+.footer-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.fiscal-pill {
+  background-color: #050521; /* same dark color */
+  color: #fff;
+  border: none;
+  border-radius: 5px; /* makes it fully rounded */
+  padding: 8px 18px;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.fiscal-pill:hover {
+  background-color: #0a0a3a;
+}
+
+/*.back-btn {
+  background: #f5f5f5;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 14px;
+} */
+
+.back-btn:hover {
+  background: #e0e0e0;
+}
+
+.panel-heading {
+  display: flex;
+  align-items: center;   /* vertically center */
+  gap: 10px;             /* space between button &amp; text */
+}
+
+.back-btn {
+  border: none;
+  background: transparent;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.panel-heading h4 {
+  margin: 0;  /* removes default spacing issue */
+}
+
+
+/* MAIN CARD */
+.modern-card {
+  border-radius: 14px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+  overflow: hidden;
+  transition: all 0.25s ease;
+}
+
+/* hover effect */
+.modern-card:hover {
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+}
+
+/* HEADER */
+.modern-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(to right, #f9fafb, #f3f4f6);
+  border-bottom: 1px solid #e5e7eb;
+  padding: 14px 18px;
+}
+
+/* TITLE */
+.modern-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+/* BACK BUTTON */
+.back-btn {
+  background: #f3f4f6;
+  border: none;
+  border-radius: 8px;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.back-btn img {
+  width: 20px;
+  height: 20px;
+}
+
+.back-btn:hover {
+  background: #e5e7eb;
+}
+
+/* BODY */
+.modern-body {
+  padding: 20px;
+  background: #ffffff;
+}
+
+/* FOOTER */
+.modern-footer {
+  display: flex;
+  justify-content: flex-end;
+  background: #fafafa;
+  border-top: 1px solid #e5e7eb;
+  padding: 12px 18px;
+}
+
+/* BUTTON */
+.modern-btn {
+  border-radius: 8px;
+  padding: 8px 18px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  background: #000000;
+}
+
+.modern-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+}</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description/>
+        <docs/>
+        <field_list/>
+        <has_preview>true</has_preview>
+        <id>incentnow-form</id>
+        <internal>false</internal>
+        <link><![CDATA[function link(){
+	
+}]]></link>
+        <name>IncentNow Form</name>
+        <option_schema>[{"name":"disableUIActions","section":"Behavior","label":"Disable UI Actions on Form","type":"boolean"},{"name":"showFormView","section":"Behavior","label":"Display current form view","type":"boolean"},{"name":"omitHeaderOptions","section":"Behavior","label":"Omit header options icon","type":"boolean"}]</option_schema>
+        <public>false</public>
+        <roles>x_ctans_incentnow.admin,x_ctans_incentnow.user</roles>
+        <script><![CDATA[(function() {
+
+		data.table=$sp.getParameter('table') || "x_ctans_incentnow_fiscal_calendar";
+		data.sys_id=$sp.getParameter('sys_id') || "-1";
+		data.view=$sp.getParameter('view') ||'portal_view';
+	//gs.addErrorMessage(data.table+" -- "+data.sys_id +" -- "+data.view)
+   	data.f=$sp.getForm(data.table,data.sys_id,'',data.view);
+		data.f=new x_ctans_incentnow.IncentNowPortalUtils().applyPlaceholders(data.f);
+		data.isApplicationAdmin = gs.getUser().hasRole('x_ctans_incentnow.admin') 
+
+		var tablelabel= new GlideRecordSecure(data.table);
+		data.table_label=tablelabel.getLabel();
+	
+		data.fetchButtonName="Save";
+		if(data.table=="x_ctans_incentnow_fiscal_calendar" && data.sys_id=="-1")
+			{
+				data.fetchButtonName="Create Fiscal Calendar & Generate Periods"
+			}	
+	
+		//data.fields=$sp.getListColumns(data.table,data.view).split(",")
+		
+		//gs.addInfoMessage($sp.getListColumns('x_ctans_incentnow_fiscal_calendar','default'))
+		
+	/*	if(input && input.action=="save")
+			{
+				//$sp.saveRecord('x_ctans_incentnow_fiscal_calendar','42b44df53bebba105493ddb693e45a3e');
+				gs.addInfoMessage("i m here")
+				gs.addErrorMessage(data.fields[1])
+			} */
+	
+	if (input && input.action == "save") {
+
+    var table = data.table;
+    var sysId = data.sys_id;
+
+    if (!input.form || !input.form._fields) {
+        gs.addErrorMessage("Form data missing");
+        return;
+    }
+
+    var fields = input.form._fields;
+
+    var formRecordGR = new GlideRecordSecure(table);
+
+    //  Creation
+    if (sysId == "-1") {
+
+        formRecordGR.initialize();
+
+        for (var key in fields) {
+            if (fields[key].value !== undefined) {
+                formRecordGR.setValue(key, fields[key].value);
+            }
+        }
+
+        var newSysId = formRecordGR.insert();
+				if(newSysId!=null && newSysId)
+					{
+						gs.addInfoMessage("Record created successfully ");
+						data.sys_id = newSysId;
+						data.action='insert';
+					}
+				
+       
+			
+			if(data.table=="x_ctans_incentnow_fiscal_calendar" && data.sys_id!=-1)
+				{
+					try {
+							 var gen = new x_ctans_incentnow.IncentNowFiscalPeriodGenerator();
+									gen.generatePeriods(data.sys_id);
+									gs.addInfoMessage('Fiscal periods generated successfully.');
+							} catch (e) {
+									gs.addErrorMessage('Error generating fiscal periods: ' + e.message);
+							}	
+				}
+        
+
+    } 
+    // Updation
+    else {
+
+        if (!formRecordGR.get(sysId)) {
+            gs.addErrorMessage("Record not found");
+            return;
+        }
+
+        for (var key in fields) {
+            if (fields[key].value !== undefined) {
+                formRecordGR.setValue(key, fields[key].value);
+            }
+        }
+
+        data.sys_id=formRecordGR.update();
+				data.action='update';
+				gs.addInfoMessage("Record updated successfully");
+    }
+}
+	
+	if(input)
+		{
+			if(input.action=="generateFiscal")
+					{
+						//gs.addErrorMessage("Generate Fiscal Running");
+						try {
+						 var gen = new x_ctans_incentnow.IncentNowFiscalPeriodGenerator();
+								gen.generatePeriods(data.sys_id);
+
+								gs.addInfoMessage('Fiscal periods generated successfully.');
+						} catch (e) {
+								gs.addErrorMessage('Error generating fiscal periods: ' + e.message);
+						}
+
+					}
+		}
+	
+	
+	
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>karan.kumar</sys_created_by>
+        <sys_created_on>2026-03-25 07:56:20</sys_created_on>
+        <sys_id>0bb7c9563b3b36d0ffa00e9693e45af8</sys_id>
+        <sys_mod_count>147</sys_mod_count>
+        <sys_name>IncentNow Form</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sp_widget_0bb7c9563b3b36d0ffa00e9693e45af8</sys_update_name>
+        <sys_updated_by>karan.kumar</sys_updated_by>
+        <sys_updated_on>2026-06-15 05:15:20</sys_updated_on>
+        <template><![CDATA[<div>
+  <div class="panel panel-default modern-card">
+
+    <!-- HEADER -->
+    <div class="panel-heading modern-header">
+
+      <!--<button class="back-btn" ng-click="c.goBack()">
+        <img src='x_ctans_incentnow.backbutton.png'>
+      </button> -->
+      <button class="qa-back-btn" ng-click="c.goBack()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <circle cx="12" cy="12" r="10"/>
+        <polyline points="12 8 8 12 12 16"/>
+        <line x1="16" y1="12" x2="8" y2="12"/>
+      </svg>
+    </button>
+
+      <h4 class="modern-title">{{data.table_label}}</h4>
+
+    </div>
+
+    <!-- BODY -->
+    <div class="panel-body modern-body">
+      <form>
+        <sp-model form_model="data.f"></sp-model>
+      </form>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="panel-footer footer-actions modern-footer">
+      <button class="btn btn-primary modern-btn"
+              ng-click="c.save()" ng-disabled='c.isSaving' ng-if="c.data.isApplicationAdmin">
+        {{data.fetchButtonName}}
+      </button>
+    </div>
+
+  </div>
+</div>]]></template>
+    </sp_widget>
+</record_update>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element db_object_id="557529903baf7e105493ddb693e45a04" label="Earning Credit Transaction" max_length="40" name="x_ctans_incentnow_earning_credit_transaction" type="collection">
+        <element attributes="encode_utf8=false" label="Data Lake ID" mandatory="true" max_length="32" name="data_lake_id" reference="x_ctans_incentnow_data_lake" type="reference"/>
+        <element label="Transaction Amount" max_length="15" name="transaction_amount" type="decimal"/>
+        <element label="Domain" max_length="32" name="sys_domain" type="domain_id"/>
+        <element attributes="ignore_filter_on_new=true" default="javascript:global.getNextObjNumberPadded();" label="Number" max_length="40" name="number" type="string"/>
+        <element attributes="encode_utf8=false" label="Earning Credit Result" max_length="32" name="earning_credit_result" read_only="true" reference="x_ctans_incentnow_credit_results" type="reference"/>
+        <element attributes="edge_encryption_enabled=true" label="Transaction Record JSON" max_length="10000" name="transaction_rec_json" type="string"/>
+        <index name="index">
+            <element name="data_lake_id"/>
+        </index>
+        <index name="index2">
+            <element name="earning_credit_result"/>
+        </index>
+        <index name="index3">
+            <element name="sys_domain"/>
+        </index>
+    </element>
+</database>

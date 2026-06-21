@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>public</access>
+        <active>true</active>
+        <api_name>x_ctans_incentnow.IncentIQOrchestrator</api_name>
+        <caller_access/>
+        <client_callable>false</client_callable>
+        <description/>
+        <mobile_callable>false</mobile_callable>
+        <name>IncentIQOrchestrator</name>
+        <sandbox_callable>false</sandbox_callable>
+        <script><![CDATA[var IncentIQOrchestrator = Class.create();
+
+IncentIQOrchestrator.prototype = {
+
+    initialize: function() {
+
+        this.payoutHandler =
+            new IncentNowPayoutHandler();
+
+        this.quotaHandler =
+            new IncentNowQuotaHandler();
+
+        this.planHandler =
+            new IncentNowPlanHandler();
+
+        this.utils = new IncentIQUtils();
+
+    },
+
+    execute: function(
+        intent,
+        userId,
+        query
+    ) {
+
+        gs.info(
+            "INCENTIQ_ORCHESTRATOR :: INTENT = " +
+            intent
+        );
+
+        switch (intent) {
+
+            // ==========================
+            // PAYOUT DOMAIN
+            // ==========================
+
+            case "payout":
+
+                return this.payoutHandler
+                    .handlePayout(
+                        userId,
+                        query
+                    );
+
+            case "monthly_payout":
+
+                return this.payoutHandler
+                    .handleMonthlyPayout(
+                        userId
+                    );
+
+            case "ytd_payout":
+
+                return this.payoutHandler
+                    .handleYTDPayout(
+                        userId
+                    );
+
+            case "qtd_payout":
+
+                return this.payoutHandler
+                    .handleQTDPayout(
+                        userId
+                    );
+
+            case "payout_components":
+
+                return this.payoutHandler
+                    .handlePayoutComponents(
+                        userId
+                    );
+
+            case "breakdown":
+
+                return this.payoutHandler
+                    .handleBreakdown(
+                        userId,
+                        query
+                    );
+
+                // ==========================
+                // QUOTA DOMAIN
+                // ==========================
+
+            case "quota":
+
+                return this.quotaHandler
+                    .handleQuota(
+                        userId,
+                        query
+                    );
+
+            case "quota_attainment":
+
+                return this.quotaHandler
+                    .handleQuotaAttainment(
+                        userId
+                    );
+
+                // ==========================
+                // PLAN DOMAIN
+                // ==========================
+
+            case "plan":
+
+                return this.planHandler
+                    .handlePlan(
+                        userId
+                    );
+
+            case "plan_components":
+
+                return this.planHandler
+                    .handlePlanComponents(
+                        userId
+                    );
+
+            case "lookup_rules":
+
+                return this.planHandler
+                    .handleLookupRules(
+                        userId
+                    );
+
+            case "business_unit":
+
+                return this.planHandler
+                    .handleBusinessUnit(
+                        userId
+                    );
+
+            default:
+
+                this.utils.createFailureRecord(
+                    query,
+                    intent,
+                    "IncentIQOrchestrator",
+                    "Orchestrator",
+                    "Intent not recognized",
+                    "Now Assist",
+                    userId
+                );
+
+                return "Intent not recognized.";
+        }
+    },
+
+    type: 'IncentIQOrchestrator'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+        <sys_created_on>2026-06-10 22:23:05</sys_created_on>
+        <sys_id>eb703c5793910f10ddb7f2d89803d69a</sys_id>
+        <sys_mod_count>9</sys_mod_count>
+        <sys_name>IncentIQOrchestrator</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_script_include_eb703c5793910f10ddb7f2d89803d69a</sys_update_name>
+        <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
+        <sys_updated_on>2026-06-18 14:18:23</sys_updated_on>
+    </sys_script_include>
+</record_update>

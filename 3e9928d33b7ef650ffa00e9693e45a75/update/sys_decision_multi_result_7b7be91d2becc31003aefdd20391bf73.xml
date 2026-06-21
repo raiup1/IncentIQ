@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update sys_domain="global" table="sys_decision_multi_result">
+    <sys_decision_multi_result action="INSERT_OR_UPDATE">
+        <decision_table display_value="Incentive Rate">78caa5192becc31003aefdd20391bf62</decision_table>
+        <label>Incentive Rate: 5</label>
+        <result_elements/>
+        <sys_class_name>sys_decision_multi_result</sys_class_name>
+        <sys_created_by>sreekanth.lapala</sys_created_by>
+        <sys_created_on>2026-04-28 14:45:45</sys_created_on>
+        <sys_domain>global</sys_domain>
+        <sys_domain_path>/</sys_domain_path>
+        <sys_id>7b7be91d2becc31003aefdd20391bf73</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>Incentive Rate: 5</sys_name>
+        <sys_overrides/>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_decision_multi_result_7b7be91d2becc31003aefdd20391bf73</sys_update_name>
+        <sys_updated_by>sreekanth.lapala</sys_updated_by>
+        <sys_updated_on>2026-04-28 14:45:45</sys_updated_on>
+    </sys_decision_multi_result>
+    <sys_variable_value action="delete_multiple" query="document_key=7b7be91d2becc31003aefdd20391bf73"/>
+    <sys_variable_value action="INSERT_OR_UPDATE">
+        <document>sys_decision_multi_result</document>
+        <document_key>7b7be91d2becc31003aefdd20391bf73</document_key>
+        <order>100</order>
+        <sys_class_name>sys_variable_value</sys_class_name>
+        <sys_created_by>sreekanth.lapala</sys_created_by>
+        <sys_created_on>2026-04-28 14:45:45</sys_created_on>
+        <sys_id>7f7be91d2becc31003aefdd20391bf74</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>sreekanth.lapala</sys_updated_by>
+        <sys_updated_on>2026-04-28 14:45:45</sys_updated_on>
+        <value>5</value>
+        <variable display_value="Incentive Rate">af7b655d2becc31003aefdd20391bf23</variable>
+    </sys_variable_value>
+</record_update>

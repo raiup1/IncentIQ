@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update>
+    <sys_ui_section caption="Data Source" section_id="1af163773b140350ffa00e9693e45a03" sys_domain="global" table="x_ctans_incentnow_ai_intent_configuration" version="3" view="">
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>source_table</element>
+            <position>0</position>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-04-27 13:31:32</sys_created_on>
+            <sys_id>87e0d4053b24c3905493ddb693e45a31</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="Data Source" display_value="Data Source" name="x_ctans_incentnow_ai_intent_configuration" sys_domain="global" view="Default view">1af163773b140350ffa00e9693e45a03</sys_ui_section>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-04-27 13:31:32</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>field_mapping</element>
+            <position>1</position>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-04-27 13:31:32</sys_created_on>
+            <sys_id>07e0d4053b24c3905493ddb693e45a32</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="Data Source" display_value="Data Source" name="x_ctans_incentnow_ai_intent_configuration" sys_domain="global" view="Default view">1af163773b140350ffa00e9693e45a03</sys_ui_section>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-04-27 13:31:32</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>group_by</element>
+            <position>2</position>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-04-27 13:31:32</sys_created_on>
+            <sys_id>03e0d4053b24c3905493ddb693e45a4c</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="Data Source" display_value="Data Source" name="x_ctans_incentnow_ai_intent_configuration" sys_domain="global" view="Default view">1af163773b140350ffa00e9693e45a03</sys_ui_section>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-04-27 13:31:32</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>.split</element>
+            <position>3</position>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-04-27 13:31:32</sys_created_on>
+            <sys_id>8fe0d4053b24c3905493ddb693e45a4c</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="Data Source" display_value="Data Source" name="x_ctans_incentnow_ai_intent_configuration" sys_domain="global" view="Default view">1af163773b140350ffa00e9693e45a03</sys_ui_section>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-04-27 13:31:32</sys_updated_on>
+            <sys_user/>
+            <type>.split</type>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>formula_field</element>
+            <position>4</position>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-04-27 13:31:32</sys_created_on>
+            <sys_id>0fe0d4053b24c3905493ddb693e45a4d</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="Data Source" display_value="Data Source" name="x_ctans_incentnow_ai_intent_configuration" sys_domain="global" view="Default view">1af163773b140350ffa00e9693e45a03</sys_ui_section>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-04-27 13:31:32</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>business_unit</element>
+            <position>5</position>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-04-27 13:31:32</sys_created_on>
+            <sys_id>8be0d4053b24c3905493ddb693e45a4e</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="Data Source" display_value="Data Source" name="x_ctans_incentnow_ai_intent_configuration" sys_domain="global" view="Default view">1af163773b140350ffa00e9693e45a03</sys_ui_section>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-04-27 13:31:32</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_section action="INSERT_OR_UPDATE">
+            <caption>Data Source</caption>
+            <header>false</header>
+            <name>x_ctans_incentnow_ai_intent_configuration</name>
+            <roles/>
+            <sys_class_name>sys_ui_section</sys_class_name>
+            <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+            <sys_created_on>2026-04-24 07:32:30</sys_created_on>
+            <sys_domain>global</sys_domain>
+            <sys_domain_path>/</sys_domain_path>
+            <sys_id>1af163773b140350ffa00e9693e45a03</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_name>x_ctans_incentnow_ai_intent_configuration</sys_name>
+            <sys_overrides/>
+            <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+            <sys_policy/>
+            <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+            <sys_update_name>sys_ui_section_1af163773b140350ffa00e9693e45a03</sys_update_name>
+            <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
+            <sys_updated_on>2026-04-24 07:32:30</sys_updated_on>
+            <sys_user/>
+            <title>false</title>
+            <view display_value="Default view" name="NULL">Default view</view>
+            <view_name/>
+        </sys_ui_section>
+    </sys_ui_section>
+</record_update>

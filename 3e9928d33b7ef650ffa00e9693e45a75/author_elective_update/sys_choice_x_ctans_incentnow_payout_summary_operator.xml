@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update>
+    <sys_choice action="INSERT_OR_UPDATE" field="operator" table="x_ctans_incentnow_payout_summary" version="3">
+        <sys_choice_set action="INSERT_OR_UPDATE">
+            <element>operator</element>
+            <name>x_ctans_incentnow_payout_summary</name>
+            <sys_class_name>sys_choice_set</sys_class_name>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-03-17 10:45:30</sys_created_on>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_name>operator</sys_name>
+            <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+            <sys_policy/>
+            <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+            <sys_update_name>sys_choice_x_ctans_incentnow_payout_summary_operator</sys_update_name>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-03-17 10:45:30</sys_updated_on>
+        </sys_choice_set>
+        <sys_choice action="INSERT_OR_UPDATE">
+            <dependent_value/>
+            <element>operator</element>
+            <hint/>
+            <inactive>false</inactive>
+            <label>Add</label>
+            <language>en</language>
+            <name>x_ctans_incentnow_payout_summary</name>
+            <sequence>0</sequence>
+            <synonyms/>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-03-17 10:45:30</sys_created_on>
+            <sys_domain>global</sys_domain>
+            <sys_domain_path>/</sys_domain_path>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-03-17 10:45:30</sys_updated_on>
+            <value>add</value>
+        </sys_choice>
+        <sys_choice action="INSERT_OR_UPDATE">
+            <dependent_value/>
+            <element>operator</element>
+            <hint/>
+            <inactive>false</inactive>
+            <label>Subtract</label>
+            <language>en</language>
+            <name>x_ctans_incentnow_payout_summary</name>
+            <sequence>1</sequence>
+            <synonyms/>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-03-17 10:45:30</sys_created_on>
+            <sys_domain>global</sys_domain>
+            <sys_domain_path>/</sys_domain_path>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-03-17 10:45:30</sys_updated_on>
+            <value>subtract</value>
+        </sys_choice>
+        <sys_choice action="INSERT_OR_UPDATE">
+            <dependent_value/>
+            <element>operator</element>
+            <hint/>
+            <inactive>false</inactive>
+            <label>Multiply</label>
+            <language>en</language>
+            <name>x_ctans_incentnow_payout_summary</name>
+            <sequence>2</sequence>
+            <synonyms/>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-03-17 10:45:30</sys_created_on>
+            <sys_domain>global</sys_domain>
+            <sys_domain_path>/</sys_domain_path>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-03-17 10:45:30</sys_updated_on>
+            <value>multiply</value>
+        </sys_choice>
+        <sys_choice action="INSERT_OR_UPDATE">
+            <dependent_value/>
+            <element>operator</element>
+            <hint/>
+            <inactive>false</inactive>
+            <label>Divide</label>
+            <language>en</language>
+            <name>x_ctans_incentnow_payout_summary</name>
+            <sequence>3</sequence>
+            <synonyms/>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-03-17 10:45:30</sys_created_on>
+            <sys_domain>global</sys_domain>
+            <sys_domain_path>/</sys_domain_path>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-03-17 10:45:30</sys_updated_on>
+            <value>divide</value>
+        </sys_choice>
+    </sys_choice>
+</record_update>

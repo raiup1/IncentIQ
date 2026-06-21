@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update>
+    <sys_choice action="INSERT_OR_UPDATE" field="version_status" table="x_ctans_incentnow_rule_version" version="3">
+        <sys_choice_set action="INSERT_OR_UPDATE">
+            <element>version_status</element>
+            <name>x_ctans_incentnow_rule_version</name>
+            <sys_class_name>sys_choice_set</sys_class_name>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-02-13 13:42:02</sys_created_on>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_name>version_status</sys_name>
+            <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+            <sys_policy/>
+            <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+            <sys_update_name>sys_choice_x_ctans_incentnow_rule_version_version_status</sys_update_name>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-02-13 13:42:02</sys_updated_on>
+        </sys_choice_set>
+    </sys_choice>
+</record_update>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element db_object_id="9863ff053b5f36d0ffa00e9693e45ada" label="Fiscal Calendar" max_length="40" name="x_ctans_incentnow_fiscal_calendar" type="collection">
+        <element attributes="edge_encryption_enabled=true" choice="1" hint="Select starting month of the fiscal year" label="Fiscal Start" mandatory="true" max_length="40" name="fiscal_start" type="string">
+            <choice>
+                <element inactive_on_update="false" label="July" sequence="6" value="7"/>
+                <element inactive_on_update="false" label="September" sequence="8" value="9"/>
+                <element inactive_on_update="false" label="June" sequence="5" value="6"/>
+                <element inactive_on_update="false" label="May" sequence="4" value="5"/>
+                <element inactive_on_update="false" label="February" sequence="1" value="2"/>
+                <element inactive_on_update="false" label="January" sequence="0" value="1"/>
+                <element inactive_on_update="false" label="March" sequence="2" value="3"/>
+                <element inactive_on_update="false" label="October" sequence="9" value="10"/>
+                <element inactive_on_update="false" label="April" sequence="3" value="4"/>
+                <element inactive_on_update="false" label="November" sequence="10" value="11"/>
+                <element inactive_on_update="false" label="August" sequence="7" value="8"/>
+                <element inactive_on_update="false" label="December" sequence="11" value="12"/>
+            </choice>
+        </element>
+        <element attributes="edge_encryption_enabled=true" choice="1" choice_field="fiscal_start" choice_table="x_ctans_incentnow_fiscal_calendar" hint="Select ending month of the fiscal year" label="Fiscal End" max_length="40" name="fiscal_end" type="string">
+            <choice>
+                <element inactive_on_update="false" label="May" sequence="7" value="May"/>
+                <element inactive_on_update="false" label="March" sequence="5" value="March"/>
+                <element inactive_on_update="false" label="November" sequence="2" value="November"/>
+                <element inactive_on_update="false" label="September" sequence="11" value="September"/>
+                <element inactive_on_update="false" label="July" sequence="9" value="July"/>
+                <element inactive_on_update="false" label="August" sequence="10" value="August"/>
+                <element inactive_on_update="false" label="January" sequence="0" value="January"/>
+                <element inactive_on_update="false" label="June" sequence="8" value="June"/>
+                <element inactive_on_update="false" label="April" sequence="6" value="April"/>
+                <element inactive_on_update="false" label="December" sequence="3" value="December"/>
+                <element inactive_on_update="false" label="February" sequence="4" value="February"/>
+                <element inactive_on_update="false" label="October" sequence="1" value="October"/>
+            </choice>
+        </element>
+        <element attributes="edge_encryption_enabled=true" hint="Select fiscal year end date (YYYY-MM-DD)" label="End Date" max_length="40" name="end_date" type="glide_date"/>
+        <element attributes="edge_encryption_enabled=true" choice="1" hint="Select the fiscal year (e.g., 2027)" label="Fiscal Year" mandatory="true" max_length="40" name="fiscal_year" type="string">
+            <choice/>
+        </element>
+        <element attributes="edge_encryption_enabled=true" hint="Enter details about this fiscal calendar" label="Description" max_length="400" name="description" type="string"/>
+        <element label="Domain" max_length="32" name="sys_domain" type="domain_id"/>
+        <element default="true" label="Active" max_length="40" name="active" type="boolean"/>
+        <element attributes="edge_encryption_enabled=true" display="true" hint="Enter fiscal year label (e.g., FY 2027)" label="Fiscal Year Name" mandatory="true" max_length="40" name="fiscal_year_name" type="string"/>
+        <element attributes="edge_encryption_enabled=true" hint="Select fiscal year start date (YYYY-MM-DD)" label="Start Date" max_length="40" name="start_date" type="glide_date"/>
+        <index name="index">
+            <element name="sys_domain"/>
+        </index>
+    </element>
+</database>
