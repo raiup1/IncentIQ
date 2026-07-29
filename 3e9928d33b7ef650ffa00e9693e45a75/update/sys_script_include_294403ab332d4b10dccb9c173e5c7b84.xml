@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>package_private</access>
+        <active>true</active>
+        <api_name>x_ctans_incentnow.IncentIQImportLoader</api_name>
+        <caller_access/>
+        <client_callable>false</client_callable>
+        <description/>
+        <mobile_callable>false</mobile_callable>
+        <name>IncentIQImportLoader</name>
+        <sandbox_callable>false</sandbox_callable>
+        <script><![CDATA[var IncentIQImportLoader = Class.create();
+IncentIQImportLoader.prototype = {
+        initialize: function() {},
+
+        load: function(rows, dataModelObject) {
+            var result = {
+                success: false,
+                batchId: '',
+                totalRows: 0
+            };
+
+            if (!rows || !rows.length)
+                return result;
+
+            var impSet = new GlideRecordSecure('sys_import_set');
+            impSet.initialize();
+            impSet.setValue('state', 'loading');
+            impSet.setValue('table_name', 'x_ctans_incentnow_data_lake_staging');
+            impSet.setValue('short_description', 'IncentIQ Portal Upload');
+            var batchId = impSet.insert();
+
+            var rowCount = 0;
+
+            for (var i = 0; i < rows.length; i++) {
+                if (this._isEmptyRow(rows[i]))
+                    continue;
+
+                var staging = new GlideRecordSecure('x_ctans_incentnow_data_lake_staging');
+                staging.initialize();
+                staging.setValue('sys_import_set', batchId);
+                staging.setValue('raw_json', JSON.stringify(rows[i]));
+                staging.setValue('row_number', i + 1);
+                staging.setValue('data_model_object', dataModelObject);
+                // staging.setValue('sys_import_state', 'loaded');
+                staging.insert();
+
+                rowCount++;
+            }
+
+            if (!batchId) {
+                gs.error('Failed to create Import Set');
+                return result;
+            }
+            impSet.setValue('state', 'loaded');
+            impSet.load_completed = new GlideDateTime(); // Current date/time; 
+            impSet.update();
+			
+        result.success = true;
+        result.batchId = batchId;
+        result.totalRows = rowCount;
+        return result;
+    },
+
+    _isEmptyRow: function(row) {
+        if (!row)
+            return true;
+
+        for (var key in row) {
+            if (row[key] && row[key].toString().trim() !== '')
+                return false;
+        }
+        return true;
+    },
+
+    type: 'IncentIQImportLoader'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+        <sys_created_on>2026-06-24 14:04:32</sys_created_on>
+        <sys_id>294403ab332d4b10dccb9c173e5c7b84</sys_id>
+        <sys_mod_count>3</sys_mod_count>
+        <sys_name>IncentIQImportLoader</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_script_include_294403ab332d4b10dccb9c173e5c7b84</sys_update_name>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-22 07:34:40</sys_updated_on>
+    </sys_script_include>
+</record_update>

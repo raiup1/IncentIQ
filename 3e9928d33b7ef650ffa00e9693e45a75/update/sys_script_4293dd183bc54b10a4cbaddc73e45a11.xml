@@ -51,6 +51,30 @@
     }
 
     // =========================================
+    // TERRITORY ADMIN
+    // =========================================
+    if (gs.hasRole('x_ctans_incentnow.territory_admin')) {
+
+        var territoryEnabled = false;
+
+        try {
+            territoryEnabled = new IncentNowUtils().isTerritoryExtensionActive() === true;
+
+            if (!territoryEnabled) {
+                current.addEncodedQuery('sys_idISEMPTY');
+                return;
+            }
+            new x_ctans_territory.IncentNowTerritoryResolver().applyTerritoryAdminUserTerritoryFilter(current);
+
+        } catch (territoryError) {
+            gs.error('[IncentIQ Access] Territory filter failed. ' + 'User=' + gs.getUserName() + ', error=' + territoryError.message);
+            current.addEncodedQuery('sys_idISEMPTY');
+        }
+
+        return;
+    }
+
+    // =========================================
     // OTHER ROLES → NO ACCESS
     // =========================================
     current.addEncodedQuery('sys_idISEMPTY');
@@ -62,15 +86,15 @@
         <sys_domain>global</sys_domain>
         <sys_domain_path>/</sys_domain_path>
         <sys_id>4293dd183bc54b10a4cbaddc73e45a11</sys_id>
-        <sys_mod_count>4</sys_mod_count>
+        <sys_mod_count>5</sys_mod_count>
         <sys_name>Earning Credit Filter Incentnow</sys_name>
         <sys_overrides/>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy/>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
         <sys_update_name>sys_script_4293dd183bc54b10a4cbaddc73e45a11</sys_update_name>
-        <sys_updated_by>shroin.mandal</sys_updated_by>
-        <sys_updated_on>2026-05-22 08:07:38</sys_updated_on>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-16 13:06:36</sys_updated_on>
         <template/>
         <when>before</when>
     </sys_script>

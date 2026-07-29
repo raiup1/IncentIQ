@@ -17,6 +17,7 @@
   c.customFilters = {
     period:  '',
     team:    '',
+		territory: '',
     metrics: '',
     format:  'csv'
   };
@@ -1058,526 +1059,642 @@
         <roles>x_ctans_incentnow.user,x_ctans_incentnow.admin</roles>
         <script><![CDATA[(function() {
 
- 
-  function formatCurrency(amount) {
-    amount = parseFloat(amount) || 0;
-    if (amount >= 1000000) return '$' + (amount / 1000000).toFixed(2) + 'M';
-    if (amount >= 1000)    return '$' + (amount / 1000).toFixed(1) + 'K';
-    return '$' + amount.toFixed(0);
-  }
+    data.isTerritoryEnabled =
+        new x_ctans_incentnow.IncentNowUtils().isTerritoryExtensionActive() === true;
 
-  var MONTH_NAMES = ['Jan','Feb','Mar','Apr','May','Jun',
-                     'Jul','Aug','Sep','Oct','Nov','Dec'];
-
-  var MONTH_MAP = {
-    'January':'Jan','February':'Feb','March':'Mar','April':'Apr',
-    'May':'May','June':'Jun','July':'Jul','August':'Aug',
-    'September':'Sep','October':'Oct','November':'Nov','December':'Dec'
-  };
-  var MONTH_ORDER_SHORT = ['Jan','Feb','Mar','Apr','May','Jun',
-                           'Jul','Aug','Sep','Oct','Nov','Dec'];
-
-  function getMonthShort(fpDisplay) {
-    var first = fpDisplay ? fpDisplay.split(' ')[0] : '';
-    return MONTH_MAP[first] || first;
-  }
-
-  /* ─────────────────────────────────────────────────────────────
-     2. REPORT TEMPLATES
-  ───────────────────────────────────────────────────────────── */
-  data.reportTemplates = [
-    {
-      id: 'commission_monthly',  name: 'Monthly Commission Report',
-      description: 'Detailed breakdown of commission earned by each rep',
-      badge: 'Commission',   icon: 'fa-user-circle-o', iconBg: '#eef2ff', iconColor: '#6366f1'
-    },
-    {
-      id: 'sales_performance',   name: 'Sales Performance Summary',
-      description: 'Overall sales metrics and quota achievement',
-      badge: 'Performance',  icon: 'fa-line-chart',    iconBg: '#ecfdf5', iconColor: '#10b981'
-    },
-    {
-      id: 'team_leaderboard',    name: 'Team Leaderboard',
-      description: 'Rankings and top performers by team',
-      badge: 'Team',         icon: 'fa-users',         iconBg: '#e0f2fe', iconColor: '#0284c7'
+    function formatCurrency(amount) {
+        amount = parseFloat(amount) || 0;
+        if (amount >= 1000000) return '$' + (amount / 1000000).toFixed(2) + 'M';
+        if (amount >= 1000) return '$' + (amount / 1000).toFixed(1) + 'K';
+        return '$' + amount.toFixed(0);
     }
-  ];
 
-  /* ─────────────────────────────────────────────────────────────
-     3. FISCAL PERIODS dropdown
-  ───────────────────────────────────────────────────────────── */
-  data.fiscalPeriods = [];
-  var fpSeen = {};
-  var fpGR = new GlideRecordSecure('x_ctans_incentnow_metric_report');
-  fpGR.orderByDesc('sys_created_on');
-  fpGR.query();
-  while (fpGR.next()) {
-    var fId   = fpGR.getValue('fiscal_year');
-    var fName = fpGR.getDisplayValue('fiscal_year');
-    if (fId && fName && !fpSeen[fId]) {
-      fpSeen[fId] = true;
-      data.fiscalPeriods.push({ id: fId, name: fName });
+    var MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+    ];
+
+    var MONTH_MAP = {
+        'January': 'Jan',
+        'February': 'Feb',
+        'March': 'Mar',
+        'April': 'Apr',
+        'May': 'May',
+        'June': 'Jun',
+        'July': 'Jul',
+        'August': 'Aug',
+        'September': 'Sep',
+        'October': 'Oct',
+        'November': 'Nov',
+        'December': 'Dec'
+    };
+    var MONTH_ORDER_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+    ];
+
+    function getMonthShort(fpDisplay) {
+        var first = fpDisplay ? fpDisplay.split(' ')[0] : '';
+        return MONTH_MAP[first] || first;
     }
-  }
 
-  /* ─────────────────────────────────────────────────────────────
-     4. BUSINESS UNITS dropdown
-  ───────────────────────────────────────────────────────────── */
-  data.businessUnits = [];
-  var buSeen = {};
-  var buGR = new GlideRecordSecure('x_ctans_incentnow_metric_report');
-  buGR.query();
-  while (buGR.next()) {
-    var bId   = buGR.getValue('business_unit');
-    var bName = buGR.getDisplayValue('business_unit');
-    if (bId && bName && !buSeen[bId]) {
-      buSeen[bId] = true;
-      data.businessUnits.push({ id: bId, name: bName });
-    }
-  }
-
-  /* ─────────────────────────────────────────────────────────────
-     5. RECENTLY GENERATED REPORTS (NEW)
-        Source: x_ctans_incentnow_metric_report — Incentives by Month
-        Aggregated by fiscal_period, total_commission summed per month
-  ───────────────────────────────────────────────────────────── */
-  var monthIncentMap = {};
-  MONTH_ORDER_SHORT.forEach(function(m) { monthIncentMap[m] = 0; });
-
-  var metricGR = new GlideRecordSecure('x_ctans_incentnow_metric_report');
-  metricGR.addQuery('period_type', 'Month');
-  metricGR.query();
-
-  while (metricGR.next()) {
-    var fpDisp = metricGR.getDisplayValue('fiscal_period');
-    var mon    = getMonthShort(fpDisp);
-    var comm   = parseFloat(metricGR.getValue('total_commission') || 0);
-    if (monthIncentMap.hasOwnProperty(mon)) {
-      monthIncentMap[mon] += comm;
-    }
-  }
-
-  var chartData = MONTH_ORDER_SHORT.map(function(m) {
-    return { month: m, incentive: monthIncentMap[m] };
-  });
-
-  // Build the generated reports list — one entry for the Incentives by Month report
-  var todayDT  = new GlideDateTime();
-  var todayStr = todayDT.getYearLocalTime() + '-' +
-                 (todayDT.getMonthLocalTime() < 10 ? '0' : '') + todayDT.getMonthLocalTime() + '-' +
-                 (todayDT.getDayOfMonthLocalTime() < 10 ? '0' : '') + todayDT.getDayOfMonthLocalTime();
-
-  var currentUser = gs.getUserDisplayName() || gs.getUserName() || 'System';
-  var currentPeriod = MONTH_NAMES[todayDT.getMonthLocalTime() - 1] + ' ' + todayDT.getYearLocalTime();
-
-	data.generatedReports = [];
-  /*data.generatedReports = [
-    {
-      sys_id:        'incentives_by_month_report',
-      name:          'Incentives by Month',
-      period:        currentPeriod,
-      generatedDate: todayStr,
-      generatedBy:   currentUser,
-      chartData:     chartData
-    }
-  ];
-
-  /* ─────────────────────────────────────────────────────────────
-     6. RECENT REPORTS (sys_report)
-  ───────────────────────────────────────────────────────────── */
-  var typeClassMap = {
-    'commission':   'commission',
-    'performance':  'performance',
-    'team':         'team',
-    'transactions': 'transactions',
-    'list':         'commission',
-    'bar':          'performance',
-    'pie':          'performance',
-    'trend':        'performance',
-    'histogram':    'transactions',
-    'single_score': 'performance'
-  };
-
-  data.recentReports = [];
-  var rptGR = new GlideRecordSecure('sys_report');
-  rptGR.addQuery('active', true);
-  rptGR.addEncodedQuery('tableLIKEINCENTNOW');
-  rptGR.orderByDesc('sys_updated_on');
-  rptGR.setLimit(10);
-  rptGR.query();
-
-  while (rptGR.next()) {
-    var rType    = (rptGR.getValue('type') || '').toLowerCase();
-    var rUpdated = rptGR.getValue('sys_updated_on') || '';
-    var rPeriod  = '';
-    if (rUpdated) {
-      var rDT = new GlideDateTime(rUpdated);
-      rPeriod = MONTH_NAMES[rDT.getMonthLocalTime() - 1] + ' ' + rDT.getYearLocalTime();
-    }
-    data.recentReports.push({
-      id:            rptGR.getUniqueValue(),
-      name:          rptGR.getValue('title') || rptGR.getValue('name') || 'Untitled Report',
-      type:          rptGR.getDisplayValue('type') || rType,
-      typeClass:     typeClassMap[rType] || 'commission',
-      period:        rPeriod,
-      generatedDate: rUpdated ? rUpdated.substring(0, 10) : '',
-      generatedBy:   rptGR.getDisplayValue('sys_updated_by') || 'Admin User'
-    });
-  }
-
-  /* ─────────────────────────────────────────────────────────────
-     7. SCHEDULED REPORTS
-  ───────────────────────────────────────────────────────────── */
-  var schedIconMap = {
-    'commission':   { icon: 'fa-calendar',    iconBg: '#eef2ff', iconColor: '#6366f1' },
-    'performance':  { icon: 'fa-line-chart',  iconBg: '#ecfdf5', iconColor: '#10b981' },
-    'team':         { icon: 'fa-users',       iconBg: '#e0f2fe', iconColor: '#0284c7' },
-    'transactions': { icon: 'fa-file-text-o', iconBg: '#fffbeb', iconColor: '#d97706' }
-  };
-  var defaultSchedIcon = { icon: 'fa-user-circle-o', iconBg: '#fdf4ff', iconColor: '#a855f7' };
-
-  data.scheduledReports = [];
-  var schGR = new GlideRecordSecure('sys_report');
-  schGR.addQuery('active', true);
-  schGR.addNotNullQuery('schedule');
-  schGR.addEncodedQuery('tableLIKEINCENTNOW');
-  schGR.orderByDesc('sys_updated_on');
-  schGR.setLimit(10);
-  schGR.query();
-
-  while (schGR.next()) {
-    var sType  = (schGR.getValue('type') || '').toLowerCase();
-    var sStyle = schedIconMap[sType] || defaultSchedIcon;
-    data.scheduledReports.push({
-      id:        schGR.getUniqueValue(),
-      name:      schGR.getValue('title') || schGR.getValue('name') || 'Report',
-      frequency: schGR.getDisplayValue('schedule') || '',
-      status:    'Active',
-      icon:      sStyle.icon,
-      iconBg:    sStyle.iconBg,
-      iconColor: sStyle.iconColor
-    });
-  }
-
-  /* ─────────────────────────────────────────────────────────────
-     8. ACTION HANDLERS
-  ───────────────────────────────────────────────────────────── */
-  if (input && input.action) {
-
-    // ── NEW: Generate Incentives by Month report from metric table ──
-    if (input.action === 'generate_commission_monthly') {
-      var genMonthMap = {};
-      MONTH_ORDER_SHORT.forEach(function(m) { genMonthMap[m] = 0; });
-
-      var genGR = new GlideRecordSecure('x_ctans_incentnow_metric_report');
-      genGR.addQuery('period_type', 'Month');
-      genGR.query();
-
-      while (genGR.next()) {
-        var gFP  = genGR.getDisplayValue('fiscal_period');
-        var gMon = getMonthShort(gFP);
-        var gComm = parseFloat(genGR.getValue('total_commission') || 0);
-        if (genMonthMap.hasOwnProperty(gMon)) {
-          genMonthMap[gMon] += gComm;
-        }
-      }
-
-      var genChartData = MONTH_ORDER_SHORT.map(function(m) {
-        return { month: m, incentive: genMonthMap[m] };
-      });
-
-      var genDT     = new GlideDateTime();
-      var genToday  = genDT.getYearLocalTime() + '-' +
-                      (genDT.getMonthLocalTime() < 10 ? '0' : '') + genDT.getMonthLocalTime() + '-' +
-                      (genDT.getDayOfMonthLocalTime() < 10 ? '0' : '') + genDT.getDayOfMonthLocalTime();
-      var genPeriod = MONTH_NAMES[genDT.getMonthLocalTime() - 1] + ' ' + genDT.getYearLocalTime();
-      var genUser   = gs.getUserDisplayName() || gs.getUserName() || 'System';
-
-      data.generatedReports = [
+    /* ─────────────────────────────────────────────────────────────
+       2. REPORT TEMPLATES
+    ───────────────────────────────────────────────────────────── */
+    data.reportTemplates = [{
+            id: 'commission_monthly',
+            name: 'Monthly Commission Report',
+            description: 'Detailed breakdown of commission earned by each rep',
+            badge: 'Commission',
+            icon: 'fa-user-circle-o',
+            iconBg: '#eef2ff',
+            iconColor: '#6366f1'
+        },
         {
-          sys_id:        'incentives_by_month_report_'+genDT.getNumericValue(),
-          name:          'Incentives by Month',
-          period:        genPeriod,
-          generatedDate: genToday,
-          generatedBy:   genUser,
-          chartData:     genChartData
+            id: 'sales_performance',
+            name: 'Sales Performance Summary',
+            description: 'Overall sales metrics and quota achievement',
+            badge: 'Performance',
+            icon: 'fa-line-chart',
+            iconBg: '#ecfdf5',
+            iconColor: '#10b981'
+        },
+        {
+            id: 'team_leaderboard',
+            name: 'Team Leaderboard',
+            description: 'Rankings and top performers by team',
+            badge: 'Team',
+            icon: 'fa-users',
+            iconBg: '#e0f2fe',
+            iconColor: '#0284c7'
         }
-      ];
-    }
-		
-		//Sales Performance
-		if (input.action === 'generate_sales_performance') {
+    ];
 
-			var buMap = {};
-
-			var grMR = new GlideRecordSecure('x_ctans_incentnow_metric_report');
-			grMR.addQuery('period_type', 'Month');
-			grMR.query();
-
-			while (grMR.next()) {
-
-				var bu = grMR.getDisplayValue('business_unit') || 'Unknown';
-
-				var credits = parseFloat(grMR.getValue('total_credits') || 0);
-				var quota   = parseFloat(grMR.getValue('quota_attainment') || 0);
-
-				if (!buMap[bu]) {
-					buMap[bu] = { credits: 0, quota: 0 };
-				}
-
-				buMap[bu].credits += credits;
-				buMap[bu].quota   += quota;
-			}
-
-			// Convert to chart format
-			var chartData = [];
-
-			for (var b in buMap) {
-				chartData.push({
-					label: b,
-					credits: buMap[b].credits,
-					quota: buMap[b].quota
-				});
-			}
-
-			// (optional) sort by credits desc
-			chartData.sort(function(a, b) {
-				return b.credits - a.credits;
-			});
-
-			var dt = new GlideDateTime();
-			var today = dt.getYearLocalTime() + '-' +
-									(dt.getMonthLocalTime() < 10 ? '0' : '') + dt.getMonthLocalTime() + '-' +
-									(dt.getDayOfMonthLocalTime() < 10 ? '0' : '') + dt.getDayOfMonthLocalTime();
-
-			var period = MONTH_NAMES[dt.getMonthLocalTime() - 1] + ' ' + dt.getYearLocalTime();
-			var user   = gs.getUserDisplayName() || gs.getUserName() || 'System';
-
-			data.generatedReports = [
-				{
-					sys_id: 'sales_performance_report_'+dt.getNumericValue(),
-					name: 'Sales Performance Summary',
-					period: period,
-					generatedDate: today,
-					generatedBy: user,
-					chartData: chartData
-				}
-			];
-		}
-		
-		//team leaderboard
-		
-		if (input.action === 'generate_team_leaderboard') {
-
-		var topMap = {};
-
-		var grMer = new GlideRecordSecure('x_ctans_incentnow_metric_report');
-		grMer.addQuery('period_type', 'Month');
-		grMer.query();
-
-		while (grMer.next()) {
-
-			var bu = grMer.getDisplayValue('business_unit') || 'Unknown';
-			var commission = parseFloat(grMer.getValue('total_commission') || 0);
-
-			// ]]>🔥<![CDATA[ keep ONLY top performer per BU
-			if (!topMap[bu] || commission > topMap[bu]) {
-				topMap[bu] = commission;
-			}
-		}
-
-		var chartData = [];
-
-		for (var b in topMap) {
-			chartData.push({
-				label: b,
-				value: topMap[b]
-			});
-		}
-
-		// ]]>🔥<![CDATA[ sort descending (leaderboard feel)
-		chartData.sort(function(a, b) {
-			return b.value - a.value;
-		});
-
-		var dt = new GlideDateTime();
-		var today = dt.getYearLocalTime() + '-' +
-								(dt.getMonthLocalTime() < 10 ? '0' : '') + dt.getMonthLocalTime() + '-' +
-								(dt.getDayOfMonthLocalTime() < 10 ? '0' : '') + dt.getDayOfMonthLocalTime();
-
-		var period = MONTH_NAMES[dt.getMonthLocalTime() - 1] + ' ' + dt.getYearLocalTime();
-		var user   = gs.getUserDisplayName() || gs.getUserName() || 'System';
-
-		data.generatedReports = [
-			{
-				sys_id: 'team_leaderboard_report_'+dt.getNumericValue(),
-				name: 'Team Leaderboard',
-				period: period,
-				generatedDate: today,
-				generatedBy: user,
-				chartData: chartData
-			}
-		];
-	}
-
-    // ── Download a generated report ──
-    if (input.action === 'download_generated_report' && input.reportId) {
-      data.downloadUrl = '/sys_report.do?sys_id=' + input.reportId + '&PDF';
+    /* ─────────────────────────────────────────────────────────────
+       3. FISCAL PERIODS dropdown
+    ───────────────────────────────────────────────────────────── */
+    data.fiscalPeriods = [];
+    var fpSeen = {};
+    var fpGR = new GlideRecordSecure('x_ctans_incentnow_metric_report');
+    fpGR.orderByDesc('sys_created_on');
+    fpGR.query();
+    while (fpGR.next()) {
+        var fId = fpGR.getValue('fiscal_year');
+        var fName = fpGR.getDisplayValue('fiscal_year');
+        if (fId && fName && !fpSeen[fId]) {
+            fpSeen[fId] = true;
+            data.fiscalPeriods.push({
+                id: fId,
+                name: fName
+            });
+        }
     }
 
-    if (input.action === 'generate_report') {
-      var fmt = input.format || 'pdf';
-      data.exportUrl = '/api/x_ctans_incentnow/report/export?type=' +
-                       (input.templateId || '') + '&format=' + fmt;
+    /* ─────────────────────────────────────────────────────────────
+       4. BUSINESS UNITS dropdown
+    ───────────────────────────────────────────────────────────── */
+    data.businessUnits = [];
+    var buSeen = {};
+    var buGR = new GlideRecordSecure('x_ctans_incentnow_metric_report');
+    buGR.query();
+    while (buGR.next()) {
+        var bId = buGR.getValue('business_unit');
+        var bName = buGR.getDisplayValue('business_unit');
+        if (bId && bName && !buSeen[bId]) {
+            buSeen[bId] = true;
+            data.businessUnits.push({
+                id: bId,
+                name: bName
+            });
+        }
     }
 
-		if (input.action === 'generate_custom_report') {
-			
-		var filters = input.filters || {};
+    /* ─────────────────────────────────────────────
+    	 TERRITORIES
+    ───────────────────────────────────────────── */
+    data.territories = [];
 
-		var chartData = [];
-		var map = {};
+    if (data.isTerritoryEnabled) {
 
-		var grMerp = new GlideRecordSecure('x_ctans_incentnow_metric_report');
-		grMerp.addQuery('period_type', 'Month');
+        var seen = {};
+        var terrGR = new GlideRecordSecure('x_ctans_incentnow_metric_report');
+        terrGR.addNotNullQuery('x_ctans_territory_territory');
+        terrGR.query();
 
-		// ✅ FIX 1: BUSINESS UNIT (DIRECT SYS_ID — THIS IS OK)
-		if (filters.team) {
-			grMerp.addQuery('business_unit', filters.team);
-		}
-		if (filters.period) {
-			grMerp.addQuery('fiscal_year', filters.period);
-		}
+        while (terrGR.next()) {
 
-		grMerp.query();
+            var id = terrGR.getValue('x_ctans_territory_territory');
+            var name = terrGR.getDisplayValue('x_ctans_territory_territory');
 
-		// ]]>🔥<![CDATA[ SAFETY: if still no rows → fallback
-		if (!grMerp.hasNext()) {
-			grMerp = new GlideRecordSecure('x_ctans_incentnow_metric_report');
-			grMerp.addQuery('period_type', 'Month');
-			grMerp.query();
-		}
-
-		while (grMerp.next()) {
-
-			var label = grMerp.getDisplayValue('business_unit') || 'Unknown';
-
-			var value = 0;
-
-			var metric = filters.metrics || 'commission';
-
-			if (metric === 'commission') {
-				value = parseFloat(grMerp.getValue('total_commission') || 0);
-			}
-			else if (metric === 'achievement') {
-				value = parseFloat(grMerp.getValue('quota_attainment') || 0);
-			}
-			else if (metric === 'credit') {
-				value = parseFloat(grMerp.getValue('total_credits') || 0);
-			}
-			else if (metric === 'quota') {
-				value = parseFloat(grMerp.getValue('target_quota') || 0);
-			}
-
-			if (!map[label]) map[label] = 0;
-			map[label] += value;
-		}
-
-		// convert to chart
-		for (var k in map) {
-			chartData.push({
-				label: k,
-				value: map[k]
-			});
-		}
-
-		// ]]>🔥<![CDATA[ ALWAYS RETURN SOMETHING (NO EMPTY REPORTS)
-		if (chartData.length === 0) {
-			chartData = [
-				{ label: "No Data", value: 0 }
-			];
-		}
-
-		// meta
-		var dt = new GlideDateTime();
-		var today =
-			dt.getYearLocalTime() + '-' +
-			(dt.getMonthLocalTime() < 10 ? '0' : '') + dt.getMonthLocalTime() + '-' +
-			(dt.getDayOfMonthLocalTime() < 10 ? '0' : '') + dt.getDayOfMonthLocalTime();
-
-		var period = 'Custom';
-		var user = gs.getUserDisplayName() || 'System';
-			
-		//name for custom report
-			
-		var metricLabelMap = {
-			commission: 'Commission',
-			achievement: 'Quota Achievement',
-			credit: 'Credits',
-			quota: 'Target Quota'
-		};
-
-		// Metric
-		var metricName = metricLabelMap[filters.metrics] || 'All Metrics';
-
-		// Team
-		var teamName = 'All Teams';
-		if (filters.team) {
-			var teamGR = new GlideRecordSecure('x_ctans_incentnow_plan');
-			if (teamGR.get('business_unit', filters.team)) {
-				teamName = teamGR.getDisplayValue('business_unit');
-			}
-		}
-
-		// Period
-		var period = 'All Periods';
-			if (filters.period) {
-				var fpLookup = new GlideRecordSecure('x_ctans_incentnow_metric_report');
-				fpLookup.addQuery('fiscal_year', filters.period);
-				fpLookup.setLimit(1);
-				fpLookup.query();
-				if (fpLookup.next()) {
-					period = fpLookup.getDisplayValue('fiscal_year');
-				}
-			}
-
-		// FINAL NAME
-		var reportName = metricName + ' - ' + teamName + ' - ' + period;
-
-		// ✅ FINAL OUTPUT (THIS WAS MISSING BEFORE)
-		data.generatedReports = [
-			{
-				sys_id: 'custom_' + dt.getNumericValue(),
-				name: reportName,
-				period: period,
-				generatedDate: today,
-				generatedBy: user,
-				chartData: chartData,
-				type: 'custom'
-			}
-		];
-	}
-
-    if (input.action === 'export_all') {
-      data.exportUrl = '/api/x_ctans_incentnow/report/export?type=all&format=pdf';
+            if (id && !seen[id]) {
+                seen[id] = true;
+                data.territories.push({
+                    id: id,
+                    name: name
+                });
+            }
+        }
     }
 
-    if (input.action === 'download_report' && input.reportId) {
-      data.downloadUrl = '/sys_report.do?sys_id=' + input.reportId + '&PDF';
+    /* ─────────────────────────────────────────────────────────────
+       5. RECENTLY GENERATED REPORTS (NEW)
+          Source: x_ctans_incentnow_metric_report — Incentives by Month
+          Aggregated by fiscal_period, total_commission summed per month
+    ───────────────────────────────────────────────────────────── */
+    var monthIncentMap = {};
+    MONTH_ORDER_SHORT.forEach(function(m) {
+        monthIncentMap[m] = 0;
+    });
+
+    var metricGR = new GlideRecordSecure('x_ctans_incentnow_metric_report');
+    metricGR.addQuery('period_type', 'Month');
+    metricGR.query();
+
+    while (metricGR.next()) {
+        var fpDisp = metricGR.getDisplayValue('fiscal_period');
+        var mon = getMonthShort(fpDisp);
+        var comm = parseFloat(metricGR.getValue('total_commission') || 0);
+        if (monthIncentMap.hasOwnProperty(mon)) {
+            monthIncentMap[mon] += comm;
+        }
     }
 
-    if (input.action === 'view_report' && input.reportId) {
-      data.viewUrl = '/sys_report.do?sys_id=' + input.reportId;
+    var chartData = MONTH_ORDER_SHORT.map(function(m) {
+        return {
+            month: m,
+            incentive: monthIncentMap[m]
+        };
+    });
+
+    // Build the generated reports list — one entry for the Incentives by Month report
+    var todayDT = new GlideDateTime();
+    var todayStr = todayDT.getYearLocalTime() + '-' +
+        (todayDT.getMonthLocalTime() < 10 ? '0' : '') + todayDT.getMonthLocalTime() + '-' +
+        (todayDT.getDayOfMonthLocalTime() < 10 ? '0' : '') + todayDT.getDayOfMonthLocalTime();
+
+    var currentUser = gs.getUserDisplayName() || gs.getUserName() || 'System';
+    var currentPeriod = MONTH_NAMES[todayDT.getMonthLocalTime() - 1] + ' ' + todayDT.getYearLocalTime();
+
+    data.generatedReports = [];
+    /*data.generatedReports = [
+      {
+        sys_id:        'incentives_by_month_report',
+        name:          'Incentives by Month',
+        period:        currentPeriod,
+        generatedDate: todayStr,
+        generatedBy:   currentUser,
+        chartData:     chartData
+      }
+    ];
+
+    /* ─────────────────────────────────────────────────────────────
+       6. RECENT REPORTS (sys_report)
+    ───────────────────────────────────────────────────────────── */
+    var typeClassMap = {
+        'commission': 'commission',
+        'performance': 'performance',
+        'team': 'team',
+        'transactions': 'transactions',
+        'list': 'commission',
+        'bar': 'performance',
+        'pie': 'performance',
+        'trend': 'performance',
+        'histogram': 'transactions',
+        'single_score': 'performance'
+    };
+
+    data.recentReports = [];
+    var rptGR = new GlideRecordSecure('sys_report');
+    rptGR.addQuery('active', true);
+    rptGR.addEncodedQuery('tableLIKEINCENTNOW');
+    rptGR.orderByDesc('sys_updated_on');
+    rptGR.setLimit(10);
+    rptGR.query();
+
+    while (rptGR.next()) {
+        var rType = (rptGR.getValue('type') || '').toLowerCase();
+        var rUpdated = rptGR.getValue('sys_updated_on') || '';
+        var rPeriod = '';
+        if (rUpdated) {
+            var rDT = new GlideDateTime(rUpdated);
+            rPeriod = MONTH_NAMES[rDT.getMonthLocalTime() - 1] + ' ' + rDT.getYearLocalTime();
+        }
+        data.recentReports.push({
+            id: rptGR.getUniqueValue(),
+            name: rptGR.getValue('title') || rptGR.getValue('name') || 'Untitled Report',
+            type: rptGR.getDisplayValue('type') || rType,
+            typeClass: typeClassMap[rType] || 'commission',
+            period: rPeriod,
+            generatedDate: rUpdated ? rUpdated.substring(0, 10) : '',
+            generatedBy: rptGR.getDisplayValue('sys_updated_by') || 'Admin User'
+        });
     }
 
-    if (input.action === 'save_template') {
-      data.savedTemplate = input.filters;
+    /* ─────────────────────────────────────────────────────────────
+       7. SCHEDULED REPORTS
+    ───────────────────────────────────────────────────────────── */
+    var schedIconMap = {
+        'commission': {
+            icon: 'fa-calendar',
+            iconBg: '#eef2ff',
+            iconColor: '#6366f1'
+        },
+        'performance': {
+            icon: 'fa-line-chart',
+            iconBg: '#ecfdf5',
+            iconColor: '#10b981'
+        },
+        'team': {
+            icon: 'fa-users',
+            iconBg: '#e0f2fe',
+            iconColor: '#0284c7'
+        },
+        'transactions': {
+            icon: 'fa-file-text-o',
+            iconBg: '#fffbeb',
+            iconColor: '#d97706'
+        }
+    };
+    var defaultSchedIcon = {
+        icon: 'fa-user-circle-o',
+        iconBg: '#fdf4ff',
+        iconColor: '#a855f7'
+    };
+
+    data.scheduledReports = [];
+    var schGR = new GlideRecordSecure('sys_report');
+    schGR.addQuery('active', true);
+    schGR.addNotNullQuery('schedule');
+    schGR.addEncodedQuery('tableLIKEINCENTNOW');
+    schGR.orderByDesc('sys_updated_on');
+    schGR.setLimit(10);
+    schGR.query();
+
+    while (schGR.next()) {
+        var sType = (schGR.getValue('type') || '').toLowerCase();
+        var sStyle = schedIconMap[sType] || defaultSchedIcon;
+        data.scheduledReports.push({
+            id: schGR.getUniqueValue(),
+            name: schGR.getValue('title') || schGR.getValue('name') || 'Report',
+            frequency: schGR.getDisplayValue('schedule') || '',
+            status: 'Active',
+            icon: sStyle.icon,
+            iconBg: sStyle.iconBg,
+            iconColor: sStyle.iconColor
+        });
     }
 
-    if (input.action === 'schedule_new') {
-      data.scheduleUrl = '/sys_report_list.do';
+    /* ─────────────────────────────────────────────────────────────
+       8. ACTION HANDLERS
+    ───────────────────────────────────────────────────────────── */
+    if (input && input.action) {
+
+        // ── NEW: Generate Incentives by Month report from metric table ──
+        if (input.action === 'generate_commission_monthly') {
+            var genMonthMap = {};
+            MONTH_ORDER_SHORT.forEach(function(m) {
+                genMonthMap[m] = 0;
+            });
+
+            var genGR = new GlideRecordSecure('x_ctans_incentnow_metric_report');
+            genGR.addQuery('period_type', 'Month');
+            genGR.query();
+
+            while (genGR.next()) {
+                var gFP = genGR.getDisplayValue('fiscal_period');
+                var gMon = getMonthShort(gFP);
+                var gComm = parseFloat(genGR.getValue('total_commission') || 0);
+                if (genMonthMap.hasOwnProperty(gMon)) {
+                    genMonthMap[gMon] += gComm;
+                }
+            }
+
+            var genChartData = MONTH_ORDER_SHORT.map(function(m) {
+                return {
+                    month: m,
+                    incentive: genMonthMap[m]
+                };
+            });
+
+            var genDT = new GlideDateTime();
+            var genToday = genDT.getYearLocalTime() + '-' +
+                (genDT.getMonthLocalTime() < 10 ? '0' : '') + genDT.getMonthLocalTime() + '-' +
+                (genDT.getDayOfMonthLocalTime() < 10 ? '0' : '') + genDT.getDayOfMonthLocalTime();
+            var genPeriod = MONTH_NAMES[genDT.getMonthLocalTime() - 1] + ' ' + genDT.getYearLocalTime();
+            var genUser = gs.getUserDisplayName() || gs.getUserName() || 'System';
+
+            data.generatedReports = [{
+                sys_id: 'incentives_by_month_report_' + genDT.getNumericValue(),
+                name: 'Incentives by Month',
+                period: genPeriod,
+                generatedDate: genToday,
+                generatedBy: genUser,
+                chartData: genChartData
+            }];
+        }
+
+        //Sales Performance
+        if (input.action === 'generate_sales_performance') {
+
+            var buMap = {};
+
+            var grMR = new GlideRecordSecure('x_ctans_incentnow_metric_report');
+            grMR.addQuery('period_type', 'Month');
+            grMR.query();
+
+            var map = {};
+
+            while (grMR.next()) {
+                if (data.isTerritoryEnabled) {
+
+                    var label = grMR.getDisplayValue('x_ctans_territory_territory');
+
+                    if (!label)
+                        label = grMR.getDisplayValue('business_unit') || 'Unknown';
+                }
+
+                if (!map[label]) {
+                    map[label] = {
+                        credits: 0,
+                        quota: 0
+                    };
+                }
+
+                map[label].credits += parseFloat(grMR.getValue('total_credits') || 0);
+                map[label].quota += parseFloat(grMR.getValue('quota_attainment') || 0);
+            }
+
+            var chartData = [];
+
+            for (var label in map) {
+                chartData.push({
+                    label: label,
+                    credits: map[label].credits,
+                    quota: map[label].quota
+                });
+            }
+
+            var dt = new GlideDateTime();
+            var today = dt.getYearLocalTime() + '-' +
+                (dt.getMonthLocalTime() < 10 ? '0' : '') + dt.getMonthLocalTime() + '-' +
+                (dt.getDayOfMonthLocalTime() < 10 ? '0' : '') + dt.getDayOfMonthLocalTime();
+
+            var period = MONTH_NAMES[dt.getMonthLocalTime() - 1] + ' ' + dt.getYearLocalTime();
+            var user = gs.getUserDisplayName() || gs.getUserName() || 'System';
+
+            data.generatedReports = [{
+                sys_id: 'sales_performance_report_' + dt.getNumericValue(),
+                name: 'Sales Performance Summary',
+                period: period,
+                generatedDate: today,
+                generatedBy: user,
+                chartData: chartData
+            }];
+        }
+
+        //team leaderboard
+
+        if (input.action === 'generate_team_leaderboard') {
+
+            var topMap = {};
+
+            var grMer = new GlideRecordSecure('x_ctans_incentnow_metric_report');
+            grMer.addQuery('period_type', 'Month');
+            grMer.query();
+
+            while (grMer.next()) {
+
+                var bu = grMer.getDisplayValue('business_unit') || 'Unknown';
+                var commission = parseFloat(grMer.getValue('total_commission') || 0);
+
+                // ]]>🔥<![CDATA[ keep ONLY top performer per BU
+                if (!topMap[bu] || commission > topMap[bu]) {
+                    topMap[bu] = commission;
+                }
+            }
+
+            var chartData = [];
+
+            for (var b in topMap) {
+                chartData.push({
+                    label: b,
+                    value: topMap[b]
+                });
+            }
+
+            // ]]>🔥<![CDATA[ sort descending (leaderboard feel)
+            chartData.sort(function(a, b) {
+                return b.value - a.value;
+            });
+
+            var dt = new GlideDateTime();
+            var today = dt.getYearLocalTime() + '-' +
+                (dt.getMonthLocalTime() < 10 ? '0' : '') + dt.getMonthLocalTime() + '-' +
+                (dt.getDayOfMonthLocalTime() < 10 ? '0' : '') + dt.getDayOfMonthLocalTime();
+
+            var period = MONTH_NAMES[dt.getMonthLocalTime() - 1] + ' ' + dt.getYearLocalTime();
+            var user = gs.getUserDisplayName() || gs.getUserName() || 'System';
+
+            data.generatedReports = [{
+                sys_id: 'team_leaderboard_report_' + dt.getNumericValue(),
+                name: 'Team Leaderboard',
+                period: period,
+                generatedDate: today,
+                generatedBy: user,
+                chartData: chartData
+            }];
+        }
+
+        // ── Download a generated report ──
+        if (input.action === 'download_generated_report' && input.reportId) {
+            data.downloadUrl = '/sys_report.do?sys_id=' + input.reportId + '&PDF';
+        }
+
+        if (input.action === 'generate_report') {
+            var fmt = input.format || 'pdf';
+            data.exportUrl = '/api/x_ctans_incentnow/report/export?type=' +
+                (input.templateId || '') + '&format=' + fmt;
+        }
+
+        if (input.action === 'generate_custom_report') {
+
+            var filters = input.filters || {};
+
+            var chartData = [];
+            var map = {};
+
+            var grMerp = new GlideRecordSecure('x_ctans_incentnow_metric_report');
+            grMerp.addQuery('period_type', 'Month');
+
+            // ✅ FIX 1: BUSINESS UNIT (DIRECT SYS_ID — THIS IS OK)
+            if (filters.team) {
+                grMerp.addQuery('business_unit', filters.team);
+            }
+            if (filters.territory) {
+                grMerp.addQuery('x_ctans_territory_territory', filters.territory);
+            }
+            if (filters.period) {
+                grMerp.addQuery('fiscal_year', filters.period);
+            }
+
+            grMerp.query();
+
+            // ]]>🔥<![CDATA[ SAFETY: if still no rows → fallback
+            if (!grMerp.hasNext()) {
+                grMerp = new GlideRecordSecure('x_ctans_incentnow_metric_report');
+                grMerp.addQuery('period_type', 'Month');
+                grMerp.query();
+            }
+
+            while (grMerp.next()) {
+
+                var label;
+
+                if (data.isTerritoryEnabled) {
+
+                    // Territory if present, otherwise Business Unit
+                    label = grMerp.getDisplayValue('x_ctans_territory_territory');
+
+                    if (!label) {
+                        label = grMerp.getDisplayValue('business_unit') || 'Unknown';
+                    }
+
+                } else {
+
+                    // Plugin OFF -> always Business Unit
+                    label = grMerp.getDisplayValue('business_unit') || 'Unknown';
+
+                }
+
+                var value = 0;
+
+                var metric = filters.metrics || 'commission';
+
+                if (metric === 'commission') {
+                    value = parseFloat(grMerp.getValue('total_commission') || 0);
+                } else if (metric === 'achievement') {
+                    value = parseFloat(grMerp.getValue('quota_attainment') || 0);
+                } else if (metric === 'credit') {
+                    value = parseFloat(grMerp.getValue('total_credits') || 0);
+                } else if (metric === 'quota') {
+                    value = parseFloat(grMerp.getValue('target_quota') || 0);
+                }
+
+                if (!map[label]) map[label] = 0;
+                map[label] += value;
+            }
+
+            // convert to chart
+            for (var k in map) {
+                chartData.push({
+                    label: k,
+                    value: map[k]
+                });
+            }
+
+            // ]]>🔥<![CDATA[ ALWAYS RETURN SOMETHING (NO EMPTY REPORTS)
+            if (chartData.length === 0) {
+                chartData = [{
+                    label: "No Data",
+                    value: 0
+                }];
+            }
+
+            // meta
+            var dt = new GlideDateTime();
+            var today =
+                dt.getYearLocalTime() + '-' +
+                (dt.getMonthLocalTime() < 10 ? '0' : '') + dt.getMonthLocalTime() + '-' +
+                (dt.getDayOfMonthLocalTime() < 10 ? '0' : '') + dt.getDayOfMonthLocalTime();
+
+            var period = 'Custom';
+            var user = gs.getUserDisplayName() || 'System';
+
+            //name for custom report
+
+            var metricLabelMap = {
+                commission: 'Commission',
+                achievement: 'Quota Achievement',
+                credit: 'Credits',
+                quota: 'Target Quota'
+            };
+
+            // Metric
+            var metricName = metricLabelMap[filters.metrics] || 'All Metrics';
+
+            // Team
+            var teamName = 'All Teams';
+            if (filters.team) {
+                var teamGR = new GlideRecordSecure('x_ctans_incentnow_plan');
+                if (teamGR.get('business_unit', filters.team)) {
+                    teamName = teamGR.getDisplayValue('business_unit');
+                }
+            }
+
+            // Period
+            var period = 'All Periods';
+            if (filters.period) {
+                var fpLookup = new GlideRecordSecure('x_ctans_incentnow_metric_report');
+                fpLookup.addQuery('fiscal_year', filters.period);
+                fpLookup.setLimit(1);
+                fpLookup.query();
+                if (fpLookup.next()) {
+                    period = fpLookup.getDisplayValue('fiscal_year');
+                }
+            }
+
+            // FINAL NAME
+            var territoryName = "All Territories";
+
+            if (filters.territory) {
+                var terrLookup = new GlideRecordSecure('x_ctans_incentnow_metric_report');
+                terrLookup.addQuery('x_ctans_territory_territory', filters.territory);
+                terrLookup.setLimit(1);
+                terrLookup.query();
+
+                if (terrLookup.next()) {
+                    territoryName = terrLookup.getDisplayValue('x_ctans_territory_territory');
+                }
+            }
+
+            var reportName;
+
+            if (data.isTerritoryEnabled) {
+                reportName = metricName + ' - ' + territoryName + ' - ' + period;
+            } else {
+                reportName = metricName + ' - ' + teamName + ' - ' + period;
+            }
+
+            // ✅ FINAL OUTPUT (THIS WAS MISSING BEFORE)
+            data.generatedReports = [{
+                sys_id: 'custom_' + dt.getNumericValue(),
+                name: reportName,
+                period: period,
+                generatedDate: today,
+                generatedBy: user,
+                chartData: chartData,
+                type: 'custom'
+            }];
+        }
+
+        if (input.action === 'export_all') {
+            data.exportUrl = '/api/x_ctans_incentnow/report/export?type=all&format=pdf';
+        }
+
+        if (input.action === 'download_report' && input.reportId) {
+            data.downloadUrl = '/sys_report.do?sys_id=' + input.reportId + '&PDF';
+        }
+
+        if (input.action === 'view_report' && input.reportId) {
+            data.viewUrl = '/sys_report.do?sys_id=' + input.reportId;
+        }
+
+        if (input.action === 'save_template') {
+            data.savedTemplate = input.filters;
+        }
+
+        if (input.action === 'schedule_new') {
+            data.scheduleUrl = '/sys_report_list.do';
+        }
     }
-  }
 
 })();]]></script>
         <servicenow>false</servicenow>
@@ -1585,14 +1702,14 @@
         <sys_created_by>karan.kumar</sys_created_by>
         <sys_created_on>2026-03-17 04:47:08</sys_created_on>
         <sys_id>521f4b673beffa50ffa00e9693e45a6e</sys_id>
-        <sys_mod_count>97</sys_mod_count>
+        <sys_mod_count>121</sys_mod_count>
         <sys_name>Reports Dashboard</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
         <sys_update_name>sp_widget_521f4b673beffa50ffa00e9693e45a6e</sys_update_name>
         <sys_updated_by>shroin.mandal</sys_updated_by>
-        <sys_updated_on>2026-06-11 10:37:20</sys_updated_on>
+        <sys_updated_on>2026-07-29 09:01:29</sys_updated_on>
         <template><![CDATA[<div class="reports-main">
 
   <!-- ── Header ── -->
@@ -1647,6 +1764,13 @@
           <option value="">All Business Units</option>
           <option ng-repeat="u in c.data.businessUnits" value="{{u.id}}">{{u.name}}</option>
         </select>
+      </div>
+      <div class="filter-group" ng-if="c.data.isTerritoryEnabled">
+          <label class="filter-label">Territory</label>
+          <select class="filter-select" ng-model="c.customFilters.territory">
+              <option value="">All Territories</option>
+              <option ng-repeat="t in c.data.territories" value="{{t.id}}">{{t.name}}</option>
+          </select>
       </div>
       <div class="filter-group">
         <label class="filter-label">Metrics</label>

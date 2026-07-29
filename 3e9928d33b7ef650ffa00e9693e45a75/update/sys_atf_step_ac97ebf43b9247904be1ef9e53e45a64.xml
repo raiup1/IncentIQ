@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_atf_step">
+    <sys_atf_step action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <callable_outputs/>
+        <copied_from display_value="Set Component Values (Custom UI)">0dfe0c74335e0b90dccb9c173e5c7b3e</copied_from>
+        <description>Set the components on the page as follows:
+'Text &lt;input&gt;: Fiscal Year Name' = ATF Year
+'Custom component &lt;select2&gt;: Fiscal Year' = 2026
+'Custom component &lt;select2&gt;: Fiscal Start' = January
+'Text &lt;textarea&gt;: Description' = ATF Calendar Desc
+</description>
+        <display_name>Set Component Values (Custom UI)</display_name>
+        <inputs/>
+        <mugshots_cache_json>{"2a02dd27b831b501773bdd576223eb90":"{\"area\":\"IncentNow Form\",\"sn_atf_mugshot_short_description\":\"Text &lt;input&gt;: Fiscal Year Name\",\"sn_atf_mugshot_long_description\":\"Text &lt;input&gt; [sp_formfield_fiscal_year_name]: Fiscal Year Name with value Enter fiscal year label (e.g., FY 2027) in page area IncentNow Form\",\"methods\":[\"setValue\"],\"sn_atf_mugshot_label\":\"Fiscal Year Name\",\"type\":\"text\",\"version\":\"26.0\",\"label_for_input\":{\"inner_text\":\"Fiscal Year Name\"},\"sn_atf_mugshot_label_for_label_path\":\"Fiscal Year Name\",\"interesting_element_path\":[\"body\",\"div\",\"div\",\"sp-page-row\",\"span\",\"div\",\"form\",\"sp-variable-layout\",\"div\",\"div\",\"input\"],\"get_value_result\":\"\",\"sn_atf_mugshot_tag_display_name\":\"Text &lt;input&gt;\",\"name\":\"fiscal_year_name\",\"sn_atf_mugshot_value\":\"Enter fiscal year label (e.g., FY 2027)\",\"tag\":\"input\",\"isDisabled\":false,\"id\":\"sp_formfield_fiscal_year_name\",\"placeholder\":\"Enter fiscal year label (e.g., FY 2027)\",\"label_path\":[\"Fiscal Year Name\"],\"aria-label\":\"Fiscal Year Name\",\"hash\":\"2a02dd27b831b501773bdd576223eb90\",\"html_value\":\"\"}","f2c9c70b5d8e2f460e3b44016d77051b":"{\"area\":\"IncentNow Form\",\"sn_atf_mugshot_short_description\":\"Text &lt;textarea&gt;: Description\",\"role\":\"textbox\",\"sn_atf_mugshot_long_description\":\"Text &lt;textarea&gt; [sp_formfield_description]: Description in page area IncentNow Form\",\"methods\":[\"setValue\"],\"sn_atf_mugshot_label\":\"Description\",\"type\":\"textarea\",\"version\":\"26.0\",\"label_for_input\":{\"inner_text\":\"Description\"},\"sn_atf_mugshot_label_for_label_path\":\"Description\",\"interesting_element_path\":[\"body\",\"div\",\"div\",\"sp-page-row\",\"span\",\"div\",\"form\",\"sp-variable-layout\",\"div\",\"div\",\"textarea\"],\"get_value_result\":\"\",\"sn_atf_mugshot_tag_display_name\":\"Text &lt;textarea&gt;\",\"name\":\"description\",\"sn_atf_mugshot_value\":\"\",\"tag\":\"textarea\",\"isDisabled\":false,\"id\":\"sp_formfield_description\",\"label_path\":[\"Description\"],\"aria-label\":\"Description\",\"hash\":\"f2c9c70b5d8e2f460e3b44016d77051b\",\"html_value\":\"\"}","3d049fc2ed63e1e62bfaa495dea0cd42":"{\"area\":\"IncentNow Form\",\"sn_atf_mugshot_short_description\":\"Custom component &lt;select2&gt;: Fiscal Year\",\"inner_text\":\"-- None --\",\"sn_atf_mugshot_long_description\":\"Custom component &lt;select2&gt; [s2id_sp_formfield_fiscal_year]: Fiscal Year in page area IncentNow Form\",\"methods\":[\"setValue\"],\"sn_atf_mugshot_label\":\"Fiscal Year\",\"type\":\"select-one\",\"version\":\"26.0\",\"sn_atf_mugshot_label_for_label_path\":\"Fiscal Year\",\"label_for_input\":{\"inner_text\":\"Fiscal Year\"},\"get_value_result\":\"\",\"sn_atf_mugshot_tag_display_name\":\"Custom component &lt;select2&gt;\",\"sn_atf_mugshot_value\":\"\",\"name\":\"fiscal_year\",\"tag\":\"select2\",\"isDisabled\":false,\"id\":\"s2id_sp_formfield_fiscal_year\",\"hash\":\"3d049fc2ed63e1e62bfaa495dea0cd42\",\"html_value\":\"\"}","c40342bae64f74eac8d62c529ef7a48f":"{\"area\":\"IncentNow Form\",\"sn_atf_mugshot_short_description\":\"Custom component &lt;select2&gt;: Fiscal Start\",\"inner_text\":\"-- None --\",\"sn_atf_mugshot_long_description\":\"Custom component &lt;select2&gt; [s2id_sp_formfield_fiscal_start]: Fiscal Start in page area IncentNow Form\",\"methods\":[\"setValue\"],\"sn_atf_mugshot_label\":\"Fiscal Start\",\"type\":\"select-one\",\"version\":\"26.0\",\"sn_atf_mugshot_label_for_label_path\":\"Fiscal Start\",\"label_for_input\":{\"inner_text\":\"Fiscal Start\"},\"get_value_result\":\"\",\"sn_atf_mugshot_tag_display_name\":\"Custom component &lt;select2&gt;\",\"sn_atf_mugshot_value\":\"\",\"name\":\"fiscal_start\",\"tag\":\"select2\",\"isDisabled\":false,\"id\":\"s2id_sp_formfield_fiscal_start\",\"hash\":\"c40342bae64f74eac8d62c529ef7a48f\",\"html_value\":\"\"}"}</mugshots_cache_json>
+        <notes/>
+        <order>4</order>
+        <step_config display_value="Set Component Values (Custom UI)">e5dd168473330300c79260bdfaf6a794</step_config>
+        <sys_class_name>sys_atf_step</sys_class_name>
+        <sys_created_by>shiva.erla</sys_created_by>
+        <sys_created_on>2026-07-23 10:20:45</sys_created_on>
+        <sys_id>ac97ebf43b9247904be1ef9e53e45a64</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>Set Component Values (Custom UI)</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_atf_step_ac97ebf43b9247904be1ef9e53e45a64</sys_update_name>
+        <sys_updated_by>shiva.erla</sys_updated_by>
+        <sys_updated_on>2026-07-23 10:20:45</sys_updated_on>
+        <table/>
+        <test display_value="ATF_IncentIQ_Quota_Territory_ApprovalFlow">5c97e7f43b9247904be1ef9e53e45ad5</test>
+        <timeout/>
+        <warning_message/>
+    </sys_atf_step>
+    <sys_variable_value action="delete_multiple" query="document_key=ac97ebf43b9247904be1ef9e53e45a64"/>
+    <sys_variable_value action="INSERT_OR_UPDATE">
+        <document>sys_atf_step</document>
+        <document_key>ac97ebf43b9247904be1ef9e53e45a64</document_key>
+        <order>100</order>
+        <sys_class_name>sys_variable_value</sys_class_name>
+        <sys_created_by>shiva.erla</sys_created_by>
+        <sys_created_on>2026-07-23 10:20:45</sys_created_on>
+        <sys_id>2497ebf43b9247904be1ef9e53e45a66</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>shiva.erla</sys_updated_by>
+        <sys_updated_on>2026-07-23 10:20:45</sys_updated_on>
+        <value>2a02dd27b831b501773bdd576223eb90=ATF Year^3d049fc2ed63e1e62bfaa495dea0cd42=2026^c40342bae64f74eac8d62c529ef7a48f=January^f2c9c70b5d8e2f460e3b44016d77051b=ATF Calendar Desc^EQ</value>
+        <variable display_value="Component values">d12fde8473330300c79260bdfaf6a7b5</variable>
+    </sys_variable_value>
+    <sys_element_mapping action="delete_multiple" query="table=var__m_atf_input_variable_e5dd168473330300c79260bdfaf6a794^id=ac97ebf43b9247904be1ef9e53e45a64"/>
+</record_update>

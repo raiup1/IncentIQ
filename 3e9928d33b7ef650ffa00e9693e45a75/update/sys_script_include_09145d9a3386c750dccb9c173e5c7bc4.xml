@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>package_private</access>
+        <active>true</active>
+        <api_name>x_ctans_incentnow.IncentIQDataMasker </api_name>
+        <caller_access/>
+        <client_callable>false</client_callable>
+        <description>Deny-by-default masking layer. Tokenizes all sensitive values (names, emails, amounts, rules, order IDs) before any data is sent to an external LLM (OpenAI/Claude), and rehydrates the tokens in the response so output stays accurate. Includes a leak-detection guard that blocks a request if any real value survives masking. Not used for the in-boundary ServiceNow Now LLM.</description>
+        <mobile_callable>false</mobile_callable>
+        <name>IncentIQDataMasker </name>
+        <sandbox_callable>false</sandbox_callable>
+        <script><![CDATA[var IncentIQDataMasker = Class.create();
+IncentIQDataMasker.prototype = {
+
+    initialize: function() {
+        // DENY BY DEFAULT: only these fields pass through in clear. Everything else is masked.
+        this.SAFE_KEYS = {};
+        var safe = ['found', 'message', 'role', 'status', 'fiscalYear', 'fiscalPeriod',
+            'qtdPeriodLabel', 'ytdYear', 'period', 'periodA', 'periodB', 'date',
+            'quotaAttainment', 'currentAttainmentPercent', 'attainmentDifference',
+            'opportunityCount', 'aggregation', 'earningLevel', 'ruleType', 'rateUnit',
+            'operator', 'payoutType', 'dataExists', 'qtdDataExists'
+        ];
+        for (var i = 0; i < safe.length; i++) {
+            this.SAFE_KEYS[safe[i]] = true;
+        }
+
+        // Token type by field name (readability). Unknown sensitive keys fall back to TEXT/NUM.
+        this._keyType = {};
+        var typed = {
+            EMAIL: ['email'],
+            AMOUNT: ['targetQuota', 'totalCommission', 'qtdCommission', 'ytdCommission', 'estimatedCurrentCredit',
+                'creditNeededToReachTarget', 'amount', 'commission', 'cumulativeTotal', 'rateValue',
+                'commissionDifference', 'quotaDifference'
+            ],
+            NAME: ['fullName', 'userName', 'manager', 'planName', 'quotaName', 'plan', 'account', 'department', 'company', 'title', 'businessUnit'],
+            RULE: ['ruleName', 'rule', 'stepName', 'sourceObject', 'field', 'formula'],
+            ORDER: ['order', 'orderId', 'orderNumber', 'number']
+        };
+        for (var t in typed) {
+            for (var j = 0; j < typed[t].length; j++) {
+                this._keyType[typed[t][j]] = t;
+            }
+        }
+    },
+
+    maskContext: function(context) {
+        this._map = {};
+        this._reverse = {};
+        this._counters = {};
+        var masked = this._walk(context, null);
+        return {
+            masked: masked,
+            map: this._map
+        };
+    },
+
+    _walk: function(node, parentKey) {
+        if (node === null || node === undefined) {
+            return node;
+        }
+        if (typeof node === 'boolean') {
+            return node;
+        }
+        if (Array.isArray(node)) {
+            var arr = [];
+            for (var i = 0; i < node.length; i++) {
+                arr.push(this._walk(node[i], parentKey));
+            }
+            return arr;
+        }
+        if (typeof node === 'object') {
+            var obj = {};
+            for (var k in node) {
+                obj[k] = this._walk(node[k], k);
+            }
+            return obj;
+        }
+        // primitive (string/number)
+        if (parentKey && this.SAFE_KEYS[parentKey]) {
+            return node;
+        } // whitelisted -> clear
+        if (node === '' || node === 0 || node === '0') {
+            return node;
+        } // skip empties/zeros
+        return this._tokenFor(this._typeForKey(parentKey, node), node);
+    },
+
+    _typeForKey: function(key, value) {
+        if (key && this._keyType[key]) {
+            return this._keyType[key];
+        }
+        return (typeof value === 'number') ? 'NUM' : 'TEXT'; // deny-by-default fallback
+    },
+
+    _tokenFor: function(type, value) {
+        var dedupeKey = type + '::' + value;
+        if (this._reverse && this._reverse[dedupeKey]) {
+            return this._reverse[dedupeKey];
+        }
+        this._counters = this._counters || {};
+        this._reverse = this._reverse || {};
+        this._map = this._map || {};
+        this._counters[type] = (this._counters[type] || 0) + 1;
+        var token = '[[' + type + '_' + this._counters[type] + ']]';
+        this._map[token] = value;
+        this._reverse[dedupeKey] = token;
+        return token;
+    },
+
+    // Free text: replace known real values, then sweep emails and $-amounts (adds to the same map).
+    maskText: function(text, map) {
+        if (!text) {
+            return text;
+        }
+        text = '' + text;
+        this._map = map || this._map || {};
+
+        var reals = [];
+        for (var token in this._map) {
+            reals.push({
+                token: token,
+                real: '' + this._map[token]
+            });
+        }
+        reals.sort(function(a, b) {
+            return b.real.length - a.real.length;
+        });
+        for (var i = 0; i < reals.length; i++) {
+            if (reals[i].real) {
+                text = text.split(reals[i].real).join(reals[i].token);
+            }
+        }
+
+        text = this._sweep(text, /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g, 'EMAIL');
+        text = this._sweep(text, /\$\s?\d[\d,]*(?:\.\d+)?/g, 'AMOUNT');
+        return text;
+    },
+
+    _sweep: function(text, regex, type) {
+        var self = this;
+        return text.replace(regex, function(m) {
+            if (m.indexOf('[[') > -1) {
+                return m;
+            }
+            return self._tokenFor(type, m);
+        });
+    },
+
+    rehydrate: function(answer, map) {
+        if (!answer) {
+            return answer;
+        }
+        map = map || this._map || {};
+        answer = '' + answer;
+        for (var token in map) {
+            answer = answer.split(token).join('' + map[token]);
+        }
+        return answer;
+    },
+
+    // Block-on-leak: true if any distinctive TEXT value (name/email/plan name) is still present.
+    // Pure-numeric values are skipped to avoid false positives with years/counts in safe fields.
+    hasLeak: function(text, map) {
+        if (!text) {
+            return false;
+        }
+        text = '' + text;
+        map = map || this._map || {};
+        for (var token in map) {
+            var real = '' + map[token];
+            if (real.length < 4) {
+                continue;
+            }
+            if (/^[\d.,\s]+$/.test(real)) {
+                continue;
+            } // skip pure numeric
+            if (text.indexOf(real) > -1) {
+                return true;
+            }
+        }
+        return false;
+    },
+
+    type: 'IncentIQDataMasker'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+        <sys_created_on>2026-07-15 05:11:46</sys_created_on>
+        <sys_id>09145d9a3386c750dccb9c173e5c7bc4</sys_id>
+        <sys_mod_count>3</sys_mod_count>
+        <sys_name>IncentIQDataMasker </sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_script_include_09145d9a3386c750dccb9c173e5c7bc4</sys_update_name>
+        <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
+        <sys_updated_on>2026-07-21 05:34:07</sys_updated_on>
+    </sys_script_include>
+</record_update>

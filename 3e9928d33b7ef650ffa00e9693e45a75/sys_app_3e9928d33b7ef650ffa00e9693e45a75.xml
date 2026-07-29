@@ -24,24 +24,24 @@
         <scoped_administration>false</scoped_administration>
         <short_description>IncentIQ application is one stop shop for Sales comission calculation and Incentive payout</short_description>
         <source>x_ctans_incentnow</source>
-        <store_correlation_id/>
-        <store_url/>
+        <store_correlation_id>REPOAPP0002924571</store_correlation_id>
+        <store_url>https://tpp.servicenow.com/sn_appstore_s</store_url>
         <subscription_entitlement/>
         <sys_class_name>sys_app</sys_class_name>
         <sys_code/>
         <sys_created_by>upma.rai</sys_created_by>
         <sys_created_on>2026-02-06 15:15:50</sys_created_on>
         <sys_id>3e9928d33b7ef650ffa00e9693e45a75</sys_id>
-        <sys_mod_count>27</sys_mod_count>
+        <sys_mod_count>29</sys_mod_count>
         <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
-        <sys_updated_on>2026-06-19 09:50:48</sys_updated_on>
+        <sys_updated_on>2026-07-29 14:02:24</sys_updated_on>
         <template/>
         <trackable>true</trackable>
         <uninstall_blocked>false</uninstall_blocked>
         <user_role/>
         <vendor>CtrlAltNow Solutions Inc</vendor>
         <vendor_prefix/>
-        <version>1.0.10</version>
+        <version>1.0.11</version>
     </sys_app>
     <sys_translated_text action="delete_multiple" query="documentkey=3e9928d33b7ef650ffa00e9693e45a75"/>
 </record_update>

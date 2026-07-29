@@ -1,0 +1,2221 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update sys_domain="global" table="sys_hub_action_type_definition">
+    <sys_hub_action_type_definition action="INSERT_OR_UPDATE">
+        <access>public</access>
+        <acls/>
+        <action_status/>
+        <action_template/>
+        <active>true</active>
+        <annotation/>
+        <attributes>{labelCacheCleanUpExecuted=true}</attributes>
+        <authored_on_release_version>28100</authored_on_release_version>
+        <callable_by_client_api>false</callable_by_client_api>
+        <category/>
+        <copied_from/>
+        <copied_from_name/>
+        <description>This action checks for Territory Manager and sends approval if an approver found.</description>
+        <flow_priority/>
+        <ih_action>false</ih_action>
+        <internal_name>territory_manager_approval</internal_name>
+        <label_cache>[{"name":"{{action.business_dimension}}","label":"action➛","type":"action","ref":"","reference_display":"","base_type":"choice","parent_table_name":"","column_name":"business_dimension","choices":[{"label":"Business Unit","value":"business_unit","order":0.0},{"label":"Territory","value":"territory","order":1.0}],"attributes":{"uiTypeLabel":"Choice","element_mapping_provider":"com.glide.flow_design.action.data.FlowDesignVariableMapper","uiType":"choice","uiUniqueId":"d4c7dce1-1d65-462f-99db-ae668fb7c8c4"}},{"name":"{{action.territory}}","label":"action➛Territory","type":"action","ref":"","reference_display":"","base_type":"string","parent_table_name":"","column_name":"","choices":null,"attributes":{}},{"name":"{{step[7d671807-f52a-4881-b67d-409c977be3fd].territory_managers}}","label":"step➛Script step➛Territory Managers","type":"step","ref":"","reference_display":"","base_type":"string","parent_table_name":"","column_name":"","choices":null,"attributes":{"uiTypeLabel":"String","element_mapping_provider":"com.glide.flow_design.action.data.FlowDesignVariableMapper","uiType":"string","uiUniqueId":"8ef97eb4-931a-457b-900d-0c29e99dd808"}},{"name":"{{step[7d671807-f52a-4881-b67d-409c977be3fd].count}}","label":"step➛Script step➛Count","type":"step","ref":"","reference_display":"","base_type":"integer","parent_table_name":"","column_name":"","choices":null,"attributes":{"sourceId":"","child_name":"count_child0","uiUniqueId":"4d8227ac-8971-4b34-91da-f757bd931a84","uiTypeLabel":"Array.Integer","co_type_name":"","child_label":"Count_child0","child_type_label":"Integer","element_mapping_provider":"com.glide.flow_design.action.data.FlowDesignVariableMapper","sourceUiUniqueId":"","sourceType":"","uiType":"array.integer","child_type":"integer","child_uiUniqueId":"bb76d615-79aa-451a-97af-e5ba0bf4268a"}}]</label_cache>
+        <master_snapshot>c4b18eb33bf547104be1ef9e53e45aed</master_snapshot>
+        <master_snapshot_digest/>
+        <name>Territory Manager Approval</name>
+        <natlang/>
+        <outputs/>
+        <outputs/>
+        <pre_compiled>false</pre_compiled>
+        <state>published</state>
+        <sys_class_name>sys_hub_action_type_definition</sys_class_name>
+        <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+        <sys_created_on>2026-07-07 11:24:52</sys_created_on>
+        <sys_domain>global</sys_domain>
+        <sys_domain_path>/</sys_domain_path>
+        <sys_id>33ccd1fb3bf147104be1ef9e53e45a24</sys_id>
+        <sys_mod_count>81</sys_mod_count>
+        <sys_name>Territory Manager Approval</sys_name>
+        <sys_overrides/>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_hub_action_type_definition_33ccd1fb3bf147104be1ef9e53e45a24</sys_update_name>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-10 11:06:06</sys_updated_on>
+        <system_level>false</system_level>
+        <type/>
+    </sys_hub_action_type_definition>
+    <sys_translated_text action="delete_multiple" query="documentkey=33ccd1fb3bf147104be1ef9e53e45a24"/>
+    <sys_variable_value action="delete_multiple" query="document_key=33ccd1fb3bf147104be1ef9e53e45a24"/>
+    <sys_variable_value action="INSERT_OR_UPDATE">
+        <document>sys_hub_action_type_definition</document>
+        <document_key>33ccd1fb3bf147104be1ef9e53e45a24</document_key>
+        <order>2</order>
+        <sys_class_name>sys_variable_value</sys_class_name>
+        <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+        <sys_created_on>2026-07-07 11:28:26</sys_created_on>
+        <sys_id>c8ad953f3bf147104be1ef9e53e45ab5</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-07 11:28:26</sys_updated_on>
+        <value>0</value>
+        <variable display_value="Don't Treat as Error">fb9d953f3bf147104be1ef9e53e45a8c</variable>
+    </sys_variable_value>
+    <sys_variable_value action="INSERT_OR_UPDATE">
+        <document>sys_hub_action_type_definition</document>
+        <document_key>33ccd1fb3bf147104be1ef9e53e45a24</document_key>
+        <order>3</order>
+        <sys_class_name>sys_variable_value</sys_class_name>
+        <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+        <sys_created_on>2026-07-08 08:16:48</sys_created_on>
+        <sys_id>2e5bf1c43bce87104be1ef9e53e45a86</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-08 08:16:48</sys_updated_on>
+        <value/>
+        <variable display_value="Count">e65bf1c43bce87104be1ef9e53e45a6a</variable>
+    </sys_variable_value>
+    <sys_variable_value action="INSERT_OR_UPDATE">
+        <document>sys_hub_action_type_definition</document>
+        <document_key>33ccd1fb3bf147104be1ef9e53e45a24</document_key>
+        <order>1</order>
+        <sys_class_name>sys_variable_value</sys_class_name>
+        <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+        <sys_created_on>2026-07-07 11:28:26</sys_created_on>
+        <sys_id>c4ad953f3bf147104be1ef9e53e45ab6</sys_id>
+        <sys_mod_count>1</sys_mod_count>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-10 11:05:59</sys_updated_on>
+        <value>{"version":"1.0","complexObject":{"code":{"$cv":{"$c":"java.lang.String","$v":""}},"message":{"$cv":{"$c":"java.lang.String","$v":""}}},"complexObjectSchema":{"FlowDesigner:FDACTIONSTATUS":{"code":"Integer","code.$field_facets":{"SimpleMapFacet":"{\"uiTypeLabel\":\"Integer\",\"read_only\":\"false\",\"hint\":\"\",\"uiType\":\"integer\",\"default_value\":\"\",\"label\":\"Code\",\"action_error_output\":\"true\",\"mandatory\":\"false\",\"order\":\"1\",\"max_length\":\"40\"}"},"message":"String","message.$field_facets":{"SimpleMapFacet":"{\"uiTypeLabel\":\"String\",\"read_only\":\"false\",\"hint\":\"\",\"uiType\":\"string\",\"default_value\":\"\",\"label\":\"Message\",\"action_error_output\":\"true\",\"mandatory\":\"false\",\"order\":\"2\",\"max_length\":\"4000\"}"}},"FlowDesigner:FDACTIONSTATUS.$type_facets":{"SimpleMapFacet":"{\"default_value\":\"\",\"label\":\"Action Status\",\"action_error_output\":\"true\",\"mandatory\":\"false\",\"uiUniqueId\":\"794bc342-9c9d-444b-a3f2-dd4b6a5a0173\",\"uiTypeLabel\":\"Object\",\"co_type_name\":\"FDACTIONSTATUS\",\"element_mapping_provider\":\"com.glide.flow_design.action.data.FlowDesignVariableMapper\",\"read_only\":\"false\",\"hint\":null,\"uiType\":\"object\",\"order\":\"1\",\"max_length\":\"65000\"}"}},"serializationFormat":"JSON"}</value>
+        <variable display_value="Action Status">f79d953f3bf147104be1ef9e53e45a84</variable>
+    </sys_variable_value>
+    <sys_element_mapping action="delete_multiple" query="id=33ccd1fb3bf147104be1ef9e53e45a24"/>
+    <sys_element_mapping action="INSERT_OR_UPDATE">
+        <field>count</field>
+        <id>33ccd1fb3bf147104be1ef9e53e45a24</id>
+        <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+        <sys_created_on>2026-07-07 14:32:11</sys_created_on>
+        <sys_id>aba7ca3f3bf547104be1ef9e53e45add</sys_id>
+        <sys_mod_count>4</sys_mod_count>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-08 07:59:08</sys_updated_on>
+        <table>var__m_sys_hub_action_output_33ccd1fb3bf147104be1ef9e53e45a24</table>
+        <value>{{step[7d671807-f52a-4881-b67d-409c977be3fd].count}}</value>
+    </sys_element_mapping>
+    <sys_element_mapping action="INSERT_OR_UPDATE">
+        <field>territory_manager</field>
+        <id>33ccd1fb3bf147104be1ef9e53e45a24</id>
+        <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+        <sys_created_on>2026-07-07 14:32:11</sys_created_on>
+        <sys_id>afa7ca3f3bf547104be1ef9e53e45add</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-07 14:32:11</sys_updated_on>
+        <table>var__m_sys_hub_action_output_33ccd1fb3bf147104be1ef9e53e45a24</table>
+        <value>{{step[7d671807-f52a-4881-b67d-409c977be3fd].territory_managers}}</value>
+    </sys_element_mapping>
+    <sys_element_mapping action="INSERT_OR_UPDATE">
+        <field>__action_status__</field>
+        <id>33ccd1fb3bf147104be1ef9e53e45a24</id>
+        <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+        <sys_created_on>2026-07-07 11:28:26</sys_created_on>
+        <sys_id>08ad953f3bf147104be1ef9e53e45ab5</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-07 11:28:26</sys_updated_on>
+        <table>var__m_sys_hub_action_output_33ccd1fb3bf147104be1ef9e53e45a24</table>
+        <value/>
+    </sys_element_mapping>
+    <sys_element_mapping action="INSERT_OR_UPDATE">
+        <field>__dont_treat_as_error__</field>
+        <id>33ccd1fb3bf147104be1ef9e53e45a24</id>
+        <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+        <sys_created_on>2026-07-07 11:28:26</sys_created_on>
+        <sys_id>0cad953f3bf147104be1ef9e53e45ab4</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-07 11:28:26</sys_updated_on>
+        <table>var__m_sys_hub_action_output_33ccd1fb3bf147104be1ef9e53e45a24</table>
+        <value/>
+    </sys_element_mapping>
+    <sys_hub_step_instance action="delete_multiple" query="action=33ccd1fb3bf147104be1ef9e53e45a24^sys_idNOT IN162a29ff3b3547104be1ef9e53e45abd"/>
+    <sys_hub_step_instance action="INSERT_OR_UPDATE">
+        <action display_value="Territory Manager Approval">33ccd1fb3bf147104be1ef9e53e45a24</action>
+        <cid>7d671807-f52a-4881-b67d-409c977be3fd</cid>
+        <error_handling_type>1</error_handling_type>
+        <extended_inputs/>
+        <extended_inputs/>
+        <extended_outputs/>
+        <icon/>
+        <inputs/>
+        <label>Script step</label>
+        <order>1</order>
+        <outputs/>
+        <section/>
+        <step_type display_value="Script">106afb6647032200b4fad7527c9a71e7</step_type>
+        <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+        <sys_created_on>2026-07-07 12:23:13</sys_created_on>
+        <sys_id>162a29ff3b3547104be1ef9e53e45abd</sys_id>
+        <sys_mod_count>19</sys_mod_count>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-10 11:05:58</sys_updated_on>
+    </sys_hub_step_instance>
+    <sys_variable_value action="delete_multiple" query="document_key=162a29ff3b3547104be1ef9e53e45abd"/>
+    <sys_variable_value action="INSERT_OR_UPDATE">
+        <document>sys_hub_step_instance</document>
+        <document_key>162a29ff3b3547104be1ef9e53e45abd</document_key>
+        <order>400</order>
+        <sys_class_name>sys_variable_value</sys_class_name>
+        <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+        <sys_created_on>2026-07-07 12:23:13</sys_created_on>
+        <sys_id>a22a29ff3b3547104be1ef9e53e45ad4</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-07 12:23:13</sys_updated_on>
+        <value>35aa573fd7802200bdbaee5b5e610375</value>
+        <variable display_value="MID Application">f5e56d79b3101300176b051a16a8dce4</variable>
+    </sys_variable_value>
+    <sys_variable_value action="INSERT_OR_UPDATE">
+        <document>sys_hub_step_instance</document>
+        <document_key>162a29ff3b3547104be1ef9e53e45abd</document_key>
+        <order>600</order>
+        <sys_class_name>sys_variable_value</sys_class_name>
+        <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+        <sys_created_on>2026-07-07 12:23:13</sys_created_on>
+        <sys_id>e62a29ff3b3547104be1ef9e53e45ad4</sys_id>
+        <sys_mod_count>16</sys_mod_count>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-10 11:05:58</sys_updated_on>
+        <value>(function execute(inputs, outputs) {&#13;
+var approvers = new x_ctans_incentnow.IncentNowUtils().getTerritoryManagers(inputs.territory);&#13;
+ outputs.territory_managers="ApprovesRejectsAnyU["+approvers+"]";&#13;
+ if (approvers &amp;&amp; approvers != '') {&#13;
+    outputs.count = approvers.split(',').length;&#13;
+} else {&#13;
+    outputs.count = 0;&#13;
+}&#13;
+// outputs.count = approvers &amp;&amp; approvers.trim() !== '' ? approvers.split(',').length : 0;&#13;
+//gs.info('IncentIQ Flow Action Approvers' + inputs.territory);&#13;
+})(inputs, outputs);&#13;
+</value>
+        <variable display_value="Script">71aa7f6647032200b4fad7527c9a719b</variable>
+    </sys_variable_value>
+    <sys_element_mapping action="delete_multiple" query="id=162a29ff3b3547104be1ef9e53e45abd"/>
+    <sys_element_mapping action="INSERT_OR_UPDATE">
+        <field>application</field>
+        <id>162a29ff3b3547104be1ef9e53e45abd</id>
+        <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+        <sys_created_on>2026-07-07 12:23:13</sys_created_on>
+        <sys_id>ea2a29ff3b3547104be1ef9e53e45ad3</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-07 12:23:13</sys_updated_on>
+        <table>var__m_sys_flow_step_definition_input_106afb6647032200b4fad7527c9a71e7</table>
+        <value/>
+    </sys_element_mapping>
+    <sys_element_mapping action="INSERT_OR_UPDATE">
+        <field>script</field>
+        <id>162a29ff3b3547104be1ef9e53e45abd</id>
+        <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+        <sys_created_on>2026-07-07 12:23:13</sys_created_on>
+        <sys_id>ee2a29ff3b3547104be1ef9e53e45ad3</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-07 12:23:13</sys_updated_on>
+        <table>var__m_sys_flow_step_definition_input_106afb6647032200b4fad7527c9a71e7</table>
+        <value/>
+    </sys_element_mapping>
+    <sys_element_mapping action="INSERT_OR_UPDATE">
+        <field>Territory</field>
+        <id>162a29ff3b3547104be1ef9e53e45abd</id>
+        <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+        <sys_created_on>2026-07-07 12:23:13</sys_created_on>
+        <sys_id>ea2a29ff3b3547104be1ef9e53e45ad5</sys_id>
+        <sys_mod_count>2</sys_mod_count>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-07 14:10:16</sys_updated_on>
+        <table>var__m_sys_hub_step_ext_input_162a29ff3b3547104be1ef9e53e45abd</table>
+        <value>{{action.territory}}</value>
+    </sys_element_mapping>
+    <sys_element_mapping action="delete_multiple" query="table=var__m_sys_hub_step_ext_output_162a29ff3b3547104be1ef9e53e45abd^id=162a29ff3b3547104be1ef9e53e45abd"/>
+    <sys_element_mapping action="delete_multiple" query="table=var__m_sys_flow_step_definition_input_106afb6647032200b4fad7527c9a71e7^id=162a29ff3b3547104be1ef9e53e45abd"/>
+    <sys_translated_text action="delete_multiple" query="documentkey=162a29ff3b3547104be1ef9e53e45abd"/>
+    <sys_hub_step_ext_input action="delete_multiple" query="model=162a29ff3b3547104be1ef9e53e45abd^sys_idNOT IN701d3d483bce87104be1ef9e53e45a29"/>
+    <sys_hub_step_ext_input action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <array>false</array>
+        <array_denormalized>false</array_denormalized>
+        <attributes>element_mapping_provider=com.glide.flow_design.action.data.FlowDesignVariableMapper,uiType=string,uiTypeLabel=String</attributes>
+        <audit>false</audit>
+        <calculation><![CDATA[(function calculatedFieldValue(current) {
+
+	// Add your code here
+	return '';  // return the calculated value
+
+})(current);]]></calculation>
+        <choice/>
+        <choice_field/>
+        <choice_table/>
+        <column_label/>
+        <comments/>
+        <create_roles/>
+        <default_value/>
+        <defaultsort/>
+        <delete_roles/>
+        <dependent/>
+        <dependent_on_field/>
+        <display>false</display>
+        <dynamic_creation>false</dynamic_creation>
+        <dynamic_creation_script/>
+        <dynamic_default_value/>
+        <dynamic_ref_qual/>
+        <element>territory</element>
+        <element_reference>false</element_reference>
+        <foreign_database/>
+        <formula/>
+        <function_definition/>
+        <function_field>false</function_field>
+        <help/>
+        <hint/>
+        <internal_type display_value="String">string</internal_type>
+        <label/>
+        <mandatory>true</mandatory>
+        <max_length>8000</max_length>
+        <model display_value="Script step">162a29ff3b3547104be1ef9e53e45abd</model>
+        <model_id>162a29ff3b3547104be1ef9e53e45abd</model_id>
+        <model_table>sys_hub_step_instance</model_table>
+        <name>var__m_sys_hub_step_ext_input_162a29ff3b3547104be1ef9e53e45abd</name>
+        <next_element/>
+        <order>0</order>
+        <primary>false</primary>
+        <read_only>false</read_only>
+        <read_roles/>
+        <reference/>
+        <reference_cascade_rule/>
+        <reference_floats>false</reference_floats>
+        <reference_key/>
+        <reference_qual/>
+        <reference_qual_condition/>
+        <reference_type/>
+        <sizeclass/>
+        <spell_check>false</spell_check>
+        <staged>false</staged>
+        <sys_class_name>sys_hub_step_ext_input</sys_class_name>
+        <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+        <sys_created_on>2026-07-08 08:24:19</sys_created_on>
+        <sys_id>701d3d483bce87104be1ef9e53e45a29</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name/>
+        <sys_package/>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name/>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-08 08:24:19</sys_updated_on>
+        <table_reference>false</table_reference>
+        <text_index>false</text_index>
+        <unique>false</unique>
+        <use_dependent_field>false</use_dependent_field>
+        <use_dynamic_default>false</use_dynamic_default>
+        <use_reference_qualifier>simple</use_reference_qualifier>
+        <virtual>false</virtual>
+        <virtual_type>script</virtual_type>
+        <widget/>
+        <write_roles/>
+        <xml_view>false</xml_view>
+    </sys_hub_step_ext_input>
+    <sys_hub_step_ext_output action="delete_multiple" query="model=162a29ff3b3547104be1ef9e53e45abd^sys_idNOT IN6c2606bb3bf547104be1ef9e53e45a8a,d65bf1c43bce87104be1ef9e53e45a50"/>
+    <sys_hub_step_ext_output action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <array>false</array>
+        <array_denormalized>false</array_denormalized>
+        <attributes>element_mapping_provider=com.glide.flow_design.action.data.FlowDesignVariableMapper,uiType=string,uiTypeLabel=String,uiUniqueId=8ef97eb4-931a-457b-900d-0c29e99dd808</attributes>
+        <audit>false</audit>
+        <calculation><![CDATA[(function calculatedFieldValue(current) {
+
+	// Add your code here
+	return '';  // return the calculated value
+
+})(current);]]></calculation>
+        <choice/>
+        <choice_field/>
+        <choice_table/>
+        <column_label/>
+        <comments/>
+        <create_roles/>
+        <default_value/>
+        <defaultsort/>
+        <delete_roles/>
+        <dependent/>
+        <dependent_on_field/>
+        <display>false</display>
+        <dynamic_creation>false</dynamic_creation>
+        <dynamic_creation_script/>
+        <dynamic_default_value/>
+        <dynamic_ref_qual/>
+        <element>territory_managers</element>
+        <element_reference>false</element_reference>
+        <foreign_database/>
+        <formula/>
+        <function_definition/>
+        <function_field>false</function_field>
+        <help/>
+        <hint/>
+        <internal_type display_value="String">string</internal_type>
+        <label>Territory Managers</label>
+        <mandatory>false</mandatory>
+        <max_length>8000</max_length>
+        <model display_value="Script step">162a29ff3b3547104be1ef9e53e45abd</model>
+        <model_id>162a29ff3b3547104be1ef9e53e45abd</model_id>
+        <model_table>sys_hub_step_instance</model_table>
+        <name>var__m_sys_hub_step_ext_output_162a29ff3b3547104be1ef9e53e45abd</name>
+        <next_element/>
+        <order>1</order>
+        <primary>false</primary>
+        <read_only>false</read_only>
+        <read_roles/>
+        <reference/>
+        <reference_cascade_rule/>
+        <reference_floats>false</reference_floats>
+        <reference_key/>
+        <reference_qual/>
+        <reference_qual_condition/>
+        <reference_type/>
+        <sizeclass/>
+        <spell_check>false</spell_check>
+        <staged>false</staged>
+        <sys_class_name>sys_hub_step_ext_output</sys_class_name>
+        <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+        <sys_created_on>2026-07-07 14:25:25</sys_created_on>
+        <sys_id>6c2606bb3bf547104be1ef9e53e45a8a</sys_id>
+        <sys_mod_count>1</sys_mod_count>
+        <sys_name/>
+        <sys_package/>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name/>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-07 14:38:06</sys_updated_on>
+        <table_reference>false</table_reference>
+        <text_index>false</text_index>
+        <unique>false</unique>
+        <use_dependent_field>false</use_dependent_field>
+        <use_dynamic_default>false</use_dynamic_default>
+        <use_reference_qualifier>simple</use_reference_qualifier>
+        <virtual>false</virtual>
+        <virtual_type>script</virtual_type>
+        <widget/>
+        <write_roles/>
+        <xml_view>false</xml_view>
+    </sys_hub_step_ext_output>
+    <sys_hub_step_ext_output action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <array>false</array>
+        <array_denormalized>false</array_denormalized>
+        <attributes>child_label=Count_child0,child_name=count_child0,child_type=integer,child_type_label=Integer,child_uiUniqueId=bb76d615-79aa-451a-97af-e5ba0bf4268a,element_mapping_provider=com.glide.flow_design.action.data.FlowDesignVariableMapper,uiType=integer,uiTypeLabel=Integer,uiUniqueId=4d8227ac-8971-4b34-91da-f757bd931a84</attributes>
+        <audit>false</audit>
+        <calculation><![CDATA[(function calculatedFieldValue(current) {
+
+	// Add your code here
+	return '';  // return the calculated value
+
+})(current);]]></calculation>
+        <choice/>
+        <choice_field/>
+        <choice_table/>
+        <column_label/>
+        <comments/>
+        <create_roles/>
+        <default_value/>
+        <defaultsort/>
+        <delete_roles/>
+        <dependent/>
+        <dependent_on_field/>
+        <display>false</display>
+        <dynamic_creation>false</dynamic_creation>
+        <dynamic_creation_script/>
+        <dynamic_default_value/>
+        <dynamic_ref_qual/>
+        <element>count</element>
+        <element_reference>false</element_reference>
+        <foreign_database/>
+        <formula/>
+        <function_definition/>
+        <function_field>false</function_field>
+        <help/>
+        <hint/>
+        <internal_type display_value="Integer">integer</internal_type>
+        <label>Count</label>
+        <mandatory>false</mandatory>
+        <max_length>40</max_length>
+        <model display_value="Script step">162a29ff3b3547104be1ef9e53e45abd</model>
+        <model_id>162a29ff3b3547104be1ef9e53e45abd</model_id>
+        <model_table>sys_hub_step_instance</model_table>
+        <name>var__m_sys_hub_step_ext_output_162a29ff3b3547104be1ef9e53e45abd</name>
+        <next_element/>
+        <order>2</order>
+        <primary>false</primary>
+        <read_only>false</read_only>
+        <read_roles/>
+        <reference/>
+        <reference_cascade_rule/>
+        <reference_floats>false</reference_floats>
+        <reference_key/>
+        <reference_qual/>
+        <reference_qual_condition/>
+        <reference_type/>
+        <sizeclass/>
+        <spell_check>false</spell_check>
+        <staged>false</staged>
+        <sys_class_name>sys_hub_step_ext_output</sys_class_name>
+        <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+        <sys_created_on>2026-07-08 08:16:47</sys_created_on>
+        <sys_id>d65bf1c43bce87104be1ef9e53e45a50</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name/>
+        <sys_package/>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name/>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-08 08:16:47</sys_updated_on>
+        <table_reference>false</table_reference>
+        <text_index>false</text_index>
+        <unique>false</unique>
+        <use_dependent_field>false</use_dependent_field>
+        <use_dynamic_default>false</use_dynamic_default>
+        <use_reference_qualifier>simple</use_reference_qualifier>
+        <virtual>false</virtual>
+        <virtual_type>script</virtual_type>
+        <widget/>
+        <write_roles/>
+        <xml_view>false</xml_view>
+    </sys_hub_step_ext_output>
+    <sys_hub_input_scripts action="delete_multiple" query="instance=162a29ff3b3547104be1ef9e53e45abd"/>
+    <sys_documentation action="INSERT_OR_UPDATE">
+        <element>count</element>
+        <help/>
+        <hint/>
+        <label>Count</label>
+        <language>en</language>
+        <name>var__m_sys_hub_step_ext_output_162a29ff3b3547104be1ef9e53e45abd</name>
+        <plural/>
+        <sys_class_name>sys_documentation</sys_class_name>
+        <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+        <sys_created_on>2026-07-08 08:16:47</sys_created_on>
+        <sys_id>965bf1c43bce87104be1ef9e53e45a53</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name/>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name/>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-08 08:16:47</sys_updated_on>
+        <url/>
+        <url_target/>
+    </sys_documentation>
+    <sys_documentation action="INSERT_OR_UPDATE">
+        <element>territory_managers</element>
+        <help/>
+        <hint/>
+        <label>Territory Managers</label>
+        <language>en</language>
+        <name>var__m_sys_hub_step_ext_output_162a29ff3b3547104be1ef9e53e45abd</name>
+        <plural/>
+        <sys_class_name>sys_documentation</sys_class_name>
+        <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+        <sys_created_on>2026-07-07 14:25:25</sys_created_on>
+        <sys_id>ec2606bb3bf547104be1ef9e53e45a8d</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name/>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name/>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-07 14:25:25</sys_updated_on>
+        <url/>
+        <url_target/>
+    </sys_documentation>
+    <sys_hub_action_input action="delete_multiple" query="model=33ccd1fb3bf147104be1ef9e53e45a24^sys_idNOT IN5d9246373bf547104be1ef9e53e45a97"/>
+    <sys_hub_action_input action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <array>false</array>
+        <array_denormalized>false</array_denormalized>
+        <attributes>element_mapping_provider=com.glide.flow_design.action.data.FlowDesignVariableMapper,uiType=string,uiTypeLabel=String,uiUniqueId=1d0cd006-ccf3-4c7d-aba3-fd1387b5d437</attributes>
+        <audit>false</audit>
+        <calculation><![CDATA[(function calculatedFieldValue(current) {
+
+	// Add your code here
+	return '';  // return the calculated value
+
+})(current);]]></calculation>
+        <choice/>
+        <choice_field/>
+        <choice_table>sn_tp_territory</choice_table>
+        <column_label/>
+        <comments/>
+        <create_roles/>
+        <default_value/>
+        <defaultsort/>
+        <delete_roles/>
+        <dependent/>
+        <dependent_on_field/>
+        <display>false</display>
+        <dynamic_creation>false</dynamic_creation>
+        <dynamic_creation_script/>
+        <dynamic_default_value/>
+        <dynamic_ref_qual/>
+        <element>territory</element>
+        <element_reference>false</element_reference>
+        <foreign_database/>
+        <formula/>
+        <function_definition/>
+        <function_field>false</function_field>
+        <help/>
+        <hint/>
+        <internal_type display_value="String">string</internal_type>
+        <label>Territory</label>
+        <mandatory>true</mandatory>
+        <max_length>8000</max_length>
+        <model display_value="Territory Manager Approval">33ccd1fb3bf147104be1ef9e53e45a24</model>
+        <model_id>33ccd1fb3bf147104be1ef9e53e45a24</model_id>
+        <model_table>sys_hub_action_type_definition</model_table>
+        <name>var__m_sys_hub_action_input_33ccd1fb3bf147104be1ef9e53e45a24</name>
+        <next_element/>
+        <order>1</order>
+        <primary>false</primary>
+        <read_only>false</read_only>
+        <read_roles/>
+        <reference/>
+        <reference_cascade_rule/>
+        <reference_floats>false</reference_floats>
+        <reference_key/>
+        <reference_qual/>
+        <reference_qual_condition/>
+        <reference_type/>
+        <sizeclass/>
+        <spell_check>false</spell_check>
+        <staged>false</staged>
+        <sys_class_name>sys_hub_action_input</sys_class_name>
+        <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+        <sys_created_on>2026-07-07 14:09:54</sys_created_on>
+        <sys_id>5d9246373bf547104be1ef9e53e45a97</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name/>
+        <sys_package/>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name/>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-07 14:09:54</sys_updated_on>
+        <table_reference>false</table_reference>
+        <text_index>false</text_index>
+        <unique>false</unique>
+        <use_dependent_field>false</use_dependent_field>
+        <use_dynamic_default>false</use_dynamic_default>
+        <use_reference_qualifier>simple</use_reference_qualifier>
+        <virtual>false</virtual>
+        <virtual_type>script</virtual_type>
+        <widget/>
+        <write_roles/>
+        <xml_view>false</xml_view>
+    </sys_hub_action_input>
+    <sys_hub_action_input_action_instance action="delete_multiple" query="action_input=5d9246373bf547104be1ef9e53e45a97"/>
+    <sys_hub_action_output action="delete_multiple" query="model=33ccd1fb3bf147104be1ef9e53e45a24^sys_idNOT IN3d37023f3bf547104be1ef9e53e45a2f,e65bf1c43bce87104be1ef9e53e45a6a,f79d953f3bf147104be1ef9e53e45a84,fb9d953f3bf147104be1ef9e53e45a8c"/>
+    <sys_hub_action_output action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <array>false</array>
+        <array_denormalized>false</array_denormalized>
+        <attributes>element_mapping_provider=com.glide.flow_design.action.data.FlowDesignVariableMapper,pwd2droppable=true,uiType=string,uiTypeLabel=String,uiUniqueId=f8135ebf-c25c-4f93-aa53-b1d1d0e19a8b</attributes>
+        <audit>false</audit>
+        <calculation><![CDATA[(function calculatedFieldValue(current) {
+
+	// Add your code here
+	return '';  // return the calculated value
+
+})(current);]]></calculation>
+        <choice/>
+        <choice_field/>
+        <choice_table/>
+        <column_label/>
+        <comments/>
+        <create_roles/>
+        <default_value/>
+        <defaultsort/>
+        <delete_roles/>
+        <dependent/>
+        <dependent_on_field/>
+        <display>false</display>
+        <dynamic_creation>false</dynamic_creation>
+        <dynamic_creation_script/>
+        <dynamic_default_value/>
+        <dynamic_ref_qual/>
+        <element>territory_manager</element>
+        <element_prototype/>
+        <element_reference>false</element_reference>
+        <foreign_database/>
+        <formula/>
+        <function_definition/>
+        <function_field>false</function_field>
+        <help/>
+        <hint/>
+        <internal_link/>
+        <internal_type display_value="String">string</internal_type>
+        <label>Territory Manager</label>
+        <mandatory>false</mandatory>
+        <max_length>8000</max_length>
+        <model display_value="Territory Manager Approval">33ccd1fb3bf147104be1ef9e53e45a24</model>
+        <model_id>33ccd1fb3bf147104be1ef9e53e45a24</model_id>
+        <model_table>sys_hub_action_type_definition</model_table>
+        <name>var__m_sys_hub_action_output_33ccd1fb3bf147104be1ef9e53e45a24</name>
+        <next_element/>
+        <order>1</order>
+        <primary>false</primary>
+        <read_only>false</read_only>
+        <read_roles/>
+        <reference/>
+        <reference_cascade_rule/>
+        <reference_floats>false</reference_floats>
+        <reference_key/>
+        <reference_qual/>
+        <reference_qual_condition/>
+        <reference_type/>
+        <sizeclass/>
+        <spell_check>false</spell_check>
+        <staged>false</staged>
+        <sys_class_name>sys_hub_action_output</sys_class_name>
+        <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+        <sys_created_on>2026-07-07 14:30:08</sys_created_on>
+        <sys_id>3d37023f3bf547104be1ef9e53e45a2f</sys_id>
+        <sys_mod_count>1</sys_mod_count>
+        <sys_name/>
+        <sys_package/>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name/>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-07 14:32:10</sys_updated_on>
+        <table_reference>false</table_reference>
+        <text_index>false</text_index>
+        <unique>false</unique>
+        <use_dependent_field>false</use_dependent_field>
+        <use_dynamic_default>false</use_dynamic_default>
+        <use_reference_qualifier>simple</use_reference_qualifier>
+        <virtual>false</virtual>
+        <virtual_type>script</virtual_type>
+        <widget/>
+        <write_roles/>
+        <xml_view>false</xml_view>
+    </sys_hub_action_output>
+    <sys_hub_action_input_action_instance action="delete_multiple" query="action_input=3d37023f3bf547104be1ef9e53e45a2f"/>
+    <sys_hub_input_scripts action="delete_multiple" query="instance=3d37023f3bf547104be1ef9e53e45a2f"/>
+    <sys_hub_action_output action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <array>false</array>
+        <array_denormalized>false</array_denormalized>
+        <attributes>child_label=Count_child0,child_name=count_child0,child_type=integer,child_type_label=Integer,child_uiUniqueId=875ce982-807e-4d83-9b4c-8a944b0df9dd,element_mapping_provider=com.glide.flow_design.action.data.FlowDesignVariableMapper,pwd2droppable=true,uiType=integer,uiTypeLabel=Integer,uiUniqueId=f0324972-4586-432e-958c-907f95d7443c</attributes>
+        <audit>false</audit>
+        <calculation><![CDATA[(function calculatedFieldValue(current) {
+
+	// Add your code here
+	return '';  // return the calculated value
+
+})(current);]]></calculation>
+        <choice/>
+        <choice_field/>
+        <choice_table/>
+        <column_label/>
+        <comments/>
+        <create_roles/>
+        <default_value/>
+        <defaultsort/>
+        <delete_roles/>
+        <dependent/>
+        <dependent_on_field/>
+        <display>false</display>
+        <dynamic_creation>false</dynamic_creation>
+        <dynamic_creation_script/>
+        <dynamic_default_value/>
+        <dynamic_ref_qual/>
+        <element>count</element>
+        <element_prototype/>
+        <element_reference>false</element_reference>
+        <foreign_database/>
+        <formula/>
+        <function_definition/>
+        <function_field>false</function_field>
+        <help/>
+        <hint/>
+        <internal_link/>
+        <internal_type display_value="Integer">integer</internal_type>
+        <label>Count</label>
+        <mandatory>false</mandatory>
+        <max_length>40</max_length>
+        <model display_value="Territory Manager Approval">33ccd1fb3bf147104be1ef9e53e45a24</model>
+        <model_id>33ccd1fb3bf147104be1ef9e53e45a24</model_id>
+        <model_table>sys_hub_action_type_definition</model_table>
+        <name>var__m_sys_hub_action_output_33ccd1fb3bf147104be1ef9e53e45a24</name>
+        <next_element/>
+        <order>3</order>
+        <primary>false</primary>
+        <read_only>false</read_only>
+        <read_roles/>
+        <reference/>
+        <reference_cascade_rule/>
+        <reference_floats>false</reference_floats>
+        <reference_key/>
+        <reference_qual/>
+        <reference_qual_condition/>
+        <reference_type/>
+        <sizeclass/>
+        <spell_check>false</spell_check>
+        <staged>false</staged>
+        <sys_class_name>sys_hub_action_output</sys_class_name>
+        <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+        <sys_created_on>2026-07-08 08:16:47</sys_created_on>
+        <sys_id>e65bf1c43bce87104be1ef9e53e45a6a</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name/>
+        <sys_package/>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name/>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-08 08:16:47</sys_updated_on>
+        <table_reference>false</table_reference>
+        <text_index>false</text_index>
+        <unique>false</unique>
+        <use_dependent_field>false</use_dependent_field>
+        <use_dynamic_default>false</use_dynamic_default>
+        <use_reference_qualifier>simple</use_reference_qualifier>
+        <virtual>false</virtual>
+        <virtual_type>script</virtual_type>
+        <widget/>
+        <write_roles/>
+        <xml_view>false</xml_view>
+    </sys_hub_action_output>
+    <sys_hub_action_input_action_instance action="delete_multiple" query="action_input=e65bf1c43bce87104be1ef9e53e45a6a"/>
+    <sys_hub_input_scripts action="delete_multiple" query="instance=e65bf1c43bce87104be1ef9e53e45a6a"/>
+    <sys_hub_action_output action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <array>false</array>
+        <array_denormalized>false</array_denormalized>
+        <attributes>action_error_output=true,co_type_name=FDACTIONSTATUS,element_mapping_provider=com.glide.flow_design.action.data.FlowDesignVariableMapper,uiType=object,uiTypeLabel=Object,uiUniqueId=2d85288d-426f-407b-a4d6-eff46de77852</attributes>
+        <audit>false</audit>
+        <calculation><![CDATA[(function calculatedFieldValue(current) {
+
+	// Add your code here
+	return '';  // return the calculated value
+
+})(current);]]></calculation>
+        <choice/>
+        <choice_field/>
+        <choice_table/>
+        <column_label/>
+        <comments/>
+        <create_roles/>
+        <default_value/>
+        <defaultsort/>
+        <delete_roles/>
+        <dependent/>
+        <dependent_on_field/>
+        <display>false</display>
+        <dynamic_creation>false</dynamic_creation>
+        <dynamic_creation_script/>
+        <dynamic_default_value/>
+        <dynamic_ref_qual/>
+        <element>__action_status__</element>
+        <element_prototype/>
+        <element_reference>false</element_reference>
+        <foreign_database/>
+        <formula/>
+        <function_definition/>
+        <function_field>false</function_field>
+        <help/>
+        <hint/>
+        <internal_link/>
+        <internal_type display_value="String">string</internal_type>
+        <label>Action Status</label>
+        <mandatory>false</mandatory>
+        <max_length>65000</max_length>
+        <model display_value="Territory Manager Approval">33ccd1fb3bf147104be1ef9e53e45a24</model>
+        <model_id>33ccd1fb3bf147104be1ef9e53e45a24</model_id>
+        <model_table>sys_hub_action_type_definition</model_table>
+        <name>var__m_sys_hub_action_output_33ccd1fb3bf147104be1ef9e53e45a24</name>
+        <next_element/>
+        <order>2</order>
+        <primary>false</primary>
+        <read_only>false</read_only>
+        <read_roles/>
+        <reference/>
+        <reference_cascade_rule/>
+        <reference_floats>false</reference_floats>
+        <reference_key/>
+        <reference_qual/>
+        <reference_qual_condition/>
+        <reference_type/>
+        <sizeclass/>
+        <spell_check>false</spell_check>
+        <staged>false</staged>
+        <sys_class_name>sys_hub_action_output</sys_class_name>
+        <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+        <sys_created_on>2026-07-07 11:28:25</sys_created_on>
+        <sys_id>f79d953f3bf147104be1ef9e53e45a84</sys_id>
+        <sys_mod_count>1</sys_mod_count>
+        <sys_name/>
+        <sys_package/>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name/>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-07 14:30:08</sys_updated_on>
+        <table_reference>false</table_reference>
+        <text_index>false</text_index>
+        <unique>false</unique>
+        <use_dependent_field>false</use_dependent_field>
+        <use_dynamic_default>false</use_dynamic_default>
+        <use_reference_qualifier>simple</use_reference_qualifier>
+        <virtual>false</virtual>
+        <virtual_type>script</virtual_type>
+        <widget/>
+        <write_roles/>
+        <xml_view>false</xml_view>
+    </sys_hub_action_output>
+    <sys_hub_action_input_action_instance action="delete_multiple" query="action_input=f79d953f3bf147104be1ef9e53e45a84"/>
+    <sys_hub_input_scripts action="delete_multiple" query="instance=f79d953f3bf147104be1ef9e53e45a84"/>
+    <sys_hub_action_output action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <array>false</array>
+        <array_denormalized>false</array_denormalized>
+        <attributes>action_error_output=true,element_mapping_provider=com.glide.flow_design.action.data.FlowDesignVariableMapper,uiType=boolean,uiTypeLabel=True/False,uiUniqueId=73ef239e-2a6f-4c69-a574-c3f8e326caae,visible_in_ui=false</attributes>
+        <audit>false</audit>
+        <calculation><![CDATA[(function calculatedFieldValue(current) {
+
+	// Add your code here
+	return '';  // return the calculated value
+
+})(current);]]></calculation>
+        <choice/>
+        <choice_field/>
+        <choice_table/>
+        <column_label/>
+        <comments/>
+        <create_roles/>
+        <default_value>true</default_value>
+        <defaultsort/>
+        <delete_roles/>
+        <dependent/>
+        <dependent_on_field/>
+        <display>false</display>
+        <dynamic_creation>false</dynamic_creation>
+        <dynamic_creation_script/>
+        <dynamic_default_value/>
+        <dynamic_ref_qual/>
+        <element>__dont_treat_as_error__</element>
+        <element_prototype/>
+        <element_reference>false</element_reference>
+        <foreign_database/>
+        <formula/>
+        <function_definition/>
+        <function_field>false</function_field>
+        <help/>
+        <hint/>
+        <internal_link/>
+        <internal_type display_value="">boolean</internal_type>
+        <label>Don't Treat as Error</label>
+        <mandatory>false</mandatory>
+        <max_length>40</max_length>
+        <model display_value="Territory Manager Approval">33ccd1fb3bf147104be1ef9e53e45a24</model>
+        <model_id>33ccd1fb3bf147104be1ef9e53e45a24</model_id>
+        <model_table>sys_hub_action_type_definition</model_table>
+        <name>var__m_sys_hub_action_output_33ccd1fb3bf147104be1ef9e53e45a24</name>
+        <next_element/>
+        <order>4</order>
+        <primary>false</primary>
+        <read_only>false</read_only>
+        <read_roles/>
+        <reference/>
+        <reference_cascade_rule/>
+        <reference_floats>false</reference_floats>
+        <reference_key/>
+        <reference_qual/>
+        <reference_qual_condition/>
+        <reference_type/>
+        <sizeclass/>
+        <spell_check>false</spell_check>
+        <staged>false</staged>
+        <sys_class_name>sys_hub_action_output</sys_class_name>
+        <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+        <sys_created_on>2026-07-07 11:28:25</sys_created_on>
+        <sys_id>fb9d953f3bf147104be1ef9e53e45a8c</sys_id>
+        <sys_mod_count>83</sys_mod_count>
+        <sys_name/>
+        <sys_package/>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name/>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-10 11:06:04</sys_updated_on>
+        <table_reference>false</table_reference>
+        <text_index>false</text_index>
+        <unique>false</unique>
+        <use_dependent_field>false</use_dependent_field>
+        <use_dynamic_default>false</use_dynamic_default>
+        <use_reference_qualifier>simple</use_reference_qualifier>
+        <virtual>false</virtual>
+        <virtual_type>script</virtual_type>
+        <widget/>
+        <write_roles/>
+        <xml_view>false</xml_view>
+    </sys_hub_action_output>
+    <sys_hub_action_input_action_instance action="delete_multiple" query="action_input=fb9d953f3bf147104be1ef9e53e45a8c"/>
+    <sys_hub_input_scripts action="delete_multiple" query="instance=fb9d953f3bf147104be1ef9e53e45a8c"/>
+    <sys_hub_pill_compound action="delete_multiple" query="attached_to=33ccd1fb3bf147104be1ef9e53e45a24"/>
+    <sys_hub_action_status_metadata action="delete_multiple" query="action_type_id=33ccd1fb3bf147104be1ef9e53e45a24^sys_idNOT IN4cad953f3bf147104be1ef9e53e45ab7"/>
+    <sys_hub_action_status_metadata action="INSERT_OR_UPDATE">
+        <action_type_id display_value="Territory Manager Approval">33ccd1fb3bf147104be1ef9e53e45a24</action_type_id>
+        <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+        <sys_created_on>2026-07-07 11:28:26</sys_created_on>
+        <sys_id>4cad953f3bf147104be1ef9e53e45ab7</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-07 11:28:26</sys_updated_on>
+    </sys_hub_action_status_metadata>
+    <sys_hub_status_condition action="delete_multiple" query="action_status_metadata_id=4cad953f3bf147104be1ef9e53e45ab7"/>
+    <sys_documentation action="INSERT_OR_UPDATE">
+        <element>territory</element>
+        <help/>
+        <hint/>
+        <label>Territory</label>
+        <language>en</language>
+        <name>var__m_sys_hub_action_input_33ccd1fb3bf147104be1ef9e53e45a24</name>
+        <plural/>
+        <sys_class_name>sys_documentation</sys_class_name>
+        <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+        <sys_created_on>2026-07-07 14:09:54</sys_created_on>
+        <sys_id>999246373bf547104be1ef9e53e45a9c</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name/>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name/>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-07 14:09:54</sys_updated_on>
+        <url/>
+        <url_target/>
+    </sys_documentation>
+    <sys_choice action="delete_multiple" query="name=var__m_sys_hub_action_input_33ccd1fb3bf147104be1ef9e53e45a24"/>
+    <sys_documentation action="INSERT_OR_UPDATE">
+        <element>count</element>
+        <help/>
+        <hint/>
+        <label>Count</label>
+        <language>en</language>
+        <name>var__m_sys_hub_action_output_33ccd1fb3bf147104be1ef9e53e45a24</name>
+        <plural/>
+        <sys_class_name>sys_documentation</sys_class_name>
+        <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+        <sys_created_on>2026-07-08 08:16:47</sys_created_on>
+        <sys_id>6e5bf1c43bce87104be1ef9e53e45a7a</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name/>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name/>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-08 08:16:47</sys_updated_on>
+        <url/>
+        <url_target/>
+    </sys_documentation>
+    <sys_documentation action="INSERT_OR_UPDATE">
+        <element>__dont_treat_as_error__</element>
+        <help/>
+        <hint/>
+        <label>Don't Treat as Error</label>
+        <language>en</language>
+        <name>var__m_sys_hub_action_output_33ccd1fb3bf147104be1ef9e53e45a24</name>
+        <plural/>
+        <sys_class_name>sys_documentation</sys_class_name>
+        <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+        <sys_created_on>2026-07-07 11:28:26</sys_created_on>
+        <sys_id>7f9d953f3bf147104be1ef9e53e45aae</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name/>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name/>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-07 11:28:26</sys_updated_on>
+        <url/>
+        <url_target/>
+    </sys_documentation>
+    <sys_documentation action="INSERT_OR_UPDATE">
+        <element>territory_manager</element>
+        <help/>
+        <hint/>
+        <label>Territory Manager</label>
+        <language>en</language>
+        <name>var__m_sys_hub_action_output_33ccd1fb3bf147104be1ef9e53e45a24</name>
+        <plural/>
+        <sys_class_name>sys_documentation</sys_class_name>
+        <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+        <sys_created_on>2026-07-07 14:30:08</sys_created_on>
+        <sys_id>b537023f3bf547104be1ef9e53e45a34</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name/>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name/>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-07 14:30:08</sys_updated_on>
+        <url/>
+        <url_target/>
+    </sys_documentation>
+    <sys_documentation action="INSERT_OR_UPDATE">
+        <element>__action_status__</element>
+        <help/>
+        <hint/>
+        <label>Action Status</label>
+        <language>en</language>
+        <name>var__m_sys_hub_action_output_33ccd1fb3bf147104be1ef9e53e45a24</name>
+        <plural/>
+        <sys_class_name>sys_documentation</sys_class_name>
+        <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+        <sys_created_on>2026-07-07 11:28:25</sys_created_on>
+        <sys_id>f39d953f3bf147104be1ef9e53e45a8b</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name/>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name/>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-07 11:28:25</sys_updated_on>
+        <url/>
+        <url_target/>
+    </sys_documentation>
+    <sys_choice action="delete_multiple" query="name=var__m_sys_hub_action_output_33ccd1fb3bf147104be1ef9e53e45a24"/>
+    <sys_hub_action_plan action="delete_multiple" query="action_id=33ccd1fb3bf147104be1ef9e53e45a24^sys_idNOT IN24b1ceb33bf547104be1ef9e53e45ad2"/>
+    <sys_hub_action_plan action="INSERT_OR_UPDATE">
+        <action_id display_value="Territory Manager Approval">33ccd1fb3bf147104be1ef9e53e45a24</action_id>
+        <plan>{"type":"PlanProxy","persistor":{"@class":".ChunkingPlanPersistor","table":"sys_hub_action_plan","id":"24b1ceb33bf547104be1ef9e53e45ad2","name":"plan","plan_signature":null}}</plan>
+        <snapshot>fd45f4f0338e0f10dccb9c173e5c7bf9</snapshot>
+        <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+        <sys_created_on>2026-07-07 14:06:02</sys_created_on>
+        <sys_domain>global</sys_domain>
+        <sys_domain_path>/</sys_domain_path>
+        <sys_id>24b1ceb33bf547104be1ef9e53e45ad2</sys_id>
+        <sys_mod_count>10</sys_mod_count>
+        <sys_overrides/>
+        <sys_scope/>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-10 11:06:07</sys_updated_on>
+    </sys_hub_action_plan>
+    <sys_hub_action_type_snapshot action="INSERT_OR_UPDATE">
+        <access>public</access>
+        <acls/>
+        <action_status/>
+        <action_template/>
+        <annotation/>
+        <attributes>{labelCacheCleanUpExecuted=true}</attributes>
+        <authored_on_release_version>28100</authored_on_release_version>
+        <callable_by_client_api>false</callable_by_client_api>
+        <category/>
+        <copied_from/>
+        <copied_from_name/>
+        <description>This action checks for Territory Manager and sends approval if an approver found.</description>
+        <flow_priority/>
+        <internal_name>territory_manager_approval</internal_name>
+        <label_cache>[{"name":"{{action.business_dimension}}","label":"action➛","type":"action","ref":"","reference_display":"","base_type":"choice","parent_table_name":"","column_name":"business_dimension","choices":[{"label":"Business Unit","value":"business_unit","order":0.0},{"label":"Territory","value":"territory","order":1.0}],"attributes":{"uiTypeLabel":"Choice","element_mapping_provider":"com.glide.flow_design.action.data.FlowDesignVariableMapper","uiType":"choice","uiUniqueId":"d4c7dce1-1d65-462f-99db-ae668fb7c8c4"}},{"name":"{{action.territory}}","label":"action➛Territory","type":"action","ref":"","reference_display":"","base_type":"string","parent_table_name":"","column_name":"","choices":null,"attributes":{}},{"name":"{{step[7d671807-f52a-4881-b67d-409c977be3fd].territory_managers}}","label":"step➛Script step➛Territory Managers","type":"step","ref":"","reference_display":"","base_type":"string","parent_table_name":"","column_name":"","choices":null,"attributes":{"uiTypeLabel":"String","element_mapping_provider":"com.glide.flow_design.action.data.FlowDesignVariableMapper","uiType":"string","uiUniqueId":"8ef97eb4-931a-457b-900d-0c29e99dd808"}},{"name":"{{step[7d671807-f52a-4881-b67d-409c977be3fd].count}}","label":"step➛Script step➛Count","type":"step","ref":"","reference_display":"","base_type":"integer","parent_table_name":"","column_name":"","choices":null,"attributes":{"sourceId":"","child_name":"count_child0","uiUniqueId":"4d8227ac-8971-4b34-91da-f757bd931a84","uiTypeLabel":"Array.Integer","co_type_name":"","child_label":"Count_child0","child_type_label":"Integer","element_mapping_provider":"com.glide.flow_design.action.data.FlowDesignVariableMapper","sourceUiUniqueId":"","sourceType":"","uiType":"array.integer","child_type":"integer","child_uiUniqueId":"bb76d615-79aa-451a-97af-e5ba0bf4268a"}}]</label_cache>
+        <master>true</master>
+        <name>Territory Manager Approval</name>
+        <natlang/>
+        <outputs/>
+        <outputs/>
+        <parent_action display_value="Territory Manager Approval">33ccd1fb3bf147104be1ef9e53e45a24</parent_action>
+        <sys_class_name>sys_hub_action_type_snapshot</sys_class_name>
+        <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+        <sys_created_on>2026-07-07 14:06:00</sys_created_on>
+        <sys_domain>global</sys_domain>
+        <sys_domain_path>/</sys_domain_path>
+        <sys_id>c4b18eb33bf547104be1ef9e53e45aed</sys_id>
+        <sys_mod_count>5</sys_mod_count>
+        <sys_name/>
+        <sys_overrides/>
+        <sys_package/>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name/>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-08 08:29:00</sys_updated_on>
+        <system_level>false</system_level>
+        <type/>
+    </sys_hub_action_type_snapshot>
+    <sys_translated_text action="delete_multiple" query="documentkey=c4b18eb33bf547104be1ef9e53e45aed"/>
+    <sys_variable_value action="delete_multiple" query="document_key=c4b18eb33bf547104be1ef9e53e45aed"/>
+    <sys_variable_value action="INSERT_OR_UPDATE">
+        <document>sys_hub_action_type_snapshot</document>
+        <document_key>c4b18eb33bf547104be1ef9e53e45aed</document_key>
+        <order>2</order>
+        <sys_class_name>sys_variable_value</sys_class_name>
+        <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+        <sys_created_on>2026-07-07 14:06:01</sys_created_on>
+        <sys_id>58b1ceb33bf547104be1ef9e53e45a7b</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-07 14:06:01</sys_updated_on>
+        <value>0</value>
+        <variable display_value="Don't Treat as Error">dcb1ceb33bf547104be1ef9e53e45a6d</variable>
+    </sys_variable_value>
+    <sys_variable_value action="INSERT_OR_UPDATE">
+        <document>sys_hub_action_type_snapshot</document>
+        <document_key>c4b18eb33bf547104be1ef9e53e45aed</document_key>
+        <order>3</order>
+        <sys_class_name>sys_variable_value</sys_class_name>
+        <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+        <sys_created_on>2026-07-08 08:29:02</sys_created_on>
+        <sys_id>f12eb9c83bce87104be1ef9e53e45ae2</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-08 08:29:02</sys_updated_on>
+        <value/>
+        <variable display_value="Count">712eb9c83bce87104be1ef9e53e45ad2</variable>
+    </sys_variable_value>
+    <sys_variable_value action="INSERT_OR_UPDATE">
+        <document>sys_hub_action_type_snapshot</document>
+        <document_key>c4b18eb33bf547104be1ef9e53e45aed</document_key>
+        <order>1</order>
+        <sys_class_name>sys_variable_value</sys_class_name>
+        <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+        <sys_created_on>2026-07-07 14:06:01</sys_created_on>
+        <sys_id>9cb1ceb33bf547104be1ef9e53e45a7b</sys_id>
+        <sys_mod_count>1</sys_mod_count>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-10 11:06:06</sys_updated_on>
+        <value>{"version":"1.0","complexObject":{"code":{"$cv":{"$c":"java.lang.String","$v":""}},"message":{"$cv":{"$c":"java.lang.String","$v":""}}},"complexObjectSchema":{"FlowDesigner:FDACTIONSTATUS":{"code":"Integer","code.$field_facets":{"SimpleMapFacet":"{\"uiTypeLabel\":\"Integer\",\"read_only\":\"false\",\"hint\":\"\",\"uiType\":\"integer\",\"default_value\":\"\",\"label\":\"Code\",\"action_error_output\":\"true\",\"mandatory\":\"false\",\"order\":\"1\",\"max_length\":\"40\"}"},"message":"String","message.$field_facets":{"SimpleMapFacet":"{\"uiTypeLabel\":\"String\",\"read_only\":\"false\",\"hint\":\"\",\"uiType\":\"string\",\"default_value\":\"\",\"label\":\"Message\",\"action_error_output\":\"true\",\"mandatory\":\"false\",\"order\":\"2\",\"max_length\":\"4000\"}"}},"FlowDesigner:FDACTIONSTATUS.$type_facets":{"SimpleMapFacet":"{\"default_value\":\"\",\"label\":\"Action Status\",\"action_error_output\":\"true\",\"mandatory\":\"false\",\"uiUniqueId\":\"794bc342-9c9d-444b-a3f2-dd4b6a5a0173\",\"uiTypeLabel\":\"Object\",\"co_type_name\":\"FDACTIONSTATUS\",\"element_mapping_provider\":\"com.glide.flow_design.action.data.FlowDesignVariableMapper\",\"read_only\":\"false\",\"hint\":null,\"uiType\":\"object\",\"order\":\"1\",\"max_length\":\"65000\"}"}},"serializationFormat":"JSON"}</value>
+        <variable display_value="Action Status">54b1ceb33bf547104be1ef9e53e45a67</variable>
+    </sys_variable_value>
+    <sys_element_mapping action="delete_multiple" query="id=c4b18eb33bf547104be1ef9e53e45aed"/>
+    <sys_element_mapping action="INSERT_OR_UPDATE">
+        <field>count</field>
+        <id>c4b18eb33bf547104be1ef9e53e45aed</id>
+        <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+        <sys_created_on>2026-07-07 14:36:34</sys_created_on>
+        <sys_id>4cb8c6bf3bf547104be1ef9e53e45a33</sys_id>
+        <sys_mod_count>1</sys_mod_count>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-07 14:45:47</sys_updated_on>
+        <table>var__m_sys_hub_action_output_c4b18eb33bf547104be1ef9e53e45aed</table>
+        <value>{{step[7d671807-f52a-4881-b67d-409c977be3fd].count}}</value>
+    </sys_element_mapping>
+    <sys_element_mapping action="INSERT_OR_UPDATE">
+        <field>territory_manager</field>
+        <id>c4b18eb33bf547104be1ef9e53e45aed</id>
+        <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+        <sys_created_on>2026-07-07 14:36:34</sys_created_on>
+        <sys_id>40b8c6bf3bf547104be1ef9e53e45a34</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-07 14:36:34</sys_updated_on>
+        <table>var__m_sys_hub_action_output_c4b18eb33bf547104be1ef9e53e45aed</table>
+        <value>{{step[7d671807-f52a-4881-b67d-409c977be3fd].territory_managers}}</value>
+    </sys_element_mapping>
+    <sys_element_mapping action="INSERT_OR_UPDATE">
+        <field>__action_status__</field>
+        <id>c4b18eb33bf547104be1ef9e53e45aed</id>
+        <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+        <sys_created_on>2026-07-07 14:06:01</sys_created_on>
+        <sys_id>94b1ceb33bf547104be1ef9e53e45a7b</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-07 14:06:01</sys_updated_on>
+        <table>var__m_sys_hub_action_output_c4b18eb33bf547104be1ef9e53e45aed</table>
+        <value/>
+    </sys_element_mapping>
+    <sys_element_mapping action="INSERT_OR_UPDATE">
+        <field>__dont_treat_as_error__</field>
+        <id>c4b18eb33bf547104be1ef9e53e45aed</id>
+        <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+        <sys_created_on>2026-07-07 14:06:01</sys_created_on>
+        <sys_id>90b1ceb33bf547104be1ef9e53e45a7b</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-07 14:06:01</sys_updated_on>
+        <table>var__m_sys_hub_action_output_c4b18eb33bf547104be1ef9e53e45aed</table>
+        <value/>
+    </sys_element_mapping>
+    <sys_hub_step_instance action="delete_multiple" query="action=c4b18eb33bf547104be1ef9e53e45aed^sys_idNOT IN04b1ceb33bf547104be1ef9e53e45a25"/>
+    <sys_hub_step_instance action="INSERT_OR_UPDATE">
+        <action display_value="Territory Manager Approval">c4b18eb33bf547104be1ef9e53e45aed</action>
+        <cid>7d671807-f52a-4881-b67d-409c977be3fd</cid>
+        <error_handling_type>1</error_handling_type>
+        <extended_inputs/>
+        <extended_inputs/>
+        <extended_outputs/>
+        <icon/>
+        <inputs/>
+        <label>Script step</label>
+        <order>1</order>
+        <outputs/>
+        <section/>
+        <step_type display_value="Script">106afb6647032200b4fad7527c9a71e7</step_type>
+        <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+        <sys_created_on>2026-07-07 14:06:00</sys_created_on>
+        <sys_id>04b1ceb33bf547104be1ef9e53e45a25</sys_id>
+        <sys_mod_count>10</sys_mod_count>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-10 11:06:05</sys_updated_on>
+    </sys_hub_step_instance>
+    <sys_variable_value action="delete_multiple" query="document_key=04b1ceb33bf547104be1ef9e53e45a25"/>
+    <sys_variable_value action="INSERT_OR_UPDATE">
+        <document>sys_hub_step_instance</document>
+        <document_key>04b1ceb33bf547104be1ef9e53e45a25</document_key>
+        <order>400</order>
+        <sys_class_name>sys_variable_value</sys_class_name>
+        <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+        <sys_created_on>2026-07-07 14:06:01</sys_created_on>
+        <sys_id>1cb1ceb33bf547104be1ef9e53e45a55</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-07 14:06:01</sys_updated_on>
+        <value>35aa573fd7802200bdbaee5b5e610375</value>
+        <variable display_value="MID Application">f5e56d79b3101300176b051a16a8dce4</variable>
+    </sys_variable_value>
+    <sys_variable_value action="INSERT_OR_UPDATE">
+        <document>sys_hub_step_instance</document>
+        <document_key>04b1ceb33bf547104be1ef9e53e45a25</document_key>
+        <order>600</order>
+        <sys_class_name>sys_variable_value</sys_class_name>
+        <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+        <sys_created_on>2026-07-07 14:06:01</sys_created_on>
+        <sys_id>5cb1ceb33bf547104be1ef9e53e45a62</sys_id>
+        <sys_mod_count>9</sys_mod_count>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-10 11:06:05</sys_updated_on>
+        <value>(function execute(inputs, outputs) {&#13;
+var approvers = new x_ctans_incentnow.IncentNowUtils().getTerritoryManagers(inputs.territory);&#13;
+ outputs.territory_managers="ApprovesRejectsAnyU["+approvers+"]";&#13;
+ if (approvers &amp;&amp; approvers != '') {&#13;
+    outputs.count = approvers.split(',').length;&#13;
+} else {&#13;
+    outputs.count = 0;&#13;
+}&#13;
+// outputs.count = approvers &amp;&amp; approvers.trim() !== '' ? approvers.split(',').length : 0;&#13;
+//gs.info('IncentIQ Flow Action Approvers' + inputs.territory);&#13;
+})(inputs, outputs);&#13;
+</value>
+        <variable display_value="Script">71aa7f6647032200b4fad7527c9a719b</variable>
+    </sys_variable_value>
+    <sys_element_mapping action="delete_multiple" query="id=04b1ceb33bf547104be1ef9e53e45a25"/>
+    <sys_element_mapping action="INSERT_OR_UPDATE">
+        <field>application</field>
+        <id>04b1ceb33bf547104be1ef9e53e45a25</id>
+        <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+        <sys_created_on>2026-07-07 14:06:00</sys_created_on>
+        <sys_id>50b1ceb33bf547104be1ef9e53e45a55</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-07 14:06:00</sys_updated_on>
+        <table>var__m_sys_flow_step_definition_input_106afb6647032200b4fad7527c9a71e7</table>
+        <value/>
+    </sys_element_mapping>
+    <sys_element_mapping action="INSERT_OR_UPDATE">
+        <field>script</field>
+        <id>04b1ceb33bf547104be1ef9e53e45a25</id>
+        <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+        <sys_created_on>2026-07-07 14:06:01</sys_created_on>
+        <sys_id>58b1ceb33bf547104be1ef9e53e45a55</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-07 14:06:01</sys_updated_on>
+        <table>var__m_sys_flow_step_definition_input_106afb6647032200b4fad7527c9a71e7</table>
+        <value/>
+    </sys_element_mapping>
+    <sys_element_mapping action="INSERT_OR_UPDATE">
+        <field>Territory</field>
+        <id>04b1ceb33bf547104be1ef9e53e45a25</id>
+        <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+        <sys_created_on>2026-07-07 14:06:01</sys_created_on>
+        <sys_id>5cb1ceb33bf547104be1ef9e53e45a63</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-07 14:06:01</sys_updated_on>
+        <table>var__m_sys_hub_step_ext_input_04b1ceb33bf547104be1ef9e53e45a25</table>
+        <value>{{action.territory}}</value>
+    </sys_element_mapping>
+    <sys_element_mapping action="delete_multiple" query="table=var__m_sys_hub_step_ext_output_04b1ceb33bf547104be1ef9e53e45a25^id=04b1ceb33bf547104be1ef9e53e45a25"/>
+    <sys_element_mapping action="delete_multiple" query="table=var__m_sys_flow_step_definition_input_106afb6647032200b4fad7527c9a71e7^id=04b1ceb33bf547104be1ef9e53e45a25"/>
+    <sys_translated_text action="delete_multiple" query="documentkey=04b1ceb33bf547104be1ef9e53e45a25"/>
+    <sys_hub_step_ext_input action="delete_multiple" query="model=04b1ceb33bf547104be1ef9e53e45a25^sys_idNOT IN692eb9c83bce87104be1ef9e53e45a90"/>
+    <sys_hub_step_ext_input action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <array>false</array>
+        <array_denormalized>false</array_denormalized>
+        <attributes>element_mapping_provider=com.glide.flow_design.action.data.FlowDesignVariableMapper,uiType=string,uiTypeLabel=String</attributes>
+        <audit>false</audit>
+        <calculation><![CDATA[(function calculatedFieldValue(current) {
+
+	// Add your code here
+	return '';  // return the calculated value
+
+})(current);]]></calculation>
+        <choice/>
+        <choice_field/>
+        <choice_table/>
+        <column_label/>
+        <comments/>
+        <create_roles/>
+        <default_value/>
+        <defaultsort/>
+        <delete_roles/>
+        <dependent/>
+        <dependent_on_field/>
+        <display>false</display>
+        <dynamic_creation>false</dynamic_creation>
+        <dynamic_creation_script/>
+        <dynamic_default_value/>
+        <dynamic_ref_qual/>
+        <element>territory</element>
+        <element_reference>false</element_reference>
+        <foreign_database/>
+        <formula/>
+        <function_definition/>
+        <function_field>false</function_field>
+        <help/>
+        <hint/>
+        <internal_type display_value="String">string</internal_type>
+        <label>territory</label>
+        <mandatory>true</mandatory>
+        <max_length>8000</max_length>
+        <model display_value="Script step">04b1ceb33bf547104be1ef9e53e45a25</model>
+        <model_id>04b1ceb33bf547104be1ef9e53e45a25</model_id>
+        <model_table>sys_hub_step_instance</model_table>
+        <name>var__m_sys_hub_step_ext_input_04b1ceb33bf547104be1ef9e53e45a25</name>
+        <next_element/>
+        <order>0</order>
+        <primary>false</primary>
+        <read_only>false</read_only>
+        <read_roles/>
+        <reference/>
+        <reference_cascade_rule/>
+        <reference_floats>false</reference_floats>
+        <reference_key/>
+        <reference_qual/>
+        <reference_qual_condition/>
+        <reference_type/>
+        <sizeclass/>
+        <spell_check>false</spell_check>
+        <staged>false</staged>
+        <sys_class_name>sys_hub_step_ext_input</sys_class_name>
+        <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+        <sys_created_on>2026-07-08 08:29:01</sys_created_on>
+        <sys_id>692eb9c83bce87104be1ef9e53e45a90</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name/>
+        <sys_package/>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name/>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-08 08:29:01</sys_updated_on>
+        <table_reference>false</table_reference>
+        <text_index>false</text_index>
+        <unique>false</unique>
+        <use_dependent_field>false</use_dependent_field>
+        <use_dynamic_default>false</use_dynamic_default>
+        <use_reference_qualifier>simple</use_reference_qualifier>
+        <virtual>false</virtual>
+        <virtual_type>script</virtual_type>
+        <widget/>
+        <write_roles/>
+        <xml_view>false</xml_view>
+    </sys_hub_step_ext_input>
+    <sys_hub_step_ext_output action="delete_multiple" query="model=04b1ceb33bf547104be1ef9e53e45a25^sys_idNOT INaa2686bb3bf547104be1ef9e53e45a16,ad2eb9c83bce87104be1ef9e53e45a9f"/>
+    <sys_hub_step_ext_output action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <array>false</array>
+        <array_denormalized>false</array_denormalized>
+        <attributes>element_mapping_provider=com.glide.flow_design.action.data.FlowDesignVariableMapper,uiType=string,uiTypeLabel=String,uiUniqueId=8ef97eb4-931a-457b-900d-0c29e99dd808</attributes>
+        <audit>false</audit>
+        <calculation><![CDATA[(function calculatedFieldValue(current) {
+
+	// Add your code here
+	return '';  // return the calculated value
+
+})(current);]]></calculation>
+        <choice/>
+        <choice_field/>
+        <choice_table/>
+        <column_label/>
+        <comments/>
+        <create_roles/>
+        <default_value/>
+        <defaultsort/>
+        <delete_roles/>
+        <dependent/>
+        <dependent_on_field/>
+        <display>false</display>
+        <dynamic_creation>false</dynamic_creation>
+        <dynamic_creation_script/>
+        <dynamic_default_value/>
+        <dynamic_ref_qual/>
+        <element>territory_managers</element>
+        <element_reference>false</element_reference>
+        <foreign_database/>
+        <formula/>
+        <function_definition/>
+        <function_field>false</function_field>
+        <help/>
+        <hint/>
+        <internal_type display_value="String">string</internal_type>
+        <label>Territory Managers</label>
+        <mandatory>false</mandatory>
+        <max_length>8000</max_length>
+        <model display_value="Script step">04b1ceb33bf547104be1ef9e53e45a25</model>
+        <model_id>04b1ceb33bf547104be1ef9e53e45a25</model_id>
+        <model_table>sys_hub_step_instance</model_table>
+        <name>var__m_sys_hub_step_ext_output_04b1ceb33bf547104be1ef9e53e45a25</name>
+        <next_element/>
+        <order>1</order>
+        <primary>false</primary>
+        <read_only>false</read_only>
+        <read_roles/>
+        <reference/>
+        <reference_cascade_rule/>
+        <reference_floats>false</reference_floats>
+        <reference_key/>
+        <reference_qual/>
+        <reference_qual_condition/>
+        <reference_type/>
+        <sizeclass/>
+        <spell_check>false</spell_check>
+        <staged>false</staged>
+        <sys_class_name>sys_hub_step_ext_output</sys_class_name>
+        <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+        <sys_created_on>2026-07-07 14:25:33</sys_created_on>
+        <sys_id>aa2686bb3bf547104be1ef9e53e45a16</sys_id>
+        <sys_mod_count>1</sys_mod_count>
+        <sys_name/>
+        <sys_package/>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name/>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-07 14:45:46</sys_updated_on>
+        <table_reference>false</table_reference>
+        <text_index>false</text_index>
+        <unique>false</unique>
+        <use_dependent_field>false</use_dependent_field>
+        <use_dynamic_default>false</use_dynamic_default>
+        <use_reference_qualifier>simple</use_reference_qualifier>
+        <virtual>false</virtual>
+        <virtual_type>script</virtual_type>
+        <widget/>
+        <write_roles/>
+        <xml_view>false</xml_view>
+    </sys_hub_step_ext_output>
+    <sys_hub_step_ext_output action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <array>false</array>
+        <array_denormalized>false</array_denormalized>
+        <attributes>child_label=Count_child0,child_name=count_child0,child_type=integer,child_type_label=Integer,child_uiUniqueId=bb76d615-79aa-451a-97af-e5ba0bf4268a,element_mapping_provider=com.glide.flow_design.action.data.FlowDesignVariableMapper,uiType=integer,uiTypeLabel=Integer,uiUniqueId=4d8227ac-8971-4b34-91da-f757bd931a84</attributes>
+        <audit>false</audit>
+        <calculation><![CDATA[(function calculatedFieldValue(current) {
+
+	// Add your code here
+	return '';  // return the calculated value
+
+})(current);]]></calculation>
+        <choice/>
+        <choice_field/>
+        <choice_table/>
+        <column_label/>
+        <comments/>
+        <create_roles/>
+        <default_value/>
+        <defaultsort/>
+        <delete_roles/>
+        <dependent/>
+        <dependent_on_field/>
+        <display>false</display>
+        <dynamic_creation>false</dynamic_creation>
+        <dynamic_creation_script/>
+        <dynamic_default_value/>
+        <dynamic_ref_qual/>
+        <element>count</element>
+        <element_reference>false</element_reference>
+        <foreign_database/>
+        <formula/>
+        <function_definition/>
+        <function_field>false</function_field>
+        <help/>
+        <hint/>
+        <internal_type display_value="Integer">integer</internal_type>
+        <label>Count</label>
+        <mandatory>false</mandatory>
+        <max_length>40</max_length>
+        <model display_value="Script step">04b1ceb33bf547104be1ef9e53e45a25</model>
+        <model_id>04b1ceb33bf547104be1ef9e53e45a25</model_id>
+        <model_table>sys_hub_step_instance</model_table>
+        <name>var__m_sys_hub_step_ext_output_04b1ceb33bf547104be1ef9e53e45a25</name>
+        <next_element/>
+        <order>2</order>
+        <primary>false</primary>
+        <read_only>false</read_only>
+        <read_roles/>
+        <reference/>
+        <reference_cascade_rule/>
+        <reference_floats>false</reference_floats>
+        <reference_key/>
+        <reference_qual/>
+        <reference_qual_condition/>
+        <reference_type/>
+        <sizeclass/>
+        <spell_check>false</spell_check>
+        <staged>false</staged>
+        <sys_class_name>sys_hub_step_ext_output</sys_class_name>
+        <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+        <sys_created_on>2026-07-08 08:29:01</sys_created_on>
+        <sys_id>ad2eb9c83bce87104be1ef9e53e45a9f</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name/>
+        <sys_package/>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name/>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-08 08:29:01</sys_updated_on>
+        <table_reference>false</table_reference>
+        <text_index>false</text_index>
+        <unique>false</unique>
+        <use_dependent_field>false</use_dependent_field>
+        <use_dynamic_default>false</use_dynamic_default>
+        <use_reference_qualifier>simple</use_reference_qualifier>
+        <virtual>false</virtual>
+        <virtual_type>script</virtual_type>
+        <widget/>
+        <write_roles/>
+        <xml_view>false</xml_view>
+    </sys_hub_step_ext_output>
+    <sys_hub_input_scripts action="delete_multiple" query="instance=04b1ceb33bf547104be1ef9e53e45a25"/>
+    <sys_documentation action="INSERT_OR_UPDATE">
+        <element>count</element>
+        <help/>
+        <hint/>
+        <label>Count</label>
+        <language>en</language>
+        <name>var__m_sys_hub_step_ext_output_04b1ceb33bf547104be1ef9e53e45a25</name>
+        <plural/>
+        <sys_class_name>sys_documentation</sys_class_name>
+        <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+        <sys_created_on>2026-07-08 08:29:01</sys_created_on>
+        <sys_id>6d2eb9c83bce87104be1ef9e53e45aa2</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name/>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name/>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-08 08:29:01</sys_updated_on>
+        <url/>
+        <url_target/>
+    </sys_documentation>
+    <sys_documentation action="INSERT_OR_UPDATE">
+        <element>territory_managers</element>
+        <help/>
+        <hint/>
+        <label>Territory Managers</label>
+        <language>en</language>
+        <name>var__m_sys_hub_step_ext_output_04b1ceb33bf547104be1ef9e53e45a25</name>
+        <plural/>
+        <sys_class_name>sys_documentation</sys_class_name>
+        <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+        <sys_created_on>2026-07-07 14:25:33</sys_created_on>
+        <sys_id>ea2686bb3bf547104be1ef9e53e45a19</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name/>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name/>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-07 14:25:33</sys_updated_on>
+        <url/>
+        <url_target/>
+    </sys_documentation>
+    <sys_hub_action_input action="delete_multiple" query="model=c4b18eb33bf547104be1ef9e53e45aed^sys_idNOT IN4b53ca773bf547104be1ef9e53e45a80"/>
+    <sys_hub_action_input action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <array>false</array>
+        <array_denormalized>false</array_denormalized>
+        <attributes>element_mapping_provider=com.glide.flow_design.action.data.FlowDesignVariableMapper,uiType=string,uiTypeLabel=String,uiUniqueId=1d0cd006-ccf3-4c7d-aba3-fd1387b5d437</attributes>
+        <audit>false</audit>
+        <calculation><![CDATA[(function calculatedFieldValue(current) {
+
+	// Add your code here
+	return '';  // return the calculated value
+
+})(current);]]></calculation>
+        <choice/>
+        <choice_field/>
+        <choice_table>sn_tp_territory</choice_table>
+        <column_label/>
+        <comments/>
+        <create_roles/>
+        <default_value/>
+        <defaultsort/>
+        <delete_roles/>
+        <dependent/>
+        <dependent_on_field/>
+        <display>false</display>
+        <dynamic_creation>false</dynamic_creation>
+        <dynamic_creation_script/>
+        <dynamic_default_value/>
+        <dynamic_ref_qual/>
+        <element>territory</element>
+        <element_reference>false</element_reference>
+        <foreign_database/>
+        <formula/>
+        <function_definition/>
+        <function_field>false</function_field>
+        <help/>
+        <hint/>
+        <internal_type display_value="String">string</internal_type>
+        <label>Territory</label>
+        <mandatory>true</mandatory>
+        <max_length>8000</max_length>
+        <model display_value="Territory Manager Approval">c4b18eb33bf547104be1ef9e53e45aed</model>
+        <model_id>c4b18eb33bf547104be1ef9e53e45aed</model_id>
+        <model_table>sys_hub_action_type_snapshot</model_table>
+        <name>var__m_sys_hub_action_input_c4b18eb33bf547104be1ef9e53e45aed</name>
+        <next_element/>
+        <order>1</order>
+        <primary>false</primary>
+        <read_only>false</read_only>
+        <read_roles/>
+        <reference/>
+        <reference_cascade_rule/>
+        <reference_floats>false</reference_floats>
+        <reference_key/>
+        <reference_qual/>
+        <reference_qual_condition/>
+        <reference_type/>
+        <sizeclass/>
+        <spell_check>false</spell_check>
+        <staged>false</staged>
+        <sys_class_name>sys_hub_action_input</sys_class_name>
+        <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+        <sys_created_on>2026-07-07 14:13:18</sys_created_on>
+        <sys_id>4b53ca773bf547104be1ef9e53e45a80</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name/>
+        <sys_package/>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name/>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-07 14:13:18</sys_updated_on>
+        <table_reference>false</table_reference>
+        <text_index>false</text_index>
+        <unique>false</unique>
+        <use_dependent_field>false</use_dependent_field>
+        <use_dynamic_default>false</use_dynamic_default>
+        <use_reference_qualifier>simple</use_reference_qualifier>
+        <virtual>false</virtual>
+        <virtual_type>script</virtual_type>
+        <widget/>
+        <write_roles/>
+        <xml_view>false</xml_view>
+    </sys_hub_action_input>
+    <sys_hub_action_input_action_instance action="delete_multiple" query="action_input=4b53ca773bf547104be1ef9e53e45a80"/>
+    <sys_hub_action_output action="delete_multiple" query="model=c4b18eb33bf547104be1ef9e53e45aed^sys_idNOT IN3fa8c6bf3bf547104be1ef9e53e45a0c,54b1ceb33bf547104be1ef9e53e45a67,712eb9c83bce87104be1ef9e53e45ad2,dcb1ceb33bf547104be1ef9e53e45a6d"/>
+    <sys_hub_action_output action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <array>false</array>
+        <array_denormalized>false</array_denormalized>
+        <attributes>element_mapping_provider=com.glide.flow_design.action.data.FlowDesignVariableMapper,pwd2droppable=true,uiType=string,uiTypeLabel=String,uiUniqueId=f8135ebf-c25c-4f93-aa53-b1d1d0e19a8b</attributes>
+        <audit>false</audit>
+        <calculation><![CDATA[(function calculatedFieldValue(current) {
+
+	// Add your code here
+	return '';  // return the calculated value
+
+})(current);]]></calculation>
+        <choice/>
+        <choice_field/>
+        <choice_table/>
+        <column_label/>
+        <comments/>
+        <create_roles/>
+        <default_value/>
+        <defaultsort/>
+        <delete_roles/>
+        <dependent/>
+        <dependent_on_field/>
+        <display>false</display>
+        <dynamic_creation>false</dynamic_creation>
+        <dynamic_creation_script/>
+        <dynamic_default_value/>
+        <dynamic_ref_qual/>
+        <element>territory_manager</element>
+        <element_prototype/>
+        <element_reference>false</element_reference>
+        <foreign_database/>
+        <formula/>
+        <function_definition/>
+        <function_field>false</function_field>
+        <help/>
+        <hint/>
+        <internal_link/>
+        <internal_type display_value="String">string</internal_type>
+        <label>Territory Manager</label>
+        <mandatory>false</mandatory>
+        <max_length>8000</max_length>
+        <model display_value="Territory Manager Approval">c4b18eb33bf547104be1ef9e53e45aed</model>
+        <model_id>c4b18eb33bf547104be1ef9e53e45aed</model_id>
+        <model_table>sys_hub_action_type_snapshot</model_table>
+        <name>var__m_sys_hub_action_output_c4b18eb33bf547104be1ef9e53e45aed</name>
+        <next_element/>
+        <order>1</order>
+        <primary>false</primary>
+        <read_only>false</read_only>
+        <read_roles/>
+        <reference/>
+        <reference_cascade_rule/>
+        <reference_floats>false</reference_floats>
+        <reference_key/>
+        <reference_qual/>
+        <reference_qual_condition/>
+        <reference_type/>
+        <sizeclass/>
+        <spell_check>false</spell_check>
+        <staged>false</staged>
+        <sys_class_name>sys_hub_action_output</sys_class_name>
+        <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+        <sys_created_on>2026-07-07 14:36:34</sys_created_on>
+        <sys_id>3fa8c6bf3bf547104be1ef9e53e45a0c</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name/>
+        <sys_package/>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name/>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-07 14:36:34</sys_updated_on>
+        <table_reference>false</table_reference>
+        <text_index>false</text_index>
+        <unique>false</unique>
+        <use_dependent_field>false</use_dependent_field>
+        <use_dynamic_default>false</use_dynamic_default>
+        <use_reference_qualifier>simple</use_reference_qualifier>
+        <virtual>false</virtual>
+        <virtual_type>script</virtual_type>
+        <widget/>
+        <write_roles/>
+        <xml_view>false</xml_view>
+    </sys_hub_action_output>
+    <sys_hub_action_input_action_instance action="delete_multiple" query="action_input=3fa8c6bf3bf547104be1ef9e53e45a0c"/>
+    <sys_hub_input_scripts action="delete_multiple" query="instance=3fa8c6bf3bf547104be1ef9e53e45a0c"/>
+    <sys_hub_action_output action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <array>false</array>
+        <array_denormalized>false</array_denormalized>
+        <attributes>action_error_output=true,co_type_name=FDACTIONSTATUS,element_mapping_provider=com.glide.flow_design.action.data.FlowDesignVariableMapper,uiType=object,uiTypeLabel=Object,uiUniqueId=2d85288d-426f-407b-a4d6-eff46de77852</attributes>
+        <audit>false</audit>
+        <calculation><![CDATA[(function calculatedFieldValue(current) {
+
+	// Add your code here
+	return '';  // return the calculated value
+
+})(current);]]></calculation>
+        <choice/>
+        <choice_field/>
+        <choice_table/>
+        <column_label/>
+        <comments/>
+        <create_roles/>
+        <default_value/>
+        <defaultsort/>
+        <delete_roles/>
+        <dependent/>
+        <dependent_on_field/>
+        <display>false</display>
+        <dynamic_creation>false</dynamic_creation>
+        <dynamic_creation_script/>
+        <dynamic_default_value/>
+        <dynamic_ref_qual/>
+        <element>__action_status__</element>
+        <element_prototype/>
+        <element_reference>false</element_reference>
+        <foreign_database/>
+        <formula/>
+        <function_definition/>
+        <function_field>false</function_field>
+        <help/>
+        <hint/>
+        <internal_link/>
+        <internal_type display_value="String">string</internal_type>
+        <label>Action Status</label>
+        <mandatory>false</mandatory>
+        <max_length>65000</max_length>
+        <model display_value="Territory Manager Approval">c4b18eb33bf547104be1ef9e53e45aed</model>
+        <model_id>c4b18eb33bf547104be1ef9e53e45aed</model_id>
+        <model_table>sys_hub_action_type_snapshot</model_table>
+        <name>var__m_sys_hub_action_output_c4b18eb33bf547104be1ef9e53e45aed</name>
+        <next_element/>
+        <order>2</order>
+        <primary>false</primary>
+        <read_only>false</read_only>
+        <read_roles/>
+        <reference/>
+        <reference_cascade_rule/>
+        <reference_floats>false</reference_floats>
+        <reference_key/>
+        <reference_qual/>
+        <reference_qual_condition/>
+        <reference_type/>
+        <sizeclass/>
+        <spell_check>false</spell_check>
+        <staged>false</staged>
+        <sys_class_name>sys_hub_action_output</sys_class_name>
+        <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+        <sys_created_on>2026-07-07 14:06:01</sys_created_on>
+        <sys_id>54b1ceb33bf547104be1ef9e53e45a67</sys_id>
+        <sys_mod_count>1</sys_mod_count>
+        <sys_name/>
+        <sys_package/>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name/>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-07 14:36:34</sys_updated_on>
+        <table_reference>false</table_reference>
+        <text_index>false</text_index>
+        <unique>false</unique>
+        <use_dependent_field>false</use_dependent_field>
+        <use_dynamic_default>false</use_dynamic_default>
+        <use_reference_qualifier>simple</use_reference_qualifier>
+        <virtual>false</virtual>
+        <virtual_type>script</virtual_type>
+        <widget/>
+        <write_roles/>
+        <xml_view>false</xml_view>
+    </sys_hub_action_output>
+    <sys_hub_action_input_action_instance action="delete_multiple" query="action_input=54b1ceb33bf547104be1ef9e53e45a67"/>
+    <sys_hub_input_scripts action="delete_multiple" query="instance=54b1ceb33bf547104be1ef9e53e45a67"/>
+    <sys_hub_action_output action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <array>false</array>
+        <array_denormalized>false</array_denormalized>
+        <attributes>child_label=Count_child0,child_name=count_child0,child_type=integer,child_type_label=Integer,child_uiUniqueId=875ce982-807e-4d83-9b4c-8a944b0df9dd,element_mapping_provider=com.glide.flow_design.action.data.FlowDesignVariableMapper,pwd2droppable=true,uiType=integer,uiTypeLabel=Integer,uiUniqueId=f0324972-4586-432e-958c-907f95d7443c</attributes>
+        <audit>false</audit>
+        <calculation><![CDATA[(function calculatedFieldValue(current) {
+
+	// Add your code here
+	return '';  // return the calculated value
+
+})(current);]]></calculation>
+        <choice/>
+        <choice_field/>
+        <choice_table/>
+        <column_label/>
+        <comments/>
+        <create_roles/>
+        <default_value/>
+        <defaultsort/>
+        <delete_roles/>
+        <dependent/>
+        <dependent_on_field/>
+        <display>false</display>
+        <dynamic_creation>false</dynamic_creation>
+        <dynamic_creation_script/>
+        <dynamic_default_value/>
+        <dynamic_ref_qual/>
+        <element>count</element>
+        <element_prototype/>
+        <element_reference>false</element_reference>
+        <foreign_database/>
+        <formula/>
+        <function_definition/>
+        <function_field>false</function_field>
+        <help/>
+        <hint/>
+        <internal_link/>
+        <internal_type display_value="Integer">integer</internal_type>
+        <label>Count</label>
+        <mandatory>false</mandatory>
+        <max_length>40</max_length>
+        <model display_value="Territory Manager Approval">c4b18eb33bf547104be1ef9e53e45aed</model>
+        <model_id>c4b18eb33bf547104be1ef9e53e45aed</model_id>
+        <model_table>sys_hub_action_type_snapshot</model_table>
+        <name>var__m_sys_hub_action_output_c4b18eb33bf547104be1ef9e53e45aed</name>
+        <next_element/>
+        <order>3</order>
+        <primary>false</primary>
+        <read_only>false</read_only>
+        <read_roles/>
+        <reference/>
+        <reference_cascade_rule/>
+        <reference_floats>false</reference_floats>
+        <reference_key/>
+        <reference_qual/>
+        <reference_qual_condition/>
+        <reference_type/>
+        <sizeclass/>
+        <spell_check>false</spell_check>
+        <staged>false</staged>
+        <sys_class_name>sys_hub_action_output</sys_class_name>
+        <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+        <sys_created_on>2026-07-08 08:29:02</sys_created_on>
+        <sys_id>712eb9c83bce87104be1ef9e53e45ad2</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name/>
+        <sys_package/>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name/>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-08 08:29:02</sys_updated_on>
+        <table_reference>false</table_reference>
+        <text_index>false</text_index>
+        <unique>false</unique>
+        <use_dependent_field>false</use_dependent_field>
+        <use_dynamic_default>false</use_dynamic_default>
+        <use_reference_qualifier>simple</use_reference_qualifier>
+        <virtual>false</virtual>
+        <virtual_type>script</virtual_type>
+        <widget/>
+        <write_roles/>
+        <xml_view>false</xml_view>
+    </sys_hub_action_output>
+    <sys_hub_action_input_action_instance action="delete_multiple" query="action_input=712eb9c83bce87104be1ef9e53e45ad2"/>
+    <sys_hub_input_scripts action="delete_multiple" query="instance=712eb9c83bce87104be1ef9e53e45ad2"/>
+    <sys_hub_action_output action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <array>false</array>
+        <array_denormalized>false</array_denormalized>
+        <attributes>action_error_output=true,element_mapping_provider=com.glide.flow_design.action.data.FlowDesignVariableMapper,uiType=boolean,uiTypeLabel=True/False,uiUniqueId=73ef239e-2a6f-4c69-a574-c3f8e326caae,visible_in_ui=false</attributes>
+        <audit>false</audit>
+        <calculation><![CDATA[(function calculatedFieldValue(current) {
+
+	// Add your code here
+	return '';  // return the calculated value
+
+})(current);]]></calculation>
+        <choice/>
+        <choice_field/>
+        <choice_table/>
+        <column_label/>
+        <comments/>
+        <create_roles/>
+        <default_value>true</default_value>
+        <defaultsort/>
+        <delete_roles/>
+        <dependent/>
+        <dependent_on_field/>
+        <display>false</display>
+        <dynamic_creation>false</dynamic_creation>
+        <dynamic_creation_script/>
+        <dynamic_default_value/>
+        <dynamic_ref_qual/>
+        <element>__dont_treat_as_error__</element>
+        <element_prototype/>
+        <element_reference>false</element_reference>
+        <foreign_database/>
+        <formula/>
+        <function_definition/>
+        <function_field>false</function_field>
+        <help/>
+        <hint/>
+        <internal_link/>
+        <internal_type display_value="">boolean</internal_type>
+        <label>Don't Treat as Error</label>
+        <mandatory>false</mandatory>
+        <max_length>40</max_length>
+        <model display_value="Territory Manager Approval">c4b18eb33bf547104be1ef9e53e45aed</model>
+        <model_id>c4b18eb33bf547104be1ef9e53e45aed</model_id>
+        <model_table>sys_hub_action_type_snapshot</model_table>
+        <name>var__m_sys_hub_action_output_c4b18eb33bf547104be1ef9e53e45aed</name>
+        <next_element/>
+        <order>4</order>
+        <primary>false</primary>
+        <read_only>false</read_only>
+        <read_roles/>
+        <reference/>
+        <reference_cascade_rule/>
+        <reference_floats>false</reference_floats>
+        <reference_key/>
+        <reference_qual/>
+        <reference_qual_condition/>
+        <reference_type/>
+        <sizeclass/>
+        <spell_check>false</spell_check>
+        <staged>false</staged>
+        <sys_class_name>sys_hub_action_output</sys_class_name>
+        <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+        <sys_created_on>2026-07-07 14:06:01</sys_created_on>
+        <sys_id>dcb1ceb33bf547104be1ef9e53e45a6d</sys_id>
+        <sys_mod_count>21</sys_mod_count>
+        <sys_name/>
+        <sys_package/>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name/>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-10 11:06:06</sys_updated_on>
+        <table_reference>false</table_reference>
+        <text_index>false</text_index>
+        <unique>false</unique>
+        <use_dependent_field>false</use_dependent_field>
+        <use_dynamic_default>false</use_dynamic_default>
+        <use_reference_qualifier>simple</use_reference_qualifier>
+        <virtual>false</virtual>
+        <virtual_type>script</virtual_type>
+        <widget/>
+        <write_roles/>
+        <xml_view>false</xml_view>
+    </sys_hub_action_output>
+    <sys_hub_action_input_action_instance action="delete_multiple" query="action_input=dcb1ceb33bf547104be1ef9e53e45a6d"/>
+    <sys_hub_input_scripts action="delete_multiple" query="instance=dcb1ceb33bf547104be1ef9e53e45a6d"/>
+    <sys_hub_pill_compound action="delete_multiple" query="attached_to=c4b18eb33bf547104be1ef9e53e45aed"/>
+    <sys_hub_action_status_metadata action="delete_multiple" query="action_type_id=c4b18eb33bf547104be1ef9e53e45aed^sys_idNOT IN50b1ceb33bf547104be1ef9e53e45a7d"/>
+    <sys_hub_action_status_metadata action="INSERT_OR_UPDATE">
+        <action_type_id display_value="Territory Manager Approval">c4b18eb33bf547104be1ef9e53e45aed</action_type_id>
+        <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+        <sys_created_on>2026-07-07 14:06:01</sys_created_on>
+        <sys_id>50b1ceb33bf547104be1ef9e53e45a7d</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-07 14:06:01</sys_updated_on>
+    </sys_hub_action_status_metadata>
+    <sys_hub_status_condition action="delete_multiple" query="action_status_metadata_id=50b1ceb33bf547104be1ef9e53e45a7d"/>
+    <sys_documentation action="INSERT_OR_UPDATE">
+        <element>territory</element>
+        <help/>
+        <hint/>
+        <label>Territory</label>
+        <language>en</language>
+        <name>var__m_sys_hub_action_input_c4b18eb33bf547104be1ef9e53e45aed</name>
+        <plural/>
+        <sys_class_name>sys_documentation</sys_class_name>
+        <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+        <sys_created_on>2026-07-07 14:13:18</sys_created_on>
+        <sys_id>cf53ca773bf547104be1ef9e53e45a84</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name/>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name/>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-07 14:13:18</sys_updated_on>
+        <url/>
+        <url_target/>
+    </sys_documentation>
+    <sys_choice action="delete_multiple" query="name=var__m_sys_hub_action_input_c4b18eb33bf547104be1ef9e53e45aed"/>
+    <sys_documentation action="INSERT_OR_UPDATE">
+        <element>count</element>
+        <help/>
+        <hint/>
+        <label>Count</label>
+        <language>en</language>
+        <name>var__m_sys_hub_action_output_c4b18eb33bf547104be1ef9e53e45aed</name>
+        <plural/>
+        <sys_class_name>sys_documentation</sys_class_name>
+        <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+        <sys_created_on>2026-07-08 08:29:02</sys_created_on>
+        <sys_id>312eb9c83bce87104be1ef9e53e45ad6</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name/>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name/>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-08 08:29:02</sys_updated_on>
+        <url/>
+        <url_target/>
+    </sys_documentation>
+    <sys_documentation action="INSERT_OR_UPDATE">
+        <element>__action_status__</element>
+        <help/>
+        <hint/>
+        <label>Action Status</label>
+        <language>en</language>
+        <name>var__m_sys_hub_action_output_c4b18eb33bf547104be1ef9e53e45aed</name>
+        <plural/>
+        <sys_class_name>sys_documentation</sys_class_name>
+        <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+        <sys_created_on>2026-07-07 14:06:01</sys_created_on>
+        <sys_id>58b1ceb33bf547104be1ef9e53e45a6c</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name/>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name/>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-07 14:06:01</sys_updated_on>
+        <url/>
+        <url_target/>
+    </sys_documentation>
+    <sys_documentation action="INSERT_OR_UPDATE">
+        <element>territory_manager</element>
+        <help/>
+        <hint/>
+        <label>Territory Manager</label>
+        <language>en</language>
+        <name>var__m_sys_hub_action_output_c4b18eb33bf547104be1ef9e53e45aed</name>
+        <plural/>
+        <sys_class_name>sys_documentation</sys_class_name>
+        <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+        <sys_created_on>2026-07-07 14:36:34</sys_created_on>
+        <sys_id>b7a8c6bf3bf547104be1ef9e53e45a11</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name/>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name/>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-07 14:36:34</sys_updated_on>
+        <url/>
+        <url_target/>
+    </sys_documentation>
+    <sys_documentation action="INSERT_OR_UPDATE">
+        <element>__dont_treat_as_error__</element>
+        <help/>
+        <hint/>
+        <label>Don't Treat as Error</label>
+        <language>en</language>
+        <name>var__m_sys_hub_action_output_c4b18eb33bf547104be1ef9e53e45aed</name>
+        <plural/>
+        <sys_class_name>sys_documentation</sys_class_name>
+        <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+        <sys_created_on>2026-07-07 14:06:01</sys_created_on>
+        <sys_id>dcb1ceb33bf547104be1ef9e53e45a74</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name/>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name/>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-07 14:06:01</sys_updated_on>
+        <url/>
+        <url_target/>
+    </sys_documentation>
+    <sys_choice action="delete_multiple" query="name=var__m_sys_hub_action_output_c4b18eb33bf547104be1ef9e53e45aed"/>
+    <sys_hub_action_type_definition action="UPDATE">
+        <sys_id>33ccd1fb3bf147104be1ef9e53e45a24</sys_id>
+        <latest_snapshot>c4b18eb33bf547104be1ef9e53e45aed</latest_snapshot>
+        <compiler_build>glide-zurich-07-01-2025__patch10-hotfix3-07-01-2026_07-02-2026_1215.zip</compiler_build>
+    </sys_hub_action_type_definition>
+</record_update>

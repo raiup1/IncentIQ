@@ -34,7 +34,7 @@
 
 	try {
 		
-		var ga = new GlideAggregate('x_ctans_incentnow_data_lake');
+		var ga = new GlideAggregate('x_ctans_incentnow_data_lake_master');
 		ga.addAggregate('COUNT', 'user_id'); 
 		ga.groupBy('user_id'); 
 		ga.query(); 
@@ -67,15 +67,15 @@
         <sys_domain>global</sys_domain>
         <sys_domain_path>/</sys_domain_path>
         <sys_id>05e8ea0193594b90ddb7f2d89803d60a</sys_id>
-        <sys_mod_count>10</sys_mod_count>
+        <sys_mod_count>11</sys_mod_count>
         <sys_name>Populate External User IDs </sys_name>
         <sys_overrides/>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy/>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
         <sys_update_name>sys_script_05e8ea0193594b90ddb7f2d89803d60a</sys_update_name>
-        <sys_updated_by>upma.rai</sys_updated_by>
-        <sys_updated_on>2026-06-04 11:03:24</sys_updated_on>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-06-23 09:19:03</sys_updated_on>
         <template/>
         <when>before_display</when>
     </sys_script>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
     <sp_widget action="INSERT_OR_UPDATE">
         <category>custom</category>
-        <client_script><![CDATA[api.controller = function($window,$location) {
+        <client_script><![CDATA[api.controller = function($scope,$window,$location,$timeout) {
   var c = this;
 
   c.filteredQuotas = [];
@@ -117,6 +117,103 @@
       c.filteredQuotas        = angular.copy(c.data.quotaAssignments || []);
     });
   };
+	
+	
+	// Approval Flow Pagination
+		c.approvalCurrentPage = 1;
+		c.approvalPageSize = 5;
+
+		c.getPaginatedApprovalFlow = function () {
+
+				if (!c.approvalFlow)
+						return [];
+
+				var start = (c.approvalCurrentPage - 1) * c.approvalPageSize;
+				var end = start + c.approvalPageSize;
+
+				return c.approvalFlow.slice(start, end);
+		};
+
+		c.approvalTotalPages = function () {
+
+				if (!c.approvalFlow || c.approvalFlow.length === 0)
+						return 1;
+
+				return Math.ceil(c.approvalFlow.length / c.approvalPageSize);
+		};
+
+		c.nextApprovalPage = function () {
+
+				if (c.approvalCurrentPage < c.approvalTotalPages()) {
+						c.approvalCurrentPage++;
+				}
+		};
+
+		c.prevApprovalPage = function () {
+
+				if (c.approvalCurrentPage > 1) {
+						c.approvalCurrentPage--;
+				}
+		};
+	
+	//approval flow
+
+		c.showApprovalFlow = false;
+		c.approvalFlow = [];
+
+		c.openApprovalFlow = function(quotaId) {
+
+			c.server.get({
+					action: "getApprovalFlow",
+					quotaId: quotaId
+			}).then(function(response) {
+
+					c.approvalFlow = response.data.approvalFlow;
+					c.approvalCurrentPage = 1;
+					c.showApprovalFlow = true;
+
+					$timeout(function () {
+
+							var el = document.getElementById("approvalFlowSection");
+
+							if (el) {
+									el.scrollIntoView({
+											behavior: "smooth",
+											block: "start"
+									});
+							}
+
+					}, 100);
+			});
+	};
+	
+		$scope.$on('showQuotaApprovalFlow', function(event, data) {
+
+			c.server.get({
+					action: 'getApprovalFlow',
+					quotaId: data.quotaId
+			}).then(function(response){
+
+					c.approvalFlow = response.data.approvalFlow;
+					c.approvalCurrentPage = 1;
+					c.showApprovalFlow = true;
+
+					$timeout(function () {
+
+							var el = document.getElementById("approvalFlowSection");
+
+							if (el) {
+									el.scrollIntoView({
+											behavior: "smooth",
+											block: "start"
+									});
+							}
+
+					}, 100);
+
+			});
+
+	});
 
 };]]></client_script>
         <controller_as>c</controller_as>
@@ -129,6 +226,25 @@
 .quota-page {
 	background: #f1f5f9;
   font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.pagination-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+    width: 100%;
+}
+
+.pagination-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.pg-info {
+    min-width: 110px;
+    text-align: center;
 }
 
 .set {
@@ -397,9 +513,17 @@ body {
 
   data.isEdit    = !!options.quota_batch_id;
   data.quotaModel = {};
-	data.tableWidget=$sp.getWidget('incentnow-table-widget',{ table: 'x_ctans_incentnow_quota',view:'portal_view',viewperiod:'false'});
+	data.isTerritoryEnabled =
+    new x_ctans_incentnow.IncentNowUtils().isTerritoryExtensionActive() === true;
 
-	data.isIncentNowGroupAdmin= gs.hasRole('x_ctans_incentnow.business_group_admin') || gs.hasRole('x_ctans_incentnow.admin');
+	if (data.isTerritoryEnabled) {
+	data.tableWidget=$sp.getWidget('incentnow-table-widget',{ table: 'x_ctans_incentnow_quota',view:'territory',viewperiod:'false'});
+	}
+	else
+		{
+			data.tableWidget=$sp.getWidget('incentnow-table-widget',{ table: 'x_ctans_incentnow_quota',view:'portal_view',viewperiod:'false'});
+		}
+	data.isIncentNowGroupAdmin= gs.hasRole('x_ctans_incentnow.business_group_admin') || gs.hasRole('x_ctans_incentnow.admin') || gs.hasRole('x_ctans_incentnow.territory_admin');
 
 
   /* ================= FISCAL CALENDAR ================= */
@@ -552,6 +676,19 @@ body {
 	if (activeGR.next()) {
 			data.activeQuotaCount = parseInt(activeGR.getAggregate('COUNT'), 10);
 	}
+	
+	data.assignedRepCount = 0;
+
+	var repGA = new GlideAggregate('x_ctans_incentnow_user_quota_assignment');
+	repGA.addEncodedQuery('quota.status!=inactive'); // adjust if your status field differs
+	repGA.addAggregate('COUNT', 'user');             // change 'user' if your field name is different
+	repGA.groupBy('user');
+	repGA.query();
+
+	data.assignedRepCount = 0;
+		while (repGA.next()) {
+				data.assignedRepCount++;
+		}
 
   data.quotaAssignments = [];
 
@@ -562,6 +699,18 @@ body {
   while (quotaGR2.next()) {
     var rawQ    = quotaGR2.getValue('target_value');
     var targetQ = (!rawQ || isNaN(parseFloat(rawQ))) ? 0 : parseFloat(rawQ);
+		
+		// Count assigned reps for this quota
+    var repGA = new GlideAggregate('x_ctans_incentnow_user_quota_assignment');
+    repGA.addQuery('quota', quotaGR2.getUniqueValue());   // <-- use the reference field to Quota
+    repGA.addAggregate('COUNT', 'user');
+    repGA.groupBy('user');
+    repGA.query();
+		
+		var assignedRepCount = 0;
+			while (repGA.next()) {
+					assignedRepCount++;
+			}
 
     data.quotaAssignments.push({
       id:                 quotaGR2.getUniqueValue(),
@@ -571,9 +720,33 @@ body {
       targetValue:        targetQ,
       targetDisplay:      targetQ.toString(),
       quotaMetric:        quotaGR2.getDisplayValue('quota_metric') || '',
-      distributionMethod: quotaGR2.getDisplayValue('quota_frequency') || ''
+      distributionMethod: quotaGR2.getDisplayValue('quota_frequency') || '',
+			assignedReps: assignedRepCount
     });
   }
+	
+	//approval flow
+
+		if (input && input.action == "getApprovalFlow") {
+
+				data.approvalFlow = [];
+
+				var apprGR = new GlideRecordSecure('sysapproval_approver');
+				apprGR.addQuery('document_id', input.quotaId);
+				apprGR.orderByDesc('sys_created_on');
+				apprGR.query();
+
+				while (apprGR.next()) {
+						data.approvalFlow.push({
+								approver: apprGR.getDisplayValue('approver'),
+								state: apprGR.getDisplayValue('state'),
+								updated: apprGR.getDisplayValue('sys_updated_on'),
+								comments: apprGR.getDisplayValue('comments')
+						});
+				}
+		}
+	
+	
 	
 	
 
@@ -583,16 +756,16 @@ body {
         <sys_created_by>shroin.mandal</sys_created_by>
         <sys_created_on>2026-04-06 11:07:55</sys_created_on>
         <sys_id>8676efc63bc007105493ddb693e45a43</sys_id>
-        <sys_mod_count>111</sys_mod_count>
+        <sys_mod_count>132</sys_mod_count>
         <sys_name>Quota Setup</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
         <sys_update_name>sp_widget_8676efc63bc007105493ddb693e45a43</sys_update_name>
-        <sys_updated_by>upma.rai</sys_updated_by>
-        <sys_updated_on>2026-06-12 12:02:05</sys_updated_on>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-28 15:50:49</sys_updated_on>
         <template><![CDATA[<div class="quota-page">
-  <!-- Header Section -->
+  <!-- Header Section  -->
   <div class="header-row">
     <div class="admin-page-topbar">
       <!--<button class="admin-back-btn" ng-click="c.goBack()">
@@ -607,7 +780,8 @@ body {
     <!--h2 class="setup">Quota Setup</h2-->
     <div class="header-actions">
       <!-- <button class="btn-secondary" ng-click="c.viewAssign()">View Assignments</button> -->
-      <button class="btn-create" ng-click="c.createQuota()" ng-if="c.data.isIncentNowGroupAdmin">+ Create Quota</button>
+      <button class="btn-create" ng-click
+              ="c.createQuota()" ng-if="c.data.isIncentNowGroupAdmin">+ Create Quota</button>
     </div>
   </div>
   <p class="subtitle">Configure sales quotas for different periods and frequencies</p>
@@ -643,6 +817,11 @@ body {
       <span>Currently in Use</span>
     </div>
     <div class="stat-box">
+      <p class="box">Assigned Reps</p>
+      <p class="set">{{c.data.assignedRepCount}}</p>
+      <span>Across Quotas</span>
+    </div>
+    <div class="stat-box">
       <p class="box">Total Active Quota Value</p>
       <p class="set">$ {{c.getQuotaSummary().totalValue | number}}</p>
       <span>Across all Active Quotas</span>
@@ -654,6 +833,55 @@ body {
       <div>
         <sp-widget widget="data.tableWidget"></sp-widget>
       </div>
+  
+  <div id="approvalFlowSection"
+       class="panel panel-default m-t-lg"
+       ng-if="c.showApprovalFlow">
+      <div class="panel-heading">
+          <h4>Approval Flow</h4>
+      </div>
+      <div class="panel-body">
+          <table class="table table-striped">
+              <thead>
+                  <tr>
+                      <th>Approver</th>
+                      <th>Status</th>
+                      <th>Updated</th>
+                      <th>Comments</th>
+                  </tr>
+              </thead>
+              <tbody>
+                  <tr ng-repeat="item in c.getPaginatedApprovalFlow()">
+                      <td>{{item.approver}}</td>
+                      <td>{{item.state}}</td>
+                      <td>{{item.updated}}</td>
+                      <td>{{item.comments}}</td>
+                  </tr>
+              </tbody>
+          </table>
+        <div class="pagination-wrapper" ng-if="c.approvalFlow.length">
+            <div class="pagination-container">
+
+                <button class="pg-btn"
+                        ng-click="c.prevApprovalPage()"
+                        ng-disabled="c.approvalCurrentPage === 1">
+                    ← Prev
+                </button>
+
+                <span class="pg-info">
+                    Page {{c.approvalCurrentPage}} / {{c.approvalTotalPages()}}
+                </span>
+
+                <button class="pg-btn"
+                        ng-click="c.nextApprovalPage()"
+                        ng-disabled="c.approvalCurrentPage === c.approvalTotalPages()">
+                    Next →
+                </button>
+
+            </div>
+        </div>
+      </div>
+  </div>
 
   <!-- old table---
   <div class="panel panel-default config">

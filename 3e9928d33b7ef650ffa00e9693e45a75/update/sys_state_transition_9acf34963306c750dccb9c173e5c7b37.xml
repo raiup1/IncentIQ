@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_state_transition">
+    <sys_state_transition action="INSERT_OR_UPDATE">
+        <description/>
+        <enter_condition>stateIN2^EQ</enter_condition>
+        <exit_condition/>
+        <order>300</order>
+        <state>3</state>
+        <state_label/>
+        <state_model/>
+        <sys_class_name>sys_state_transition</sys_class_name>
+        <sys_created_by>karan.kumar</sys_created_by>
+        <sys_created_on>2026-07-15 03:42:54</sys_created_on>
+        <sys_id>9acf34963306c750dccb9c173e5c7b37</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>Awaiting Info</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_state_transition_9acf34963306c750dccb9c173e5c7b37</sys_update_name>
+        <sys_updated_by>karan.kumar</sys_updated_by>
+        <sys_updated_on>2026-07-15 03:42:54</sys_updated_on>
+        <terminal_state>false</terminal_state>
+    </sys_state_transition>
+</record_update>

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>package_private</access>
+        <active>true</active>
+        <api_name>x_ctans_incentnow.IncentIQImportProcessor</api_name>
+        <caller_access/>
+        <client_callable>false</client_callable>
+        <description/>
+        <mobile_callable>false</mobile_callable>
+        <name>IncentIQImportProcessor</name>
+        <sandbox_callable>false</sandbox_callable>
+        <script><![CDATA[var IncentIQImportProcessor = Class.create();
+IncentIQImportProcessor.prototype = {
+    initialize: function() {},
+
+    start: function(batchId) {
+        var result = {
+            success: false,
+            runSysId: ''
+        };
+
+        var staging = new GlideRecordSecure('x_ctans_incentnow_data_lake_staging');
+        staging.addQuery('sys_import_set', batchId);
+        staging.setLimit(1);
+        staging.query();
+
+        if (!staging.next()) {
+            result.message = 'No staging records found.';
+            gs.info("IncentIQImportProcessor - ERROR: No staging records found");
+            return result;
+        }
+
+        var runGR = new GlideRecordSecure('x_ctans_incentnow_import_run');
+        runGR.initialize();
+        runGR.setValue('status', 'Running');
+        runGR.setValue('batch_id', batchId);
+        runGR.setValue('data_model_object', staging.getValue('data_model_object'));
+        runGR.setValue('run_by', gs.getUserID());
+        runGR.setValue('started_at', new GlideDateTime());
+        var runSysId = runGR.insert();
+        gs.addInfoMessage("Import Run Created: " + runGR.number);
+
+        gs.eventQueue(
+            'x_ctans_incentnow.process_import',
+            runGR,
+            runSysId,
+            batchId
+        );
+
+        result.success = true;
+        result.runSysId = runSysId;
+        result.message = 'Import processing started.';
+        return result;
+    },
+
+    type: 'IncentIQImportProcessor'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+        <sys_created_on>2026-06-24 14:06:02</sys_created_on>
+        <sys_id>a6b48fab332d4b10dccb9c173e5c7b0f</sys_id>
+        <sys_mod_count>5</sys_mod_count>
+        <sys_name>IncentIQImportProcessor</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_script_include_a6b48fab332d4b10dccb9c173e5c7b0f</sys_update_name>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-22 07:21:34</sys_updated_on>
+    </sys_script_include>
+</record_update>

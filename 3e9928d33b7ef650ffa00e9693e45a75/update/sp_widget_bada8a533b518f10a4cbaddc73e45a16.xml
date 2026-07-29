@@ -1013,7 +1013,7 @@ input:disabled {
         <script><![CDATA[(function() {
 
     data.dataModels = [];
-		data.objectTables = [];
+    data.objectTables = [];
     data.targetFields = [];
     data.previewHeaders = [];
     data.previewRows = [];
@@ -1026,32 +1026,30 @@ input:disabled {
         data.error = "Access Denied";
         return;
     }
-	
-	
-		data.sourceTypeOptions=[];
-		var grChoice = new GlideRecordSecure("sys_choice");
-		grChoice.addEncodedQuery("name=x_ctans_incentnow_data_model_object^element=source_type^inactive=false^language=en");
-		grChoice.query();
-		while(grChoice.next())
-			{
-				var obj={};
-				obj.label=grChoice.getValue("label");
-				obj.value=grChoice.getValue("value");
-				data.sourceTypeOptions.push(obj);
-			}
-	
-	data.sourcesystem=[];
-		var grChoice = new GlideRecordSecure("sys_choice");
-		grChoice.addEncodedQuery("name=x_ctans_incentnow_data_model_object^element=data_source_system^inactive=false^language=en");
-		grChoice.query();
-		while(grChoice.next())
-			{
-				var obj={};
-				obj.label=grChoice.getValue("label");
-				obj.value=grChoice.getValue("value");
-				data.sourcesystem.push(obj);
-			}
-	
+
+
+    data.sourceTypeOptions = [];
+    var grChoice = new GlideRecordSecure("sys_choice");
+    grChoice.addEncodedQuery("name=x_ctans_incentnow_data_model_object^element=source_type^inactive=false^language=en");
+    grChoice.query();
+    while (grChoice.next()) {
+        var obj = {};
+        obj.label = grChoice.getValue("label");
+        obj.value = grChoice.getValue("value");
+        data.sourceTypeOptions.push(obj);
+    }
+
+    data.sourcesystem = [];
+    var grChoice = new GlideRecordSecure("sys_choice");
+    grChoice.addEncodedQuery("name=x_ctans_incentnow_data_model_object^element=data_source_system^inactive=false^language=en");
+    grChoice.query();
+    while (grChoice.next()) {
+        var obj = {};
+        obj.label = grChoice.getValue("label");
+        obj.value = grChoice.getValue("value");
+        data.sourcesystem.push(obj);
+    }
+
     /* -------------- CREATE MODEL -------------- */
 
     if (input && input.action === 'createModel') {
@@ -1060,8 +1058,8 @@ input:disabled {
         if (!input.model ||
             !input.model.source_name ||
             !input.model.source_type ||
-            !input.model.object_name
-					 || !input.model.data_source_system) {
+            !input.model.object_name ||
+            !input.model.data_source_system) {
             data.error = "All fields are required.";
             data.success = false;
             return;
@@ -1073,8 +1071,8 @@ input:disabled {
         check.query();
 
         if (check.next()) {
-						
-						data.newModelId=check.getUniqueValue();
+
+            data.newModelId = check.getUniqueValue();
             data.error = "Model already exists.";
             data.success = false;
             return;
@@ -1085,31 +1083,28 @@ input:disabled {
         dm.source_name = input.model.source_name;
         dm.source_type = input.model.source_type;
         dm.object_name = input.model.object_name;
-				dm.data_source_system = input.model.data_source_system;
-			//gs.addErrorMessage("table "+input.model.objectTable);
-				dm.object_table = input.model.objectTable.sys_id;
+        dm.data_source_system = input.model.data_source_system;
+        //gs.addErrorMessage("table "+input.model.objectTable);
+        dm.object_table = input.model.objectTable.sys_id;
         dm.active = true;
         var newId = dm.insert();
-				if(newId)
-					{
-						//gs.addInfoMessage('Data Model Created Successfully:');
-        		data.success    = true;
-						data.error      = "";
-						data.message    = "Data Model Created Successfully";
-						data.newModelId   = newId + '';
-						data.newModelName = input.model.source_name + " - " + input.model.object_name;
-					}
-			else
-				{
-					data.success=false;
-					data.newModelName = input.model.source_name + " - " + input.model.object_name;
-					data.error= "Insertion failed :- "+data.newModelName;
-					data.message    = "Insertion failed :- "+data.newModelName;
-					
-					
-				}
-        
-       
+        if (newId) {
+            //gs.addInfoMessage('Data Model Created Successfully:');
+            data.success = true;
+            data.error = "";
+            data.message = "Data Model Created Successfully";
+            data.newModelId = newId + '';
+            data.newModelName = input.model.source_name + " - " + input.model.object_name;
+        } else {
+            data.success = false;
+            data.newModelName = input.model.source_name + " - " + input.model.object_name;
+            data.error = "Insertion failed :- " + data.newModelName;
+            data.message = "Insertion failed :- " + data.newModelName;
+
+
+        }
+
+
         return;
     }
 
@@ -1130,94 +1125,94 @@ input:disabled {
         }
         return;
     }
-	
-	/* -------------- GET OBJECT TABLE -------------- */
-	
-	if (input && input.action === 'getObjectTables') {
 
-		var incentiqtable=gs.getProperty("x_ctans_incentnow.internal.crm_tables");
-		
+    /* -------------- GET OBJECT TABLE -------------- */
+
+    if (input && input.action === 'getObjectTables') {
+
+        var incentiqtable = gs.getProperty("x_ctans_incentnow.internal.crm_tables");
+
         var dmList = new GlideRecordSecure('sys_db_object');
-					dmList.addEncodedQuery("nameIN"+incentiqtable);
-				//dmList.addEncodedQuery("label=Quote^ORlabel=Opportunity^ORlabel=Order^ORlabel=Install Base^ORlabel=Contract^ORlabel=Case^ORlabel=Work Order")
+        dmList.addEncodedQuery("nameIN" + incentiqtable);
+        //dmList.addEncodedQuery("label=Quote^ORlabel=Opportunity^ORlabel=Order^ORlabel=Install Base^ORlabel=Contract^ORlabel=Case^ORlabel=Work Order")
         dmList.orderBy('label');
         dmList.query();
         while (dmList.next()) {
             data.objectTables.push({
                 name: dmList.getValue('name'),
                 label: dmList.getValue('label'),
-								sys_id: dmList.getUniqueValue()
+                sys_id: dmList.getUniqueValue()
             });
         }
     }
-	
-
-	
-	
-	if (input && input.action === 'getOpportunityFields') {
-			
-			var table_name= input.table_name;
-		//gs.addErrorMessage(table_name)
-
-				var dictGR = new GlideRecordSecure('sys_dictionary');
-				dictGR.addQuery('name', table_name);
-				dictGR.addQuery('active', true);
-				dictGR.addNotNullQuery('element');
-				dictGR.addEncodedQuery("internal_type!=GUID^internal_type!=collection");
-				dictGR.orderBy('column_label');
-				dictGR.query();
-
-				while (dictGR.next()) {
-
-						
-
-						var internalType = dictGR.getValue('internal_type');
-
-						var fieldTypeSysId = '';
-
-						var typeGR = new GlideRecordSecure('sys_glide_object');
-						typeGR.addQuery('name', internalType);
-						typeGR.query();
-
-						if (typeGR.next()) {
-						fieldTypeSysId = typeGR.getUniqueValue();
-						}
-
-						data.previewHeaders.push({
-						name: dictGR.getValue('element'),
-						label: dictGR.getValue('column_label'),
-						internal_type: internalType,
-						field_type_sys_id: fieldTypeSysId
-						});
-
-				}
-
-				return;
 
 
-			}
-
-	if (input && input.action === 'getDataTypes') {
-
-		data.dataTypes=[];
-			var typeGR = new GlideRecordSecure('sys_glide_object');
-			
-			typeGR.orderBy('name');
-			typeGR.query();
-			//gs.addErrorMessage("rowcount "+typeGR.getRowCount())
-			while (typeGR.next()) {
-
-					data.dataTypes.push({
-							label: typeGR.getValue('label'),
-							value: typeGR.getValue('name'),
-							sys_id: typeGR.getUniqueValue()
-					});
-			}
-
-			
 
 
-			}
+    if (input && input.action === 'getOpportunityFields') {
+
+        var table_name = input.table_name;
+        //gs.addErrorMessage(table_name)
+
+        var dictGR = new GlideRecordSecure('sys_dictionary');
+        dictGR.addQuery('name', table_name);
+        dictGR.addQuery('active', true);
+        dictGR.addNotNullQuery('element');
+        dictGR.addEncodedQuery("internal_type!=GUID^internal_type!=collection");
+        dictGR.orderBy('column_label');
+        dictGR.query();
+
+        while (dictGR.next()) {
+
+
+
+            var internalType = dictGR.getValue('internal_type');
+
+            var fieldTypeSysId = '';
+
+            var typeGR = new GlideRecordSecure('sys_glide_object');
+            typeGR.addQuery('name', internalType);
+            typeGR.query();
+
+            if (typeGR.next()) {
+                fieldTypeSysId = typeGR.getUniqueValue();
+            }
+
+            data.previewHeaders.push({
+                name: dictGR.getValue('element'),
+                label: dictGR.getValue('column_label'),
+                internal_type: internalType,
+                field_type_sys_id: fieldTypeSysId
+            });
+
+        }
+
+        return;
+
+
+    }
+
+    if (input && input.action === 'getDataTypes') {
+
+        data.dataTypes = [];
+        var typeGR = new GlideRecordSecure('sys_glide_object');
+
+        typeGR.orderBy('name');
+        typeGR.query();
+        //gs.addErrorMessage("rowcount "+typeGR.getRowCount())
+        while (typeGR.next()) {
+
+            data.dataTypes.push({
+                label: typeGR.getValue('label'),
+                value: typeGR.getValue('name'),
+                sys_id: typeGR.getUniqueValue()
+            });
+        }
+
+
+
+
+    }
 
 
     /* -------------- GET TARGET FIELDS -------------- */
@@ -1253,72 +1248,70 @@ input:disabled {
     if (input && input.action === 'saveMapping') {
 
         if (!input.dataModelObject || !input.mappings || !input.mappings.length) {
-					
-										
+
+
             data.error = "Invalid mapping payload.";
             return;
         }
-		
 
-       // var old = new GlideRecordSecure('x_ctans_incentnow_metadata_mapping');
-       // old.addQuery('data_model_object_id', input.dataModelObject);
-       // old.deleteMultiple();
-				//gs.addErrorMessage(JSON.stringify(input.mappings));
+
+        // var old = new GlideRecordSecure('x_ctans_incentnow_metadata_mapping');
+        // old.addQuery('data_model_object_id', input.dataModelObject);
+        // old.deleteMultiple();
+        //gs.addErrorMessage(JSON.stringify(input.mappings));
         for (var i = 0; i < input.mappings.length; i++) {
             var m = input.mappings[i];
-						
-          
+
+
             var grMap = new GlideRecordSecure('x_ctans_incentnow_metadata_mapping');
 
-						grMap.addQuery('data_model_object_id', input.dataModelObject);
-						grMap.addQuery('source_field_name', m.source.trim());
-						grMap.query();
+            grMap.addQuery('data_model_object_id', input.dataModelObject);
+            grMap.addQuery('source_field_name', m.source.trim());
+            grMap.query();
 
-						var isUpdate = grMap.next();
+            var isUpdate = grMap.next();
 
-						if (!isUpdate) {
-								grMap.initialize();
-						}
-					
+            if (!isUpdate) {
+                grMap.initialize();
+            }
+
             grMap.data_model_object_id = input.dataModelObject;
             grMap.source_field_name = m.source.trim();
-						grMap.field_type = m.fieldTypeSysId;
+            grMap.field_type = m.fieldTypeSysId;
             grMap.source_display_name = m.sourceDisplayName || m.source;
             grMap.is_primary_key = m.isPrimary ? true : false;
             grMap.active = true;
-						grMap.data_lake_field_name="";
-					
-					if (m.targetField) {
+            grMap.data_lake_field_name = "";
 
-							var dict = new GlideRecordSecure('sys_dictionary');
-							dict.addQuery('name', 'x_ctans_incentnow_data_lake');
-							dict.addQuery('element', m.targetField);
-							dict.query();
+            if (m.targetField) {
 
-							if (dict.next()) {
-									grMap.data_lake_field_name = dict.getUniqueValue();
-									//grMap.data_lake_column_name = dict.getValue('element');
-							}
-					}
-					else
-						grMap.data_lake_field_name = "";
-					
-						
+                var dict = new GlideRecordSecure('sys_dictionary');
+                dict.addQuery('name', 'x_ctans_incentnow_data_lake_master');
+                dict.addQuery('element', m.targetField);
+                dict.query();
+
+                if (dict.next()) {
+                    grMap.data_lake_field_name = dict.getUniqueValue();
+                    //grMap.data_lake_column_name = dict.getValue('element');
+                }
+            } else
+                grMap.data_lake_field_name = "";
+
+
             if (isUpdate) {
-								grMap.update();
-						} else {
-								grMap.insert();
-						}
+                grMap.update();
+            } else {
+                grMap.insert();
+            }
         }
 
         gs.addInfoMessage("Mapping Saved Successfully");
-        
+
     }
-		
 
-    /* -------------- RUN TRANSFORM -------------- */
 
-   
+
+
 
 })();]]></script>
         <servicenow>false</servicenow>
@@ -1326,14 +1319,14 @@ input:disabled {
         <sys_created_by>karan.kumar</sys_created_by>
         <sys_created_on>2026-06-11 04:57:42</sys_created_on>
         <sys_id>bada8a533b518f10a4cbaddc73e45a16</sys_id>
-        <sys_mod_count>1</sys_mod_count>
+        <sys_mod_count>3</sys_mod_count>
         <sys_name>Incentnow Internal Load Mappings</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy/>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
         <sys_update_name>sp_widget_bada8a533b518f10a4cbaddc73e45a16</sys_update_name>
-        <sys_updated_by>shroin.mandal</sys_updated_by>
-        <sys_updated_on>2026-06-12 09:49:42</sys_updated_on>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-06-24 12:13:44</sys_updated_on>
         <template><![CDATA[<div class="upload-page-wrap">
 
   <!-- TOPBAR — updated to match standard portal banner -->

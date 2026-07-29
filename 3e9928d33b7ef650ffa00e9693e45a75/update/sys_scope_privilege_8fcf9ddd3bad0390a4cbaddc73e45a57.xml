@@ -16,7 +16,7 @@
         <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
         <sys_updated_on>2026-06-17 06:57:25</sys_updated_on>
         <target_name>sn_certservice_rules</target_name>
-        <target_scope display_value="">b7d8bfb75b112200c6416ede91f91a91</target_scope>
+        <target_scope display_value="Certification Self-Test Tool">b7d8bfb75b112200c6416ede91f91a91</target_scope>
         <target_type>sys_db_object</target_type>
     </sys_scope_privilege>
 </record_update>

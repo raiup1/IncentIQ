@@ -1,183 +1,250 @@
 <?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
     <sp_widget action="INSERT_OR_UPDATE">
         <category>custom</category>
-        <client_script><![CDATA[api.controller=function($scope, spUtil,$window,spModal,$location,$rootScope) {
-  
-    	var c = this;
-	
-			//c.assignRec="Assigned";
-	
-			c.openMappings = function(sysid)
-			{
-				 $rootScope.$broadcast('openmappings', {
-								filter: "data_model_object_id="+sysid
-						});
-			}
-		
-			c.openUploadPage= function(sys_id,type)
-			{
-				//alert(type);
-				if(type=="External")
-				{var url = '/incentiq?id=upload&sys_id='+sys_id;
-        $location.url(url);}
-				
-			}
-	
-			c.getAssignLabel = function(status) {
-						if (status === "draft") {
-							return "Submit for Approval";
-						} else if (status === "pending_approval") {
-							return "Review";
-						} else if (status === "active") {
-							return "Assign";
-						}
-						return "Assign";
-					};
-	
-			c.performAction = function(status, sysid)
-			{
-				//spUtil.addErrorMessage("inof "+status +" -- "+sysid);
-				c.data.action="performaction";
-				c.data.recstatus=status;
-				c.data.recsysid=sysid;
-				
-				if(status=='active')
-					{
-						//alert(status + " -- "+sysid);
-						
-						//$window.location.href = "?id=incentnow_assignment_page&table=" + c.data.table + "&sys_id=" + sysid;
+        <client_script><![CDATA[api.controller = function($scope, spUtil, $window, spModal, $location, $rootScope) {
 
-						var shared={};
-										$scope.$emit('openAssignFullPage', {
-										sys_id: sysid
-									}); 
-						
-						//c.server.refresh();
-					}
-				
-				else if(status=='pending_approval')
-					{
-						var url = "?id=incentnow_approval&table=" + c.data.table + "&sys_id=" + sysid;
-						$location.url(url);
+    var c = this;
 
-					}
+    //c.assignRec="Assigned";
 
-				else if(status=='draft')
-					{
-						c.data.table=c.data.table;
-								c.server.update().then(function(){
-									//c.server.refresh();
-						});
-					}
-				
-				
-				
-				
-			};
+    c.openMappings = function(sysid) {
+        $rootScope.$broadcast('openmappings', {
+            filter: "data_model_object_id=" + sysid
+        });
+    }
+
+    c.openUploadPage = function(sys_id, type) {
+        //alert(type);
+        if (type == "External") {
+            var url = '/incentiq?id=upload&sys_id=' + sys_id;
+            $location.url(url);
+        }
+
+    }
+	
+		c.openDisputeDetails= function(sys_id)
+	{
+		var url = '/incentiq?id=dispute_details&sys_id=' + sys_id;
+            $location.url(url);
+	}
+
+    c.getAssignLabel = function(status) {
+        if (status === "draft") {
+            return "Submit for Approval";
+        } else if (status === "pending_approval") {
+            return "Review";
+        } else if (status === "active") {
+            return "Assign";
+        }
+        return "Assign";
+    };
+
+    c.performAction = function(status, sysid) {
+        //spUtil.addErrorMessage("inof "+status +" -- "+sysid);
+        c.data.action = "performaction";
+        c.data.recstatus = status;
+        c.data.recsysid = sysid;
+
+        if (status == 'active') {
+            //alert(status + " -- "+sysid);
+
+            //$window.location.href = "?id=incentnow_assignment_page&table=" + c.data.table + "&sys_id=" + sysid;
+
+            var shared = {};
+            $scope.$emit('openAssignFullPage', {
+                sys_id: sysid
+            });
+
+            //c.server.refresh();
+        } else if (status == 'pending_approval') {
+            var url = "?id=incentnow_approval&table=" + c.data.table + "&sys_id=" + sysid;
+            $location.url(url);
+
+        } else if (status == 'draft') {
+            c.data.table = c.data.table;
+            c.server.update().then(function() {
+                //c.server.refresh();
+            });
+        }
 
 
-		c.performActionQuota = function(status, sysid)
-			{
-				c.data.action="performactionquota";
-				c.data.recstatus=status;
-				c.data.recsysid=sysid;
-				
-				if(status=='active')
-					{
-						var url  = "?id=incentnow_assignment_page&table=" + c.data.table + "&sys_id=" + sysid;
-						$location.url(url);
-					}
-				
-				else if(status=='pending_approval')
-					{
-						var url ="?id=incentnow_approval&table=" + c.data.table + "&sys_id=" + sysid;
-							$location.url(url);
-					}
-			
-				else if(status=='draft')
-					{
-						c.data.table=c.data.table;
-								c.server.update().then(function(){
-		
-						});
-					}
-		
-				c.server.update().then(function(){
-					
-				});
-				
-				
-			};
-	
-		c.deleteQuota = function(sysid) {
-			c.data.action = "deleteQuota";
-			c.data.recsysid = sysid;
-			spModal.open({
-					title: 'Delete Confirmation',
-					message: 'This action cannot be undone. Are you sure?',
-					buttons: [
-							{ label: 'Cancel', cancel: true },
-							{ label: 'Delete', primary: true }
-					]
-			}).then(function () {
-					c.server.update().then(function (response) {
-							if (response.data.response.status === "success") {
-									spUtil.addInfoMessage("Record deleted successfully.");
-									// Refresh data properly
-									spUtil.update($scope).then(function () {
-											c.quotaList = c.data.quotaList; // adjust based on your variable
-									});
-							} else {
-									spUtil.addErrorMessage("Delete failed or no authorization");
-							}
-					});
-			});
-	};
-	
-	$scope.$on('refreshTableWidget', function() {
-    c.server.refresh();
-});
-	
-		c.deactivateQuota = function(sysid) {
-			c.data.action = "deactivateQuota"; 
-			c.data.recsysid = sysid;
-			spModal.open({
-					title: 'Deactivate Confirmation',
-					message: 'Are you sure you want to deactivate this record?',
-					buttons: [
-							{ label: 'Cancel', cancel: true },
-							{ label: 'Deactivate', primary: true }
-					]
-			}).then(function () {
-					c.server.update().then(function (response) {
-							if (response.data.response.status === "success") {
-									spUtil.addInfoMessage("Deactivated successfully");
-									// Refresh UI
-									spUtil.update($scope).then(function () {
-											c.quotaList = c.data.quotaList; // adjust to your actual variable
-									});
-							} else {
-									spUtil.addErrorMessage("Deactivation failed or no authorization");
-							}
-					});
-			});
-	};
+
+
+    };
+
+    //Statement
+
+    c.performStatementAction = function(status, sysid) {
+        c.data.action = "performactionstatement";
+        c.data.recstatus = status;
+        c.data.recsysid = sysid;
+
+        if (status == "statement_generated") {
+            c.server.update().then(function(response) {
+                if (response.data.response &&
+                    response.data.response.status == "success") {
+                    spUtil.addInfoMessage("Statement submitted for approval.");
+                    // Refresh the table
+                    spUtil.update($scope);
+                } else if (response.data.response &&
+                    response.data.response.status == "no_change") {
+                    spUtil.addErrorMessage("Statement cannot be submitted.");
+                } else {
+                    spUtil.addErrorMessage("Unable to submit statement.");
+                }
+            });
+        }
+    };
+
+    c.openApprovalFlow = function(sysId) {
+
+        if (c.data.isStatement) {
+            $rootScope.$broadcast('showStatementApprovalFlow', {
+                statementId: sysId
+            });
+        } else if (c.data.isQuota) {
+            $rootScope.$broadcast('showQuotaApprovalFlow', {
+                quotaId: sysId
+            });
+        } else if (c.data.isPlan) {
+            $rootScope.$broadcast('showPlanApprovalFlow', {
+                planId: sysId
+            });
+        }
+    };
+
+    c.deleteStatement = function(sysid) {
+        c.data.action = "deleteStatement";
+        c.data.recsysid = sysid;
+        spModal.open({
+            title: 'Delete Confirmation',
+            message: 'This statement will be permanently deleted. Are you sure?',
+            buttons: [{
+                    label: 'Cancel',
+                    cancel: true
+                },
+                {
+                    label: 'Delete',
+                    primary: true
+                }
+            ]
+        }).then(function() {
+            c.server.update().then(function(response) {
+                if (response.data.response.status === "success") {
+                    spUtil.addInfoMessage("Statement deleted successfully");
+                    spUtil.update($scope);
+                } else {
+                    spUtil.addErrorMessage("Unable to delete statement");
+                }
+            });
+        });
+    };
+
+
+    c.performActionQuota = function(status, sysid) {
+        c.data.action = "performactionquota";
+        c.data.recstatus = status;
+        c.data.recsysid = sysid;
+
+        if (status == 'active') {
+            var url = "?id=incentnow_assignment_page&table=" + c.data.table + "&sys_id=" + sysid;
+            $location.url(url);
+        } else if (status == 'pending_approval') {
+            var url = "?id=incentnow_approval&table=" + c.data.table + "&sys_id=" + sysid;
+            $location.url(url);
+        } else if (status == 'draft') {
+            c.data.table = c.data.table;
+            c.server.update().then(function() {
+
+            });
+        }
+
+        c.server.update().then(function() {
+
+        });
+
+
+    };
+
+    c.deleteQuota = function(sysid) {
+        c.data.action = "deleteQuota";
+        c.data.recsysid = sysid;
+        spModal.open({
+            title: 'Delete Confirmation',
+            message: 'This action cannot be undone. Are you sure?',
+            buttons: [{
+                    label: 'Cancel',
+                    cancel: true
+                },
+                {
+                    label: 'Delete',
+                    primary: true
+                }
+            ]
+        }).then(function() {
+            c.server.update().then(function(response) {
+                if (response.data.response.status === "success") {
+                    spUtil.addInfoMessage("Record deleted successfully.");
+                    // Refresh data properly
+                    spUtil.update($scope).then(function() {
+                        c.quotaList = c.data.quotaList; // adjust based on your variable
+                    });
+                } else {
+                    spUtil.addErrorMessage("Delete failed or no authorization");
+                }
+            });
+        });
+    };
+
+    $scope.$on('refreshTableWidget', function() {
+        c.server.refresh();
+    });
+
+    c.deactivateQuota = function(sysid) {
+        c.data.action = "deactivateQuota";
+        c.data.recsysid = sysid;
+        spModal.open({
+            title: 'Deactivate Confirmation',
+            message: 'Are you sure you want to deactivate this record?',
+            buttons: [{
+                    label: 'Cancel',
+                    cancel: true
+                },
+                {
+                    label: 'Deactivate',
+                    primary: true
+                }
+            ]
+        }).then(function() {
+            c.server.update().then(function(response) {
+                if (response.data.response.status === "success") {
+                    spUtil.addInfoMessage("Deactivated successfully");
+                    // Refresh UI
+                    spUtil.update($scope).then(function() {
+                        c.quotaList = c.data.quotaList; // adjust to your actual variable
+                    });
+                } else {
+                    spUtil.addErrorMessage("Deactivation failed or no authorization");
+                }
+            });
+        });
+    };
 
 
     c.nextPage = function() {
-        
-			var next = ($scope.data.page || 1) + 1;
 
-				$scope.data.page = next;   
+        var next = ($scope.data.page || 1) + 1;
 
-				spUtil.update($scope, {
-						page: next,
-						table: $scope.data.table,
-						view: $scope.data.view,
-						filter: $scope.data.filter
-				});
+        $scope.data.page = next;
 
-        
+        spUtil.update($scope, {
+            page: next,
+            table: $scope.data.table,
+            view: $scope.data.view,
+            filter: $scope.data.filter
+        });
+
+
     };
 
     c.prevPage = function() {
@@ -188,67 +255,67 @@
     };
 
     c.viewPeriods = function(sys_id) {
-			
+
         $scope.$emit('openFiscalPeriods', {
             sys_id: sys_id
         });
 
-        
+
     };
-	
-	c.openRecord = function(sysId) {
-		if(c.data.table=="x_ctans_incentnow_plan")
-			{
-				var url ="?id=create_plan&table=" + c.data.table + "&sys_id=" + sysId;
-				$location.url(url);
-			}
-		else if(c.data.table=="x_ctans_incentnow_quota")
-			{
-				var url = "?id=quota_builder&table=" + c.data.table + "&sys_id=" + sysId;
-				$location.url(url);
-			}
-		else
-		$location.url("?id=incentnow_form&table=" + c.data.table + "&sys_id=" + sysId);
-	};
-	
-	c.viewRecord = function(sysId) {
-		if(c.data.table=="x_ctans_incentnow_plan")
-			{
-				var url = "?id=create_plan&table=" + c.data.table + "&sys_id=" + sysId;
-				$location.url(url);
-				//$window.open(url); 
-			}
-		//else
-		//$window.location.href = "?id=incentnow_form&table=" + c.data.table + "&sys_id=" + sysId;
-	};
-	
-	c.filterQuery = c.data.query || ''; 
 
-  c.onFilterChange = function(query) {
-    c.filterQuery = query;
-    c.server.update({ query: query });
-  };
-	
-	$scope.$on('widget-filter-breadcrumbs.queryModified', function(e, newFilter) {
-  $scope.data.filter = newFilter;
-  $scope.server.update();
-});
-	
-//	$scope.server.update().then(function(response) {
+    c.openRecord = function(sysId) {
+        if (c.data.table == "x_ctans_incentnow_plan") {
+            var url = "?id=create_plan&table=" + c.data.table + "&sys_id=" + sysId;
+            $location.url(url);
+        } else if (c.data.table == "x_ctans_incentnow_quota") {
+            var url = "?id=quota_builder&table=" + c.data.table + "&sys_id=" + sysId;
+            $location.url(url);
+        } else if (c.data.table == "x_ctans_incentnow_incentive_statement") {
+            var url = "?id=incentive_statement_view&&statement_id=" + sysId;
+            $location.url(url);
+        } else
+            $location.url("?id=incentnow_form&table=" + c.data.table + "&sys_id=" + sysId);
+    };
 
-  if ($scope.data.filterBreadcrumbs) {
-    $scope.$broadcast(
-      'widget-filter-breadcrumbs.setBreadcrumbs',
-      $scope.data.filterBreadcrumbs.data,
-      $scope.data.filter
-    );
-  }
+    c.viewRecord = function(sysId) {
+        if (c.data.table == "x_ctans_incentnow_plan") {
+            var url = "?id=create_plan&table=" + c.data.table + "&sys_id=" + sysId;
+            $location.url(url);
+            //$window.open(url); 
+        }
+        //else
+        //$window.location.href = "?id=incentnow_form&table=" + c.data.table + "&sys_id=" + sysId;
+    };
 
-//});
-	
-	
-	
-	
+    c.filterQuery = c.data.query || '';
+
+    c.onFilterChange = function(query) {
+        c.filterQuery = query;
+        c.server.update({
+            query: query
+        });
+    };
+
+    $scope.$on('widget-filter-breadcrumbs.queryModified', function(e, newFilter) {
+        $scope.data.filter = newFilter;
+        $scope.server.update();
+    });
+
+    //	$scope.server.update().then(function(response) {
+
+    if ($scope.data.filterBreadcrumbs) {
+        $scope.$broadcast(
+            'widget-filter-breadcrumbs.setBreadcrumbs',
+            $scope.data.filterBreadcrumbs.data,
+            $scope.data.filter
+        );
+    }
+
+    //});
+
+
+
+
 };]]></client_script>
         <controller_as>c</controller_as>
         <css>.modern-table th {
@@ -256,6 +323,51 @@
  
 }
 
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    border: 1px solid;
+}
+
+.status-active {
+    background: #16a34a;
+    color: #fff;
+    border: 1px solid #16a34a;
+}
+
+.status-pending {
+    background: #fff7ed;
+    color: #c2410c;
+    border: 1px solid #fdba74;
+}
+
+.status-draft {
+    background: #f3f4f6;
+    color: #374151;
+    border: 1px solid #d1d5db;
+}
+
+.status-inactive {
+    background: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fca5a5;
+}
+
+.status-generated {
+    color: #1d4ed8;
+    background: #eff6ff;
+    border-color: #93c5fd;
+}
+
+.status-published {
+    color: #7c3aed;
+    background: #f5f3ff;
+    border-color: #c4b5fd;
+}
 
 .action-bar {
   display: flex;
@@ -292,15 +404,14 @@
 
 .action-btn-ghost {
   background: transparent;
-  border: 1px solid transparent;
-  color: #111827; 
+  border: 1px solid #d1d5db;
+  color: #111827;
 }
-
 
 .action-btn-ghost:hover,
 .action-btn-ghost:focus {
   background: #f3f4f6;
-  /*color: #111827;*/
+  border-color: #d1d5db;
 }
 
 .action-btn-outline {
@@ -402,7 +513,7 @@
 
 /* BUTTONS */
 .btn-modern {
-  background: #ffffff;
+  background: #ffffff !important;
   border: 1px solid #d1d5db;
   color: #111827;
   border-radius: 6px;
@@ -432,7 +543,7 @@
   color: #111827;
 }
 
-/* PAGINATION */
+/* PAGINATION 
 .pagination-modern {
   display: flex;
   justify-content: center;
@@ -441,6 +552,19 @@
   padding: 12px;
   border-top: 1px solid #e5e7eb;
   background: #fafafa;
+} */
+
+.pagination-modern {
+    padding: 12px;
+    border-top: 1px solid #e5e7eb;
+    background: #fafafa;
+    text-align: center;
+}
+
+.pagination-controls {
+    display: inline-flex;
+    align-items: center;
+    gap: 15px;
 }
 
 .page-info {
@@ -483,233 +607,241 @@
         <roles>x_ctans_incentnow.admin,x_ctans_incentnow.user</roles>
         <script><![CDATA[(function() {
 
-	data.isIncentNowGroupAdmin= gs.hasRole('x_ctans_incentnow.business_group_admin') || gs.hasRole('x_ctans_incentnow.admin');
-	data.isIncentNowUser=gs.hasRole('x_ctans_incentnow.user');
+    data.isIncentNowGroupAdmin = gs.hasRole('x_ctans_incentnow.business_group_admin') || gs.hasRole('x_ctans_incentnow.admin') || gs.hasRole('x_ctans_incentnow.territory_admin');
+    data.isIncentNowUser = gs.hasRole('x_ctans_incentnow.user');
 
     input = input || {};
-	
-		data.table = input.table || options.table || data.table || '';
-		
-		if(data.table=="x_ctans_incentnow_plan")
-			{
-				data.isPlan=true;
-			}
-	
-		if(data.table=="x_ctans_incentnow_quota")
-			{
-				data.isQuota=true;
-			}
-		if(data.table=="x_ctans_incentnow_data_model_object")
-			{
-				
-				data.dataModelObj=true;
-			}
 
-			if(data.table=="x_ctans_incentnow_metadata_mapping")
-			{
-				
-				data.metaDataMapping=true;
-			}
+    data.table = input.table || options.table || data.table || '';
 
-		var grtable = new GlideRecordSecure(data.table);
-		data.table_title = grtable.getLabel();
-		if (input.viewperiod !== undefined) {
-					data.view_period = input.viewperiod;
-			} else if (options.viewperiod !== undefined) {
-					data.view_period = options.viewperiod;
-			} else {
-					data.view_period = data.viewperiod;
-			}
-		data.viewperiod = (data.view_period + '' === "true");
-	
-		//data.debug_message = "Type: " + typeof data.view_period + 
+    if (data.table == "x_ctans_incentnow_plan") {
+        data.isPlan = true;
+    }
+
+    if (data.table == "x_ctans_incentnow_quota") {
+        data.isQuota = true;
+    }
+    if (data.table == "x_ctans_incentnow_incentive_statement") {
+        data.isStatement = true;
+    }
+    if (data.table == "x_ctans_incentnow_data_model_object") {
+
+        data.dataModelObj = true;
+    }
+
+    if (data.table == "x_ctans_incentnow_metadata_mapping") {
+
+        data.metaDataMapping = true;
+    }
+		if (data.table == "x_ctans_incentnow_incentiq_dispute") {
+
+        data.disputeTable = true;
+    }
+
+    var grtable = new GlideRecordSecure(data.table);
+    data.table_title = grtable.getLabel();
+    if (input.viewperiod !== undefined) {
+        data.view_period = input.viewperiod;
+    } else if (options.viewperiod !== undefined) {
+        data.view_period = options.viewperiod;
+    } else {
+        data.view_period = data.viewperiod;
+    }
+    data.viewperiod = (data.view_period + '' === "true");
+
+    //data.debug_message = "Type: " + typeof data.view_period + 
     //                 " | Value: " + data.view_period;
-	
+
 
     data.table = input.table || options.table || data.table;
-    
-
-		data.page = parseInt(input.page, 10) || data.page || 1;
-
-		
+    data.page = parseInt(input.page, 10) || data.page || 1;
     data.page_size = options.page_size || 10;
 
     // Get fields from Default View
-		data.view = input.view || options.view || data.view || 'default';
-	
-
-		data.fields = new x_ctans_incentnow.IncentNowPortalUtils().getFieldMapping(data.table, data.view);
+    data.view = input.view || options.view || data.view || 'default';
+    data.fields = new x_ctans_incentnow.IncentNowPortalUtils().getFieldMapping(data.table, data.view);
     data.filter = input.filter || options.filter || data.filter || "";
 
-		data.enable_filter = true;
-		data.show_breadcrumbs = true;
+    data.enable_filter = true;
+    data.show_breadcrumbs = true;
 
-			var breadcrumbWidgetParams = {
-				table: data.table,
-				query: data.filter || '',
-				enable_filter: true
-			};
+    var breadcrumbWidgetParams = {
+        table: data.table,
+        query: data.filter || '',
+        enable_filter: true
+    };
 
-			data.filterBreadcrumbs = $sp.getWidget(
-				'widget-filter-breadcrumbs',
-				breadcrumbWidgetParams
-			);
-		//fetch records
-		fetchRec();
-		function fetchRec()
-		{
-		var gTable = new GlideRecordSecure(data.table);
-		
-		// 1. Get filter
-		data.filter = input.filter || options.filter || data.filter || "";
+    data.filterBreadcrumbs = $sp.getWidget(
+        'widget-filter-breadcrumbs',
+        breadcrumbWidgetParams
+    );
+    //fetch records
+    fetchRec();
 
-		// 2. Apply filter
-		if (data.filter) {
-			gTable.addEncodedQuery(data.filter);
-		}
-			
-			var start = (data.page - 1) * data.page_size;
-			var end = start + parseInt(data.page_size);
+    function fetchRec() {
+        var gTable = new GlideRecordSecure(data.table);
 
-			gTable.orderByDesc('sys_created_on');
-			gTable.chooseWindow(start, end);
-			gTable.query();
-		
-		
-	
-		data.filter = gTable.getEncodedQuery();
+        // 1. Get filter
+        data.filter = input.filter || options.filter || data.filter || "";
 
-		
-		data.filterBreadcrumbs = $sp.getWidget('widget-filter-breadcrumbs', {
-			table: data.table,
-			query: data.filter,
-			enable_filter: true
-		});	
-    data.records = [];
+        // 2. Apply filter
+        if (data.filter) {
+            gTable.addEncodedQuery(data.filter);
+        }
 
-    while (gTable.next()) {
-        var rec = {};
-        rec.sys_id = gTable.getUniqueValue();
-				rec.statusBack=gTable.getValue("status");
+        var start = (data.page - 1) * data.page_size;
+        var end = start + parseInt(data.page_size);
 
-        data.fields.forEach(function(field) {
-					var fieldName = field.column_name;
+        gTable.orderByDesc('sys_created_on');
+        gTable.chooseWindow(start, end);
+        gTable.query();
 
-    			if (fieldName && gTable.isValidField(fieldName)) {
-								rec[fieldName] = gTable.getDisplayValue(fieldName);
-						} else {
-								rec[fieldName] = '';
-						}
-				});
-				
-        data.records.push(rec);
+
+
+        data.filter = gTable.getEncodedQuery();
+
+
+        data.filterBreadcrumbs = $sp.getWidget('widget-filter-breadcrumbs', {
+            table: data.table,
+            query: data.filter,
+            enable_filter: true
+        });
+        data.records = [];
+
+        while (gTable.next()) {
+            var rec = {};
+            rec.sys_id = gTable.getUniqueValue();
+            rec.statusBack = gTable.getValue("status");
+
+            data.fields.forEach(function(field) {
+                var fieldName = field.column_name;
+
+                if (fieldName && gTable.isValidField(fieldName)) {
+                    rec[fieldName] = gTable.getDisplayValue(fieldName);
+                } else {
+                    rec[fieldName] = '';
+                }
+            });
+
+            data.records.push(rec);
+        }
+
+        // Total count
+        data.total = 0;
+        data.total_pages = 0;
+
+        if (data.filter) {
+
+            var countGR = new GlideAggregate(data.table);
+            countGR.addEncodedQuery(data.filter);
+            countGR.addAggregate('COUNT');
+            countGR.query();
+
+            if (countGR.next()) {
+                data.total = parseInt(countGR.getAggregate('COUNT'), 10);
+            }
+
+            data.total_pages = Math.ceil(data.total / data.page_size);
+        }
     }
-		
-		  // Total count
-    data.total = 0;
-		data.total_pages = 0;
 
-		if (data.filter) {
 
-				var countGR = new GlideAggregate(data.table);
-				countGR.addEncodedQuery(data.filter);
-				countGR.addAggregate('COUNT');
-				countGR.query();
 
-				if (countGR.next()) {
-						data.total = parseInt(countGR.getAggregate('COUNT'), 10);
-				}
 
-				data.total_pages = Math.ceil(data.total / data.page_size);
-		}
-		
-		
-		
-	}
-    
+    if (input && input.action == "performaction") {
 
-  
-	
-		if (input && input.action == "performaction") {
+        data.response = {};
+        var gPlan = new GlideRecordSecure(data.table);
+        if (gPlan.get(input.recsysid)) {
+            if (gPlan.getValue('status') == "draft") {
+                gPlan.setValue("status", 'pending_approval');
+                gPlan.update();
+                data.response.status = "success";
+            } else {
+                data.response.status = "no_change";
+            }
+        } else {
+            data.response.status = "error";
+        }
+        fetchRec();
+    }
 
-						data.response = {}; 
-			
+    if (input && input.action == "performactionstatement") {
+        data.response = {};
+        var grStatement = new GlideRecordSecure(data.table);
+        if (grStatement.get(input.recsysid)) {
+            if (grStatement.getValue('status') == "statement_generated") {
+                grStatement.setValue("status", "pending_approval");
+                grStatement.update();
+                data.response.status = "success";
+            } else {
+                data.response.status = "no_change";
+            }
+        } else {
+            data.response.status = "error";
+        }
+        fetchRec();
+    }
 
-						var gPlan = new GlideRecordSecure(data.table);
+    if (input && input.action == "deleteStatement") {
+        data.response = {};
+        var grStatement = new GlideRecordSecure('x_ctans_incentnow_incentive_statement');
+        if (grStatement.get(input.recsysid) &&
+            grStatement.getValue('status') == 'statement_generated') {
+            grStatement.deleteRecord();
+            data.response.status = "success";
+        } else {
+            data.response.status = "error";
+        }
+        fetchRec();
+    }
 
-						if (gPlan.get(input.recsysid)) {
+    if (input && input.action == "performactionquota") {
 
-								if (gPlan.getValue('status') == "draft") {
+        data.response = {};
+        var gPlan = new GlideRecordSecure(data.table);
+        if (gPlan.get(input.recsysid)) {
+            if (gPlan.getValue('status') == "draft") {
+                gPlan.setValue("status", 'pending_approval');
+                gPlan.update();
+                data.response.status = "success";
+            } else {
+                data.response.status = "no_change";
+            }
+        } else {
+            data.response.status = "error";
+        }
+        fetchRec();
+    }
 
-										gPlan.setValue("status", 'pending_approval');
-										gPlan.update();
+    if (input && input.action == "deleteQuota") {
+        data.response = {};
+        var deleteGR = new GlideRecordSecure(data.table);
 
-										data.response.status = "success";
-								} 
-								else {
-										data.response.status = "no_change";
-								}
+        if (deleteGR.get(input.recsysid) && deleteGR.getValue('status') == "draft") {
+            deleteGR.deleteRecord();
+            data.response.status = "success";
+        } else {
+            data.response.status = "error";
+        }
+        fetchRec();
+    }
 
-						} else {
-								data.response.status = "error";
-						} 
-				fetchRec();
-				}
-	
-		if (input && input.action == "performactionquota") {
+    if (input && input.action == "deactivateQuota") {
 
-						data.response = {}; 
+        data.response = {};
+        var deactivateGR = new GlideRecordSecure(data.table);
 
-						var gPlan = new GlideRecordSecure(data.table);
+        if (deactivateGR.get(input.recsysid) && deactivateGR.getValue('status') == "active") {
+            deactivateGR.setValue("status", "inactive");
+            deactivateGR.update();
+            data.response.status = "success";
+        } else {
+            data.response.status = "error";
+        }
 
-						if (gPlan.get(input.recsysid)) {
-
-								if (gPlan.getValue('status') == "draft") {
-
-										gPlan.setValue("status", 'pending_approval');
-										gPlan.update();
-
-										data.response.status = "success";
-								} 
-								else {
-										data.response.status = "no_change";
-								}
-
-						} else {
-								data.response.status = "error";
-						}
-				fetchRec();
-				}
-	
-		if (input && input.action == "deleteQuota") {
-				data.response = {};
-				var deleteGR = new GlideRecordSecure(data.table);
-
-				if (deleteGR.get(input.recsysid) && deleteGR.getValue('status') == "draft") {
-						deleteGR.deleteRecord();
-						data.response.status = "success";
-				} else {
-						data.response.status = "error";
-				}
-
-				fetchRec();
-		}
-	
-		if (input && input.action == "deactivateQuota") {
-
-				data.response = {};
-				var deactivateGR = new GlideRecordSecure(data.table);
-
-				if (deactivateGR.get(input.recsysid) && deactivateGR.getValue('status') == "active") {
-						deactivateGR.setValue("status", "inactive");
-						deactivateGR.update();
-						data.response.status = "success";
-				} else {
-						data.response.status = "error";
-				}
-
-				fetchRec();
-		}
+        fetchRec();
+    }
 
 
 
@@ -719,181 +851,361 @@
         <sys_created_by>karan.kumar</sys_created_by>
         <sys_created_on>2026-03-23 08:11:01</sys_created_on>
         <sys_id>19c73a2d3b3bfe905493ddb693e45ae9</sys_id>
-        <sys_mod_count>439</sys_mod_count>
+        <sys_mod_count>514</sys_mod_count>
         <sys_name>IncentNow Table Widget</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
         <sys_update_name>sp_widget_19c73a2d3b3bfe905493ddb693e45ae9</sys_update_name>
-        <sys_updated_by>karan.kumar</sys_updated_by>
-        <sys_updated_on>2026-06-12 06:07:52</sys_updated_on>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-28 17:20:38</sys_updated_on>
         <template><![CDATA[<sp-widget widget="widget-filter-breadcrumbs"></sp-widget>
-
-<div class="panel modern-table-card">
-
+<div class="panel modern-table-card" >
   <!-- HEADER -->
   <div class="panel-heading modern-table-header">
-
     <div class="header-left">
       <h4 class="modern-table-title">
         {{::options.title || data.table_title}}
       </h4>
-
       <div class="filter-breadcrumbs-wrapper" ng-if="data.filterBreadcrumbs">
-  <sp-widget widget="data.filterBreadcrumbs"></sp-widget>
-</div>
+        <sp-widget widget="data.filterBreadcrumbs"></sp-widget>
+      </div>
     </div>
-
   </div>
-
   <!-- BODY -->
   <div class="panel-body modern-table-body">
-
     <div class="table-responsive">
-
       <table class="table modern-table">
         <thead>
-          <tr >
+          <tr>
             <th ng-repeat="field in data.fields">
               {{field.column_label}}
             </th>
-            <th  class="th-bold" id="action" ng-if="!c.data.metaDataMapping">Actions</th>
-            
+            <th class="th-bold" id="action" ng-if="!c.data.metaDataMapping">Actions</th>
           </tr>
         </thead>
-
         <tbody>
           <tr ng-repeat="rec in data.records">
-
             <td ng-repeat="field in data.fields">
-            <!--  {{rec[field.column_name]}} -->
-<span title="{{rec[field.column_name]}}">
-    {{rec[field.column_name].length > 20
-      ? (rec[field.column_name] | limitTo:20) + '...'
-      : rec[field.column_name]}}
-  </span>
+
+              <!-- Status column -->
+              <!-- Status column -->
+              <span ng-if="field.column_name == 'status'"
+                    class="status-badge"
+                    ng-class="{
+                      'status-active': rec.statusBack == 'active',
+                      'status-pending': rec.statusBack == 'pending_approval',
+                      'status-draft': rec.statusBack == 'draft',
+                      'status-inactive': rec.statusBack == 'inactive',
+                      'status-generated': rec.statusBack == 'statement_generated',
+                      'status-published': rec.statusBack == 'statement_published'
+                    }">
+                {{rec[field.column_name]}}
+              </span>
+
+              <!-- Fiscal Calendar Active -->
+              <span
+                    ng-if="c.data.table == 'x_ctans_incentnow_fiscal_calendar'
+                           && field.column_name == 'active'"
+                    class="status-badge"
+                    ng-class="{
+                      'status-active': rec[field.column_name] == 'true',
+                      'status-inactive': rec[field.column_name] == 'false'
+                    }">
+
+                  {{rec[field.column_name] == 'true' ? 'Active' : 'Inactive'}}
+
+              </span>
+
+              <!-- All other columns -->
+              <span
+                    ng-if="field.column_name != 'status'
+                           && !(c.data.table == 'x_ctans_incentnow_fiscal_calendar'
+                                && field.column_name == 'active')"
+                    title="{{rec[field.column_name]}}">
+
+                  {{rec[field.column_name].length > 20
+                      ? (rec[field.column_name] | limitTo:20) + '...'
+                      : rec[field.column_name]}}
+
+              </span>
+
             </td>
-
-
             <!-- VIEW PERIOD -->
-            <td >
-              
+            <td>
               <div class="action-bar text-right">
-                
-                 <button type="button" class="btn action-btn action-btn-ghost" ng-if="data.viewperiod"
-                      ng-click="c.viewPeriods(rec.sys_id)">
-                View Periods
-              </button>
-              
-              <button  type="button" class="btn action-btn action-btn-ghost"
-                      ng-click="c.openRecord(rec.sys_id)" ng-if="!c.data.isPlan && !c.data.isQuota && !c.data.dataModelObj && !c.data.metaDataMapping">
-                 <!-- VIEW (non-draft) -->
+                <button type="button" class="btn action-btn action-btn-ghost" 
+                        ng-if="data.viewperiod" 
+                        ng-click="c.viewPeriods(rec.sys_id)"> 
+                  View Periods </button>
+                <button type ="button" class="btn action-btn action-btn-ghost" ng-click="c.openDisputeDetails(rec.sys_id)" ng-if="c.data.disputeTable">
+                  
+                  <span class="action-icon"
+                        aria-hidden="true"
+                        
+                        title="View">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"></path>
+                          <circle cx="12" cy="12" r="3"></circle>
+                      </svg>
+                  </span>
+                  
+                </button>
+                <button type="button" class="btn action-btn action-btn-ghost" 
+                        ng-click="c.openRecord(rec.sys_id)" 
+                        ng-if="!c.data.isPlan && !c.data.isQuota && !c.data.dataModelObj && !c.data.metaDataMapping && !c.data.disputeTable"
+                        ng-attr-title="{{ (c.data.isStatement || rec.statusBack != 'draft') ? 'View' : 'Edit' }}">
+                  <!-- VIEW -->
+                  <span class="action-icon"
+                        aria-hidden="true"
+                        ng-if="rec.statusBack!='draft' || c.data.isStatement"
+                        title="View">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"></path>
+                          <circle cx="12" cy="12" r="3"></circle>
+                      </svg>
+                  </span>
+
+                  <!-- EDIT -->
+                  <span class="action-icon"
+                        aria-hidden="true"
+                        ng-if="rec.statusBack=='draft' && !c.data.isStatement">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                          <path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"></path>
+                      </svg>
+                  </span>
+                  <!--<span ng-if="rec.statusBack=='draft'">Edit</span> -->
+                </button>
+                <!-- Buttons for Data Model -->
+                <button type="button" class="btn action-btn action-btn-outline" ng-click="c.openMappings(rec.sys_id)" ng-if="c.data.dataModelObj">
+                  <span class="action-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                      <circle cx="9" cy="7" r="4"></circle>
+                      <line x1="19" x2="19" y1="8" y2="14"></line>
+                      <line x1="22" x2="16" y1="11" y2="11"></line>
+                    </svg>
+                  </span>
+                  <span>Mappings</span>
+                </button>
+                <button type="button" class="btn action-btn action-btn-outline" 
+                        ng-click="c.openUploadPage(rec.sys_id,rec.data_source_system)" 
+                        ng-if="c.data.dataModelObj && rec.data_source_system=='External'">
+                  <span>Load Data</span>
+                </button>
+                <!-- Buttons for Statement table Table -->
+                <button type="button" class="btn action-btn action-btn-outline" 
+                        ng-if="c.data.isStatement && rec.statusBack=='statement_generated'" 
+                        ng-click="c.performStatementAction(rec.statusBack,rec.sys_id)" 
+                        title="Submit for Approval">
+               	<svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="currentColor">
+
+                    <path d="M22 2L2.8 10.1c-.7.3-.7 1.3 0 1.6l5.8 2.3 2.3 5.8c.3.7 1.3.7 1.6 0L22 2zm-10.4 11L9.4 10.8 18.8 5l-7.2 8z"/>
+                </svg>
+                </button>
+                <button type="button" class="btn action-btn action-btn-outline" ng-if="c.data.isStatement &&
+                    (rec.statusBack == 'draft' || rec.statusBack == 'pending_approval')" 
+                        ng-click="c.openApprovalFlow(rec.sys_id)" 
+                        title="View Approval Flow">
+                  <span class="action-icon" aria-hidden="true">
+                    <svg viewBox="0 0 64 64"
+                       fill="none"
+                       stroke="currentColor"
+                       stroke-width="2.5"
+                       stroke-linecap="round"
+                       stroke-linejoin="round"
+                       width="20"
+                       height="20">
+
+                    <!-- Top -->
+                    <rect x="24" y="2" width="16" height="8" rx="1"/>
+
+                    <!-- Vertical connector -->
+                    <line x1="32" y1="10" x2="32" y2="18"/>
+
+                    <!-- Diamond -->
+                    <rect x="29" y="18" width="6" height="6"
+                          transform="rotate(45 32 21)" rx="0.5"/>
+
+                    <!-- Horizontal branch -->
+                    <line x1="8" y1="24" x2="56" y2="24"/>
+
+                    <!-- Side connectors -->
+                    <line x1="8" y1="24" x2="8" y2="30"/>
+                    <line x1="32" y1="24" x2="32" y2="30"/>
+                    <line x1="56" y1="24" x2="56" y2="30"/>
+
+                    <!-- First row -->
+                    <rect x="2" y="30" width="12" height="8" rx="1"/>
+                    <rect x="26" y="30" width="12" height="8" rx="1"/>
+                    <rect x="50" y="30" width="12" height="8" rx="1"/>
+
+                    <!-- Second row connectors -->
+                    <line x1="8" y1="38" x2="8" y2="46"/>
+                    <line x1="32" y1="38" x2="32" y2="46"/>
+                    <line x1="56" y1="38" x2="56" y2="46"/>
+
+                    <!-- Bottom row -->
+                    <rect x="2" y="46" width="12" height="8" rx="1"/>
+                    <rect x="26" y="46" width="12" height="8" rx="1"/>
+                    <rect x="50" y="46" width="12" height="8" rx="1"/>
+
+                  </svg>
+                </span>
+                </button>
+                <!--button
+                  type="button"
+                  class="btn delete-icon action-btn action-btn-ghost"
+                  ng-if="c.data.isStatement &&
+                         rec.statusBack == 'statement_generated' &&
+                         data.isIncentNowGroupAdmin"
+                  ng-click="c.deleteStatement(rec.sys_id)"><span class="action-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-2 14H7L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M9 6V4h6v2"></path></svg></span></button>
+
+								<!-- Buttons for Quota Table -->
+                <button type="button" class="btn action-btn action-btn-ghost" 
+                        ng-click="c.openRecord(rec.sys_id)" 
+                        ng-if="c.data.isQuota && data.isIncentNowGroupAdmin" 
+                        title="{{rec.statusBack == 'draft' ? 'Edit Quota' : 'View Quota'}}">
                   <span class="action-icon" aria-hidden="true" ng-if="rec.statusBack!='draft'">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                       <path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"></path>
                       <circle cx="12" cy="12" r="3"></circle>
                     </svg>
                   </span>
-                  <!-- <span ng-if="rec.statusBack!='draft'">View</span> -->
-
-                  <!-- EDIT (draft) -->
                   <span class="action-icon" aria-hidden="true" ng-if="rec.statusBack=='draft'">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4 mr-1">
                       <path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                       <path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"></path>
                     </svg>
                   </span>
-                  <!--<span ng-if="rec.statusBack=='draft'">Edit</span> -->
-              </button>
-                
-                <!-- Buttons for Data Model -->
-                
-                
-               <button
-                type="button"
-                class="btn action-btn action-btn-outline"
-                ng-click="c.openMappings(rec.sys_id)" ng-if="c.data.dataModelObj">
+                </button>
+                <button type="button" class="btn action-btn action-btn-outline" 
+                        ng-if="c.data.isQuota && (rec.statusBack == 'draft' || rec.statusBack == 'pending_approval')" 
+                        ng-click="c.openApprovalFlow(rec.sys_id)" 
+                        title="View Approval Flow">
                 <span class="action-icon" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
-                    <circle cx="9" cy="7" r="4"></circle>
-                    <line x1="19" x2="19" y1="8" y2="14"></line>
-                    <line x1="22" x2="16" y1="11" y2="11"></line>
-                  </svg>
-                </span>
-                <span>Mappings</span>
-              </button>
-                
-                <button
-                type="button"
-                class="btn action-btn action-btn-outline"
-                ng-click="c.openUploadPage(rec.sys_id,rec.data_source_system)" ng-if="c.data.dataModelObj && rec.data_source_system=='External'">
-               
-                <span>Load Data</span>
-              </button>
-                
-                
-                
-                <!-- Buttons for Quota Table -->
-							
-                <button
-                type="button"
-                class="btn action-btn action-btn-ghost"
-                ng-click="c.openRecord(rec.sys_id)" ng-if="c.data.isQuota && data.isIncentNowGroupAdmin">
-                <span class="action-icon" aria-hidden="true" ng-if="rec.statusBack!='draft'">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"></path>
-                    <circle cx="12" cy="12" r="3"></circle>
-                  </svg>
-                </span>
-                
-                
-                <span class="action-icon" aria-hidden="true" ng-if="rec.statusBack=='draft'">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                    viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                    class="size-4 mr-1">
-                    <path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                    <path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"></path>
-                  </svg>
-                </span>
-               
-                
-              </button>
-                
-                
-                <!-- Buttons for Plan Table -->
-              <button
-                type="button"
-                class="btn action-btn action-btn-ghost"
-                ng-click="c.viewRecord(rec.sys_id)" ng-if="c.data.isPlan && data.isIncentNowGroupAdmin">
-                <span class="action-icon" aria-hidden="true" ng-if="rec.statusBack!='draft'">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"></path>
-                    <circle cx="12" cy="12" r="3"></circle>
-                  </svg>
-                </span>
-                
-                
-                <span class="action-icon" aria-hidden="true" ng-if="rec.statusBack=='draft'">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                    viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                    class="size-4 mr-1">
-                    <path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                    <path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"></path>
-                  </svg>
-                </span>
-               
-                
-              </button>
-                
-                  <button
-                  type="button"
-                  class="btn delete-icon action-btn action-btn-ghost"
-                  ng-if="rec.statusBack === 'draft' && data.isIncentNowGroupAdmin"
-                  ng-click="c.deleteQuota(rec.sys_id)">
+                    <svg viewBox="0 0 64 64"
+                       fill="none"
+                       stroke="currentColor"
+                       stroke-width="2.5"
+                       stroke-linecap="round"
+                       stroke-linejoin="round"
+                       width="20"
+                       height="20">
 
+                    <!-- Top -->
+                    <rect x="24" y="2" width="16" height="8" rx="1"/>
+
+                    <!-- Vertical connector -->
+                    <line x1="32" y1="10" x2="32" y2="18"/>
+
+                    <!-- Diamond -->
+                    <rect x="29" y="18" width="6" height="6"
+                          transform="rotate(45 32 21)" rx="0.5"/>
+
+                    <!-- Horizontal branch -->
+                    <line x1="8" y1="24" x2="56" y2="24"/>
+
+                    <!-- Side connectors -->
+                    <line x1="8" y1="24" x2="8" y2="30"/>
+                    <line x1="32" y1="24" x2="32" y2="30"/>
+                    <line x1="56" y1="24" x2="56" y2="30"/>
+
+                    <!-- First row -->
+                    <rect x="2" y="30" width="12" height="8" rx="1"/>
+                    <rect x="26" y="30" width="12" height="8" rx="1"/>
+                    <rect x="50" y="30" width="12" height="8" rx="1"/>
+
+                    <!-- Second row connectors -->
+                    <line x1="8" y1="38" x2="8" y2="46"/>
+                    <line x1="32" y1="38" x2="32" y2="46"/>
+                    <line x1="56" y1="38" x2="56" y2="46"/>
+
+                    <!-- Bottom row -->
+                    <rect x="2" y="46" width="12" height="8" rx="1"/>
+                    <rect x="26" y="46" width="12" height="8" rx="1"/>
+                    <rect x="50" y="46" width="12" height="8" rx="1"/>
+
+                  </svg>
+                </span>
+                </button>
+                <!-- Buttons for Plan Table -->
+                <button type="button" class="btn action-btn action-btn-ghost" 
+                        ng-click="c.viewRecord(rec.sys_id)" 
+                        ng-if="c.data.isPlan && data.isIncentNowGroupAdmin" 
+                        title="{{rec.statusBack == 'draft' ? 'Edit Plan' : 'View Plan'}}">
+                  <span class="action-icon" aria-hidden="true" ng-if="rec.statusBack!='draft'">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"></path>
+                      <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                  </span>
+                  <span class="action-icon" aria-hidden="true" ng-if="rec.statusBack=='draft'">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4 mr-1">
+                      <path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                      <path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"></path>
+                    </svg>
+                  </span>
+                </button>
+                
+                <button type="button" class="btn action-btn action-btn-outline" 
+                        ng-if="c.data.isPlan && (rec.statusBack == 'draft' || rec.statusBack == 'pending_approval')" 
+                        ng-click="c.openApprovalFlow(rec.sys_id)" 
+                        title="View Approval Flow">
+                <span class="action-icon" aria-hidden="true">
+                    <svg viewBox="0 0 64 64"
+                       fill="none"
+                       stroke="currentColor"
+                       stroke-width="2.5"
+                       stroke-linecap="round"
+                       stroke-linejoin="round"
+                       width="20"
+                       height="20">
+
+                    <!-- Top -->
+                    <rect x="24" y="2" width="16" height="8" rx="1"/>
+
+                    <!-- Vertical connector -->
+                    <line x1="32" y1="10" x2="32" y2="18"/>
+
+                    <!-- Diamond -->
+                    <rect x="29" y="18" width="6" height="6"
+                          transform="rotate(45 32 21)" rx="0.5"/>
+
+                    <!-- Horizontal branch -->
+                    <line x1="8" y1="24" x2="56" y2="24"/>
+
+                    <!-- Side connectors -->
+                    <line x1="8" y1="24" x2="8" y2="30"/>
+                    <line x1="32" y1="24" x2="32" y2="30"/>
+                    <line x1="56" y1="24" x2="56" y2="30"/>
+
+                    <!-- First row -->
+                    <rect x="2" y="30" width="12" height="8" rx="1"/>
+                    <rect x="26" y="30" width="12" height="8" rx="1"/>
+                    <rect x="50" y="30" width="12" height="8" rx="1"/>
+
+                    <!-- Second row connectors -->
+                    <line x1="8" y1="38" x2="8" y2="46"/>
+                    <line x1="32" y1="38" x2="32" y2="46"/>
+                    <line x1="56" y1="38" x2="56" y2="46"/>
+
+                    <!-- Bottom row -->
+                    <rect x="2" y="46" width="12" height="8" rx="1"/>
+                    <rect x="26" y="46" width="12" height="8" rx="1"/>
+                    <rect x="50" y="46" width="12" height="8" rx="1"/>
+
+                  </svg>
+                </span>
+                </button>
+                
+                <button type="button" class="btn delete-icon action-btn action-btn-ghost" ng-if="rec.statusBack === 'draft' && data.isIncentNowGroupAdmin" ng-click="c.deleteQuota(rec.sys_id)" title="Delete">
                   <span class="action-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <polyline points="3 6 5 6 21 6"></polyline>
@@ -903,98 +1215,208 @@
                       <path d="M9 6V4h6v2"></path>
                     </svg>
                   </span>
-                  
                 </button>
                 
-        
-              <button
-                type="button"
-                class="btn action-btn action-btn-outline"
-                ng-click="c.performAction(rec.statusBack,rec.sys_id)" ng-if="c.data.isPlan && rec.statusBack!='inactive' && ((c.data.isIncentNowUser && rec.statusBack=='active')|| data.isIncentNowGroupAdmin)">
-                <span class="action-icon" aria-hidden="true" ng-if="c.data.isPlan">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
-                    <circle cx="9" cy="7" r="4"></circle>
-                    <line x1="19" x2="19" y1="8" y2="14"></line>
-                    <line x1="22" x2="16" y1="11" y2="11"></line>
-                  </svg>
-                </span>
-                <span>{{c.getAssignLabel(rec.statusBack)}}</span>
-              </button>
-                
-                <!--button for quota table -->
-               <button
-                type="button"
-                class="btn action-btn action-btn-outline"
-                ng-click="c.performActionQuota(rec.statusBack,rec.sys_id)" ng-if="c.data.isQuota && rec.statusBack!='inactive' && ((c.data.isIncentNowUser && rec.statusBack=='active')|| data.isIncentNowGroupAdmin)">
-                <span class="action-icon" aria-hidden="true" ng-if="c.data.isQuota">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
-                    <circle cx="9" cy="7" r="4"></circle>
-                    <line x1="19" x2="19" y1="8" y2="14"></line>
-                    <line x1="22" x2="16" y1="11" y2="11"></line>
-                  </svg>
-                </span>
-                <span>{{c.getAssignLabel(rec.statusBack)}}</span>
-              </button>
-                
                 <!-- NEW Delete Button (only for draft) -->
-              
+                <button type="button" class="btn action-btn action-btn-outline" 
+                        ng-if="rec.statusBack === 'active' && data.isIncentNowGroupAdmin" 
+                        ng-click="c.deactivateQuota(rec.sys_id)" 
+                        title="Deactivate">
+                  <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="18"
+                      height="10"
+                      viewBox="0 0 18 10"
+                      fill="none">
+
+                      <rect
+                          width="18"
+                          height="10"
+                          rx="5"
+                          fill="currentColor"/>
+
+                      <circle
+                          cx="5"
+                          cy="5"
+                          r="3.5"
+                          fill="#FFFFFF"/>
+                  </svg>
+                </button>
                 
                 <button
                   type="button"
                   class="btn action-btn action-btn-outline"
-                  ng-if="rec.statusBack === 'active' && data.isIncentNowGroupAdmin"
-                  ng-click="c.deactivateQuota(rec.sys_id)">
-                  <span class="action-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M12 2v10"></path>
-                      <path d="M5 7a9 9 0 1 0 14 0"></path>
-                    </svg>
-                  </span>
-                  Deactivate
-                </button>
-            </div>
-              
-            </td>
+                  ng-click="c.performAction(rec.statusBack,rec.sys_id)"
+                  ng-if="c.data.isPlan && rec.statusBack!='inactive' && ((c.data.isIncentNowUser && rec.statusBack=='active') || data.isIncentNowGroupAdmin)"
+                  ng-attr-title="{{c.getAssignLabel(rec.statusBack)}}">
 
+                  <!-- Submit for Approval -->
+                  <span class="action-icon" aria-hidden="true" ng-if="rec.statusBack=='draft'">
+                      <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="18"
+                          height="18"
+                          viewBox="0 0 24 24"
+                          fill="currentColor">
+                          <path d="M22 2L2.8 10.1c-.7.3-.7 1.3 0 1.6l5.8 2.3 2.3 5.8c.3.7 1.3.7 1.6 0L22 2zm-10.4 11L9.4 10.8 18.8 5l-7.2 8z"/>
+                      </svg>
+                  </span>
+
+                  <!-- Pending Approval -->
+                  <span class="action-icon" aria-hidden="true" ng-if="rec.statusBack=='pending_approval'">
+                      <!-- Put your Approval Flow SVG here -->
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round">
+
+                      <!-- Document -->
+                      <path d="M6 2h8l4 4v16H6z"/>
+                      <path d="M14 2v4h4"/>
+
+                      <!-- Text lines -->
+                      <line x1="8" y1="7" x2="12" y2="7"/>
+                      <line x1="8" y1="10" x2="13" y2="10"/>
+                      <line x1="8" y1="13" x2="11" y2="13"/>
+
+                      <!-- Magnifying glass -->
+                      <circle cx="14" cy="14" r="3.5"/>
+                      <line x1="16.5" y1="16.5" x2="20" y2="20"/>
+
+                  </svg>
+                  </span>
+
+                  <!-- Assign -->
+                  <span class="action-icon" aria-hidden="true" ng-if="rec.statusBack=='active'">
+                      <!-- Put your Assign/User SVG here -->
+                    <svg viewBox="0 0 24 24"
+                           fill="none"
+                           stroke="currentColor"
+                           stroke-width="2"
+                           stroke-linecap="round"
+                           stroke-linejoin="round">
+                          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                          <circle cx="9" cy="7" r="4"></circle>
+                          <line x1="19" y1="8" x2="19" y2="14"></line>
+                          <line x1="22" y1="11" x2="16" y2="11"></line>
+                      </svg>
+                  </span>
+
+              </button>
+                
+
+           
+                <!--button for quota table -->
+               
+                <button
+                  type="button"
+                  class="btn action-btn action-btn-outline"
+                  ng-click="c.performActionQuota(rec.statusBack,rec.sys_id)"
+                  ng-if="c.data.isQuota && rec.statusBack!='inactive' && ((c.data.isIncentNowUser && rec.statusBack=='active') || data.isIncentNowGroupAdmin)"
+                  ng-attr-title="{{c.getAssignLabel(rec.statusBack)}}">
+
+                  <!-- Draft - Submit for Approval -->
+                  <span class="action-icon" aria-hidden="true" ng-if="rec.statusBack=='draft'">
+                      <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="18"
+                          height="18"
+                          viewBox="0 0 24 24"
+                          fill="currentColor">
+                          <path d="M22 2L2.8 10.1c-.7.3-.7 1.3 0 1.6l5.8 2.3 2.3 5.8c.3.7 1.3.7 1.6 0L22 2zm-10.4 11L9.4 10.8 18.8 5l-7.2 8z"/>
+                      </svg>
+                  </span>
+
+                  <!-- Pending Approval - Approval Flow -->
+                  <span class="action-icon" aria-hidden="true" ng-if="rec.statusBack=='pending_approval'">
+                      <!-- Your Approval Flow SVG -->
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round">
+
+                      <!-- Document -->
+                      <path d="M6 2h8l4 4v16H6z"/>
+                      <path d="M14 2v4h4"/>
+
+                      <!-- Text lines -->
+                      <line x1="8" y1="7" x2="12" y2="7"/>
+                      <line x1="8" y1="10" x2="13" y2="10"/>
+                      <line x1="8" y1="13" x2="11" y2="13"/>
+
+                      <!-- Magnifying glass -->
+                      <circle cx="14" cy="14" r="3.5"/>
+                      <line x1="16.5" y1="16.5" x2="20" y2="20"/>
+
+                  </svg>
+                  </span>
+
+                  <!-- Active - Assign -->
+                  <span class="action-icon" aria-hidden="true" ng-if="rec.statusBack=='active'">
+                      <svg viewBox="0 0 24 24"
+                           fill="none"
+                           stroke="currentColor"
+                           stroke-width="2"
+                           stroke-linecap="round"
+                           stroke-linejoin="round">
+                          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                          <circle cx="9" cy="7" r="4"></circle>
+                          <line x1="19" x2="19" y1="8" y2="14"></line>
+                          <line x1="22" x2="16" y1="11" y2="11"></line>
+                      </svg>
+                  </span>
+
+              </button>
+                
+              </div>
+            </td>
           </tr>
         </tbody>
       </table>
-
     </div>
-
-    <!-- PAGINATION -->
+    <!-- PAGINATION 
     <div class="pagination-modern" ng-if="c.data.total>0">
-
-      <button class="btn btn-modern"
-              ng-disabled="c.data.page == 1"
-              ng-click="c.prevPage()">
-        ← Prev
-      </button>
-
-      <span class="page-info">
-        Page {{c.data.page}}/{{c.data.total_pages}}
+      <button class="btn btn-modern" ng-disabled="c.data.page == 1" ng-click="c.prevPage()"> ← Prev </button>
+      <span class="page-info"> Page {{c.data.page}}/{{c.data.total_pages}}
       </span>
+      <button class="btn btn-modern" ng-disabled="c.data.page * c.data.page_size >= c.data.total" ng-click="c.nextPage()"> Next → </button>
+    </div> -->
+    <div class="pagination-modern" ng-if="c.data.total>0">
+    <div class="pagination-controls">
+        <button class="btn btn-modern"
+                ng-disabled="c.data.page == 1"
+                ng-click="c.prevPage()">
+            ← Prev
+        </button>
 
-      <button class="btn btn-modern"
-              ng-disabled="c.data.page * c.data.page_size >= c.data.total"
-              ng-click="c.nextPage()">
-        Next →
-      </button>
+        <span class="page-info">
+            Page {{c.data.page}}/{{c.data.total_pages}}
+        </span>
 
+        <button class="btn btn-modern"
+                ng-disabled="c.data.page * c.data.page_size >= c.data.total"
+                ng-click="c.nextPage()">
+            Next →
+        </button>
     </div>
-    
-    <div class="pagination-modern" ng-if="c.data.total<=0">
-      No Records Found
-    </div>
-
+</div>
+    <div class="pagination-modern" ng-if="c.data.total<=0"> No Records Found </div>
   </div>
 </div>
-
 <!-- DEBUG -->
-<div class="alert alert-info modern-alert"
-     ng-if="data.debug_message">
+<div class="alert alert-info modern-alert" ng-if="data.debug_message">
   {{data.debug_message}}
 </div>]]></template>
     </sp_widget>

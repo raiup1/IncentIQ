@@ -2,7 +2,7 @@
     <sys_dictionary action="INSERT_OR_UPDATE" element="business_unit" table="x_ctans_incentnow_plan">
         <active>true</active>
         <array>false</array>
-        <attributes>encode_utf8=false,ref_auto_completer=AJAXTableCompleter,ref_ac_columns=parent,ref_ac_columns_search=true, tree_picker=true</attributes>
+        <attributes>edge_encryption_enabled=true,encode_utf8=false,ref_ac_columns=parent,ref_ac_columns_search=true,ref_auto_completer=AJAXTableCompleter,tree_picker=true</attributes>
         <audit>false</audit>
         <calculation/>
         <choice/>
@@ -28,7 +28,7 @@
         <function_definition/>
         <function_field>false</function_field>
         <internal_type display_value="Reference">reference</internal_type>
-        <mandatory>true</mandatory>
+        <mandatory>false</mandatory>
         <max_length>32</max_length>
         <name>x_ctans_incentnow_plan</name>
         <next_element/>
@@ -52,8 +52,8 @@
         <sys_policy/>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
         <sys_update_name>sys_dictionary_x_ctans_incentnow_plan_business_unit</sys_update_name>
-        <sys_updated_by>karan.kumar</sys_updated_by>
-        <sys_updated_on>2026-06-15 07:09:11</sys_updated_on>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-23 12:51:59</sys_updated_on>
         <table_reference>false</table_reference>
         <text_index>false</text_index>
         <unique>false</unique>

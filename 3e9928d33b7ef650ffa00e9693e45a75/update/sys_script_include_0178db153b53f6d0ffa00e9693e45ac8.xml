@@ -5,7 +5,7 @@
         <api_name>x_ctans_incentnow.IncentNowClientUtils</api_name>
         <caller_access/>
         <client_callable>true</client_callable>
-        <description/>
+        <description>The IncentNowClientUtils is responsible client side operations</description>
         <mobile_callable>false</mobile_callable>
         <name>IncentNowClientUtils</name>
         <sandbox_callable>true</sandbox_callable>
@@ -257,20 +257,53 @@ IncentNowClientUtils.prototype = Object.extendsObject(global.AbstractAjaxProcess
             return userGR.getValue('user_name');
 
         return '';
+
     },
+
+	isSalesTerritoryExtensionActive: function() {
+        return new IncentNowUtils().isTerritoryExtensionActive() ? 'true' : 'false';
+    },
+
+validateBusinessUnitCompany: function() {
+
+    var companyId = this.getParameter('sysparm_company_id');
+    var businessUnitId = this.getParameter('sysparm_business_unit_id');
+
+    var response = {
+        valid: true,
+        message: '',
+        business_unit_company: ''
+    };
+
+    if (!businessUnitId)
+        return JSON.stringify(response);
+
+    var buGR = new GlideRecordSecure('business_unit');
+    if (buGR.get(businessUnitId))
+        response.business_unit_company = buGR.getValue('company');
+
+   if (companyId && response.business_unit_company &&
+        companyId != response.business_unit_company) {
+        response.valid = false;
+        response.message = 'Selected Company does not match with Business Unit company.';
+    }
+
+    return JSON.stringify(response);
+},
+
     type: 'IncentNowClientUtils'
 });]]></script>
         <sys_class_name>sys_script_include</sys_class_name>
         <sys_created_by>karan.kumar</sys_created_by>
         <sys_created_on>2026-02-25 19:24:45</sys_created_on>
         <sys_id>0178db153b53f6d0ffa00e9693e45ac8</sys_id>
-        <sys_mod_count>19</sys_mod_count>
+        <sys_mod_count>26</sys_mod_count>
         <sys_name>IncentNowClientUtils</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
         <sys_update_name>sys_script_include_0178db153b53f6d0ffa00e9693e45ac8</sys_update_name>
-        <sys_updated_by>upma.rai</sys_updated_by>
-        <sys_updated_on>2026-06-12 12:11:36</sys_updated_on>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-23 12:12:21</sys_updated_on>
     </sys_script_include>
 </record_update>

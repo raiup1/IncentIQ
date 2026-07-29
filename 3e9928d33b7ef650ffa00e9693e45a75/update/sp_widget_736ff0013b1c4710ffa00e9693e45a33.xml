@@ -1255,7 +1255,7 @@
   input = input || {};
 	
 	data.sys_id = $sp.getParameter('sys_id');
-	data.isIncentNowGroupAdmin= gs.hasRole('x_ctans_incentnow.business_group_admin')|| gs.hasRole('x_ctans_incentnow.admin');
+	data.isIncentNowGroupAdmin= gs.hasRole('x_ctans_incentnow.business_group_admin')|| gs.hasRole('x_ctans_incentnow.admin') || gs.hasRole('x_ctans_incentnow.territory_admin');
 
 
   var OPT = options || {};
@@ -1426,15 +1426,6 @@ while (relGR.next()) {
 	
 
   /* ================= LOAD USERS ================= */
-
-	data.planBU = '';
-
-		if (data.sys_id) {
-				var qGR = new GlideRecordSecure(QUOTA_TABLE);
-				if (qGR.get(data.sys_id)) {
-						data.planBU = qGR.getValue('business_unit') || '';
-				}
-		}
 	
 getUsers();
 function getUsers()
@@ -1444,10 +1435,12 @@ function getUsers()
   var roleSet    = {};
 
   var userGR = new GlideRecordSecure(USER_TABLE);
-  userGR.addQuery('active', true);
-	if (data.planBU) {
-    		userGR.addQuery('business_unit', data.planBU);
-				}
+  if (data.sys_id) {
+			var userQuery = new IncentNowUtils().getUserByQuotaDimension(data.sys_id);
+			userGR.addEncodedQuery(userQuery);
+	} else {
+			userGR.addQuery('active', true);
+	}
   userGR.query();
 		//gs.addErrorMessage(userGR.getEncodedQuery());
 
@@ -1584,14 +1577,14 @@ function getUsers()
         <sys_created_by>shroin.mandal</sys_created_by>
         <sys_created_on>2026-04-15 06:39:28</sys_created_on>
         <sys_id>736ff0013b1c4710ffa00e9693e45a33</sys_id>
-        <sys_mod_count>47</sys_mod_count>
+        <sys_mod_count>50</sys_mod_count>
         <sys_name>Incentnow Assignment Page</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
         <sys_update_name>sp_widget_736ff0013b1c4710ffa00e9693e45a33</sys_update_name>
         <sys_updated_by>shroin.mandal</sys_updated_by>
-        <sys_updated_on>2026-06-11 12:04:52</sys_updated_on>
+        <sys_updated_on>2026-07-17 05:18:12</sys_updated_on>
         <template><![CDATA[  <!-- Back header bar -->
 <div class="assignement-page">
   <div class="qa-page-topbar">
@@ -1822,7 +1815,7 @@ function getUsers()
     <!-- FOOTER -->
     <div class="qa-form-footer">
       <button class="btn btn-default qa-btn-cancel"
-        ng-click="c.closeAssignPage()">Cancel</button>
+        ng-click="c.goBack()">Cancel</button>
       <button class="btn btn-primary qa-btn-assign"
         ng-click="c.assignQuota()"
         ng-disabled="!c.selectedQuota || !c.getSelectedCount()" ng-if='c.data.isIncentNowGroupAdmin'>

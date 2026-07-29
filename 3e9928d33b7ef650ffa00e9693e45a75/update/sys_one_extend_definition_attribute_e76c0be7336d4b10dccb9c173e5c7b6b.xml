@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update sys_domain="global" table="sys_one_extend_definition_attribute">
+    <sys_one_extend_definition_attribute action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <advanced>false</advanced>
+        <apply_filter>false</apply_filter>
+        <attribute_label/>
+        <capability display_value="IncentIQSmart Assistant">a8b98fa3336d4b10dccb9c173e5c7b8e</capability>
+        <choice_list/>
+        <contains_large_input>false</contains_large_input>
+        <data_type>string</data_type>
+        <default_value>297d363633610710dccb9c173e5c7bac</default_value>
+        <definition/>
+        <description>Current record sys_id associated with the page context. Used for record-specific recommendations, analysis, and guidance.</description>
+        <group/>
+        <hidden>false</hidden>
+        <info/>
+        <label>recordId</label>
+        <mandatory>false</mandatory>
+        <name>recordid</name>
+        <order>100</order>
+        <schema>{}</schema>
+        <sys_class_name>sys_one_extend_definition_attribute</sys_class_name>
+        <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+        <sys_created_on>2026-06-24 14:38:23</sys_created_on>
+        <sys_domain>global</sys_domain>
+        <sys_domain_path>/</sys_domain_path>
+        <sys_id>e76c0be7336d4b10dccb9c173e5c7b6b</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>recordid</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_one_extend_definition_attribute_e76c0be7336d4b10dccb9c173e5c7b6b</sys_update_name>
+        <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
+        <sys_updated_on>2026-06-24 14:38:23</sys_updated_on>
+        <translate>false</translate>
+        <truncate>false</truncate>
+        <type>input</type>
+        <user_query>false</user_query>
+    </sys_one_extend_definition_attribute>
+    <sys_translated_text action="delete_multiple" query="documentkey=e76c0be7336d4b10dccb9c173e5c7b6b"/>
+</record_update>

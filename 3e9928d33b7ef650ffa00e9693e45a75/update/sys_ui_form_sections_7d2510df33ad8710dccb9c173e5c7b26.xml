@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update>
+    <sys_ui_form_sections form_id="7d2510df33ad8710dccb9c173e5c7b26" sys_domain="global" table="sn_crm_touchpoint_touchpoint" version="3">
+        <sys_ui_form_section action="INSERT_OR_UPDATE">
+            <position>0</position>
+            <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+            <sys_created_on>2026-06-23 06:39:10</sys_created_on>
+            <sys_domain>global</sys_domain>
+            <sys_domain_path>/</sys_domain_path>
+            <sys_id>462510df33ad8710dccb9c173e5c7be6</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_overrides/>
+            <sys_ui_form display_value="sn_crm_touchpoint_touchpoint" name="sn_crm_touchpoint_touchpoint" sys_domain="global" view="463e88c23b6d4b504be1ef9e53e45a94">7d2510df33ad8710dccb9c173e5c7b26</sys_ui_form>
+            <sys_ui_section caption="NULL" display_value="" name="sn_crm_touchpoint_touchpoint" sys_domain="global" view="463e88c23b6d4b504be1ef9e53e45a94">4e2510df33ad8710dccb9c173e5c7bcd</sys_ui_section>
+            <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+            <sys_updated_on>2026-06-23 06:39:10</sys_updated_on>
+        </sys_ui_form_section>
+        <sys_ui_form_section action="INSERT_OR_UPDATE">
+            <position>1</position>
+            <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+            <sys_created_on>2026-06-23 06:39:10</sys_created_on>
+            <sys_domain>global</sys_domain>
+            <sys_domain_path>/</sys_domain_path>
+            <sys_id>062510df33ad8710dccb9c173e5c7bcd</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_overrides/>
+            <sys_ui_form display_value="sn_crm_touchpoint_touchpoint" name="sn_crm_touchpoint_touchpoint" sys_domain="global" view="463e88c23b6d4b504be1ef9e53e45a94">7d2510df33ad8710dccb9c173e5c7b26</sys_ui_form>
+            <sys_ui_section caption="Notes" display_value="Notes" name="sn_crm_touchpoint_touchpoint" sys_domain="global" view="463e88c23b6d4b504be1ef9e53e45a94">062510df33ad8710dccb9c173e5c7bc3</sys_ui_section>
+            <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+            <sys_updated_on>2026-06-23 06:39:10</sys_updated_on>
+        </sys_ui_form_section>
+        <sys_ui_form_section action="INSERT_OR_UPDATE">
+            <position>2</position>
+            <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+            <sys_created_on>2026-06-23 06:39:10</sys_created_on>
+            <sys_domain>global</sys_domain>
+            <sys_domain_path>/</sys_domain_path>
+            <sys_id>862510df33ad8710dccb9c173e5c7bb7</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_overrides/>
+            <sys_ui_form display_value="sn_crm_touchpoint_touchpoint" name="sn_crm_touchpoint_touchpoint" sys_domain="global" view="463e88c23b6d4b504be1ef9e53e45a94">7d2510df33ad8710dccb9c173e5c7b26</sys_ui_form>
+            <sys_ui_section caption="Resolution Information" display_value="Resolution Information" name="sn_crm_touchpoint_touchpoint" sys_domain="global" view="463e88c23b6d4b504be1ef9e53e45a94">392510df33ad8710dccb9c173e5c7ba8</sys_ui_section>
+            <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+            <sys_updated_on>2026-06-23 06:39:10</sys_updated_on>
+        </sys_ui_form_section>
+        <sys_ui_form_section action="INSERT_OR_UPDATE">
+            <position>3</position>
+            <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+            <sys_created_on>2026-06-23 06:39:10</sys_created_on>
+            <sys_domain>global</sys_domain>
+            <sys_domain_path>/</sys_domain_path>
+            <sys_id>ca2510df33ad8710dccb9c173e5c7bc2</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_overrides/>
+            <sys_ui_form display_value="sn_crm_touchpoint_touchpoint" name="sn_crm_touchpoint_touchpoint" sys_domain="global" view="463e88c23b6d4b504be1ef9e53e45a94">7d2510df33ad8710dccb9c173e5c7b26</sys_ui_form>
+            <sys_ui_section caption="Related Records" display_value="Related Records" name="sn_crm_touchpoint_touchpoint" sys_domain="global" view="463e88c23b6d4b504be1ef9e53e45a94">462510df33ad8710dccb9c173e5c7bb8</sys_ui_section>
+            <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+            <sys_updated_on>2026-06-23 06:39:10</sys_updated_on>
+        </sys_ui_form_section>
+        <sys_ui_form action="INSERT_OR_UPDATE">
+            <name>sn_crm_touchpoint_touchpoint</name>
+            <roles/>
+            <sys_class_name>sys_ui_form</sys_class_name>
+            <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+            <sys_created_on>2026-06-23 06:39:09</sys_created_on>
+            <sys_domain>global</sys_domain>
+            <sys_domain_path>/</sys_domain_path>
+            <sys_id>7d2510df33ad8710dccb9c173e5c7b26</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_name>sn_crm_touchpoint_touchpoint</sys_name>
+            <sys_overrides/>
+            <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+            <sys_policy/>
+            <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+            <sys_update_name>sys_ui_form_sections_7d2510df33ad8710dccb9c173e5c7b26</sys_update_name>
+            <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+            <sys_updated_on>2026-06-23 06:39:09</sys_updated_on>
+            <sys_user/>
+            <view display_value="Case" name="case">463e88c23b6d4b504be1ef9e53e45a94</view>
+            <view_name/>
+        </sys_ui_form>
+    </sys_ui_form_sections>
+</record_update>

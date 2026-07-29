@@ -5,7 +5,7 @@
         <api_name>x_ctans_incentnow.IncentNowStatementHelper</api_name>
         <caller_access/>
         <client_callable>false</client_callable>
-        <description/>
+        <description>This helper script is supports Incentive Statement Generation</description>
         <mobile_callable>false</mobile_callable>
         <name>IncentNowStatementHelper</name>
         <sandbox_callable>false</sandbox_callable>
@@ -157,19 +157,156 @@ IncentNowStatementHelper.prototype = {
     return total;
 },
 
+    buildStatementHTML: function(steps, meta) {
+
+        var html = '';
+
+        html += '<div class="statement-wrapper">';
+
+        html += '<h2 class="statement-title" style="display:flex; align-items:center; gap:10px;">Incentive Statement</h2>';
+
+        html += '<table class="statement-header-table">';
+        html += '<tr class="header-row user-row"><td><b class="b headu">User:</b></td><td>' + this._safe(meta.user) + '</td></tr>';
+        html += '<tr class="header-row plan-row"><td><b class="b">Plan:</b></td><td>' + this._safe(meta.plan) + '</td></tr>';
+        html += '<tr class="header-row period-row"><td><b class="b">Fiscal Period:</b></td><td>' + this._safe(meta.period) + '</td></tr>';
+        html += '<tr class="header-row generated-row"><td><b class="b">Generated On:</b></td><td>' + this._safe(meta.generatedOn) + '</td></tr>';
+        html += '<tr class="header-row quota-row"><td><b class="b">Target Quota:</b></td><td>' + this._safe(meta.quota) + '</td></tr>';
+        html += '<tr class="header-row total-row"><td><b class="b">Total Commission:</b></td><td><b>' + this._safe(meta.total) + '</b></td></tr>';
+        html += '</table>';
+
+        if (meta.earningRules && meta.earningRules.length > 0) {
+            html += this._buildEarningRulesHTML(meta.earningRules);
+        }
+
+        html += this._buildPayoutHTML(steps, meta.total);
+
+        html += '</div>';
+
+        return html;
+    },
+
+    _buildEarningRulesHTML: function(earningRules) {
+
+        var html = '';
+
+        html += '<table class="earning-rules-table">';
+
+        html += '<tr class="earning-rules-header" style="padding:2rem;">' +
+            '<th class="earning-rule-col">Earning Rule</th>' +
+            '<th class="earning-object-col">Object</th>' +
+            '<th class="earning-field-col">Field</th>' +
+            '<th class="earning-type-col">Type</th>' +
+            '<th class="earning-level-col">Earning Level</th>' +
+            '<th class="earning-condition-col">Rule Condition</th>' +
+            '<th class="earning-value-col">Value</th>' +
+            '</tr>';
+
+        for (var i = 0; i < earningRules.length; i++) {
+            html += '<tr class="earning-rule-row">' +
+                '<td class="earning-rule-name">' + this._safe(earningRules[i].name) + '</td>' +
+                '<td class="earning-rule-object">' + this._safe(earningRules[i].object || '-') + '</td>' +
+                '<td class="earning-rule-field">' + this._safe(earningRules[i].field || '-') + '</td>' +
+                '<td class="earning-rule-type">' + this._safe(earningRules[i].type || '-') + '</td>' +
+                '<td class="earning-rule-level">' + this._safe(earningRules[i].earning_level || '-') + '</td>' +
+                '<td class="earning-rule-condition">' + this._safe(earningRules[i].condition || '-') + '</td>' +
+                '<td class="earning-rule-value">' + this._safe(earningRules[i].value || '-') + '</td>' +
+                '</tr>';
+        }
+
+        html += '</table>';
+
+        return html;
+    },
+
+    _buildPayoutHTML: function(steps, total) {
+
+        var html = '';
+
+        html += '<table class="payout-table">';
+
+        html += '<tr class="payout-header" style="padding:2rem;">' +
+            '<th class="payout-component-col">Payout Component(s)</th>' +
+            '<th class="payout-value-col">Commission</th>' +
+            '</tr>';
+
+        for (var i = 0; i < steps.length; i++) {
+
+            var step = steps[i];
+
+            html += '<tr class="payout-row">' +
+                '<td class="payout-detail">' +
+                '<div class="payout-rule-name">' + this._safe(step.ruleName) + '</div>' +
+                '<div class="payout-trace">';
+
+            if (step.trace) {
+                html += this._buildTraceHTML(step.trace);
+            }
+
+            html += '</div></td>' +
+                '<td class="payout-amount">' + this._safe(step.payoutValue) + '</td>' +
+                '</tr>';
+        }
+
+        html += '<tr class="payout-total-row">' +
+            '<td class="payout-total-label">Total</td>' +
+            '<td class="payout-total-value">' + this._safe(total) + '</td>' +
+            '</tr>';
+
+        html += '</table>';
+
+        return html;
+    },
+
+    _buildTraceHTML: function(trace) {
+
+        var html = '';
+
+        for (var j = 0; j < trace.length; j++) {
+
+            var t = trace[j];
+
+            if (t.type == 'earning') {
+                html += '<div class="trace-earning"><b>Earning:</b> ' +
+                    this._safe(t.name) + ' → ' + this._safe(t.value) + '</div>';
+            }
+
+            if (t.type == 'lookup') {
+                html += '<div class="trace-lookup"><b>Lookup:</b> ' +
+                    this._safe(t.name) + ' → ' + this._safe(t.output) + '</div>';
+            }
+
+            if (t.type == 'calculation' && j === trace.length - 1) {
+                html += '<div class="trace-calculation"><b>Calculation:</b> ' +
+                    this._safe(t.formula) + ' = ' + this._safe(t.result) + '</div>';
+            }
+        }
+
+        return html;
+    },
+
+    _safe: function(val) {
+        if (val == null || val == undefined)
+            return '';
+
+        return (val + '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
+    },
+
     type: 'IncentNowStatementHelper'
 };]]></script>
         <sys_class_name>sys_script_include</sys_class_name>
         <sys_created_by>upma.rai</sys_created_by>
         <sys_created_on>2026-04-21 13:09:01</sys_created_on>
         <sys_id>1c32150b3b1887105493ddb693e45aa4</sys_id>
-        <sys_mod_count>4</sys_mod_count>
+        <sys_mod_count>7</sys_mod_count>
         <sys_name>IncentNowStatementHelper</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
         <sys_update_name>sys_script_include_1c32150b3b1887105493ddb693e45aa4</sys_update_name>
-        <sys_updated_by>upma.rai</sys_updated_by>
-        <sys_updated_on>2026-06-12 12:40:32</sys_updated_on>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-05 17:07:39</sys_updated_on>
     </sys_script_include>
 </record_update>

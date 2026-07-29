@@ -1,98 +1,242 @@
 <?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
     <sys_script_include action="INSERT_OR_UPDATE">
-        <access>package_private</access>
+        <access>public</access>
         <active>true</active>
         <api_name>x_ctans_incentnow.IncentNowUtils</api_name>
         <caller_access/>
         <client_callable>false</client_callable>
-        <description/>
+        <description>The IncentNowClientUtils is responsible server side operations.</description>
         <mobile_callable>false</mobile_callable>
         <name>IncentNowUtils</name>
         <sandbox_callable>false</sandbox_callable>
         <script><![CDATA[var IncentNowUtils = Class.create();
 IncentNowUtils.prototype = {
     initialize: function() {
+        this._territoryAvailable = null;
     },
-	
- getQuotaByUserBusinessUnit: function(userId) {
-        // Always enforce active quotas
+
+    DIMENSION_BU: 'business_unit',
+    DIMENSION_TERRITORY: 'territory',
+    TERRITORY_EXTENSION_SCOPE: 'x_ctans_territory',
+    SALES_TERRITORY_PLUGIN_ID: 'sn_sales_territory', //ServiceNow Sales Territory Management
+
+    getQuotaByUserBusinessUnit: function(userId) {
+        return this.getQuotaByUserDimension(userId);
+    },
+
+    getPlanByUserBusinessUnit: function(userId) {
+        return this.getPlanByUserDimension(userId);
+    },
+
+    getUserByQuotaBusinessUnit: function(quotaId) {
+        return this.getUserByQuotaDimension(quotaId);
+    },
+
+    getUserByPlanBusinessUnit: function(planId) {
+        return this.getUserByPlanDimension(planId);
+    },
+
+    getQuotaByUserDimension: function(userId) {
+        return this._getTargetByUserDimension(userId, 'x_ctans_incentnow_quota');
+    },
+
+    getPlanByUserDimension: function(userId) {
+        return this._getTargetByUserDimension(userId, 'x_ctans_incentnow_plan');
+    },
+
+    getUserByQuotaDimension: function(quotaId) {
+        return this._getUsersBySourceDimension(quotaId, 'x_ctans_incentnow_quota');
+    },
+
+    getUserByPlanDimension: function(planId) {
+        return this._getUsersBySourceDimension(planId, 'x_ctans_incentnow_plan');
+    },
+
+    _getTargetByUserDimension: function(userId, targetTable) {
         var query = 'active=true';
 
-        if (!userId) {
+        if (!userId)
+            return query + '^sys_idISEMPTY';
+
+        var userGR = new GlideRecordSecure('x_ctans_incentnow_user_profile');
+        if (!userGR.get(userId))
+            return query + '^sys_idISEMPTY';
+
+        var dimension = userGR.getValue('business_dimension');
+
+        if (dimension == this.DIMENSION_BU) {
+            var businessUnit = userGR.getValue('business_unit');
+            if (!businessUnit)
+                return query + '^sys_idISEMPTY';
+
+            query += '^business_dimension=' + this.DIMENSION_BU;
+            query += '^business_unit=' + businessUnit;
+
             return query;
         }
 
-        var userGR = new GlideRecordSecure('x_ctans_incentnow_user_profile');
-        if (userGR.get(userId) && userGR.business_unit) {
-            query += '^business_unit=' + userGR.business_unit;
+        if (dimension == this.DIMENSION_TERRITORY) {
+            return this._getQueryFromTerritoryExtension({
+                mode: 'target_by_user',
+                sourceTable: 'x_ctans_incentnow_user_profile',
+                sourceSysId: userGR.getUniqueValue(),
+                targetTable: targetTable,
+                baseQuery: query
+            });
         }
 
-        return query;
+        return query + '^sys_idISEMPTY';
     },
 
-	getUserByQuotaBusinessUnit: function(quotaId) {
+    _getUsersBySourceDimension: function(sourceId, sourceTable) {
+        var query = 'active=true';
 
-    // Start with base condition (optional if you have active on user)
-    var query = 'active=true';
+        if (!sourceId)
+            return query + '^sys_idISEMPTY';
 
-    if (!quotaId) {
-        return query;
-    }
+        var sourceGR = new GlideRecordSecure(sourceTable);
+        if (!sourceGR.get(sourceId))
+            return query + '^sys_idISEMPTY';
 
-    var quotaGR = new GlideRecordSecure('x_ctans_incentnow_quota');
-    if (quotaGR.get(quotaId) && quotaGR.business_unit) {
-        query += '^business_unit=' + quotaGR.business_unit;
-    }
+        var dimension = sourceGR.getValue('business_dimension');
 
-    return query;
-},
+        if (dimension == this.DIMENSION_BU) {
+            var businessUnit = sourceGR.getValue('business_unit');
+            if (!businessUnit)
+                return query + '^sys_idISEMPTY';
 
-getUserByPlanBusinessUnit: function(planId) {
+            query += '^business_dimension=' + this.DIMENSION_BU;
+            query += '^business_unit=' + businessUnit;
 
-    // base query (optional if user has active)
-    var query = 'active=true';
+            return query;
+        }
 
-    if (!planId) {
-        return query;
-    }
+        if (dimension == this.DIMENSION_TERRITORY) {
+            return this._getQueryFromTerritoryExtension({
+                mode: 'users_by_source',
+                sourceTable: sourceTable,
+                sourceSysId: sourceGR.getUniqueValue(),
+                targetTable: 'x_ctans_incentnow_user_profile',
+                baseQuery: query
+            });
+        }
 
-    var planGR = new GlideRecordSecure('x_ctans_incentnow_plan');
-    if (planGR.get(planId) && planGR.business_unit) {
-        query += '^business_unit=' + planGR.business_unit;
-    }
+        return query + '^sys_idISEMPTY';
+    },
 
-    return query;
-},
+    _getQueryFromTerritoryExtension: function(context) {
 
-getPlanByUserBusinessUnit: function(userId) {
+        if (!this.isTerritoryExtensionActive()) {
+            return context.baseQuery + '^sys_idISEMPTY';
+        }
 
-    // base query (optional if plan has active)
-    var query = 'active=true';
+        try {
+            var resolver = new x_ctans_territory.IncentNowTerritoryResolver();
+            var resolvedQuery = resolver.resolve(context);
+            if (!resolvedQuery) {
+                gs.warn(
+                    '[IncentIQ] Territory resolver returned an empty query. ' +
+                    'Mode=' + context.mode
+                );
+                return context.baseQuery + '^sys_idISEMPTY';
+            }
+            return resolvedQuery;
+        } catch (e) {
+            gs.warn('IncentIQ Territory resolver failed: ' + e.message);
+            return context.baseQuery + '^sys_idISEMPTY';
+        }
+    },
+    isTerritoryExtensionActive: function() {
+        return this._isTerritoryExtensionActive();
+    },
 
-    if (!userId) {
-        return query;
-    }
+    _isTerritoryExtensionActive: function() {
+        // Return cached value if already evaluated for better performance as same script is called multiple times from Widgets, Flow and Client Scripts
 
-    var userGR = new GlideRecordSecure('x_ctans_incentnow_user_profile');
-    if (userGR.get(userId) && userGR.business_unit) {
-        query += '^business_unit=' + userGR.business_unit;
-    }
+        if (this._territoryAvailable !== null)
+            return this._territoryAvailable;
 
-    return query;
-},
+        try {
+            var extensionInstalled = this._isApplicationInstalled(
+                this.TERRITORY_EXTENSION_SCOPE
+            );
+            if (!extensionInstalled) {
+                this._territoryAvailable = false;
+                return false;
+            }
+
+            var pluginActive = GlidePluginManager.isActive(
+                this.SALES_TERRITORY_PLUGIN_ID
+            );
+
+            this._territoryAvailable = extensionInstalled && pluginActive;
+
+        } catch (e) {
+            gs.error(
+                '[IncentIQ] Territory availability check failed: ' + e.message
+            );
+
+            this._territoryAvailable = false;
+        }
+        return this._territoryAvailable;
+    },
+
+    _isApplicationInstalled: function(applicationScope) {
+        if (!applicationScope)
+            return false;
+        var scopeGR = new GlideRecordSecure('sys_scope');
+        scopeGR.addQuery('scope', applicationScope);
+        scopeGR.setLimit(1);
+        scopeGR.query();
+
+        return scopeGR.hasNext();
+    },
+
+    getTerritoryManagers: function(territorySysId) {
+        if (!territorySysId)
+            return '';
+
+        if (!this.isTerritoryExtensionActive()) {
+            gs.warn(
+                '[IncentIQ] Cannot retrieve Territory managers because ' +
+                'Territory functionality is unavailable.'
+            );
+
+            return '';
+        }
+
+        try {
+            var resolver =
+                new x_ctans_territory.IncentNowTerritoryResolver();
+
+            var managers =
+                resolver.getTerritoryManagers(territorySysId);
+
+            return managers || '';
+
+        } catch (e) {
+            gs.error(
+                '[IncentIQ] Territory manager resolver failed. ' +
+                'Territory=' + territorySysId +
+                ', error=' + e.message
+            );
+
+            return '';
+        }
+    },
     type: 'IncentNowUtils'
 };]]></script>
         <sys_class_name>sys_script_include</sys_class_name>
         <sys_created_by>upma.rai</sys_created_by>
         <sys_created_on>2026-04-17 08:37:05</sys_created_on>
         <sys_id>e98da7e13b1c0f10ffa00e9693e45aa5</sys_id>
-        <sys_mod_count>6</sys_mod_count>
+        <sys_mod_count>64</sys_mod_count>
         <sys_name>IncentNowUtils</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
         <sys_update_name>sys_script_include_e98da7e13b1c0f10ffa00e9693e45aa5</sys_update_name>
-        <sys_updated_by>upma.rai</sys_updated_by>
-        <sys_updated_on>2026-06-03 08:00:05</sys_updated_on>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-22 07:22:34</sys_updated_on>
     </sys_script_include>
 </record_update>

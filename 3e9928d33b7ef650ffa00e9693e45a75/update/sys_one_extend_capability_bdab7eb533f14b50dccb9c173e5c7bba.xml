@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update sys_domain="global" table="sys_one_extend_capability">
+    <sys_one_extend_capability action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <description>IncentIQ's AI-powered compensation advisor. Helps sales representatives and managers understand quotas, attainment, payouts, commission calculations, and compensation plan details through natural conversation.</description>
+        <external>true</external>
+        <metadata>{"isGuidedStep":false}</metadata>
+        <name>IncentIQ Smart Compensation Advisor</name>
+        <offglide_enabled>false</offglide_enabled>
+        <short_description/>
+        <sys_class_name>sys_one_extend_capability</sys_class_name>
+        <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+        <sys_created_on>2026-07-01 13:11:24</sys_created_on>
+        <sys_domain>global</sys_domain>
+        <sys_domain_path>/</sys_domain_path>
+        <sys_id>bdab7eb533f14b50dccb9c173e5c7bba</sys_id>
+        <sys_mod_count>2</sys_mod_count>
+        <sys_name>IncentIQ Smart Compensation Advisor</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_one_extend_capability_bdab7eb533f14b50dccb9c173e5c7bba</sys_update_name>
+        <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
+        <sys_updated_on>2026-07-01 13:21:31</sys_updated_on>
+        <type>skill</type>
+    </sys_one_extend_capability>
+    <sys_translated_text action="delete_multiple" query="documentkey=bdab7eb533f14b50dccb9c173e5c7bba"/>
+</record_update>

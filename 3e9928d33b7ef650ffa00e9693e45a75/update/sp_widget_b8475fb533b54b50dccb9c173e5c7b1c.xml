@@ -1,0 +1,424 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <client_script><![CDATA[api.controller = function($scope, $sce) {
+
+    var c = this;
+
+    c.messages = [];
+    c.currentInput = '';
+    c.isLoading = false;
+
+    c.sendMessage = function() {
+
+        var question = (c.currentInput || '').trim();
+
+        if (!question || c.isLoading) {
+            return;
+        }
+
+        c.isLoading = true;
+        c.currentInput = '';
+
+        c.messages.push({
+            question: question,
+            answer: null,
+            answerHtml: null
+        });
+
+        var historyForServer = [];
+        for (var i = 0; i < c.messages.length - 1; i++) {
+            historyForServer.push({
+                question: c.messages[i].question,
+                answer: c.messages[i].answer
+            });
+        }
+
+        c.server.get({
+            action: 'sendMessage',
+            question: question,
+            conversationHistory: historyForServer
+        }).then(function(response) {
+
+            var lastMsg = c.messages[c.messages.length - 1];
+            var rawAnswer = response.data.answer || response.data.error || "Something went wrong. Please try again.";
+
+            lastMsg.answer = rawAnswer;
+            lastMsg.answerHtml = $sce.trustAsHtml(c.formatResponse(rawAnswer));
+            c.isLoading = false;
+
+            setTimeout(function() {
+                var container = document.querySelector('.incentiq-messages');
+                if (container) {
+                    container.scrollTop = container.scrollHeight;
+                }
+            }, 50);
+
+        }, function() {
+
+            var lastMsg = c.messages[c.messages.length - 1];
+            lastMsg.answer = "Something went wrong. Please try again.";
+            lastMsg.answerHtml = $sce.trustAsHtml("Something went wrong. Please try again.");
+            c.isLoading = false;
+        });
+    };
+
+    c.formatResponse = function(text) {
+
+        if (!text) {
+            return text;
+        }
+
+        text = text
+            .replace(/\*\*(.*?)\*\*/g, '$1')
+            .replace(/^#+\s*/gm, '')
+            .replace(/\*(.*?)\*/g, '$1');
+
+        var knownHeaders = ["Summary", "Key Details", "Data Available", "Suggested Follow-up Questions"];
+        var lines = text.split('\n');
+        var html = '';
+        var inList = false;
+
+        for (var i = 0; i < lines.length; i++) {
+
+            var line = lines[i].trim();
+
+            if (!line) {
+                continue;
+            }
+
+            var isHeader = false;
+            for (var h = 0; h < knownHeaders.length; h++) {
+                if (line === knownHeaders[h]) {
+                    isHeader = true;
+                    break;
+                }
+            }
+
+            var bulletContent = null;
+            if (line.indexOf('- ') === 0) {
+                bulletContent = line.substring(2);
+            } else if (line.indexOf('\u2022 ') === 0) {
+                bulletContent = line.substring(2);
+            }
+
+            var isTotalLine = bulletContent !== null && /total/i.test(bulletContent);
+
+            if (isHeader) {
+                if (inList) {
+                    html += '</ul>';
+                    inList = false;
+                }
+                html += '<div class="incentiq-section-header">' + line + '</div>';
+
+            } else if (isTotalLine) {
+                if (inList) {
+                    html += '</ul>';
+                    inList = false;
+                }
+                html += '<div class="incentiq-total-line">' + bulletContent + '</div>';
+
+            } else if (bulletContent !== null) {
+                if (!inList) {
+                    html += '<ul class="incentiq-section-list">';
+                    inList = true;
+                }
+                html += '<li>' + bulletContent + '</li>';
+
+            } else {
+                if (inList) {
+                    html += '</ul>';
+                    inList = false;
+                }
+                html += '<div class="incentiq-section-text">' + line + '</div>';
+            }
+        }
+
+        if (inList) {
+            html += '</ul>';
+        }
+
+        return html;
+    };
+};]]></client_script>
+        <controller_as>c</controller_as>
+        <css>.incentiq-page { --ink: #10182B; --slate: #5B6472; --bg: #F4F5F7; --surface: #FFFFFF; --border: #E3E6EB; --accent: #146356; --accent-dark: #0F4F45; --accent-soft: #EAF3F0; --accent-mid: #BFE0D6; display: flex; gap: 16px; height: 85vh; max-height: 800px; width: 100%; padding: 24px; box-sizing: border-box; background: var(--bg); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }&#13;
+* { box-sizing: border-box; }&#13;
+.incentiq-side { width: 250px; border: 1px solid var(--border); border-radius: 16px; padding: 22px 18px; background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(6px); overflow-y: auto; box-shadow: 0 1px 3px rgba(16, 24, 43, 0.05); }&#13;
+.incentiq-label { display: flex; align-items: center; font-size: 11px; color: var(--slate); font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; margin: 0 0 12px 0; }&#13;
+.incentiq-label-tab { width: 4px; height: 12px; border-radius: 2px; background: var(--accent); margin-right: 8px; flex-shrink: 0; }&#13;
+.incentiq-list { list-style: none; padding: 0; margin: 0 0 24px 0; }&#13;
+.incentiq-list li { display: flex; align-items: center; gap: 10px; padding: 9px 10px; font-size: 13.5px; font-weight: 500; color: var(--ink); border-radius: 10px; margin-bottom: 2px; cursor: pointer; transition: background 0.18s ease, transform 0.15s ease, color 0.18s ease; }&#13;
+.incentiq-list li:hover { background: var(--accent-soft); color: var(--accent-dark); transform: translateX(2px); }&#13;
+.incentiq-icon { display: flex; align-items: center; justify-content: center; width: 18px; height: 18px; color: var(--slate); flex-shrink: 0; transition: color 0.18s ease; }&#13;
+.incentiq-icon svg { width: 100%; height: 100%; }&#13;
+.incentiq-list li:hover .incentiq-icon { color: var(--accent); }&#13;
+.incentiq-opps-card { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 18px 14px; border-radius: 14px; border: 1px dashed var(--border); background: var(--bg); text-align: center; }&#13;
+.incentiq-opps-icon { width: 20px; height: 20px; color: var(--accent); opacity: 0.6; }&#13;
+.incentiq-opps-icon svg { width: 100%; height: 100%; }&#13;
+.incentiq-opps-count { font-size: 22px; font-weight: 700; color: var(--accent); line-height: 1; }&#13;
+.incentiq-opps-text { font-size: 12.5px; color: #8A909A; font-weight: 500; }&#13;
+.incentiq-main { flex: 1; display: flex; flex-direction: column; border: 1px solid var(--border); border-radius: 16px; padding: 0; background: var(--surface); min-height: 0; box-shadow: 0 1px 3px rgba(16, 24, 43, 0.05); overflow: hidden; }&#13;
+.incentiq-title { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 16px 28px; border-bottom: 1px solid var(--border); background: linear-gradient(180deg, #FCFDFD 0%, #FFFFFF 100%); position: relative; flex-shrink: 0; }&#13;
+.incentiq-title-left { position: relative; z-index: 2; }&#13;
+.incentiq-title-text { display: block; font-weight: 700; font-size: 18px; color: var(--ink); letter-spacing: -0.01em; }&#13;
+.incentiq-title-sub { display: block; font-size: 12px; color: var(--slate); margin-top: 4px; max-width: 320px; }&#13;
+.incentiq-hero-art { position: relative; width: 180px; height: 64px; flex-shrink: 0; border-radius: 12px; background: linear-gradient(135deg, var(--accent-soft) 0%, #F5FAF8 60%, #FFFFFF 100%); overflow: hidden; display: none; }&#13;
+@media (min-width: 900px) { .incentiq-hero-art { display: block; } }&#13;
+.incentiq-hero-dot { position: absolute; border-radius: 50%; background: var(--accent-mid); opacity: 0.5; }&#13;
+.incentiq-hero-dot-1 { width: 8px; height: 8px; top: 8px; left: 16px; }&#13;
+.incentiq-hero-dot-2 { width: 5px; height: 5px; top: 22px; left: 46px; }&#13;
+.incentiq-hero-dot-3 { width: 11px; height: 11px; bottom: 8px; left: 10px; opacity: 0.35; }&#13;
+.incentiq-hero-bars { position: absolute; right: 36px; bottom: 8px; display: flex; align-items: flex-end; gap: 4px; height: 40px; }&#13;
+.incentiq-bar { width: 6px; height: var(--h); border-radius: 3px 3px 0 0; background: linear-gradient(180deg, var(--accent) 0%, var(--accent-dark) 100%); opacity: 0.9; }&#13;
+.incentiq-hero-coin { position: absolute; right: 4px; bottom: 6px; width: 26px; height: 26px; border-radius: 50%; background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%); color: #ffffff; font-weight: 700; font-size: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(20, 99, 86, 0.3); }&#13;
+.incentiq-messages { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; min-height: 0; padding: 24px 28px; }&#13;
+.incentiq-empty { margin: auto; text-align: center; max-width: 560px; }&#13;
+.incentiq-empty-icon { width: 56px; height: 56px; margin: 0 auto 18px auto; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #ffffff 0%, var(--accent-soft) 55%, var(--accent-mid) 100%); display: flex; align-items: center; justify-content: center; color: var(--accent); box-shadow: 0 6px 16px rgba(20, 99, 86, 0.14); }&#13;
+.incentiq-empty-icon svg { width: 24px; height: 24px; }&#13;
+.incentiq-empty-title { font-size: 18px; font-weight: 700; color: var(--ink); margin: 0 0 10px 0; line-height: 1.35; }&#13;
+.incentiq-empty-brand { color: var(--accent); }&#13;
+.incentiq-empty-sub { font-size: 13.5px; color: var(--slate); line-height: 1.65; margin: 0 0 26px 0; }&#13;
+.incentiq-quick-actions { display: flex; flex-wrap: nowrap; gap: 10px; justify-content: center; }&#13;
+.incentiq-quick-card { display: flex; align-items: center; gap: 8px; padding: 11px 13px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); font-size: 12.5px; font-weight: 500; color: var(--ink); cursor: pointer; text-align: left; flex: 1 1 0; min-width: 0; font-family: inherit; transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease; }&#13;
+.incentiq-quick-card:hover { transform: translateY(-3px); box-shadow: 0 10px 22px rgba(16, 24, 43, 0.09); border-color: var(--accent-mid); }&#13;
+.incentiq-quick-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }&#13;
+.incentiq-quick-icon { width: 26px; height: 26px; flex-shrink: 0; border-radius: 8px; background: var(--accent-soft); color: var(--accent); display: flex; align-items: center; justify-content: center; }&#13;
+.incentiq-quick-icon svg { width: 15px; height: 15px; }&#13;
+.incentiq-turn { display: flex; flex-direction: column; gap: 8px; }&#13;
+.incentiq-bubble { border-radius: 14px; font-size: 14px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.65; }&#13;
+.incentiq-bubble-user { align-self: flex-end; background: var(--accent-soft); color: var(--accent-dark); padding: 9px 14px; max-width: 62%; width: fit-content; white-space: pre-wrap; font-weight: 500; border: 1px solid var(--accent-mid); }&#13;
+.incentiq-bubble-answer { align-self: flex-start; background: var(--surface); color: var(--ink); padding: 16px 20px; max-width: 80%; white-space: normal; border: 1px solid var(--border); box-shadow: 0 2px 10px rgba(16, 24, 43, 0.05); }&#13;
+.incentiq-thinking { align-self: flex-start; display: flex; gap: 6px; padding: 16px 20px; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; box-shadow: 0 2px 10px rgba(16, 24, 43, 0.05); }&#13;
+.incentiq-shimmer-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); animation: incentiq-shimmer 1.3s infinite ease-in-out; }&#13;
+.incentiq-shimmer-dot:nth-child(2) { animation-delay: 0.16s; }&#13;
+.incentiq-shimmer-dot:nth-child(3) { animation-delay: 0.32s; }&#13;
+@keyframes incentiq-shimmer { 0%, 80%, 100% { opacity: 0.25; transform: scale(0.75); } 40% { opacity: 1; transform: scale(1.05); } }&#13;
+@media (prefers-reduced-motion: reduce) { .incentiq-shimmer-dot { animation: none; opacity: 0.6; } }&#13;
+.incentiq-section-header { font-weight: 700; font-size: 12.5px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--accent); margin-top: 14px; margin-bottom: 7px; padding-bottom: 5px; border-bottom: 1px solid var(--accent-soft); }&#13;
+.incentiq-section-header:first-child { margin-top: 0; }&#13;
+.incentiq-section-text { margin-bottom: 7px; line-height: 1.65; }&#13;
+.incentiq-section-list { margin: 0 0 7px 0; padding-left: 19px; }&#13;
+.incentiq-section-list li { margin-bottom: 5px; line-height: 1.6; }&#13;
+.incentiq-total-line { font-family: ui-monospace, "SF Mono", "Cascadia Code", Consolas, monospace; font-weight: 600; font-size: 13.5px; color: var(--ink); background: var(--accent-soft); display: inline-block; padding: 7px 13px; border-radius: 8px; margin-top: 9px; }&#13;
+.incentiq-inputrow { display: flex; gap: 12px; padding: 18px 28px; border-top: 1px solid var(--border); background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(4px); flex-shrink: 0; }&#13;
+.incentiq-textbox { flex: 1; padding: 13px 18px; border: 1px solid var(--border); border-radius: 999px; font-size: 14px; color: var(--ink); background: var(--bg); transition: border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease; }&#13;
+.incentiq-textbox::placeholder { color: #9AA1AC; }&#13;
+.incentiq-textbox:focus { outline: none; border-color: var(--accent); background: var(--surface); box-shadow: 0 0 0 4px var(--accent-soft); }&#13;
+.incentiq-sendbtn { display: flex; align-items: center; gap: 8px; padding: 12px 24px; border: none; border-radius: 999px; background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%); color: #ffffff; font-weight: 600; font-size: 13.5px; cursor: pointer; transition: transform 0.15s ease, box-shadow 0.15s ease; box-shadow: 0 4px 12px rgba(20, 99, 86, 0.25); }&#13;
+.incentiq-sendbtn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(20, 99, 86, 0.32); }&#13;
+.incentiq-sendbtn:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }&#13;
+.incentiq-sendbtn:disabled { background: #C7CCD3; box-shadow: none; cursor: not-allowed; }&#13;
+.incentiq-send-icon { width: 15px; height: 15px; }&#13;
+@media (max-width: 900px) { .incentiq-page { flex-direction: column; height: auto; max-height: none; } .incentiq-side { width: 100%; } }&#13;
+@media (max-width: 560px) { .incentiq-quick-card { max-width: 100%; width: 100%; flex: 1 1 100%; } .incentiq-title { flex-direction: column; } }&#13;
+&#13;
+.incentiq-provider-badge {&#13;
+  display: inline-block;&#13;
+  margin-top: 6px;&#13;
+  font-size: 11px;&#13;
+  font-weight: 600;&#13;
+  color: var(--accent);&#13;
+  background: var(--accent-soft);&#13;
+  padding: 3px 9px;&#13;
+  border-radius: 999px;&#13;
+}</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description/>
+        <docs/>
+        <field_list/>
+        <has_preview>false</has_preview>
+        <id>incentiq_smart_compensation_advisor</id>
+        <internal>false</internal>
+        <link><![CDATA[function link(scope, element, attrs, controller) {
+  
+}]]></link>
+        <name>IncentIQ Smart Compensation Advisor</name>
+        <option_schema/>
+        <public>false</public>
+        <roles>x_ctans_incentnow.user</roles>
+        <script><![CDATA[(function() {
+
+    data.opportunityCount = 0;
+
+    try {
+        var oppService = new x_ctans_incentnow.IncentIQOpportunityService();
+        var oppResult = oppService.getOpportunities();
+        data.opportunityCount = oppResult.opportunityCount || 0;
+    } catch (ex) {
+        gs.error("Widget :: Failed to load opportunity count: " + ex.message);
+    }
+
+    // Badge reflects the real active provider (ServiceNow / OpenAI / Claude)
+    try {
+        var providerAdmin = new x_ctans_incentnow.IncentIQProviderAdmin();
+        var active = providerAdmin.getActiveProvider();
+        data.currentAiProviderLabel = (active && active.label) ? active.label : 'ServiceNow LLM (Now LLM)';
+    } catch (ex) {
+        gs.error("Widget :: Failed to resolve active provider: " + ex.message);
+        data.currentAiProviderLabel = 'ServiceNow LLM (Now LLM)';
+    }
+
+    if (input && input.action === 'sendMessage') {
+        try {
+            var orchestrator = new x_ctans_incentnow.IncentIQChatOrchestrator();
+            var result = orchestrator.sendMessage(input.question, input.conversationHistory);
+
+            if (result.success) {
+                data.answer = result.message;
+            } else {
+                data.error = result.message;
+            }
+        } catch (ex) {
+            gs.error("Widget :: sendMessage handling failed: " + ex.message);
+            data.error = "Something went wrong while processing your question. Please try again.";
+        }
+    }
+
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+        <sys_created_on>2026-07-01 15:14:15</sys_created_on>
+        <sys_id>b8475fb533b54b50dccb9c173e5c7b1c</sys_id>
+        <sys_mod_count>33</sys_mod_count>
+        <sys_name>IncentIQ Smart Compensation Advisor</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sp_widget_b8475fb533b54b50dccb9c173e5c7b1c</sys_update_name>
+        <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
+        <sys_updated_on>2026-07-22 09:32:14</sys_updated_on>
+        <template><![CDATA[<div class="incentiq-page">
+  <div class="incentiq-side">
+    <p class="incentiq-label"><span class="incentiq-label-tab"></span>Objects</p>
+    <ul class="incentiq-list">
+      <li ng-click="c.currentInput='Give me a summary of my compensation'; c.sendMessage()">
+        <span class="incentiq-icon">
+          <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.6"/><rect x="14" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.6"/><rect x="3" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.6"/><rect x="14" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.6"/></svg>
+        </span>
+        Dashboard
+      </li>
+      <li ng-click="c.currentInput='Who is my manager, and what are my department and company?'; c.sendMessage()">
+        <span class="incentiq-icon">
+          <svg viewBox="0 0 24 24" fill="none"><circle cx="9" cy="8" r="3" stroke="currentColor" stroke-width="1.6"/><path d="M3.5 20c0-3 2.5-5 5.5-5s5.5 2 5.5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="17.5" cy="9" r="2.3" stroke="currentColor" stroke-width="1.6"/><path d="M15 20c0-2.4 1.8-4 3.5-4s3.5 1.6 3.5 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        </span>
+        Organization
+      </li>
+      <li ng-click="c.currentInput='What is my quota'; c.sendMessage()">
+        <span class="incentiq-icon">
+          <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="4.5" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/></svg>
+        </span>
+        Quota Setup
+      </li>
+      <li ng-click="c.currentInput='Explain my incentive plan'; c.sendMessage()">
+        <span class="incentiq-icon">
+          <svg viewBox="0 0 24 24" fill="none"><rect x="4" y="9" width="16" height="11" rx="1.5" stroke="currentColor" stroke-width="1.6"/><path d="M4 12h16" stroke="currentColor" stroke-width="1.6"/><path d="M12 9V6.5a2.5 2.5 0 0 1 5 0V9M12 9V6.5a2.5 2.5 0 0 0-5 0V9" stroke="currentColor" stroke-width="1.6"/></svg>
+        </span>
+        Incentive Plans
+      </li>
+      <li ng-click="c.currentInput='What is my QTD performance'; c.sendMessage()">
+        <span class="incentiq-icon">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M4 20V10M10 20V4M16 20v-7M22 20V13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        </span>
+        Performance
+      </li>
+      <li ng-click="c.currentInput='Show my recent statements'; c.sendMessage()">
+        <span class="incentiq-icon">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M6 3.5h9l3 3V20a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4.5a1 1 0 0 1 1-1Z" stroke="currentColor" stroke-width="1.6"/><path d="M9 12h6M9 15.5h6M9 8.5h3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        </span>
+        Statements
+      </li>
+    </ul>
+    <p class="incentiq-label"><span class="incentiq-label-tab"></span>Open Opportunities</p>
+    <div class="incentiq-opps-card" ng-if="data.opportunityCount > 0">
+      <span class="incentiq-opps-icon">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 3l1.6 4.6L18 9l-4.4 1.4L12 15l-1.6-4.6L6 9l4.4-1.4L12 3Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M19 15l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7.7-2Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>
+      </span>
+      <span class="incentiq-opps-count">{{data.opportunityCount}}</span>
+      <span class="incentiq-opps-text">{{data.opportunityCount === 1 ? 'Open Opportunity' : 'Open Opportunities'}}</span>
+    </div>
+    <div class="incentiq-opps-card" ng-if="!data.opportunityCount || data.opportunityCount === 0">
+      <span class="incentiq-opps-icon">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 3l1.6 4.6L18 9l-4.4 1.4L12 15l-1.6-4.6L6 9l4.4-1.4L12 3Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M19 15l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7.7-2Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>
+      </span>
+      <span class="incentiq-opps-text">No open opportunities</span>
+    </div>
+  </div>
+  <div class="incentiq-main">
+    <div class="incentiq-title">
+      <div class="incentiq-title-left">
+        <span class="incentiq-title-text">Smart Compensation Advisor</span>
+        <span class="incentiq-title-sub">Grounded in your plan, statements, and payouts</span>
+        <span class="incentiq-provider-badge">Powered by {{data.currentAiProviderLabel}}</span>
+      </div>
+      <div class="incentiq-hero-art" aria-hidden="true">
+        <span class="incentiq-hero-dot incentiq-hero-dot-1"></span>
+        <span class="incentiq-hero-dot incentiq-hero-dot-2"></span>
+        <span class="incentiq-hero-dot incentiq-hero-dot-3"></span>
+        <div class="incentiq-hero-bars">
+          <span class="incentiq-bar" style="--h:34%"></span>
+          <span class="incentiq-bar" style="--h:52%"></span>
+          <span class="incentiq-bar" style="--h:68%"></span>
+          <span class="incentiq-bar" style="--h:86%"></span>
+          <span class="incentiq-bar" style="--h:100%"></span>
+        </div>
+        <div class="incentiq-hero-coin">$</div>
+      </div>
+    </div>
+    <div class="incentiq-messages">
+      <div ng-if="c.messages.length === 0" class="incentiq-empty">
+        <div class="incentiq-empty-icon">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3Z" fill="currentColor"/></svg>
+        </div>
+        <p class="incentiq-empty-title">Welcome to <span class="incentiq-empty-brand">IncentIQ</span> Smart Compensation Advisor</p>
+        <p class="incentiq-empty-sub">Harness the power of AI to better understand your compensation. From quotas and incentive plans to commissions, payouts, earnings, and performance, receive personalized insights and clear explanations, all grounded in your real IncentIQ data.</p>
+        <div class="incentiq-quick-actions">
+          <button type="button" class="incentiq-quick-card" ng-click="c.currentInput='What is my quota attainment?'; c.sendMessage()">
+            <span class="incentiq-quick-icon">
+              <svg viewBox="0 0 24 24" fill="none"><path d="M12 3a9 9 0 1 0 9 9h-9V3Z" stroke="currentColor" stroke-width="1.5"/><path d="M14.5 3.5A8.98 8.98 0 0 1 20.5 9.5H14.5v-6Z" stroke="currentColor" stroke-width="1.5"/></svg>
+            </span>
+            What is my quota attainment?
+          </button>
+          <button type="button" class="incentiq-quick-card" ng-click="c.currentInput='Show my payout history'; c.sendMessage()">
+            <span class="incentiq-quick-icon">
+              <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="6.5" width="18" height="12" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M3 10h18" stroke="currentColor" stroke-width="1.5"/><circle cx="17" cy="14" r="1.3" fill="currentColor"/></svg>
+            </span>
+            Show my payout history
+          </button>
+          <button type="button" class="incentiq-quick-card" ng-click="c.currentInput='Explain my incentive plan'; c.sendMessage()">
+            <span class="incentiq-quick-icon">
+              <svg viewBox="0 0 24 24" fill="none"><path d="M6 3.5h9l3 3V20a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4.5a1 1 0 0 1 1-1Z" stroke="currentColor" stroke-width="1.5"/><path d="M9 12h6M9 15.5h6M9 8.5h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            </span>
+            Explain my incentive plan
+          </button>
+        </div>
+      </div>
+      <div ng-repeat="msg in c.messages" class="incentiq-turn">
+        <div class="incentiq-bubble incentiq-bubble-user">
+          {{msg.question}}
+        </div>
+        <div ng-if="msg.answerHtml" class="incentiq-bubble incentiq-bubble-answer" ng-bind-html="msg.answerHtml"></div>
+        <div ng-if="!msg.answer && c.isLoading" class="incentiq-thinking">
+          <span class="incentiq-shimmer-dot"></span>
+          <span class="incentiq-shimmer-dot"></span>
+          <span class="incentiq-shimmer-dot"></span>
+        </div>
+      </div>
+    </div>
+    <div class="incentiq-inputrow">
+      <input type="text"
+             ng-model="c.currentInput"
+             ng-keypress="$event.keyCode === 13 && c.sendMessage()"
+             placeholder="Ask about your quota, payouts, or plan"
+             class="incentiq-textbox" />
+      <button ng-click="c.sendMessage()" ng-disabled="c.isLoading" class="incentiq-sendbtn">
+        Send
+        <svg viewBox="0 0 24 24" fill="none" class="incentiq-send-icon"><path d="M3 11.5L20.5 3.5L14 20.5L11 13.5L3 11.5Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M11 13.5L20.5 3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+  </div>
+</div>]]></template>
+    </sp_widget>
+</record_update>

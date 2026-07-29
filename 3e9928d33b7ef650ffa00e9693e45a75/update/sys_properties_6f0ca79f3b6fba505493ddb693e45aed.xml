@@ -6,7 +6,7 @@
         <is_private>false</is_private>
         <name>glide.service_portal.resize_text.incentiq.enable_rem_conversion</name>
         <read_roles/>
-        <suffix/>
+        <suffix>glide.service_portal.resize_text.incentiq.enable_rem_conversion</suffix>
         <sys_class_name>sys_properties</sys_class_name>
         <sys_created_by>karan.kumar</sys_created_by>
         <sys_created_on>2026-03-16 12:12:30</sys_created_on>

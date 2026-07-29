@@ -16,7 +16,7 @@
         <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
         <sys_updated_on>2026-06-17 06:57:16</sys_updated_on>
         <target_name>sn_l2c_core_entity_attribute</target_name>
-        <target_scope display_value="">d268fc54c31131107d575b79c840dd68</target_scope>
+        <target_scope display_value="Lead to Cash Core">d268fc54c31131107d575b79c840dd68</target_scope>
         <target_type>sys_db_object</target_type>
     </sys_scope_privilege>
 </record_update>

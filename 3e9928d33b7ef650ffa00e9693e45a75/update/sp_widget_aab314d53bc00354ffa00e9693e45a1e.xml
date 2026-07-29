@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
     <sp_widget action="INSERT_OR_UPDATE">
         <category>custom</category>
-        <client_script><![CDATA[api.controller=function($scope,spUtil,$location) {
+        <client_script><![CDATA[api.controller=function($scope,spUtil,$location,$timeout) {
   /* widget controller */
   var c = this;
 	c.pageView = 'main'; // main | assign
@@ -67,6 +67,103 @@ c.showAll = function() {
   c.viewMode = 'all';
   c.data.activeTab = 'data-rules'; // default tab
 };
+	
+//approval flow
+	
+		// Approval Flow Pagination
+		c.approvalCurrentPage = 1;
+		c.approvalPageSize = 5;
+
+		c.getPaginatedApprovalFlow = function () {
+
+				if (!c.approvalFlow)
+						return [];
+
+				var start = (c.approvalCurrentPage - 1) * c.approvalPageSize;
+				var end = start + c.approvalPageSize;
+
+				return c.approvalFlow.slice(start, end);
+		};
+
+		c.approvalTotalPages = function () {
+
+				if (!c.approvalFlow || c.approvalFlow.length === 0)
+						return 1;
+
+				return Math.ceil(c.approvalFlow.length / c.approvalPageSize);
+		};
+
+		c.nextApprovalPage = function () {
+
+				if (c.approvalCurrentPage < c.approvalTotalPages()) {
+						c.approvalCurrentPage++;
+				}
+		};
+
+		c.prevApprovalPage = function () {
+
+				if (c.approvalCurrentPage > 1) {
+						c.approvalCurrentPage--;
+				}
+		};
+
+		c.showApprovalFlow = false;
+		c.approvalFlow = [];
+
+		c.openApprovalFlow = function(planId) {
+
+				c.server.get({
+						action: "getApprovalFlow",
+						planId: planId
+				}).then(function(response) {
+
+						c.approvalFlow = response.data.approvalFlow;
+						c.approvalCurrentPage = 1;
+						c.showApprovalFlow = true;
+
+						$timeout(function () {
+
+								var el = document.getElementById("approvalFlowSection");
+
+								if (el) {
+										el.scrollIntoView({
+												behavior: "smooth",
+												block: "start"
+										});
+								}
+
+						}, 100);
+
+				});
+		};
+	
+		$scope.$on('showPlanApprovalFlow', function(event, data) {
+
+				c.server.get({
+						action: 'getApprovalFlow',
+						planId: data.planId
+				}).then(function(response){
+
+						c.approvalFlow = response.data.approvalFlow;
+						c.approvalCurrentPage = 1;
+						c.showApprovalFlow = true;
+
+						$timeout(function () {
+
+								var el = document.getElementById("approvalFlowSection");
+
+								if (el) {
+										el.scrollIntoView({
+												behavior: "smooth",
+												block: "start"
+										});
+								}
+
+						}, 100);
+
+				});
+
+		});
 
 };]]></client_script>
         <controller_as>c</controller_as>
@@ -79,6 +176,25 @@ c.showAll = function() {
 .btn-hidden {
   visibility: hidden;   /* hides visually */
   pointer-events: none; /* prevents click */
+}
+
+.pagination-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+    width: 100%;
+}
+
+.pagination-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.pg-info {
+    min-width: 110px;
+    text-align: center;
 }
 
 .btn-modern-toggle {
@@ -1298,10 +1414,18 @@ c.showAll = function() {
   /* populate the 'data' object */
   /* e.g., data.table = $sp.getValue('table'); */
 data.title = 'Incentive Plans';
-  data.subtitle = 'Two-phase commission calculation architecture';
-  data.activeTab = 'overview';
-	data.tableWidget=$sp.getWidget('incentnow-table-widget',{ table: 'x_ctans_incentnow_plan',view:'portal_view',viewperiod:'false'});
-  data.isIncentNowGroupAdmin=gs.hasRole('x_ctans_incentnow.business_group_admin') || gs.hasRole('x_ctans_incentnow.admin');
+data.subtitle = 'Two-phase commission calculation architecture';
+data.activeTab = 'overview';
+data.isTerritoryEnabled =new x_ctans_incentnow.IncentNowUtils().isTerritoryExtensionActive() ===true;
+
+	if (data.isTerritoryEnabled) {
+	data.tableWidget=$sp.getWidget('incentnow-table-widget',{ table: 'x_ctans_incentnow_plan',view:'territory',viewperiod:'false'});
+	}
+	else
+		{
+			data.tableWidget=$sp.getWidget('incentnow-table-widget',{ table: 'x_ctans_incentnow_plan',view:'portal_view',viewperiod:'false'});
+		}
+  data.isIncentNowGroupAdmin=gs.hasRole('x_ctans_incentnow.business_group_admin') || gs.hasRole('x_ctans_incentnow.admin') || gs.hasRole('x_ctans_incentnow.territory_admin');
 	
 	
 	if(input && input.action=="openassign")
@@ -1484,6 +1608,27 @@ data.title = 'Incentive Plans';
       result: '$6,000'
     }
   ];
+	
+//approval flow
+
+		if (input && input.action == "getApprovalFlow") {
+
+				data.approvalFlow = [];
+
+				var apprGR = new GlideRecordSecure('sysapproval_approver');
+				apprGR.addQuery('document_id', input.planId);
+				apprGR.orderByDesc('sys_created_on');
+				apprGR.query();
+
+				while (apprGR.next()) {
+						data.approvalFlow.push({
+								approver: apprGR.getDisplayValue('approver'),
+								state: apprGR.getDisplayValue('state'),
+								updated: apprGR.getDisplayValue('sys_updated_on'),
+								comments: apprGR.getDisplayValue('comments')
+						});
+				}
+		}
   
 })();]]></script>
         <servicenow>false</servicenow>
@@ -1491,14 +1636,14 @@ data.title = 'Incentive Plans';
         <sys_created_by>karan.kumar</sys_created_by>
         <sys_created_on>2026-04-03 11:51:17</sys_created_on>
         <sys_id>aab314d53bc00354ffa00e9693e45a1e</sys_id>
-        <sys_mod_count>153</sys_mod_count>
+        <sys_mod_count>163</sys_mod_count>
         <sys_name>Incentive Plans</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
         <sys_update_name>sp_widget_aab314d53bc00354ffa00e9693e45a1e</sys_update_name>
-        <sys_updated_by>shroin.mandal</sys_updated_by>
-        <sys_updated_on>2026-06-12 06:37:52</sys_updated_on>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-28 15:51:46</sys_updated_on>
         <template><![CDATA[<div ng-if="c.pageView=='main'">
   
 <div class="incentive-plans-home">
@@ -1750,7 +1895,7 @@ data.title = 'Incentive Plans';
     <div class="pt-scorecard">
       <div class="pt-scorecard-top"><span class="pt-scorecard-label">Assigned Reps</span></div>
       <div class="pt-scorecard-value">{{c.data.stats.assignedReps}}</div>
-      <div class="pt-scorecard-period">Total Assignments</div>
+      <div class="pt-scorecard-period">Across Plans</div>
     </div>
   </div>
 
@@ -1818,6 +1963,55 @@ data.title = 'Incentive Plans';
       <div>
         <sp-widget widget="data.tableWidget"></sp-widget>
       </div>
+      
+     <div id="approvalFlowSection"
+          class="panel panel-default m-t-lg"
+       ng-if="c.showApprovalFlow">
+      <div class="panel-heading">
+          <h4>Approval Flow</h4>
+      </div>
+      <div class="panel-body">
+          <table class="table table-striped">
+              <thead>
+                  <tr>
+                      <th>Approver</th>
+                      <th>Status</th>
+                      <th>Updated</th>
+                      <th>Comments</th>
+                  </tr>
+              </thead>
+              <tbody>
+                  <tr ng-repeat="item in c.getPaginatedApprovalFlow()">
+                      <td>{{item.approver}}</td>
+                      <td>{{item.state}}</td>
+                      <td>{{item.updated}}</td>
+                      <td>{{item.comments}}</td>
+                  </tr>
+              </tbody>
+          </table>
+        <div class="pagination-wrapper" ng-if="c.approvalFlow.length">
+            <div class="pagination-container">
+
+                <button class="pg-btn"
+                        ng-click="c.prevApprovalPage()"
+                        ng-disabled="c.approvalCurrentPage === 1">
+                    ← Prev
+                </button>
+
+                <span class="pg-info">
+                    Page {{c.approvalCurrentPage}} / {{c.approvalTotalPages()}}
+                </span>
+
+                <button class="pg-btn"
+                        ng-click="c.nextApprovalPage()"
+                        ng-disabled="c.approvalCurrentPage === c.approvalTotalPages()">
+                    Next →
+                </button>
+
+            </div>
+        </div>
+      </div>
+  </div>
       
  
       

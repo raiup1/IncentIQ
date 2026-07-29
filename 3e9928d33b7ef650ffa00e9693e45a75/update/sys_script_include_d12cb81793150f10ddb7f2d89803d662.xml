@@ -1,180 +1,248 @@
 <?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
     <sys_script_include action="INSERT_OR_UPDATE">
         <access>public</access>
-        <active>true</active>
+        <active>false</active>
         <api_name>x_ctans_incentnow.IncentIQUtils</api_name>
         <caller_access/>
         <client_callable>false</client_callable>
-        <description>This is the shared utility library used by:&#13;
-&#13;
-IncentNowPayoutHandler&#13;
-IncentNowQuotaHandler&#13;
-IncentNowPlanHandler</description>
+        <description>This File is depricated and related script is moved into DataLakeUtils</description>
         <mobile_callable>false</mobile_callable>
         <name>IncentIQUtils</name>
         <sandbox_callable>false</sandbox_callable>
-        <script><![CDATA[var IncentIQUtils = Class.create();
+        <script><![CDATA[var IncentIQ360ContextService = Class.create();
+IncentIQ360ContextService.prototype = {
 
-IncentIQUtils.prototype = {
-
-    initialize: function() {},
-
-    getUserProfileId: function(userId) {
-
-        if (!userId) {
-            return "";
-        }
-
-        var profileGR = new GlideRecordSecure(
-            "x_ctans_incentnow_user_profile"
-        );
-
-        profileGR.addQuery(
-            "user",
-            userId
-        );
-
-        profileGR.setLimit(1);
-        profileGR.query();
-
-        if (profileGR.next()) {
-
-            return profileGR.getUniqueValue();
-        }
-
-        return userId;
+    initialize: function() {
+        this.LOG = "IncentIQ360ContextService :: ";
+        this.utils = new IncentIQUtils();
     },
 
-    extractMonthYear: function(text) {
+    getFullContext: function() {
 
-        if (!text) {
-            return "";
+        var userId = gs.getUserID();
+        var context = {};
+
+        context.currentUser = {
+            userName: gs.getUserName(),
+            fullName: gs.getUserDisplayName()
+        };
+
+        // ---------------------------------------------
+        // PROFILE (via shared utility, consistent with rest of codebase)
+        // ---------------------------------------------
+        var profileId = this.utils.getUserProfileId(userId);
+
+        var profileGR = new GlideRecordSecure('x_ctans_incentnow_user_profile');
+        if (!profileId || !profileGR.get(profileId)) {
+            return { found: false, message: "User not onboarded to IncentIQ" };
         }
 
-        var match = text.match(
-            /(january|february|march|april|may|june|july|august|september|october|november|december)\s+\d{4}/i
-        );
+        context.found = true;
+        context.profile = {
+            role: profileGR.getValue('role'),
+            businessUnit: profileGR.getDisplayValue('business_unit')
+        };
 
-        if (match) {
-            return match[0];
-        }
+        // ---------------------------------------------
+        // ACTIVE PLAN
+        // ---------------------------------------------
+        var planId = '';
+        var planUserGR = new GlideRecord('x_ctans_incentnow_plan_users');
+        planUserGR.addQuery('x_ctans_incentnow_sales_user', profileId);
+        planUserGR.query();
 
-        var yearMatch = text.match(/\b20\d{2}\b/);
-
-        if (yearMatch) {
-            return yearMatch[0];
-        }
-
-        return "";
-    },
-
-    normalizeMonth: function(value) {
-
-        return (value || "")
-            .toString()
-            .toLowerCase()
-            .replace(/\s+/g, " ")
-            .trim();
-    },
-
-    getMonthOrder: function(period) {
-
-        period = (period || "")
-            .toLowerCase();
-
-        if (period.indexOf("january") > -1) return 1;
-        if (period.indexOf("february") > -1) return 2;
-        if (period.indexOf("march") > -1) return 3;
-        if (period.indexOf("april") > -1) return 4;
-        if (period.indexOf("may") > -1) return 5;
-        if (period.indexOf("june") > -1) return 6;
-        if (period.indexOf("july") > -1) return 7;
-        if (period.indexOf("august") > -1) return 8;
-        if (period.indexOf("september") > -1) return 9;
-        if (period.indexOf("october") > -1) return 10;
-        if (period.indexOf("november") > -1) return 11;
-        if (period.indexOf("december") > -1) return 12;
-
-        return 99;
-    },
-
-    createFailureRecord: function(
-        question,
-        intent,
-        handler,
-        stage,
-        errorMessage,
-        sourceChannel,
-        userId
-    ) {
-
-        try {
-
-            var gr = new GlideRecord(
-                "x_ctans_incentnow_ai_execution_failure"
-            );
-
-            gr.initialize();
-
-            gr.question = question || "";
-            gr.detected_intent = intent || "";
-            gr.handler_name = handler || "";
-            gr.failure_stage = stage || "";
-            gr.error_message = errorMessage || "";
-            gr.normalized_question =(question || "").toLowerCase().trim();
-            gr.failure_reason =errorMessage || "";
-            gr.agent_name ="IncentIQ Copilot";
-            gr.source_channel = sourceChannel || "Now Assist";
-            gr.execution_status = "Open";
-            gr.occurrence_count = 1;
-
-            if (userId) {
-
-                var profileId =
-                    this.getUserProfileId(userId);
-
-                var profileGR = new GlideRecordSecure(
-                    "x_ctans_incentnow_user_profile"
-                );
-
-                if (profileGR.get(profileId)) {
-
-                    gr.user = profileId;
-
-                }
+        if (planUserGR.next()) {
+            planId = planUserGR.getValue('x_ctans_incentnow_plan');
+            var planGR = planUserGR.x_ctans_incentnow_plan.getRefRecord();
+            if (planGR.isValidRecord()) {
+                context.plan = {
+                    planName: planGR.getValue('plan_name'),
+                    status: planGR.getValue('status'),
+                    fiscalYear: planGR.getDisplayValue('fiscal_year')
+                };
             }
-
-            gr.insert();
-
-
-            gs.info(
-                "INCENTIQ_FAILURE :: Record created for intent = " +
-                intent
-            );
-
-        } catch (ex) {
-
-            gs.error(
-                "INCENTIQ_FAILURE :: Unable to create failure record. Error = " +
-                ex.message
-            );
-
         }
+
+        // ---------------------------------------------
+        // QUOTA ASSIGNMENT
+        // ---------------------------------------------
+        var quotaGR = new GlideRecord('x_ctans_incentnow_user_quota_assignment');
+        quotaGR.addQuery('user', profileId);
+        quotaGR.query();
+
+        if (quotaGR.next()) {
+            var quotaRef = quotaGR.quota.getRefRecord();
+            if (quotaRef.isValidRecord()) {
+                context.quota = { quotaName: quotaRef.getDisplayValue() };
+            }
+        }
+
+        // ---------------------------------------------
+        // ALL INCENTIVE STATEMENTS (full history)
+        // ---------------------------------------------
+        var statements = [];
+
+        var stmtGR = new GlideRecord('x_ctans_incentnow_incentive_statement');
+        stmtGR.addQuery('user', profileId);
+        stmtGR.orderByDesc('fiscal_period');
+        stmtGR.query();
+
+        while (stmtGR.next()) {
+            statements.push({
+                fiscalPeriod: stmtGR.getDisplayValue('fiscal_period'),
+                fiscalYear: stmtGR.getDisplayValue('fiscal_year'),
+                plan: stmtGR.getDisplayValue('plan'),
+                targetQuota: parseFloat(stmtGR.getValue('target_quota')) || 0,
+                quotaAttainment: parseFloat(stmtGR.getValue('quota_attainment')) || 0,
+                totalCommission: parseFloat(stmtGR.getValue('total_commission')) || 0,
+                status: stmtGR.getValue('status')
+            });
+        }
+
+        context.statements = statements;
+
+        // ---------------------------------------------
+        // QTD / YTD ROLLUPS (computed here, not by the AI)
+        // ---------------------------------------------
+        var today = new GlideDateTime();
+        var currentYear = today.getYearUTC();
+        var currentMonth = today.getMonthUTC();
+        var currentQuarterStartMonth = Math.floor((currentMonth - 1) / 3) * 3 + 1;
+
+        var qtdCommission = 0;
+        var ytdCommission = 0;
+
+        var latestStatement = statements.length > 0 ? statements[0] : null;
+
+        for (var i = 0; i < statements.length; i++) {
+
+            var stmt = statements[i];
+            var fyMatch = (stmt.fiscalYear || '').match(/\d{4}/);
+            var stmtYear = fyMatch ? parseInt(fyMatch[0], 10) : null;
+
+            if (stmtYear !== currentYear) continue;
+
+            ytdCommission += stmt.totalCommission;
+
+            var periodLower = (stmt.fiscalPeriod || '').toLowerCase();
+            var stmtMonth = this.utils.getMonthOrder(periodLower);
+
+            if (stmtMonth !== 99 && stmtMonth >= currentQuarterStartMonth && stmtMonth < currentQuarterStartMonth + 3) {
+                qtdCommission += stmt.totalCommission;
+            }
+        }
+
+        context.performanceSummary = {
+            qtdCommission: parseFloat(qtdCommission.toFixed(2)),
+            ytdCommission: parseFloat(ytdCommission.toFixed(2))
+        };
+
+        // ---------------------------------------------
+        // CREDIT NEEDED TO REACH TARGET (latest period)
+        // ---------------------------------------------
+        if (latestStatement && latestStatement.targetQuota > 0) {
+
+            var attainmentPct = latestStatement.quotaAttainment || 0;
+            var currentCredit = (attainmentPct / 100) * latestStatement.targetQuota;
+            var creditNeeded = latestStatement.targetQuota - currentCredit;
+
+            context.targetProgress = {
+                fiscalPeriod: latestStatement.fiscalPeriod,
+                currentAttainmentPercent: attainmentPct,
+                targetQuota: latestStatement.targetQuota,
+                estimatedCurrentCredit: parseFloat(currentCredit.toFixed(2)),
+                creditNeededToReachTarget: parseFloat((creditNeeded > 0 ? creditNeeded : 0).toFixed(2))
+            };
+        }
+
+        // ---------------------------------------------
+        // PAYOUT COMPONENTS (all periods)
+        // ---------------------------------------------
+        var payouts = [];
+
+        var payoutGR = new GlideRecord('x_ctans_incentnow_payout_results');
+        payoutGR.addQuery('user', profileId);
+        payoutGR.orderByDesc('fiscal_period');
+        payoutGR.query();
+
+        while (payoutGR.next()) {
+            payouts.push({
+                fiscalPeriod: payoutGR.getDisplayValue('fiscal_period'),
+                rule: payoutGR.getDisplayValue('payout_summary_rule'),
+                formula: payoutGR.getValue('formula'),
+                amount: parseFloat(payoutGR.getValue('payout_value')) || 0
+            });
+        }
+
+        context.payoutComponents = payouts;
+
+        // ---------------------------------------------
+        // EARNING RULES + LOOKUP RULES + PAYOUT STRUCTURE
+        // ---------------------------------------------
+        if (planId) {
+
+            var earningRules = [];
+            var erGR = new GlideRecord('x_ctans_incentnow_earning_rule');
+            erGR.addQuery('plan', planId);
+            erGR.orderBy('order');
+            erGR.query();
+            while (erGR.next()) {
+                earningRules.push({
+                    ruleName: erGR.getValue('rule_name'),
+                    sourceObject: erGR.getDisplayValue('source_object'),
+                    field: erGR.getDisplayValue('field'),
+                    aggregation: erGR.getValue('aggregation'),
+                    earningLevel: erGR.getValue('earning_level')
+                });
+            }
+            context.earningRules = earningRules;
+
+            var lookupRules = [];
+            var lrGR = new GlideRecord('x_ctans_incentnow_lookup_rule');
+            lrGR.addQuery('plan', planId);
+            lrGR.orderBy('step_number');
+            lrGR.query();
+            while (lrGR.next()) {
+                lookupRules.push({
+                    stepName: lrGR.getDisplayValue('step_name'),
+                    ruleType: lrGR.getValue('rule_type'),
+                    rateValue: lrGR.getValue('rate_value'),
+                    rateUnit: lrGR.getValue('rate_unit')
+                });
+            }
+            context.lookupRules = lookupRules;
+
+            var payoutSummaries = [];
+            var psGR = new GlideRecord('x_ctans_incentnow_payout_summary');
+            psGR.addQuery('plan', planId);
+            psGR.orderBy('order');
+            psGR.query();
+            while (psGR.next()) {
+                payoutSummaries.push({
+                    ruleName: psGR.getValue('rule_name'),
+                    operator: psGR.getValue('operator'),
+                    payoutType: psGR.getValue('payout_type')
+                });
+            }
+            context.planPayoutStructure = payoutSummaries;
+        }
+
+        return context;
     },
 
-    type: 'IncentIQUtils'
+    type: 'IncentIQ360ContextService'
 };]]></script>
         <sys_class_name>sys_script_include</sys_class_name>
         <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
         <sys_created_on>2026-06-10 23:13:57</sys_created_on>
         <sys_id>d12cb81793150f10ddb7f2d89803d662</sys_id>
-        <sys_mod_count>12</sys_mod_count>
+        <sys_mod_count>17</sys_mod_count>
         <sys_name>IncentIQUtils</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
         <sys_update_name>sys_script_include_d12cb81793150f10ddb7f2d89803d662</sys_update_name>
         <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
-        <sys_updated_on>2026-06-18 14:24:20</sys_updated_on>
+        <sys_updated_on>2026-07-21 05:31:40</sys_updated_on>
     </sys_script_include>
 </record_update>

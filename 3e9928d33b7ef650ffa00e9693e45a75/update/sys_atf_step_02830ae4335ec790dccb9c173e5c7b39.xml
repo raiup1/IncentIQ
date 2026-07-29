@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_atf_step">
+    <sys_atf_step action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <callable_outputs/>
+        <copied_from display_value="Set Component Values (Custom UI)">508f9560335ac790dccb9c173e5c7be3</copied_from>
+        <description>Set the components on the page as follows:
+'Text &lt;input&gt;: e.g., Sales Organization' = 'ATF Business Unit', Page area = 'default'
+'Choice list &lt;select&gt;: None (Top Level) ATF Parent Org CtrlAltNow Finance HR IT TEST BU Legal Marketing NAM Central Sales Sales A Sales Organization' = '9e6f9de03bda83904be1ef9e53e45a49', Page area = 'default'
+'Text &lt;textarea&gt;: (empty)' = 'Test BU Description', Page area = 'default'
+</description>
+        <display_name>Set Component Values (Custom UI)</display_name>
+        <inputs/>
+        <mugshots_cache_json>{"f631add6b52ac46a881a5ce660c78255":"{\"area\":\"Organization Management\",\"sn_atf_mugshot_short_description\":\"Text &lt;textarea&gt;: (empty)\",\"role\":\"textbox\",\"sn_atf_mugshot_long_description\":\"Text &lt;textarea&gt;: (empty) in page area Organization Management\",\"methods\":[\"setValue\"],\"sn_atf_mugshot_label\":\"\",\"type\":\"textarea\",\"version\":\"26.0\",\"sn_atf_mugshot_label_for_label_path\":\"\",\"interesting_element_path\":[\"body\",\"div\",\"div\",\"sp-page-row\",\"span\",\"div\",\"textarea\"],\"get_value_result\":\"\",\"sn_atf_mugshot_tag_display_name\":\"Text &lt;textarea&gt;\",\"sn_atf_mugshot_value\":\"\",\"tag\":\"textarea\",\"isDisabled\":false,\"label_path\":[\"default\"],\"hash\":\"f631add6b52ac46a881a5ce660c78255\",\"html_value\":\"\",\"duplicate-mugshot-index\":1}","5645df25140a91140ffa5d7a460bfedb":"{\"area\":\"Organization Management\",\"sn_atf_mugshot_short_description\":\"Text &lt;input&gt;: e.g., Sales Organization\",\"role\":\"textbox\",\"sn_atf_mugshot_long_description\":\"Text &lt;input&gt;: e.g., Sales Organization in page area Organization Management\",\"methods\":[\"setValue\"],\"sn_atf_mugshot_label\":\"e.g., Sales Organization\",\"type\":\"text\",\"version\":\"26.0\",\"sn_atf_mugshot_label_for_label_path\":\"\",\"interesting_element_path\":[\"body\",\"div\",\"div\",\"sp-page-row\",\"span\",\"div\",\"input\"],\"get_value_result\":\"\",\"sn_atf_mugshot_tag_display_name\":\"Text &lt;input&gt;\",\"sn_atf_mugshot_value\":\"e.g., Sales Organization\",\"tag\":\"input\",\"isDisabled\":false,\"placeholder\":\"e.g., Sales Organization\",\"label_path\":[\"default\"],\"hash\":\"5645df25140a91140ffa5d7a460bfedb\",\"html_value\":\"\"}","a0f7e9ed2a739a00593ccf5a0584d258":"{\"area\":\"Organization Management\",\"sn_atf_mugshot_short_description\":\"Choice list &lt;select&gt;: None (Top Level) ATF Parent Org CtrlAltNow Finance HR IT TEST BU Legal Marketing NAM Central Sales Sales A Sales Organization\",\"inner_text\":\"None (Top Level) ATF Parent Org CtrlAltNow Finance HR IT    TEST BU Legal Marketing NAM Central Sales Sales A Sales Organization\",\"sn_atf_mugshot_long_description\":\"Choice list &lt;select&gt;: None (Top Level) ATF Parent Org CtrlAltNow Fina... in page area Organization Management\",\"methods\":[\"setValue\"],\"sn_atf_mugshot_label\":\"None (Top Level) ATF Parent Org CtrlAltNow Finance HR IT    TEST BU Legal Marketing NAM Central Sales Sales A Sales Organization\",\"type\":\"select-one\",\"version\":\"26.0\",\"sn_atf_mugshot_label_for_label_path\":\"\",\"interesting_element_path\":[\"body\",\"div\",\"div\",\"sp-page-row\",\"span\",\"div\",\"select\"],\"get_value_result\":\"\",\"sn_atf_mugshot_tag_display_name\":\"Choice list &lt;select&gt;\",\"sn_atf_mugshot_value\":\"\",\"options\":[{\"label\":\"None (Top Level)\",\"value\":\"\"},{\"label\":\"ATF Parent Org\",\"value\":\"9e6f9de03bda83904be1ef9e53e45a49\"},{\"label\":\"CtrlAltNow\",\"value\":\"22460a0e33028750dccb9c173e5c7bae\"},{\"label\":\"Finance\",\"value\":\"bb06c204870221003ff35d88e3e3ec88\"},{\"label\":\"HR\",\"value\":\"9dd58ec0870221003ff35d88e3e3ec16\"},{\"label\":\"IT\",\"value\":\"ac26c204870221003ff35d88e3e3ec61\"},{\"label\":\"   TEST BU\",\"value\":\"7da0ea2a338a4b50dccb9c173e5c7b8a\"},{\"label\":\"Legal\",\"value\":\"2d26c204870221003ff35d88e3e3ec62\"},{\"label\":\"Marketing\",\"value\":\"9406c204870221003ff35d88e3e3ec72\"},{\"label\":\"NAM Central\",\"value\":\"a99f935f3bbd83104be1ef9e53e45aff\"},{\"label\":\"Sales\",\"value\":\"9206c204870221003ff35d88e3e3ec81\"},{\"label\":\"Sales A\",\"value\":\"5d757dce338e4750dccb9c173e5c7b14\"},{\"label\":\"Sales Organization\",\"value\":\"085539ce338e4750dccb9c173e5c7bf3\"}],\"tag\":\"select\",\"isDisabled\":false,\"label_path\":[\"default\"],\"hash\":\"a0f7e9ed2a739a00593ccf5a0584d258\",\"html_value\":\"\"}"}</mugshots_cache_json>
+        <notes/>
+        <order>9</order>
+        <step_config display_value="Set Component Values (Custom UI)">e5dd168473330300c79260bdfaf6a794</step_config>
+        <sys_class_name>sys_atf_step</sys_class_name>
+        <sys_created_by>shiva.erla</sys_created_by>
+        <sys_created_on>2026-07-22 08:25:13</sys_created_on>
+        <sys_id>02830ae4335ec790dccb9c173e5c7b39</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>Set Component Values (Custom UI)</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_atf_step_02830ae4335ec790dccb9c173e5c7b39</sys_update_name>
+        <sys_updated_by>shiva.erla</sys_updated_by>
+        <sys_updated_on>2026-07-22 08:25:13</sys_updated_on>
+        <table/>
+        <test display_value="ATF_IncentIQ_BusinessUnit">7583c6e4335ec790dccb9c173e5c7b95</test>
+        <timeout/>
+        <warning_message/>
+    </sys_atf_step>
+    <sys_variable_value action="delete_multiple" query="document_key=02830ae4335ec790dccb9c173e5c7b39"/>
+    <sys_variable_value action="INSERT_OR_UPDATE">
+        <document>sys_atf_step</document>
+        <document_key>02830ae4335ec790dccb9c173e5c7b39</document_key>
+        <order>100</order>
+        <sys_class_name>sys_variable_value</sys_class_name>
+        <sys_created_by>shiva.erla</sys_created_by>
+        <sys_created_on>2026-07-22 08:25:13</sys_created_on>
+        <sys_id>8a830ae4335ec790dccb9c173e5c7b3a</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>shiva.erla</sys_updated_by>
+        <sys_updated_on>2026-07-22 08:25:13</sys_updated_on>
+        <value>5645df25140a91140ffa5d7a460bfedb=ATF Business Unit^a0f7e9ed2a739a00593ccf5a0584d258=9e6f9de03bda83904be1ef9e53e45a49^f631add6b52ac46a881a5ce660c78255=Test BU Description^EQ</value>
+        <variable display_value="Component values">d12fde8473330300c79260bdfaf6a7b5</variable>
+    </sys_variable_value>
+    <sys_element_mapping action="delete_multiple" query="table=var__m_atf_input_variable_e5dd168473330300c79260bdfaf6a794^id=02830ae4335ec790dccb9c173e5c7b39"/>
+</record_update>

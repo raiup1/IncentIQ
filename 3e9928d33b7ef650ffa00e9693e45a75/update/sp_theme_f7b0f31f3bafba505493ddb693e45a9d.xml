@@ -3,65 +3,51 @@
         <css_variables>/* ================================&#13;
    POSITIONING + WATER BUBBLE STYLE&#13;
    ================================ */&#13;
-&#13;
 .alert {&#13;
     position: fixed !important;&#13;
     left: 50% !important;&#13;
     transform: translateX(-50%) !important;&#13;
     z-index: 99999 !important;&#13;
     width: 60% !important;&#13;
-&#13;
     background: rgba(255, 255, 255, 0.9);&#13;
     backdrop-filter: blur(10px);&#13;
     -webkit-backdrop-filter: blur(10px);&#13;
-&#13;
     border-radius: 20px;&#13;
     padding: 14px 18px;&#13;
     font-size: 14px;&#13;
     font-weight: 500;&#13;
     color: #374151;&#13;
-&#13;
     border: 1px solid #e5e7eb;&#13;
-&#13;
     display: flex;&#13;
     align-items: center;&#13;
     gap: 12px;&#13;
-&#13;
     box-shadow: &#13;
         0 10px 25px rgba(0,0,0,0.08),&#13;
         inset 0 1px 1px rgba(255,255,255,0.6);&#13;
-&#13;
     animation: bubbleFloat 0.25s ease;&#13;
-&#13;
     max-width: 900px;&#13;
 }&#13;
-&#13;
 &#13;
 /* ================================&#13;
    REMOVE ONLY BLACK WARNING ICON&#13;
    ================================ */&#13;
-&#13;
 /* Target ONLY ServiceNow default warning icon */&#13;
 .alert .fa-exclamation-triangle,&#13;
 .alert .fa-warning {&#13;
     display: none !important;&#13;
 }&#13;
 &#13;
-&#13;
 /* ================================&#13;
    STACKING&#13;
    ================================ */&#13;
-&#13;
-.alert:nth-of-type(1) { top: 70px; }&#13;
-.alert:nth-of-type(2) { top: 130px; }&#13;
-.alert:nth-of-type(3) { top: 190px; }&#13;
-.alert:nth-of-type(4) { top: 250px; }&#13;
-&#13;
+.alert:nth-of-type(1) { top: 130px; }&#13;
+.alert:nth-of-type(2) { top: 190px; }&#13;
+.alert:nth-of-type(3) { top: 250px; }&#13;
+.alert:nth-of-type(4) { top: 310px; }&#13;
 &#13;
 /* ================================&#13;
    ALERT TYPES&#13;
    ================================ */&#13;
-&#13;
 .alert-danger {&#13;
     border-left: 3px solid #ef4444;&#13;
 }&#13;
@@ -79,11 +65,9 @@
     border-left: 3px solid #3b82f6;&#13;
 }&#13;
 &#13;
-&#13;
 /* ================================&#13;
    CUSTOM ICON (UPDATED - DYNAMIC)&#13;
    ================================ */&#13;
-&#13;
 .alert:before {&#13;
     font-family: "FontAwesome";&#13;
     font-size: 14px;&#13;
@@ -114,11 +98,9 @@
     color: #3b82f6;&#13;
 }&#13;
 &#13;
-&#13;
 /* ================================&#13;
    CLOSE BUTTON (UNCHANGED)&#13;
    ================================ */&#13;
-&#13;
 .alert .close,&#13;
 .alert button.close {&#13;
     margin-left: auto;&#13;
@@ -133,11 +115,9 @@
     color: #111827;&#13;
 }&#13;
 &#13;
-&#13;
 /* ================================&#13;
    ANIMATION&#13;
    ================================ */&#13;
-&#13;
 @keyframes bubbleFloat {&#13;
     from {&#13;
         opacity: 0;&#13;
@@ -150,12 +130,9 @@
 }&#13;
 &#13;
 $now-sp-nass-FAB-icon: url('/Incentiqbot_2026.png');&#13;
-&#13;
 $now-sp-nass-FAB-icon-size-factor: 1.5;&#13;
-&#13;
 $now-sp-nass-FAB-gradient-hover-color-1: #B2B2B2;&#13;
 $now-sp-nass-FAB-gradient-hover-color-2: #B2B2B2;&#13;
-&#13;
 $now-sp-nass-FAB-gradient-active-color-1: #B2B2B2;&#13;
 $now-sp-nass-FAB-gradient-active-color-2: #B2B2B2;</css_variables>
         <footer/>
@@ -168,14 +145,14 @@ $now-sp-nass-FAB-gradient-active-color-2: #B2B2B2;</css_variables>
         <sys_created_by>karan.kumar</sys_created_by>
         <sys_created_on>2026-03-16 12:33:16</sys_created_on>
         <sys_id>f7b0f31f3bafba505493ddb693e45a9d</sys_id>
-        <sys_mod_count>101</sys_mod_count>
+        <sys_mod_count>102</sys_mod_count>
         <sys_name>IncentNow Basic UI16 theme</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy/>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
         <sys_update_name>sp_theme_f7b0f31f3bafba505493ddb693e45a9d</sys_update_name>
         <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
-        <sys_updated_on>2026-06-17 12:36:34</sys_updated_on>
+        <sys_updated_on>2026-07-11 05:53:32</sys_updated_on>
         <turn_off_scss_compilation>false</turn_off_scss_compilation>
     </sp_theme>
 </record_update>

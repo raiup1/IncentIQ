@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element db_object_id="0c8bc93e330e8b50dccb9c173e5c7b24" label="IncentIQ AI Audit" max_length="40" name="x_ctans_incentnow_incentiq_ai_audit" type="collection">
+        <element label="Category" max_length="60" name="category" type="string"/>
+        <element label="Question" max_length="1000" name="question" type="string"/>
+        <element label="Domain" max_length="32" name="sys_domain" type="domain_id"/>
+        <element label="Provider" max_length="40" name="provider" type="string"/>
+        <element label="Outcome" max_length="40" name="outcome" type="string"/>
+        <element label="User" max_length="32" name="user" reference="sys_user" type="reference"/>
+        <element label="Response Text" max_length="8000" name="response_text" type="string_full_utf8"/>
+        <element label="Context Sent" max_length="8000" name="context_sent" type="string_full_utf8"/>
+        <element label="Masked" max_length="40" name="masked" type="boolean"/>
+        <index name="index">
+            <element name="user"/>
+        </index>
+        <index name="index2">
+            <element name="sys_domain"/>
+        </index>
+    </element>
+</database>

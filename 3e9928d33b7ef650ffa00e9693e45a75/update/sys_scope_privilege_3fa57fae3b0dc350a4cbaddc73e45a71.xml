@@ -16,7 +16,7 @@
         <sys_updated_by>karan.kumar</sys_updated_by>
         <sys_updated_on>2026-05-27 18:33:18</sys_updated_on>
         <target_name>sn_opty_mgmt_core_opportunity</target_name>
-        <target_scope display_value="">a90dea9893c939507655be184dba10ac</target_scope>
+        <target_scope display_value="Opportunity Management Data Model">a90dea9893c939507655be184dba10ac</target_scope>
         <target_type>sys_db_object</target_type>
     </sys_scope_privilege>
 </record_update>

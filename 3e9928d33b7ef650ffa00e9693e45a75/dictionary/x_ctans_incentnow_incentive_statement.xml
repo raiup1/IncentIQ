@@ -9,6 +9,7 @@
                 <element inactive_on_update="false" label="Error" sequence="1" value="error"/>
                 <element inactive_on_update="false" label="Statement Published" sequence="3" value="statement_published"/>
                 <element inactive_on_update="false" label="Statement Generated" sequence="2" value="statement_generated"/>
+                <element inactive_on_update="false" label="Pending Approval" sequence="4" value="pending_approval"/>
             </choice>
         </element>
         <element attributes="encode_utf8=false" label="User" mandatory="true" max_length="32" name="user" reference="x_ctans_incentnow_user_profile" reference_qual="active=true^EQ" reference_qual_condition="active=true^EQ" type="reference"/>

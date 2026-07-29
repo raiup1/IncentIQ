@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update sys_domain="global" table="sys_generative_ai_config">
+    <sys_generative_ai_config action="INSERT_OR_UPDATE">
+        <active>false</active>
+        <additional_configurations>{"skill_config_id":"4db98fa3336d4b10dccb9c173e5c7bf1"}</additional_configurations>
+        <ai_suggested>false</ai_suggested>
+        <definition>34b98fa3336d4b10dccb9c173e5c7ba8</definition>
+        <definition_table>sys_one_extend_capability_definition</definition_table>
+        <documentation/>
+        <max_tokens>500</max_tokens>
+        <min_word_count>-1</min_word_count>
+        <model>llm_generic_small</model>
+        <name>IncentIQSmart Advisor Prompt</name>
+        <parent display_value="OneExtend Capability Definition: IncentIQSmart Assistant (Now LLM Service - Now LLM Generic)">3063bba73be98b104be1ef9e53e45a5c</parent>
+        <prompt/>
+        <prompt_template_role>user</prompt_template_role>
+        <provider_company/>
+        <request_tokens>32018</request_tokens>
+        <show_in_prompt_library>false</show_in_prompt_library>
+        <state>draft</state>
+        <structured_output_enabled>false</structured_output_enabled>
+        <structured_output_schema/>
+        <sys_class_name>sys_generative_ai_config</sys_class_name>
+        <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+        <sys_created_on>2026-06-24 17:35:32</sys_created_on>
+        <sys_domain>global</sys_domain>
+        <sys_domain_path>/</sys_domain_path>
+        <sys_id>fef4736b3be98b104be1ef9e53e45ae1</sys_id>
+        <sys_mod_count>25</sys_mod_count>
+        <sys_name>34b98fa3336d4b10dccb9c173e5c7ba8</sys_name>
+        <sys_overrides/>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_generative_ai_config_fef4736b3be98b104be1ef9e53e45ae1</sys_update_name>
+        <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
+        <sys_updated_on>2026-06-28 14:08:58</sys_updated_on>
+        <temperature>0.2</temperature>
+        <thinking_tokens>0</thinking_tokens>
+        <version>4</version>
+    </sys_generative_ai_config>
+</record_update>

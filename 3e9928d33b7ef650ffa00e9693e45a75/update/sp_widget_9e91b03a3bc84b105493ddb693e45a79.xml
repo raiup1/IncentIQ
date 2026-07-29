@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
     <sp_widget action="INSERT_OR_UPDATE">
         <category>custom</category>
-        <client_script><![CDATA[api.controller = function($sce) {
+        <client_script><![CDATA[api.controller = function($sce, spUtil,$location) {
     var c = this;
 
     c.decodeHTML = function(html) {
@@ -19,9 +19,43 @@
         return $sce.trustAsHtml(decoded);
     };
 	
-		c.goBack = function () {
-    window.location = '?id=incentive_statement_view';
-  };
+		c.goBack=function () {
+
+			const prev = sessionStorage.getItem('prevPage');
+					//alert(prev);
+
+			if (prev) {
+				$location.url(prev);
+			} else {
+				// fallback if nothing stored
+				window.history.back();
+			}
+		}
+	
+		c.raiseDispute = function()
+		{
+			 $location.url('?id=create_dispute&table=x_ctans_incentnow_incentiq_dispute&sys_id=-1&statement_id='+c.data.statementId);
+		}
+	
+		c.submitForApproval = function() {
+
+				c.server.get({
+						action: "submit_for_approval",
+						statement_id: c.data.statementId
+				}).then(function(response) {
+
+						if (response.data.success) {
+								spUtil.addInfoMessage(response.data.message);
+								// Refresh data if needed
+								c.server.update();
+						} else {
+								spUtil.addErrorMessage(response.data.message);
+						}
+
+				});
+
+		};
+		
 	
 	  // ✅ initialize from server
     c.selectedUser = c.data.selectedUser;
@@ -166,15 +200,55 @@ left-info h2 {
     font-weight: 600;
   }
 
-  .status-chip {
-    background: #f5f5f5;
-    padding: 4px 10px;
-    border-radius: 12px;
-    font-size: 12px;
-    display: inline-flex;
-    align-items: center;
-    margin-top: 6px;
-  }
+.status-chip{
+    display:inline-flex;
+    align-items:center;
+    gap:.8rem;
+    padding:.6rem 1.4rem;
+    margin-top:1rem;
+    border-radius:999px;
+    font-size:1.3rem;
+    font-weight:600;
+    border:1px solid transparent;
+    line-height:1;
+}
+
+.status-dot{
+    width:8px;
+    height:8px;
+    border-radius:50%;
+    background:currentColor;
+}
+
+.status-draft{
+    background:#f8fafc;
+    color:#64748b;
+    border-color:#cbd5e1;
+}
+
+.status-error{
+    background:#fef2f2;
+    color:#dc2626;
+    border-color:#fecaca;
+}
+
+.status-generated{
+    background:#ecfdf3;
+    color:#15803d;
+    border-color:#bbf7d0;
+}
+
+.status-published{
+    background:#eff6ff;
+    color:#2563eb;
+    border-color:#bfdbfe;
+}
+
+.status-pending{
+    background:#fffbeb;
+    color:#b45309;
+    border-color:#fde68a;
+}
 
   .actions {
     display: flex;
@@ -347,16 +421,17 @@ left-info h2 {
                     grState.getValue("plan"),
                     grState.getValue("fiscal_period")
                 );
-                // ]]>🔹<![CDATA[ QTD Commission
-                data.qtdCommission = {
-                    amount: result.qtd_commission,
-                    transactions: 0
-                };
-                // ]]>🔹<![CDATA[ YTD Commission
-                data.ytdCommission = {
-                    amount: result.ytd_commission,
-                    transactions: 0
-                };
+                // QTD Commission
+								data.qtdCommission = {
+										amount: parseFloat(result.qtd_commission) || 0,
+										transactions: result.qtd_transactions || 0
+								};
+
+								// YTD Commission
+								data.ytdCommission = {
+										amount: parseFloat(result.ytd_commission) || 0,
+										transactions: result.ytd_transactions || 0
+								};
                 var changeResult = helper.getPeriodChange(
                     grState.getValue("user"),
                     grState.getValue("plan"),
@@ -378,6 +453,30 @@ left-info h2 {
                 };
 
             }
+					
+						if (input && input.action == "submit_for_approval") {
+								data.success = false;
+
+								var stmtGR = new GlideRecordSecure("x_ctans_incentnow_incentive_statement");
+								if (stmtGR.get(input.statement_id)) {
+
+										if (stmtGR.getValue("status") != "statement_generated") {
+												data.message = "Only Statement Generated records can be submitted for approval.";
+												return;
+										}
+
+										stmtGR.setValue("status", "pending_approval");
+										stmtGR.update();
+
+										data.success = true;
+										data.message = "Statement submitted for approval successfully.";
+								}
+
+								return;
+						}
+					
+						data.status = grState.getValue("status");
+						data.statusDisplay = grState.getDisplayValue("status");
 
             // ✅ IMPORTANT: send selected values
             data.selectedUser = grState.getValue("user");
@@ -406,25 +505,37 @@ left-info h2 {
         <sys_created_by>shroin.mandal</sys_created_by>
         <sys_created_on>2026-04-08 05:52:17</sys_created_on>
         <sys_id>9e91b03a3bc84b105493ddb693e45a79</sys_id>
-        <sys_mod_count>109</sys_mod_count>
+        <sys_mod_count>118</sys_mod_count>
         <sys_name>Incentive Statement View</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
         <sys_update_name>sp_widget_9e91b03a3bc84b105493ddb693e45a79</sys_update_name>
-        <sys_updated_by>shroin.mandal</sys_updated_by>
-        <sys_updated_on>2026-06-11 12:17:09</sys_updated_on>
+        <sys_updated_by>karan.kumar</sys_updated_by>
+        <sys_updated_on>2026-07-14 07:16:09</sys_updated_on>
         <template><![CDATA[<div class="statement-headers">
 
   <!-- Left Section -->
   <div class="left-info">
     <h2>{{c.data.selectedUserName}} — {{c.data.selectedPeriodName}}</h2>
-    <span class="status-chip">]]>📄<![CDATA[ Draft</span>
+    <div class="status-chip"
+         ng-class="{
+           'status-draft': c.data.statusDisplay == 'Draft',
+           'status-error': c.data.statusDisplay == 'Error',
+           'status-generated': c.data.statusDisplay == 'Statement Generated',
+           'status-published': c.data.statusDisplay == 'Statement Published',
+           'status-pending': c.data.statusDisplay == 'Pending Approval'
+         }">
+
+        <span class="status-dot"></span>
+        {{c.data.statusDisplay}}
+
+    </div>
   </div>
 
   <!-- Right Buttons -->
   <div class="actions">
-    <button class="btn-light">
+    <button class="btn-light" ng-click="c.raiseDispute()">
       Create Dispute
     </button>
 
@@ -432,7 +543,7 @@ left-info h2 {
       Download Statement
     </button>
 
-    <button class="btn-dark">
+    <button class="btn-dark" ng-click="c.submitForApproval()">
       Freeze & Submit for Approval
     </button>
   </div>

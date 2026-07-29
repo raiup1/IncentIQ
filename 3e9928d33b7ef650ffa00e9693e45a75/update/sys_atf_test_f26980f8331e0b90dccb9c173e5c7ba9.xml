@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_atf_test">
+    <sys_atf_test action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <copied_from/>
+        <description>Creating Quota from IncentIQ portal and validating the E2E workflows</description>
+        <enable_parameterized_testing>false</enable_parameterized_testing>
+        <fail_on_server_error>true</fail_on_server_error>
+        <name>ATF_IncentIQ_Quota_BU_ApprovalWorkflow</name>
+        <parameters/>
+        <remember/>
+        <sn_atf_tg_generated>false</sn_atf_tg_generated>
+        <sys_class_name>sys_atf_test</sys_class_name>
+        <sys_created_by>shiva.erla</sys_created_by>
+        <sys_created_on>2026-07-22 18:10:41</sys_created_on>
+        <sys_id>f26980f8331e0b90dccb9c173e5c7ba9</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>ATF_IncentIQ_Quota_BU_ApprovalWorkflow</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_atf_test_f26980f8331e0b90dccb9c173e5c7ba9</sys_update_name>
+        <sys_updated_by>shiva.erla</sys_updated_by>
+        <sys_updated_on>2026-07-22 18:10:41</sys_updated_on>
+        <test_origin>manual</test_origin>
+    </sys_atf_test>
+    <sys_variable_value action="delete_multiple" query="document_key=f26980f8331e0b90dccb9c173e5c7ba9"/>
+</record_update>

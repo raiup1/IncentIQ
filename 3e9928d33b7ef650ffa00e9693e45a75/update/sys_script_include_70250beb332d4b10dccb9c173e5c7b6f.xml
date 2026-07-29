@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>package_private</access>
+        <active>true</active>
+        <api_name>x_ctans_incentnow.IncentIQImportTransformer</api_name>
+        <caller_access/>
+        <client_callable>false</client_callable>
+        <description/>
+        <mobile_callable>false</mobile_callable>
+        <name>IncentIQImportTransformer</name>
+        <sandbox_callable>false</sandbox_callable>
+        <script><![CDATA[var IncentIQImportTransformer = Class.create();
+IncentIQImportTransformer.prototype = {
+    initialize: function() {},
+
+    process: function(runSysId, batchId) {
+        var total = 0;
+        var processed = 0;
+        var errors = 0;
+
+        var runGR = new GlideRecordSecure('x_ctans_incentnow_import_run');
+        if (!runGR.get(runSysId))
+            return;
+
+        var mappings = this._getMappings(runGR.getValue('data_model_object'));
+        var pkSource = mappings.pkSource;
+        var pkTarget = mappings.pkTarget;
+
+        var stagingGR = new GlideRecordSecure('x_ctans_incentnow_data_lake_staging');
+        stagingGR.addQuery('sys_import_set', batchId);
+        stagingGR.orderBy('row_number');
+        stagingGR.query();
+
+        while (stagingGR.next()) {
+            total++;
+
+            try {
+                var raw = stagingGR.getValue('raw_json');
+                var rowData = JSON.parse(raw || '{}');
+                gs.info("IncentIQImportTransformer - Processing Row: " + stagingGR.row_number);
+                gs.info("IncentIQImportTransformer - Raw JSON: " + raw);
+
+                if (pkSource && !rowData[pkSource]) {
+                    errors++;
+                    this._logError(batchId, runGR.getValue('data_model_object'), stagingGR, 'Primary Key missing: ' + pkSource, raw);
+                    this._markRow(stagingGR, runSysId, 'error');
+                    continue;
+                }
+
+                this._upsertMaster(rowData, mappings.list, pkSource, pkTarget, runGR.getValue('data_model_object'), runSysId);
+
+                processed++;
+                this._markRow(stagingGR, runSysId, 'processed');
+				gs.info("IncentIQImportTransformer - Row processed successfully");
+
+            } catch (ex) {
+                errors++;
+                this._logError(batchId, runGR.getValue('data_model_object'), stagingGR, ex.message, stagingGR.getValue('raw_json'));
+                this._markRow(stagingGR, runSysId, 'error');
+            }
+        }
+
+        runGR.setValue('completed_at', new GlideDateTime());
+        runGR.setValue('status', errors > 0 ? 'Failed' : 'Completed');
+        runGR.setValue('total_row_count', total);
+        runGR.setValue('valid_row_count', processed);
+        runGR.setValue('failed_count', errors);
+        runGR.update();
+		gs.info("IncentIQImportTransformer - Transform Completed. Run Number: " + runGR.number);
+
+        var impSet = new GlideRecordSecure('sys_import_set');
+        if (impSet.get(batchId)) {
+            impSet.setValue('state', 'processed');
+            impSet.load_completed = new GlideDateTime(); // Current date/time
+            impSet.update();
+        }
+    },
+
+    _markRow: function(rowGR, runSysId, state) {
+        rowGR.is_valid = true;
+        rowGR.setValue('sys_import_state', state);
+        rowGR.setValue('import_run', runSysId);
+        rowGR.update();
+    },
+    _getMappings: function(dataModelId) {
+
+        var result = {
+            list: [],
+            pkSource: '',
+            pkTarget: ''
+        };
+
+        var mapGR = new GlideRecordSecure('x_ctans_incentnow_metadata_mapping');
+        mapGR.addQuery('data_model_object_id', dataModelId);
+        mapGR.addQuery('active', true);
+        mapGR.query();
+
+        while (mapGR.next()) {
+
+            var source = mapGR.getValue('source_field_name');
+            var dictSysId = mapGR.getValue('data_lake_field_name');
+
+            if (gs.nil(source) || gs.nil(dictSysId))
+                continue;
+
+            var dictGR = new GlideRecordSecure('sys_dictionary');
+            if (!dictGR.get(dictSysId))
+                continue;
+
+            var target = dictGR.getValue('element');
+            gs.info("IncentIQImportTransformer - Mapping Found: " + source + " -> " + target);
+
+            result.list.push({
+                source: source,
+                target: target
+            });
+
+            if (mapGR.getValue('is_primary_key') == '1') {
+                result.pkSource = source;
+                result.pkTarget = target;
+            }
+        }
+
+        return result;
+    },
+    _upsertMaster: function(rowData, mappings, pkSource, pkTarget, dataModelId, runSysId) {
+
+        var targetGR = new GlideRecordSecure('x_ctans_incentnow_data_lake_master');
+        var exists = false;
+
+        if (pkSource && pkTarget && rowData[pkSource]) {
+            gs.info("IncentIQImportTransformer - Searching existing record using PK: " + pkTarget + "=" + rowData[pkSource]);
+
+            targetGR.addQuery(pkTarget, rowData[pkSource]);
+            targetGR.query();
+
+            if (targetGR.next()) {
+                exists = true;
+                gs.info("IncentIQImportTransformer - Updating existing record");
+            }
+        }
+
+        if (!exists) {
+            gs.info("IncentIQImportTransformer - Creating new Data Lake record");
+            targetGR.initialize();
+            targetGR.setValue('data_model_object', dataModelId);
+            targetGR.setValue('batch_id', runSysId);
+        }
+
+        for (var i = 0; i < mappings.length; i++) {
+
+            var sourceField = mappings[i].source;
+            var targetField = mappings[i].target;
+
+            if (rowData[sourceField] !== undefined &&
+                rowData[sourceField] !== null) {
+
+                targetGR.setValue(
+                    targetField,
+                    rowData[sourceField]
+                );
+            }
+        }
+
+        if (exists)
+            targetGR.update();
+        else
+            targetGR.insert();
+    },
+    _logError: function(batchId,
+        dataModelId,
+        stagingGR,
+        message,
+        rawJson) {
+
+        var errGR = new GlideRecordSecure(
+            'x_ctans_incentnow_import_error'
+        );
+
+        errGR.initialize();
+        errGR.setValue('batch_id', batchId);
+        errGR.setValue('data_model_object', dataModelId);
+        errGR.setValue('row_number', stagingGR.getValue('row_number'));
+        errGR.setValue('error_message', message);
+        errGR.setValue('raw_json', rawJson);
+        errGR.insert();
+    },
+
+    type: 'IncentIQImportTransformer'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+        <sys_created_on>2026-06-24 14:06:52</sys_created_on>
+        <sys_id>70250beb332d4b10dccb9c173e5c7b6f</sys_id>
+        <sys_mod_count>7</sys_mod_count>
+        <sys_name>IncentIQImportTransformer</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_script_include_70250beb332d4b10dccb9c173e5c7b6f</sys_update_name>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-22 07:19:59</sys_updated_on>
+    </sys_script_include>
+</record_update>

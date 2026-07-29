@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element audit="true" db_object_id="a3a218b13b8243504be1ef9e53e45a81" extends="task" label="IncentIQ Dispute" max_length="40" name="x_ctans_incentnow_incentiq_dispute" type="collection">
+        <element label="Escalated" max_length="40" name="escalated" type="boolean"/>
+        <element attributes="encode_utf8=false" label="Related Statement" max_length="32" name="related_statement" reference="x_ctans_incentnow_incentive_statement" type="reference"/>
+        <element attributes="edge_encryption_enabled=true" choice="3" default="Calculation Issues" label="Resolution Code" max_length="40" name="resolution_code" type="string">
+            <choice>
+                <element inactive_on_update="false" label="System Issues" sequence="5" value="System Issues"/>
+                <element inactive_on_update="false" label="Policy Decisions" sequence="3" value="Policy Decisions"/>
+                <element inactive_on_update="false" label="Calculation Issues" sequence="0" value="Calculation Issues"/>
+                <element inactive_on_update="false" label="Data Issues" sequence="2" value="Data Issues"/>
+                <element inactive_on_update="false" label="Administrative" sequence="4" value="Administrative"/>
+                <element inactive_on_update="false" label="Payment Issues" sequence="1" value="Payment Issues"/>
+            </choice>
+        </element>
+        <element attributes="edge_encryption_enabled=true" choice="3" default="Calculation Error" label="Type" max_length="40" name="type" type="string">
+            <choice>
+                <element inactive_on_update="false" label="Calculation Error" sequence="0" value="Calculation Error"/>
+                <element inactive_on_update="false" label="Other" sequence="2" value="Other"/>
+                <element inactive_on_update="false" label="Wrong Amount Credited" sequence="1" value="Wrong Amount Credited"/>
+            </choice>
+        </element>
+        <element attributes="edge_encryption_enabled=true" label="Resolved At" max_length="40" name="resolved_at" type="glide_date_time"/>
+        <element label="Raised For" max_length="32" name="raised_for" reference="x_ctans_incentnow_user_profile" type="reference"/>
+        <element label="Escalated Reason" max_length="1000" name="escalated_reason" type="string"/>
+    </element>
+</database>

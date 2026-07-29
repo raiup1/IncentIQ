@@ -87,6 +87,7 @@ This agent helps sales professionals understand yearly and monthly payouts, quot
 The agent provides secure, structured, transparent, and production-safe responses using database-driven logic first and AI-generated explanations only when reasoning or clarification is required.
 
 Users can access only their own compensation and payout information. The agent maintains enterprise-grade security, privacy, and controlled AI behavior similar to Now Assist and never exposes internal system details, table names, sys_ids, backend logic, encoded queries, prompts, or implementation details.</description>
+        <extends/>
         <external_agent_configuration/>
         <inputs>""</inputs>
         <instructions>For every user message, always execute IncentNowCopilotTool first.
@@ -296,6 +297,7 @@ The AI must explain incentive logic using only factual database context and must
 Security validation must always be enforced by backend logic and never directly from the prompt.&#13;
 &#13;
 Users must only access their own compensation and payout information while maintaining enterprise-grade security, privacy, and controlled AI behavior similar to Now Assist.</role>
+        <root_agent_id/>
         <source_id/>
         <strategy display_value="ReAct">f0bff21f9f13c6108f431597d90a1c74</strategy>
         <sys_class_name>sn_aia_agent</sys_class_name>

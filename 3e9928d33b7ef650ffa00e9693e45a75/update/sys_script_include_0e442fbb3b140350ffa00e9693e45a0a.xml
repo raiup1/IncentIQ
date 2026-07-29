@@ -5,7 +5,8 @@
         <api_name>x_ctans_incentnow.IncentNowIntentRouter</api_name>
         <caller_access/>
         <client_callable>false</client_callable>
-        <description/>
+        <description>This file is deprecated and is no longer required. It has been retained for reference purposes only and is not used in the current application functionality.&#13;
+</description>
         <mobile_callable>false</mobile_callable>
         <name>IncentNowIntentRouter</name>
         <sandbox_callable>false</sandbox_callable>
@@ -18,10 +19,6 @@ IncentNowIntentRouter.prototype = {
 
 
     getResponse: function(query, userId) {
-        gs.error("ASHOK_TEST :: ROUTER ENTERED");
-
-        gs.info("IntentRouter :: RAW QUERY = " + query);
-        gs.info("IntentRouter :: USER ID = " + userId);
 
         try {
 
@@ -37,9 +34,6 @@ IncentNowIntentRouter.prototype = {
             }
 
             var intent = this.service.classifyIntentUsingAI(query);
-
-            gs.info("IntentRouter :: FINAL DETECTED INTENT = " + intent);
-
             return this.executeIntent(
                 intent,
                 userId,
@@ -59,11 +53,7 @@ IncentNowIntentRouter.prototype = {
 
     executeIntent: function(intent, userId, query) {
 
-        gs.info("IntentRouter :: EXECUTE INTENT = " + intent);
-
         if (!intent || intent == "unknown") {
-
-            gs.info("IntentRouter :: UNKNOWN INTENT → LEARNING");
 
             return this.service.storeUnknownQuestion(
                 query,
@@ -76,8 +66,6 @@ IncentNowIntentRouter.prototype = {
 
         if (!config) {
 
-            gs.info("IntentRouter :: No config found");
-
             return this.service.storeUnknownQuestion(
                 query,
                 userId,
@@ -86,11 +74,6 @@ IncentNowIntentRouter.prototype = {
         }
 
         if (!config.sourceTable && config.template) {
-
-            gs.info(
-                "IntentRouter :: Returning template response for intent = " +
-                config.intentName
-            );
 
             return config.template;
         }
@@ -104,11 +87,6 @@ IncentNowIntentRouter.prototype = {
 
     getIntentConfig: function(intent) {
 
-        gs.info(
-            "IntentRouter :: Searching config for intent = " +
-            intent
-        );
-
         var gr = new GlideRecord(
             "x_ctans_incentnow_ai_intent_configuration"
         );
@@ -120,13 +98,6 @@ IncentNowIntentRouter.prototype = {
         gr.query();
 
         if (gr.next()) {
-
-            gs.info(
-                "IntentRouter :: Config Found | Intent = " +
-                gr.getValue("intent_name") +
-                " | Logic Type = " +
-                gr.getValue("logic_type")
-            );
 
             return {
                 intentName: gr.getValue("intent_name"),
@@ -140,20 +111,12 @@ IncentNowIntentRouter.prototype = {
             };
         }
 
-        gs.info(
-            "IntentRouter :: No active config found for intent = " +
-            intent
-        );
+
 
         return null;
     },
 
     processByLogicType: function(config, userId, query) {
-
-        gs.info(
-            "IntentRouter :: PROCESSING LOGIC TYPE = " +
-            config.logicType
-        );
 
         switch (config.logicType) {
 
@@ -164,9 +127,6 @@ IncentNowIntentRouter.prototype = {
             */
 
             case "monthly_sum":
-
-                gs.info("IntentRouter :: CALLING handleQuota()");
-
                 return this.service.handleQuota(
                     userId,
                     query
@@ -180,19 +140,11 @@ IncentNowIntentRouter.prototype = {
 
             case "earning_rules_lookup":
 
-                gs.info(
-                    "IntentRouter :: CALLING handleEarningRules()"
-                );
-
                 return this.service.handleEarningRules(
                     userId
                 );
 
             case "ai_explanation_lookup":
-
-                gs.info(
-                    "IntentRouter :: CALLING handleAIExplanation()"
-                );
 
                 return this.service.handleAIExplanation(
                     userId,
@@ -201,24 +153,12 @@ IncentNowIntentRouter.prototype = {
 
             case "custom_formula":
 
-                gs.error(
-                    "ROUTER_DEBUG :: ENTERED CUSTOM FORMULA"
-                );
-
                 if (config.intentName == "lookup_rules") {
-
-                    gs.error(
-                        "ROUTER_DEBUG :: CALLING LOOKUP RULES"
-                    );
 
                     return this.service.handleLookupRules(
                         userId
                     );
                 }
-
-                gs.error(
-                    "ROUTER_DEBUG :: INTENT DID NOT MATCH"
-                );
 
                 return "Intent mismatch";
 
@@ -226,19 +166,11 @@ IncentNowIntentRouter.prototype = {
 
             case "monthly_payout_lookup":
 
-                gs.info(
-                    "IntentRouter :: CALLING handleMonthlyPayout()"
-                );
-
                 return this.service.handleMonthlyPayout(
                     userId
                 );
 
             case "summary_lookup":
-
-                gs.info(
-                    "IntentRouter :: CALLING handleSummary()"
-                );
 
                 return this.service.handleSummary(
                     userId
@@ -246,18 +178,12 @@ IncentNowIntentRouter.prototype = {
 
             case "incentive_statement_lookup":
 
-                gs.info(
-                    "IntentRouter :: CALLING handleIncentiveStatement()"
-                );
-
                 return this.service.handleIncentiveStatement(
                     userId,
                     query
                 );
 
             case "quarterly_sum":
-
-                gs.info("IntentRouter :: CALLING handleQTDPayout()");
 
                 return this.service.handleQTDPayout(
                     userId
@@ -271,8 +197,6 @@ IncentNowIntentRouter.prototype = {
 
             case "yearly_sum":
 
-                gs.info("IntentRouter :: CALLING handleYTDPayout()");
-
                 return this.service.handleYTDPayout(
                     userId
                 );
@@ -285,8 +209,6 @@ IncentNowIntentRouter.prototype = {
                 */
 
             case "direct_lookup":
-
-                gs.info("IntentRouter :: CALLING handlePayout()");
 
                 return this.service.handlePayout(
                     userId,
@@ -302,8 +224,6 @@ IncentNowIntentRouter.prototype = {
 
             case "formula_trace":
 
-                gs.info("IntentRouter :: CALLING handleBreakdown()");
-
                 return this.service.handleBreakdown(
                     userId,
                     query
@@ -318,17 +238,11 @@ IncentNowIntentRouter.prototype = {
 
             case "plan_components_lookup":
 
-                gs.info(
-                    "IntentRouter :: CALLING handlePlanComponents()"
-                );
-
                 return this.service.handlePlanComponents(
                     userId
                 );
 
             case "plan_lookup":
-
-                gs.info("IntentRouter :: CALLING handlePlan()");
 
                 return this.service.handlePlan(
                     userId
@@ -344,21 +258,11 @@ IncentNowIntentRouter.prototype = {
 
             case "payout_components_lookup":
 
-                gs.error(
-                    "ASHOK_DEBUG :: ENTERED PAYOUT COMPONENTS LOOKUP"
-                );
-
-                gs.info(
-                    "IntentRouter :: CALLING handlePayoutComponents()"
-                );
-
                 return this.service.handlePayoutComponents(
                     userId
                 );
 
             case "quota_attainment_lookup":
-
-                gs.info("IntentRouter :: CALLING handleQuotaAttainment()");
 
                 return this.service.handleQuotaAttainment(
                     userId
@@ -374,11 +278,6 @@ IncentNowIntentRouter.prototype = {
 
             default:
 
-                gs.info(
-                    "IntentRouter :: Unsupported logic type = " +
-                    config.logicType
-                );
-
                 return "Logic type not supported.";
         }
     },
@@ -389,13 +288,13 @@ IncentNowIntentRouter.prototype = {
         <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
         <sys_created_on>2026-04-24 07:45:21</sys_created_on>
         <sys_id>0e442fbb3b140350ffa00e9693e45a0a</sys_id>
-        <sys_mod_count>35</sys_mod_count>
+        <sys_mod_count>36</sys_mod_count>
         <sys_name>IncentNowIntentRouter</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
         <sys_update_name>sys_script_include_0e442fbb3b140350ffa00e9693e45a0a</sys_update_name>
         <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
-        <sys_updated_on>2026-06-16 19:11:11</sys_updated_on>
+        <sys_updated_on>2026-06-23 09:21:49</sys_updated_on>
     </sys_script_include>
 </record_update>

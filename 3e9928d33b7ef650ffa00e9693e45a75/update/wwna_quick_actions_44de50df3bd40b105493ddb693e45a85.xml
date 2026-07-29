@@ -2,6 +2,7 @@
     <wwna_quick_actions action="INSERT_OR_UPDATE">
         <accepts_string_parameter>false</accepts_string_parameter>
         <action_group/>
+        <action_icon/>
         <action_type>common</action_type>
         <active>false</active>
         <apply_to_all_groups>true</apply_to_all_groups>

@@ -4,6 +4,7 @@
         <can_delegate>true</can_delegate>
         <description>This role can create Reports, dashboards and monitoring KPIs, Read access to Plan, Quota, Users across enterprise</description>
         <elevated_privilege>false</elevated_privilege>
+        <encryption_context/>
         <federated_id>83HAj9pMLZOalRs9Vefa0vfGiz1zzUY+EQvMiIr5YQ0=</federated_id>
         <grantable>true</grantable>
         <includes_roles/>

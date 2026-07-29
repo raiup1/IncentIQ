@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="one_api_service_plan_feature_edge">
+    <one_api_service_plan_feature_edge action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <applicability_condition_expression/>
+        <applicability_failed_policy/>
+        <applicability_script><![CDATA[(function(currentInputs, context) {  
+	/* @param {Object} currentInputs - Inputs provided for the current step.*/  
+	/* @param {Object} context - Execution context, which may include:*/     
+	/*         - Previous tool outputs/inputs (e.g., context['ToolName.attributeName'] or context.getValue('ToolName.attributeName')).*/     
+	/*         - Additional context information (e.g., context.getAllValues()).*/  
+	/* @returns {Boolean} - Return 'true' if the condition is met; otherwise 'false'.*/  
+	return true;
+  })(currentInputs, context);]]></applicability_script>
+        <applicability_type/>
+        <error_handler_script><![CDATA[(function handleError() {  
+	// customize condition logic here,  
+	return ;
+})();]]></error_handler_script>
+        <error_policy/>
+        <from_service_plan_feature display_value="___$y$t3m_bu1163r___-4a70df6f336d4b10dccb9c173e5c7bc6, 34b98fa3336d4b10dccb9c173e5c7ba8-default: 4a70df6f336d4b10dccb9c173e5c7bc6">a37a63e73ba98b104be1ef9e53e45a4f</from_service_plan_feature>
+        <internal_name>BuildIncentIQContext__IncentIQSmart Assistant</internal_name>
+        <name>edge</name>
+        <order>0</order>
+        <sys_class_name>one_api_service_plan_feature_edge</sys_class_name>
+        <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+        <sys_created_on>2026-06-24 16:49:43</sys_created_on>
+        <sys_id>a37a63e73ba98b104be1ef9e53e45a51</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>edge</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>one_api_service_plan_feature_edge_a37a63e73ba98b104be1ef9e53e45a51</sys_update_name>
+        <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
+        <sys_updated_on>2026-06-24 16:49:43</sys_updated_on>
+        <to_service_plan_feature display_value="___$y$t3m_bu1163r___-4a70df6f336d4b10dccb9c173e5c7bc6, 34b98fa3336d4b10dccb9c173e5c7ba8-default: 34b98fa3336d4b10dccb9c173e5c7ba8">637a63e73ba98b104be1ef9e53e45a50</to_service_plan_feature>
+    </one_api_service_plan_feature_edge>
+</record_update>

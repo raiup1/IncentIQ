@@ -13,6 +13,7 @@
   c.selectedPlan         = '';
   c.selectedBusinessUnit = '';
   c.selectedRep          = '';
+	c.selectedTerritory = '';
 
   // Filter option lists
   c.fiscalYears   = [];
@@ -24,6 +25,10 @@
     c.plans         = c.data.plans         || [];
     c.businessUnits = c.data.businessUnits || [];
     c.reps          = c.data.reps          || [];
+		
+		if (c.data.isTerritoryEnabled) {
+        c.territories = c.data.territories || [];
+    }
 
     if (!c.data.monthlyPerformance || !c.data.monthlyPerformance.length) {
       c.data.fiscalYear    = "";
@@ -89,6 +94,11 @@
     c.data.plan          = c.selectedPlan;
     c.data.businessUnit  = c.selectedBusinessUnit;
     c.data.rep           = c.selectedRep;
+		if (c.data.isTerritoryEnabled) {
+				c.data.territory = c.selectedTerritory;
+		} else {
+				c.data.territory = "";
+		}
 
     c.server.update().then(function() {
       c.fiscalYears   = c.data.fiscalYears   || [];
@@ -96,6 +106,12 @@
       c.plans         = c.data.plans         || [];
       c.businessUnits = c.data.businessUnits || [];
       c.reps          = c.data.reps          || [];
+			if (c.data.isTerritoryEnabled) {
+ 			   c.territories = c.data.territories || [];
+			} else {
+					c.territories = [];
+					c.selectedTerritory = "";
+			}
 
       c.waitForDOMAndRender();
     });
@@ -507,13 +523,20 @@
         <public>false</public>
         <roles>x_ctans_incentnow.user</roles>
         <script><![CDATA[(function() {
-
+	
+data.isTerritoryEnabled =
+new x_ctans_incentnow.IncentNowUtils().isTerritoryExtensionActive() === true;
+	
   // Read all 5 filter values
   var fiscalYear      = input && input.fiscalYear     ? input.fiscalYear     : "";
   var fiscalPeriod    = input && input.fiscalPeriod   ? input.fiscalPeriod   : "";
   var planFilter      = input && input.plan           ? input.plan           : "";
   var buFilter        = input && input.businessUnit   ? input.businessUnit   : "";
   var repFilter       = input && input.rep            ? input.rep            : "";
+	var territoryFilter = "";
+	if (data.isTerritoryEnabled) {
+			territoryFilter = input && input.territory ? input.territory : "";
+	}
 
   /* ===================== HELPERS ===================== */
 
@@ -550,6 +573,9 @@
     if (fiscalYearSysId) {
       gr.addQuery("fiscal_year", fiscalYearSysId);
     }
+		if (data.isTerritoryEnabled && territoryFilter) {
+				gr.addQuery("x_ctans_territory_territory", territoryFilter);
+		}
     if (fiscalPeriod) {
       /* Match metric_report records whose fiscal_period sys_id equals
          the selected period OR whose fiscal_period parent equals it
@@ -619,7 +645,31 @@
      FIX 2: FISCAL PERIODS — filter by selected fiscal year
      so only periods belonging to that year are shown
   ===================================================================== */
+		data.territories = [];
 
+		if (data.isTerritoryEnabled) {
+
+				var territoryMap = {};
+
+				var territoryGR = new GlideRecordSecure("sn_tp_territory");
+				territoryGR.orderBy("name");
+				territoryGR.query();
+
+				while (territoryGR.next()) {
+
+						var id = territoryGR.getUniqueValue();
+
+						if (!territoryMap[id]) {
+								territoryMap[id] = true;
+
+								data.territories.push({
+										id: id,
+										name: territoryGR.getDisplayValue("name")
+								});
+						}
+				}
+		}
+	
   data.fiscalPeriods = [];
   var periodMap = {};
 
@@ -627,6 +677,7 @@
   if (fiscalYearSysId) {
     fpGR.addQuery("fiscal_year", fiscalYearSysId);
   }
+	fpGR.addQuery('period_type', 'month');
   fpGR.orderBy("period_start_date");
   fpGR.query();
 
@@ -739,8 +790,20 @@
     var credits  = parseFloat(grMer.getValue('total_credits')    || 0);
     var quota    = parseFloat(grMer.getValue('target_quota')     || 0);
     var att      = parseFloat(grMer.getValue('quota_attainment') || 0);
-    var planName = grMer.getDisplayValue('plan')          || 'Unknown';
-    var buName   = grMer.getDisplayValue('business_unit') || 'Other';
+    var planName = grMer.getDisplayValue('plan');
+		if (!planName) {
+				continue;
+		}
+    var buName = grMer.getDisplayValue('business_unit');
+
+		if (!buName && data.isTerritoryEnabled) {
+				buName = grMer.getDisplayValue('x_ctans_territory_territory');
+		}
+
+		// Skip records that have neither Business Unit nor Territory
+		if (!buName) {
+				continue;
+		}
     var userId   = grMer.getValue('user')                 || '';
 
     totalCommission += comm;
@@ -888,14 +951,14 @@
         <sys_created_by>karan.kumar</sys_created_by>
         <sys_created_on>2026-03-17 04:29:42</sys_created_on>
         <sys_id>b08b0b6f3baffa50ffa00e9693e45ae0</sys_id>
-        <sys_mod_count>55</sys_mod_count>
+        <sys_mod_count>79</sys_mod_count>
         <sys_name>Performance Tracking</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
         <sys_update_name>sp_widget_b08b0b6f3baffa50ffa00e9693e45ae0</sys_update_name>
-        <sys_updated_by>karan.kumar</sys_updated_by>
-        <sys_updated_on>2026-06-12 08:38:55</sys_updated_on>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-14 11:22:41</sys_updated_on>
         <template><![CDATA[<div class="performance-tracking">
 
   <!-- Header -->
@@ -928,14 +991,25 @@
         <option ng-repeat="pl in c.plans" value="{{pl}}">{{pl}}</option>
       </select>
     </div>
-    <div class="col-sm-3">
+    <div class="col-sm-2"
+         ng-class="{'col-sm-3': !c.data.isTerritoryEnabled, 'col-sm-2': c.data.isTerritoryEnabled}">
       <label>Business Unit</label>
       <select class="form-control select-radius" ng-model="c.selectedBusinessUnit" ng-change="c.applyFilters()">
         <option value="">All</option>
         <option ng-repeat="bu in c.businessUnits" value="{{bu}}">{{bu}}</option>
       </select>
     </div>
-    <div class="col-sm-3">
+    <div class="col-sm-2" ng-if="c.data.isTerritoryEnabled">
+      <label>Territory</label>
+      <select class="form-control select-radius" ng-model="c.selectedTerritory" ng-change="c.applyFilters()">
+          <option value="">All</option>
+          <option ng-repeat="t in c.territories" value="{{t.id}}">
+              {{t.name}}
+          </option>
+      </select>
+  </div>
+    <div class="col-sm-2"
+         ng-class="{'col-sm-3': !c.data.isTerritoryEnabled, 'col-sm-2': c.data.isTerritoryEnabled}">
       <label>Representative</label>
       <select class="form-control select-radius" ng-model="c.selectedRep" ng-change="c.applyFilters()">
         <option value="">All</option>
@@ -953,11 +1027,11 @@
           <i class="fa {{stat.icon}} pt-scorecard-icon"></i>
         </div>
         <div class="pt-scorecard-value">{{stat.value}}</div>
-        <div class="pt-scorecard-trend">
+        <!--div class="pt-scorecard-trend">
           <i class="fa fa-arrow-up text-success"></i>
           <span class="text-success">{{stat.change}}</span>
           <span class="pt-scorecard-period">vs Last Period</span>
-        </div>
+        </div-->
       </div>
     </div>
   </div>

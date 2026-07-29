@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <client_script><![CDATA[api.controller = function($scope) {
+
+    var c = this;
+
+    c.openSparkleAI = function() {
+
+        alert(
+            "Launch IncentIQ AI Advisor"
+        );
+
+    };
+
+};]]></client_script>
+        <controller_as>c</controller_as>
+        <css>.sparkle-btn {&#13;
+&#13;
+    width: 48px;&#13;
+    height: 48px;&#13;
+&#13;
+    border: none;&#13;
+    border-radius: 50%;&#13;
+&#13;
+    background: linear-gradient(&#13;
+        135deg,&#13;
+        #5B5FEF,&#13;
+        #8A63FF&#13;
+    );&#13;
+&#13;
+    display: flex;&#13;
+    align-items: center;&#13;
+    justify-content: center;&#13;
+&#13;
+    cursor: pointer;&#13;
+}&#13;
+&#13;
+.sparkle-icon {&#13;
+&#13;
+    width: 22px !important;&#13;
+    height: 22px !important;&#13;
+&#13;
+    max-width: 22px;&#13;
+    max-height: 22px;&#13;
+&#13;
+    object-fit: contain;&#13;
+}</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description/>
+        <docs/>
+        <field_list/>
+        <has_preview>false</has_preview>
+        <id>incentiq-sparkle-btn</id>
+        <internal>false</internal>
+        <link><![CDATA[function link(scope, element, attrs, controller) {
+  
+}]]></link>
+        <name>IncentIQ Sparkel Button</name>
+        <option_schema/>
+        <public>false</public>
+        <roles>x_ctans_incentnow.user</roles>
+        <script><![CDATA[(function() {
+  /* populate the 'data' object */
+  /* e.g., data.table = $sp.getValue('table'); */
+
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+        <sys_created_on>2026-06-24 12:56:30</sys_created_on>
+        <sys_id>edb4fe6f33a94b10dccb9c173e5c7bdd</sys_id>
+        <sys_mod_count>8</sys_mod_count>
+        <sys_name>IncentIQ Sparkel Button</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sp_widget_edb4fe6f33a94b10dccb9c173e5c7bdd</sys_update_name>
+        <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
+        <sys_updated_on>2026-07-22 09:34:02</sys_updated_on>
+        <template><![CDATA[<button id="incentiq-sparkle-btn"
+        class="sparkle-btn"
+        ng-click="c.openSparkleAI()">
+
+    <img class="sparkle-icon"
+         src="Sparkle%20Icon.png"
+         alt="Sparkle">
+
+</button>]]></template>
+    </sp_widget>
+</record_update>

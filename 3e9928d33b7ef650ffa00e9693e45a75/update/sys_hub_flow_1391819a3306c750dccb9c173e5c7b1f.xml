@@ -1,0 +1,435 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update sys_domain="global" table="sys_hub_flow">
+    <sys_hub_flow action="INSERT_OR_UPDATE">
+        <access>public</access>
+        <acls/>
+        <active>true</active>
+        <annotation/>
+        <attributes>browserActivatedIn=chrome,integrationActivatedIn=standalone,labelCacheCleanUpExecuted=true,timeFromCreateToActivate=464443000,viewActivatedIn=naturalLanguage</attributes>
+        <authored_on_release_version>28100</authored_on_release_version>
+        <callable_by_client_api>false</callable_by_client_api>
+        <category/>
+        <copied_from/>
+        <copied_from_name/>
+        <description>Closed all resolved disputes</description>
+        <display_name_after_preview/>
+        <flow_priority>MEDIUM</flow_priority>
+        <generation_source/>
+        <internal_name>closed_all_resolved_disputes</internal_name>
+        <label_cache>[{"name":"38f45b99-6db5-4e25-86c8-602049238743.item","label":"2 - For Each➛IncentIQ Dispute Record","reference":"x_ctans_incentnow_incentiq_dispute","reference_display":"IncentIQ Dispute","type":"reference","base_type":"reference","usedInstances":{"ea8fbe50-b497-45ba-966e-4858f5dc0e6c":["record"]},"attributes":{"pills_draggable_inside_block":"true","pills_draggable_outside_block":"false"}},{"name":"23c5ed43-d315-4123-bd89-1fcb141f941e.Records","label":"1 - Look Up Records➛IncentIQ Dispute Records","reference":"x_ctans_incentnow_incentiq_dispute","reference_display":"IncentIQ Dispute","type":"records","base_type":"records","usedInstances":{"38f45b99-6db5-4e25-86c8-602049238743":["items"]},"attributes":{"element_mapping_provider":"com.glide.flow_design.action.data.FlowDesignVariableMapper"}}]</label_cache>
+        <master_snapshot>2db34d5e3306c750dccb9c173e5c7bfb</master_snapshot>
+        <master_snapshot_digest/>
+        <name>Closed all resolved disputes</name>
+        <natlang/>
+        <outputs/>
+        <pre_compiled>false</pre_compiled>
+        <remote_trigger_id>4eb38d5e3306c750dccb9c173e5c7b43</remote_trigger_id>
+        <run_as>user</run_as>
+        <run_with_roles name="x_ctans_incentnow.admin">729928d33b7ef650ffa00e9693e45aaf</run_with_roles>
+        <sc_callable>false</sc_callable>
+        <show_draft_actions>false</show_draft_actions>
+        <show_triggered_flows>false</show_triggered_flows>
+        <status>published</status>
+        <substatus/>
+        <sys_class_name>sys_hub_flow</sys_class_name>
+        <sys_created_by>karan.kumar</sys_created_by>
+        <sys_created_on>2026-07-15 03:50:53</sys_created_on>
+        <sys_domain>global</sys_domain>
+        <sys_domain_path>/</sys_domain_path>
+        <sys_id>1391819a3306c750dccb9c173e5c7b1f</sys_id>
+        <sys_mod_count>15</sys_mod_count>
+        <sys_name>Closed all resolved disputes</sys_name>
+        <sys_overrides/>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_hub_flow_1391819a3306c750dccb9c173e5c7b1f</sys_update_name>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-20 12:51:39</sys_updated_on>
+        <type>flow</type>
+        <updation_source/>
+        <version>2</version>
+        <version_record>865dec48331ac390dccb9c173e5c7b5c</version_record>
+    </sys_hub_flow>
+    <sys_translated_text action="delete_multiple" query="documentkey=1391819a3306c750dccb9c173e5c7b1f"/>
+    <sys_variable_value action="delete_multiple" query="document_key=1391819a3306c750dccb9c173e5c7b1f"/>
+    <sys_flow_timer_trigger action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <day_of_month>1</day_of_month>
+        <day_of_week/>
+        <name/>
+        <published_version/>
+        <run_period/>
+        <run_start>2026-07-15 04:00:05</run_start>
+        <sys_class_name>sys_flow_timer_trigger</sys_class_name>
+        <sys_created_by>karan.kumar</sys_created_by>
+        <sys_created_on>2026-07-15 04:00:05</sys_created_on>
+        <sys_domain>global</sys_domain>
+        <sys_domain_path>/</sys_domain_path>
+        <sys_id>4eb38d5e3306c750dccb9c173e5c7b43</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_overrides/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_updated_by>karan.kumar</sys_updated_by>
+        <sys_updated_on>2026-07-15 04:00:05</sys_updated_on>
+        <time>1970-01-02 07:49:00</time>
+        <timer_type>11</timer_type>
+        <trigger_definition display_value="Daily">89142dc0c32222002841b63b12d3ae8a</trigger_definition>
+    </sys_flow_timer_trigger>
+    <sys_flow_trigger_auto_script action="delete_multiple" query="name=Trigger:4eb38d5e3306c750dccb9c173e5c7b43^sys_idNOT IN0eb38d5e3306c750dccb9c173e5c7b69"/>
+    <sys_flow_trigger_auto_script action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <advanced>false</advanced>
+        <business_calendar/>
+        <condition/>
+        <conditional>false</conditional>
+        <entered_run_end/>
+        <entered_run_start/>
+        <entered_time/>
+        <max_drift/>
+        <name>Trigger:4eb38d5e3306c750dccb9c173e5c7b43</name>
+        <offset/>
+        <offset_type>0</offset_type>
+        <repeat_every/>
+        <run_as display_value="Karan Kumar">099767e63bae7290ffa00e9693e45a08</run_as>
+        <run_as_tz/>
+        <run_dayofmonth>1</run_dayofmonth>
+        <run_dayofweek/>
+        <run_daysofweek/>
+        <run_end/>
+        <run_month/>
+        <run_period/>
+        <run_start>2026-07-15 04:00:05</run_start>
+        <run_time>1970-01-02 07:49:00</run_time>
+        <run_type>daily</run_type>
+        <run_weekinmonth/>
+        <script><![CDATA[sn_flow_trigger.FlowTriggerAPI.fireTimerTrigger('4eb38d5e3306c750dccb9c173e5c7b43');]]></script>
+        <sys_class_name>sys_flow_trigger_auto_script</sys_class_name>
+        <sys_created_by>karan.kumar</sys_created_by>
+        <sys_created_on>2026-07-15 04:00:05</sys_created_on>
+        <sys_id>0eb38d5e3306c750dccb9c173e5c7b69</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name/>
+        <sys_package/>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name/>
+        <sys_updated_by>karan.kumar</sys_updated_by>
+        <sys_updated_on>2026-07-15 04:00:05</sys_updated_on>
+        <time_zone/>
+        <trigger display_value="">4eb38d5e3306c750dccb9c173e5c7b43</trigger>
+        <upgrade_safe>true</upgrade_safe>
+    </sys_flow_trigger_auto_script>
+    <sys_trigger_runner_mapping action="delete_multiple" query="identifier=1391819a3306c750dccb9c173e5c7b1f"/>
+    <sys_hub_flow_stage action="delete_multiple" query="flow=1391819a3306c750dccb9c173e5c7b1f"/>
+    <sys_flow_cat_variable_model action="delete_multiple" query="id=1391819a3306c750dccb9c173e5c7b1f^sys_idNOT IN5791819a3306c750dccb9c173e5c7b20"/>
+    <sys_flow_cat_variable_model action="INSERT_OR_UPDATE">
+        <id>1391819a3306c750dccb9c173e5c7b1f</id>
+        <name>Closed all resolved disputes</name>
+        <sys_created_by>karan.kumar</sys_created_by>
+        <sys_created_on>2026-07-15 03:50:53</sys_created_on>
+        <sys_id>5791819a3306c750dccb9c173e5c7b20</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_scope/>
+        <sys_updated_by>karan.kumar</sys_updated_by>
+        <sys_updated_on>2026-07-15 03:50:53</sys_updated_on>
+    </sys_flow_cat_variable_model>
+    <sys_flow_cat_variable action="delete_multiple" query="flow_catalog_model=5791819a3306c750dccb9c173e5c7b20"/>
+    <sys_hub_flow_input action="delete_multiple" query="model=1391819a3306c750dccb9c173e5c7b1f"/>
+    <sys_hub_flow_output action="delete_multiple" query="model=1391819a3306c750dccb9c173e5c7b1f"/>
+    <sys_hub_alias_mapping action="delete_multiple" query="source_id=1391819a3306c750dccb9c173e5c7b1f"/>
+    <sys_hub_trigger_instance_v2 action="delete_multiple" query="flow=1391819a3306c750dccb9c173e5c7b1f^sys_idNOT IN29e1c99a3306c750dccb9c173e5c7b34"/>
+    <sys_hub_trigger_instance_v2 action="INSERT_OR_UPDATE">
+        <comment/>
+        <display_text/>
+        <flow display_value="Closed all resolved disputes">1391819a3306c750dccb9c173e5c7b1f</flow>
+        <generation_source/>
+        <name>Daily</name>
+        <published_version/>
+        <remote_sys_id/>
+        <sys_created_by>karan.kumar</sys_created_by>
+        <sys_created_on>2026-07-15 03:52:07</sys_created_on>
+        <sys_id>29e1c99a3306c750dccb9c173e5c7b34</sys_id>
+        <sys_mod_count>3</sys_mod_count>
+        <sys_scope/>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-20 12:51:36</sys_updated_on>
+        <trigger_definition display_value="Daily">89142dc0c32222002841b63b12d3ae8a</trigger_definition>
+        <trigger_inputs>H4sIAAAAAAAA/21STWvcMBD9K0XnrZHX24/4VigLPbSBZsklBDOWxruC0UdleRM35L93ZCtLmtb4Mm9m3rz30N2TIOiRRCsOxqLYCOMSRgd0mAMyeiSjsUtrz4LTkHycRZvihBsxRG8PaANB4uEBaGTQR41RtLWUG3EGmvBmHr9p5mIGBzazFr6ly2V99Um+lzX/77ZNu7tqpeSuOhnSEZ1o7+43IkDk3ZSZn960TCZvQO9QK6maLX9Sbj/v6v5j09db3QDiByZ84/RvLek/fl87wceETqO+2PwnjIigrx3Nl4kTZ7natvA4mt9YqCIOyOIVrs1L2WkzcpTzCquTNwqvQzLerUiCnsqO8jRZ92N1wLXGASZKtyVQRqaR+TBkzVlFkTTcnPzDz5eDe+MWg6VJXgFdKkgpmn5KOObEkdAyUWchBOOOXYj+bJZl1mKrJbZqIP/AR0dzdBWoLLziiKDaM/51gW8hmuziO9Pw8vPivvs15burj6K4W03zQAllb5DKIxpVNCF94QPnl1f3fP8HMyEVZsoCAAA=</trigger_inputs>
+        <trigger_outputs/>
+        <trigger_type>daily</trigger_type>
+        <updation_source/>
+    </sys_hub_trigger_instance_v2>
+    <sys_hub_action_instance_v2 action="delete_multiple" query="flow=1391819a3306c750dccb9c173e5c7b1f^sys_idNOT IN4602099a3306c750dccb9c173e5c7bca,e183c55e3306c750dccb9c173e5c7b61"/>
+    <sys_hub_action_instance_v2 action="INSERT_OR_UPDATE">
+        <action_type display_value="Look Up Records">43400a1587003300663ca1bb36cb0b4b</action_type>
+        <action_type_parent display_value="Look Up Records">d1c56ec50b30030085c083eb37673a50</action_type_parent>
+        <attributes/>
+        <comment/>
+        <compiled_snapshot>43400a1587003300663ca1bb36cb0b4b</compiled_snapshot>
+        <display_text/>
+        <flow display_value="Closed all resolved disputes">1391819a3306c750dccb9c173e5c7b1f</flow>
+        <generation_source/>
+        <order>1</order>
+        <parent_ui_id/>
+        <sys_class_name>sys_hub_action_instance_v2</sys_class_name>
+        <sys_created_by>karan.kumar</sys_created_by>
+        <sys_created_on>2026-07-15 03:52:42</sys_created_on>
+        <sys_id>4602099a3306c750dccb9c173e5c7bca</sys_id>
+        <sys_mod_count>6</sys_mod_count>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_updated_by>karan.kumar</sys_updated_by>
+        <sys_updated_on>2026-07-21 06:49:02</sys_updated_on>
+        <ui_id>23c5ed43-d315-4123-bd89-1fcb141f941e</ui_id>
+        <updation_source/>
+        <values>H4sIAAAAAAAA/+VXXU/bMBT9K1WeNimqEloK69tEhYQEVAPEC2PWTeK03lwnxE4/QP3vu46dNGoDa6UggfZW3w/73HvPcdyHF4dFztA5jfueB/7x6Ynn9XqeNxj0QvCDoDcIAy/oB47rCJhRjFQQcIrLOfBcr5ckVCAkYSKkQolkYX+xJxIxmeZKB+tfHFb3NueiiLj40RlVEeGU8Sijwhk+PLpOChmepmjmDF+2XPvC5RBQjqF3Fu8WfLVKqyUpfMZ2WU/rXBtHkkUaiuc6dKmoiChiiIFL6jozEBGoJFtVloxCNBZ8Y5gyoXBHRwcvJXvGc089HRdTrCqkxlctiW2WMccjUHCrsjxUeWZDw2nCQipNPyIaQ87VWd1mAsapYokwKaZsk53wfCauTTucaoNyNmjJJYKgqS5UI7dlxLfTZHFTojxnouiJdfIkBF6tQKmMBThYqedHOZ3hRmQGacrEhKRZMmdFMmKZdSccF92YI3MiKtlEdCHUwLvYV+ieo31UmO8hY7qKK9wGkxEQ48gQYkYokzwrWjknIc9l4ciQl2YvZ+06ciXPOEi5qRxbTp5yjdv0wVZMTNN0SpixVH3HLebUFrd291LMsbehXJiIiGkUsiYbqUDRnznmRoNfGZUJn9OIgCpMoXH8hjkYCMOJ7AZ0woTABo7jS5DqZAQr+eXrrrha3LlNURYdKUV5Vm9JU5usPHdsl00bWHn6rckT6/hMAsXDP54+D1ecacE/ZBeevEmy4w2fZJIpYnpZ092uXg7m+R4QSp6PNTM7weo1VJbmMaM8avoKnWvH1lfo6P/8Cn1IkiOgiJjpMcGZKJ4UCPS92O+9fcV+2+JZQa/aN0fb8N7f1QB0VNJ5PlgJe8AplXCLZ3fuDJ4GiOV9X1Bm+64vjVYAvdYE0DtqRwAvVZlVIxt6Xr4i9TTL+GcdD9vxSMFagr9uEthBZ/qHnnm03hVw7yAF18lmPKNXONfyc/MVRbrveQVMMdWeR4x+yYJFE6o2p5dRUaIWwP80+S3jSDmoorx3eLr235TtwN9IFJVC8AmJw6u/XX18Hu3eIb5rzIddIXtgKdtxBcvOTQWmEaG9RlDpdFLMpn6PXFRWS/J+iw/GD/slLYfVqMFyZp/iH197Qnj8C/t99cL3EAAA</values>
+    </sys_hub_action_instance_v2>
+    <sys_hub_alias_mapping action="delete_multiple" query="source_id=4602099a3306c750dccb9c173e5c7bca"/>
+    <sys_hub_action_instance_v2 action="INSERT_OR_UPDATE">
+        <action_type display_value="Update Record">f9d01dd2c31332002841b63b12d3aea1</action_type>
+        <action_type_parent display_value="Update Record">baf174c8c3c232002841b63b12d3aee4</action_type_parent>
+        <attributes/>
+        <comment/>
+        <compiled_snapshot>f9d01dd2c31332002841b63b12d3aea1</compiled_snapshot>
+        <display_text/>
+        <flow display_value="Closed all resolved disputes">1391819a3306c750dccb9c173e5c7b1f</flow>
+        <generation_source/>
+        <order>3</order>
+        <parent_ui_id>38f45b99-6db5-4e25-86c8-602049238743</parent_ui_id>
+        <sys_class_name>sys_hub_action_instance_v2</sys_class_name>
+        <sys_created_by>karan.kumar</sys_created_by>
+        <sys_created_on>2026-07-15 03:59:13</sys_created_on>
+        <sys_id>e183c55e3306c750dccb9c173e5c7b61</sys_id>
+        <sys_mod_count>6</sys_mod_count>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_updated_by>karan.kumar</sys_updated_by>
+        <sys_updated_on>2026-07-21 06:49:02</sys_updated_on>
+        <ui_id>ea8fbe50-b497-45ba-966e-4858f5dc0e6c</ui_id>
+        <updation_source/>
+        <values>H4sIAAAAAAAA/+VVy27iMBT9FeQ1oLygwG5UhITUaTXtiE1bRY5901pynNR2KAzi3+cmcQKiVaeVukHDivuyzz05J7nfEcHJjETAPX/qj1noh2HgecEk8pNxmPgBDymAT/pE0QywUwPLNcd4TWVZJXa7cJJGo2Q6HYx5MhpEEIwGkzGbDMZe4EXTIJxcROFQWMj2e5zjwhSSblduHDPsWUiuQZHZ/WOfFFTjTRY0me1OSp+FKmkCEltvW6yn2O22qGKeszIDZWPRJq/c5NxVess5VnCoguN7fQIbC4oDAkmpNNAnGVWc2lxvyczqEhMaKL9Rctt1PAtlm0UzujHiD94ceVVfCrgZcyR0YewIatLpnFp6hyczW+qOr1wwMA0nHFJaSnt5nGsabgorctWMWJrIdjqXZaauG0ZId8DR8ygNgoCi2rNC3qyV3j3nr7ctyIVQNSVuRZkzKruIWqtFUtoKzo6AhJrjjBaFUE9xofO1qIcRSjZ8khgMU5m/4p1GPKkhZRXuIbJKhwvMz+v0impRLfETj8HhfZ+YrbmU1JjDKshh/FJWSJrF3ApxzUJNQVwroRpmWhT2B161Bgd833dmSEYfKYxND4I6OvNgiE3MLFUmFsiTsgoXa/6Jl/rRIi9vXbCsO5a/evOu42uu+ATm1hW/ay28v4Mzxpvc1fFs77opOFuMvs0Wk3OyhVvj7H3xLzd4wYfv2yMl1QYwR04wllp4KD0v5BdvNX9S/ZreP4Gq1ftCgOTmHZit2CFDWBbiBvaJ4F2xt3LF7lvwbar3x179OyPt/zefhMe/Jq5jCiEJAAA=</values>
+    </sys_hub_action_instance_v2>
+    <sys_hub_alias_mapping action="delete_multiple" query="source_id=e183c55e3306c750dccb9c173e5c7b61"/>
+    <sys_hub_sub_flow_instance_v2 action="delete_multiple" query="flow=1391819a3306c750dccb9c173e5c7b1f"/>
+    <sys_hub_flow_logic_instance_v2 action="delete_multiple" query="flow=1391819a3306c750dccb9c173e5c7b1f^sys_idNOT IN9f63c15e3306c750dccb9c173e5c7b82"/>
+    <sys_hub_flow_logic_instance_v2 action="INSERT_OR_UPDATE">
+        <attributes/>
+        <block display_value="">95b34d5e3306c750dccb9c173e5c7b45</block>
+        <comment/>
+        <connected_to/>
+        <decision_table/>
+        <display_text/>
+        <flow display_value="Closed all resolved disputes">1391819a3306c750dccb9c173e5c7b1f</flow>
+        <flow_variables_assigned/>
+        <generation_source/>
+        <logic_definition display_value="For Each">098e1dc5c3e232002841b63b12d3ae33</logic_definition>
+        <order>2</order>
+        <outputs_assigned/>
+        <parent_ui_id/>
+        <sys_class_name>sys_hub_flow_logic_instance_v2</sys_class_name>
+        <sys_created_by>karan.kumar</sys_created_by>
+        <sys_created_on>2026-07-15 03:58:47</sys_created_on>
+        <sys_id>9f63c15e3306c750dccb9c173e5c7b82</sys_id>
+        <sys_mod_count>6</sys_mod_count>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-20 12:51:36</sys_updated_on>
+        <ui_id>38f45b99-6db5-4e25-86c8-602049238743</ui_id>
+        <updation_source/>
+        <values>H4sIAAAAAAAA/51STW/bMAz9LzonhmW7QZ1bgaFAD1uBruhlKAxZohNhsqTpI6ln+L+PipVs6HEnm4/k43siZ2JisDH4V/PgvTxosv/xviFSJwz/Z6LZCGRPZIDRkw05MRVTPM9Vze9ANPVW1PRu29Cq3vbivt3Sgfe0oUPbUChegBsn/LJgq5DeKja9/T8DP0olHGSRljnUFsCR/fwpFSYLnWI9KByUGbBfCgxpK4aWli2vq11dlWV139B+V/e0EjUDscO6a+dTNv3pDRI7hu7Gi5+koio3BD4CaAE4aGDKw4aMTAsWjJvIPriIgAMmnrWabhVHqQPSkVT74eVv5KZlmQoHQEcc1uQt7PJDrjA/Gsnh2QZp9IoE1qvcw42Ko/62yk8rgIFFFa4rQCR65AObNCcVWdLw/WjOL9eBj1Jf/OWkMpypW8RCcLKPAXxaAygYkagbmbVSHzrrzElemlHLWBwUBsWgzBmHpnMrGE/CC3wiVjwi/uUCvzEnk4uvSIPNy8V99yumuauPrLhbTWOB507a8IB0J8jilvd0ryuTXw9DAJceB74m7Ol65Skx4ZIl/xc6G/czSf2LLX8A3ZInNC8DAAA=</values>
+        <workflow_reference/>
+    </sys_hub_flow_logic_instance_v2>
+    <sys_hub_pill_compound action="delete_multiple" query="attached_to=1391819a3306c750dccb9c173e5c7b1f"/>
+    <sys_hub_flow_variable action="delete_multiple" query="model=1391819a3306c750dccb9c173e5c7b1f"/>
+    <sys_choice action="delete_multiple" query="name=var__m_sys_hub_flow_input_1391819a3306c750dccb9c173e5c7b1f"/>
+    <sys_choice action="delete_multiple" query="name=var__m_sys_hub_flow_output_1391819a3306c750dccb9c173e5c7b1f"/>
+    <sys_hub_flow_snapshot action="INSERT_OR_UPDATE">
+        <access>public</access>
+        <acls/>
+        <active>true</active>
+        <annotation/>
+        <attributes>browserActivatedIn=chrome,integrationActivatedIn=standalone,labelCacheCleanUpExecuted=true,viewActivatedIn=naturalLanguage</attributes>
+        <authored_on_release_version>28100</authored_on_release_version>
+        <callable_by_client_api>false</callable_by_client_api>
+        <category/>
+        <copied_from/>
+        <copied_from_name/>
+        <description>Closed all resolved disputes</description>
+        <flow_priority>MEDIUM</flow_priority>
+        <internal_name>closed_all_resolved_disputes</internal_name>
+        <label_cache>[{"name":"38f45b99-6db5-4e25-86c8-602049238743.item","label":"2 - For Each➛IncentIQ Dispute Record","reference":"x_ctans_incentnow_incentiq_dispute","reference_display":"IncentIQ Dispute","type":"reference","base_type":"reference","usedInstances":{"ea8fbe50-b497-45ba-966e-4858f5dc0e6c":["record"]},"attributes":{"pills_draggable_inside_block":"true","pills_draggable_outside_block":"false"}},{"name":"23c5ed43-d315-4123-bd89-1fcb141f941e.Records","label":"1 - Look Up Records➛IncentIQ Dispute Records","reference":"x_ctans_incentnow_incentiq_dispute","reference_display":"IncentIQ Dispute","type":"records","base_type":"records","usedInstances":{"38f45b99-6db5-4e25-86c8-602049238743":["items"]},"attributes":{"element_mapping_provider":"com.glide.flow_design.action.data.FlowDesignVariableMapper"}}]</label_cache>
+        <master>true</master>
+        <name>Closed all resolved disputes</name>
+        <natlang/>
+        <outputs/>
+        <parent_flow display_value="Closed all resolved disputes">1391819a3306c750dccb9c173e5c7b1f</parent_flow>
+        <remote_trigger_id/>
+        <run_as>user</run_as>
+        <run_with_roles name="x_ctans_incentnow.admin">729928d33b7ef650ffa00e9693e45aaf</run_with_roles>
+        <sc_callable>false</sc_callable>
+        <status>published</status>
+        <sys_class_name>sys_hub_flow_snapshot</sys_class_name>
+        <sys_created_by>karan.kumar</sys_created_by>
+        <sys_created_on>2026-07-15 04:00:03</sys_created_on>
+        <sys_domain>global</sys_domain>
+        <sys_domain_path>/</sys_domain_path>
+        <sys_id>2db34d5e3306c750dccb9c173e5c7bfb</sys_id>
+        <sys_mod_count>1</sys_mod_count>
+        <sys_name/>
+        <sys_overrides/>
+        <sys_package/>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name/>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-20 12:51:38</sys_updated_on>
+        <type>flow</type>
+        <version>2</version>
+    </sys_hub_flow_snapshot>
+    <sys_translated_text action="delete_multiple" query="documentkey=2db34d5e3306c750dccb9c173e5c7bfb"/>
+    <sys_variable_value action="delete_multiple" query="document_key=2db34d5e3306c750dccb9c173e5c7bfb"/>
+    <sys_hub_flow_stage action="delete_multiple" query="flow=2db34d5e3306c750dccb9c173e5c7bfb"/>
+    <sys_flow_cat_variable_model action="delete_multiple" query="id=2db34d5e3306c750dccb9c173e5c7bfb^sys_idNOT INe5b34d5e3306c750dccb9c173e5c7bfd"/>
+    <sys_flow_cat_variable_model action="INSERT_OR_UPDATE">
+        <id>2db34d5e3306c750dccb9c173e5c7bfb</id>
+        <name>Closed all resolved disputes</name>
+        <sys_created_by>karan.kumar</sys_created_by>
+        <sys_created_on>2026-07-15 04:00:03</sys_created_on>
+        <sys_id>e5b34d5e3306c750dccb9c173e5c7bfd</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_scope/>
+        <sys_updated_by>karan.kumar</sys_updated_by>
+        <sys_updated_on>2026-07-15 04:00:03</sys_updated_on>
+    </sys_flow_cat_variable_model>
+    <sys_flow_cat_variable action="delete_multiple" query="flow_catalog_model=e5b34d5e3306c750dccb9c173e5c7bfd"/>
+    <sys_hub_flow_input action="delete_multiple" query="model=2db34d5e3306c750dccb9c173e5c7bfb"/>
+    <sys_hub_flow_output action="delete_multiple" query="model=2db34d5e3306c750dccb9c173e5c7bfb"/>
+    <sys_hub_alias_mapping action="delete_multiple" query="source_id=2db34d5e3306c750dccb9c173e5c7bfb"/>
+    <sys_hub_trigger_instance_v2 action="delete_multiple" query="flow=2db34d5e3306c750dccb9c173e5c7bfb^sys_idNOT IN71b38d5e3306c750dccb9c173e5c7b24"/>
+    <sys_hub_trigger_instance_v2 action="INSERT_OR_UPDATE">
+        <comment/>
+        <display_text/>
+        <flow display_value="Closed all resolved disputes">2db34d5e3306c750dccb9c173e5c7bfb</flow>
+        <generation_source/>
+        <name>Daily</name>
+        <published_version/>
+        <remote_sys_id/>
+        <sys_created_by>karan.kumar</sys_created_by>
+        <sys_created_on>2026-07-15 04:00:03</sys_created_on>
+        <sys_id>71b38d5e3306c750dccb9c173e5c7b24</sys_id>
+        <sys_mod_count>1</sys_mod_count>
+        <sys_scope/>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-20 12:51:38</sys_updated_on>
+        <trigger_definition display_value="Daily">89142dc0c32222002841b63b12d3ae8a</trigger_definition>
+        <trigger_inputs>H4sIAAAAAAAA/21STWvcMBD9K0XnrZHX24/4VigLPbSBZsklBDOWxruC0UdleRM35L93ZCtLmtb4Mm9m3rz30N2TIOiRRCsOxqLYCOMSRgd0mAMyeiSjsUtrz4LTkHycRZvihBsxRG8PaANB4uEBaGTQR41RtLWUG3EGmvBmHr9p5mIGBzazFr6ly2V99Um+lzX/77ZNu7tqpeSuOhnSEZ1o7+43IkDk3ZSZn960TCZvQO9QK6maLX9Sbj/v6v5j09db3QDiByZ84/RvLek/fl87wceETqO+2PwnjIigrx3Nl4kTZ7natvA4mt9YqCIOyOIVrs1L2WkzcpTzCquTNwqvQzLerUiCnsqO8jRZ92N1wLXGASZKtyVQRqaR+TBkzVlFkTTcnPzDz5eDe+MWg6VJXgFdKkgpmn5KOObEkdAyUWchBOOOXYj+bJZl1mKrJbZqIP/AR0dzdBWoLLziiKDaM/51gW8hmuziO9Pw8vPivvs15burj6K4W03zQAllb5DKIxpVNCF94QPnl1f3fP8HMyEVZsoCAAA=</trigger_inputs>
+        <trigger_outputs/>
+        <trigger_type>daily</trigger_type>
+        <updation_source/>
+    </sys_hub_trigger_instance_v2>
+    <sys_hub_action_instance_v2 action="delete_multiple" query="flow=2db34d5e3306c750dccb9c173e5c7bfb^sys_idNOT IN35b38d5e3306c750dccb9c173e5c7b21,79b38d5e3306c750dccb9c173e5c7b22"/>
+    <sys_hub_action_instance_v2 action="INSERT_OR_UPDATE">
+        <action_type display_value="Look Up Records">43400a1587003300663ca1bb36cb0b4b</action_type>
+        <action_type_parent display_value="Look Up Records">d1c56ec50b30030085c083eb37673a50</action_type_parent>
+        <attributes/>
+        <comment/>
+        <compiled_snapshot>43400a1587003300663ca1bb36cb0b4b</compiled_snapshot>
+        <display_text/>
+        <flow display_value="Closed all resolved disputes">2db34d5e3306c750dccb9c173e5c7bfb</flow>
+        <generation_source/>
+        <order>1</order>
+        <parent_ui_id/>
+        <sys_class_name>sys_hub_action_instance_v2</sys_class_name>
+        <sys_created_by>karan.kumar</sys_created_by>
+        <sys_created_on>2026-07-15 04:00:03</sys_created_on>
+        <sys_id>35b38d5e3306c750dccb9c173e5c7b21</sys_id>
+        <sys_mod_count>1</sys_mod_count>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_updated_by>karan.kumar</sys_updated_by>
+        <sys_updated_on>2026-07-15 04:00:03</sys_updated_on>
+        <ui_id>23c5ed43-d315-4123-bd89-1fcb141f941e</ui_id>
+        <updation_source/>
+        <values>H4sIAAAAAAAA/+VXXU/bMBT9K1WeNimqEloK69tEhYQEVAPEC2PWTeK03lwnxE4/QP3vu46dNGoDa6UggfZW3w/73HvPcdyHF4dFztA5jfueB/7x6Ynn9XqeNxj0QvCDoDcIAy/oB47rCJhRjFQQcIrLOfBcr5ckVCAkYSKkQolkYX+xJxIxmeZKB+tfHFb3NueiiLj40RlVEeGU8Sijwhk+PLpOChmepmjmDF+2XPvC5RBQjqF3Fu8WfLVKqyUpfMZ2WU/rXBtHkkUaiuc6dKmoiChiiIFL6jozEBGoJFtVloxCNBZ8Y5gyoXBHRwcvJXvGc089HRdTrCqkxlctiW2WMccjUHCrsjxUeWZDw2nCQipNPyIaQ87VWd1mAsapYokwKaZsk53wfCauTTucaoNyNmjJJYKgqS5UI7dlxLfTZHFTojxnouiJdfIkBF6tQKmMBThYqedHOZ3hRmQGacrEhKRZMmdFMmKZdSccF92YI3MiKtlEdCHUwLvYV+ieo31UmO8hY7qKK9wGkxEQ48gQYkYokzwrWjknIc9l4ciQl2YvZ+06ciXPOEi5qRxbTp5yjdv0wVZMTNN0SpixVH3HLebUFrd291LMsbehXJiIiGkUsiYbqUDRnznmRoNfGZUJn9OIgCpMoXH8hjkYCMOJ7AZ0woTABo7jS5DqZAQr+eXrrrha3LlNURYdKUV5Vm9JU5usPHdsl00bWHn6rckT6/hMAsXDP54+D1ecacE/ZBeevEmy4w2fZJIpYnpZ092uXg7m+R4QSp6PNTM7weo1VJbmMaM8avoKnWvH1lfo6P/8Cn1IkiOgiJjpMcGZKJ4UCPS92O+9fcV+2+JZQa/aN0fb8N7f1QB0VNJ5PlgJe8AplXCLZ3fuDJ4GiOV9X1Bm+64vjVYAvdYE0DtqRwAvVZlVIxt6Xr4i9TTL+GcdD9vxSMFagr9uEthBZ/qHnnm03hVw7yAF18lmPKNXONfyc/MVRbrveQVMMdWeR4x+yYJFE6o2p5dRUaIWwP80+S3jSDmoorx3eLr235TtwN9IFJVC8AmJw6u/XX18Hu3eIb5rzIddIXtgKdtxBcvOTQWmEaG9RlDpdFLMpn6PXFRWS/J+iw/GD/slLYfVqMFyZp/iH197Qnj8C/t99cL3EAAA</values>
+    </sys_hub_action_instance_v2>
+    <sys_hub_alias_mapping action="delete_multiple" query="source_id=35b38d5e3306c750dccb9c173e5c7b21"/>
+    <sys_hub_action_instance_v2 action="INSERT_OR_UPDATE">
+        <action_type display_value="Update Record">f9d01dd2c31332002841b63b12d3aea1</action_type>
+        <action_type_parent display_value="Update Record">baf174c8c3c232002841b63b12d3aee4</action_type_parent>
+        <attributes/>
+        <comment/>
+        <compiled_snapshot>f9d01dd2c31332002841b63b12d3aea1</compiled_snapshot>
+        <display_text/>
+        <flow display_value="Closed all resolved disputes">2db34d5e3306c750dccb9c173e5c7bfb</flow>
+        <generation_source/>
+        <order>3</order>
+        <parent_ui_id>38f45b99-6db5-4e25-86c8-602049238743</parent_ui_id>
+        <sys_class_name>sys_hub_action_instance_v2</sys_class_name>
+        <sys_created_by>karan.kumar</sys_created_by>
+        <sys_created_on>2026-07-15 04:00:03</sys_created_on>
+        <sys_id>79b38d5e3306c750dccb9c173e5c7b22</sys_id>
+        <sys_mod_count>1</sys_mod_count>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_updated_by>karan.kumar</sys_updated_by>
+        <sys_updated_on>2026-07-15 04:00:03</sys_updated_on>
+        <ui_id>ea8fbe50-b497-45ba-966e-4858f5dc0e6c</ui_id>
+        <updation_source/>
+        <values>H4sIAAAAAAAA/+VVy27iMBT9FeQ1oLygwG5UhITUaTXtiE1bRY5901pynNR2KAzi3+cmcQKiVaeVukHDivuyzz05J7nfEcHJjETAPX/qj1noh2HgecEk8pNxmPgBDymAT/pE0QywUwPLNcd4TWVZJXa7cJJGo2Q6HYx5MhpEEIwGkzGbDMZe4EXTIJxcROFQWMj2e5zjwhSSblduHDPsWUiuQZHZ/WOfFFTjTRY0me1OSp+FKmkCEltvW6yn2O22qGKeszIDZWPRJq/c5NxVess5VnCoguN7fQIbC4oDAkmpNNAnGVWc2lxvyczqEhMaKL9Rctt1PAtlm0UzujHiD94ceVVfCrgZcyR0YewIatLpnFp6hyczW+qOr1wwMA0nHFJaSnt5nGsabgorctWMWJrIdjqXZaauG0ZId8DR8ygNgoCi2rNC3qyV3j3nr7ctyIVQNSVuRZkzKruIWqtFUtoKzo6AhJrjjBaFUE9xofO1qIcRSjZ8khgMU5m/4p1GPKkhZRXuIbJKhwvMz+v0impRLfETj8HhfZ+YrbmU1JjDKshh/FJWSJrF3ApxzUJNQVwroRpmWhT2B161Bgd833dmSEYfKYxND4I6OvNgiE3MLFUmFsiTsgoXa/6Jl/rRIi9vXbCsO5a/evOu42uu+ATm1hW/ay28v4Mzxpvc1fFs77opOFuMvs0Wk3OyhVvj7H3xLzd4wYfv2yMl1QYwR04wllp4KD0v5BdvNX9S/ZreP4Gq1ftCgOTmHZit2CFDWBbiBvaJ4F2xt3LF7lvwbar3x179OyPt/zefhMe/Jq5jCiEJAAA=</values>
+    </sys_hub_action_instance_v2>
+    <sys_hub_alias_mapping action="delete_multiple" query="source_id=79b38d5e3306c750dccb9c173e5c7b22"/>
+    <sys_hub_sub_flow_instance_v2 action="delete_multiple" query="flow=2db34d5e3306c750dccb9c173e5c7bfb"/>
+    <sys_hub_flow_logic_instance_v2 action="delete_multiple" query="flow=2db34d5e3306c750dccb9c173e5c7bfb^sys_idNOT INb5b38d5e3306c750dccb9c173e5c7b1f"/>
+    <sys_hub_flow_logic_instance_v2 action="INSERT_OR_UPDATE">
+        <attributes/>
+        <block display_value="">95b34d5e3306c750dccb9c173e5c7b45</block>
+        <comment/>
+        <connected_to/>
+        <decision_table/>
+        <display_text/>
+        <flow display_value="Closed all resolved disputes">2db34d5e3306c750dccb9c173e5c7bfb</flow>
+        <flow_variables_assigned/>
+        <generation_source/>
+        <logic_definition display_value="For Each">098e1dc5c3e232002841b63b12d3ae33</logic_definition>
+        <order>2</order>
+        <outputs_assigned/>
+        <parent_ui_id/>
+        <sys_class_name>sys_hub_flow_logic_instance_v2</sys_class_name>
+        <sys_created_by>karan.kumar</sys_created_by>
+        <sys_created_on>2026-07-15 04:00:03</sys_created_on>
+        <sys_id>b5b38d5e3306c750dccb9c173e5c7b1f</sys_id>
+        <sys_mod_count>4</sys_mod_count>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-20 12:51:38</sys_updated_on>
+        <ui_id>38f45b99-6db5-4e25-86c8-602049238743</ui_id>
+        <updation_source/>
+        <values>H4sIAAAAAAAA/51TwW6jMBD9F58ThCGNSm5Vq0qVdrdSWvWyqqLBHhJrjU1tk5Qi/n3HgdCqx55gnmfevPcwPbNtaNrgn+2N92pv2Obv64IpEzF675mBGtmGqYC1Zwt2BN3Guu+zXFyhXOVLmfOr5Ypn+bKU18WSV6LkK14VK47JFoV10g8DjUrlGw3dy88ZxEFp6XAS2YAjbQEd2/TfjpSkBbyQVcHTQuTZOs/SNLte8XKdlzyTOaBcE6GGEjW1PkzuvpkNXRNLN0qYgF/TzHZG6RFFZOmC4XtAI5HWV6A9LlgNRkKwrmOb4FoCHIJ8NLqbOw7KBKJjsffdqw/ayNM0NlZIhgSOh3O5m3Ic4eoOAjwRtQitm1rFwSqBfoxCYgWtDrdfsbHhsQnKmnEkQKkv01a3tfkzJsFmgstnI6T1JAKbaDRKn3xUTwd72l5U3itzDmU61FaAnisIwamyDVFPz1BjTUS7GppGmf2ucfaozsOkpU72moqk0vZES+MVTUBE4QnlCsk94Xdn+AWcii5+Ew0NDwvmO3+rwftPLxTi7q2NSkZnk4fdGEMcEU414YYWHHGSO7zGWz9yz5kK5UnCc8QeLv9KPOjoBinxFTpZ9y+K/8SG//lSdxF1AwAA</values>
+        <workflow_reference/>
+    </sys_hub_flow_logic_instance_v2>
+    <sys_hub_pill_compound action="delete_multiple" query="attached_to=2db34d5e3306c750dccb9c173e5c7bfb"/>
+    <sys_hub_flow_variable action="delete_multiple" query="model=2db34d5e3306c750dccb9c173e5c7bfb"/>
+    <sys_choice action="delete_multiple" query="name=var__m_sys_hub_flow_input_2db34d5e3306c750dccb9c173e5c7bfb"/>
+    <sys_choice action="delete_multiple" query="name=var__m_sys_hub_flow_output_2db34d5e3306c750dccb9c173e5c7bfb"/>
+    <sys_hub_flow action="UPDATE">
+        <sys_id>1391819a3306c750dccb9c173e5c7b1f</sys_id>
+        <latest_snapshot>2db34d5e3306c750dccb9c173e5c7bfb</latest_snapshot>
+        <compiler_build>glide-zurich-07-01-2025__patch10-hotfix3-07-01-2026_07-02-2026_1215.zip</compiler_build>
+        <version_record/>
+    </sys_hub_flow>
+    <sys_flow_trigger_plan action="delete_multiple" query="plan_id=1391819a3306c750dccb9c173e5c7b1f^sys_idNOT IN4ab38d5e3306c750dccb9c173e5c7b6d"/>
+    <sys_flow_trigger_plan action="INSERT_OR_UPDATE">
+        <binding_strategy>com.snc.process_flow.engine.binding.RunAlways</binding_strategy>
+        <plan>{"type":"PlanProxy","persistor":{"@class":".ChunkingPlanPersistor","table":"sys_flow_trigger_plan","id":"4ab38d5e3306c750dccb9c173e5c7b6d","name":"plan","plan_signature":null}}</plan>
+        <plan_id>1391819a3306c750dccb9c173e5c7b1f</plan_id>
+        <snapshot>a7e320143b5e03904be1ef9e53e45a1f</snapshot>
+        <sys_created_by>karan.kumar</sys_created_by>
+        <sys_created_on>2026-07-15 04:00:05</sys_created_on>
+        <sys_domain>global</sys_domain>
+        <sys_domain_path>/</sys_domain_path>
+        <sys_id>4ab38d5e3306c750dccb9c173e5c7b6d</sys_id>
+        <sys_mod_count>1</sys_mod_count>
+        <sys_overrides/>
+        <sys_scope/>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-20 12:51:39</sys_updated_on>
+        <trigger display_value="">4eb38d5e3306c750dccb9c173e5c7b43</trigger>
+    </sys_flow_trigger_plan>
+    <sys_flow_subflow_plan action="delete_multiple" query="plan_id=1391819a3306c750dccb9c173e5c7b1f"/>
+</record_update>

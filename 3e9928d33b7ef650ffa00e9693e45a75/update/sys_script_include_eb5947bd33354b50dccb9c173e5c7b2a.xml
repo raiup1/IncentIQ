@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>package_private</access>
+        <active>true</active>
+        <api_name>x_ctans_incentnow.IncentIQ360ContextService</api_name>
+        <caller_access/>
+        <client_callable>false</client_callable>
+        <description>Builds the current user's 360-degree compensation context (profile, plans, quota, statements, payouts, earning/lookup rules, plan structure, and QTD/YTD performance). Identity is always derived server-side from the logged-in user (gs.getUserID) — no cross-user data is accessible. Consumed by the orchestrator to ground the advisor's answers in real IncentIQ data.</description>
+        <mobile_callable>false</mobile_callable>
+        <name>IncentIQ360ContextService</name>
+        <sandbox_callable>false</sandbox_callable>
+        <script><![CDATA[var IncentIQ360ContextService = Class.create();
+IncentIQ360ContextService.prototype = {
+
+    initialize: function() {
+        this.LOG = "IncentIQ360ContextService :: ";
+    },
+
+    getFullContext: function() {
+
+        var userId = gs.getUserID();
+        var context = {};
+
+        var sysUserGR = new GlideRecordSecure('sys_user');
+        if (sysUserGR.get(userId)) {
+            context.currentUser = {
+                userName: gs.getUserName(),
+                fullName: gs.getUserDisplayName(),
+                email: sysUserGR.getValue('email'),
+                manager: sysUserGR.manager.getDisplayValue() || null,
+                department: sysUserGR.department.getDisplayValue() || null,
+                title: sysUserGR.getValue('title') || null,
+                company: sysUserGR.company.getDisplayValue() || null
+            };
+        } else {
+            context.currentUser = {};
+        }
+
+        var profileGR = new GlideRecordSecure('x_ctans_incentnow_user_profile');
+        profileGR.addQuery('user', userId);
+        profileGR.setLimit(1);
+        profileGR.query();
+
+        if (!profileGR.next()) {
+            return {
+                found: false,
+                message: "User not onboarded to IncentIQ"
+            };
+        }
+
+        var profileId = profileGR.getUniqueValue();
+
+        context.found = true;
+        context.profile = {
+            role: profileGR.getValue('role'),
+            businessUnit: profileGR.getDisplayValue('business_unit')
+        };
+
+        var planId = '';
+        var allPlans = [];
+
+        var planUserGR = new GlideRecordSecure('x_ctans_incentnow_plan_users');
+        planUserGR.addQuery('x_ctans_incentnow_sales_user', profileId);
+        planUserGR.query();
+
+        var isFirst = true;
+
+        while (planUserGR.next()) {
+
+            var thisPlanId = planUserGR.getValue('x_ctans_incentnow_plan');
+            var planGR = planUserGR.x_ctans_incentnow_plan.getRefRecord();
+
+            if (planGR.isValidRecord()) {
+
+                var planEntry = {
+                    planName: planGR.getValue('plan_name'),
+                    status: planGR.getValue('status'),
+                    fiscalYear: planGR.getDisplayValue('fiscal_year')
+                };
+
+                var endDateValue = planGR.getValue('end_date') || planGR.getValue('valid_to') || '';
+                if (endDateValue) {
+                    planEntry.endDate = endDateValue;
+                }
+
+                allPlans.push(planEntry);
+
+                if (isFirst) {
+                    planId = thisPlanId;
+                    context.plan = planEntry;
+                    isFirst = false;
+                }
+            }
+        }
+
+        context.allPlans = allPlans;
+
+        var quotaGR = new GlideRecordSecure('x_ctans_incentnow_user_quota_assignment');
+        quotaGR.addQuery('user', profileId);
+        quotaGR.query();
+
+        if (quotaGR.next()) {
+            var quotaRef = quotaGR.quota.getRefRecord();
+            if (quotaRef.isValidRecord()) {
+                context.quota = {
+                    quotaName: quotaRef.getDisplayValue()
+                };
+            }
+        }
+
+        var statements = [];
+
+        var stmtGR = new GlideRecordSecure('x_ctans_incentnow_incentive_statement');
+        stmtGR.addQuery('user', profileId);
+        stmtGR.orderByDesc('fiscal_period');
+        stmtGR.query();
+
+        while (stmtGR.next()) {
+            statements.push({
+                fiscalPeriod: stmtGR.getDisplayValue('fiscal_period'),
+                fiscalYear: stmtGR.getDisplayValue('fiscal_year'),
+                plan: stmtGR.getDisplayValue('plan'),
+                targetQuota: parseFloat(stmtGR.getValue('target_quota')) || 0,
+                quotaAttainment: parseFloat(stmtGR.getValue('quota_attainment')) || 0,
+                totalCommission: parseFloat(stmtGR.getValue('total_commission')) || 0,
+                status: stmtGR.getValue('status')
+            });
+        }
+
+        context.statements = statements;
+
+        var monthMap = {
+            january: 1, february: 2, march: 3, april: 4, may: 5, june: 6,
+            july: 7, august: 8, september: 9, october: 10, november: 11, december: 12
+        };
+
+        // Year comes from fiscalPeriod ("July 2025"); fiscalYear ("Budget Year FY25") has no 4-digit year.
+        function _yearOf(stmt) {
+            var mm = (stmt.fiscalPeriod || '').match(/\d{4}/) || (stmt.fiscalYear || '').match(/\d{4}/);
+            return mm ? parseInt(mm[0], 10) : null;
+        }
+        function _monthOf(stmt) {
+            var p = (stmt.fiscalPeriod || '').toLowerCase();
+            for (var nm in monthMap) { if (p.indexOf(nm) > -1) { return monthMap[nm]; } }
+            return null;
+        }
+
+        // Reference period from the data (latest statement).
+        var refYear = null, refMonth = null, referenceStatement = null;
+        for (var rr = 0; rr < statements.length; rr++) {
+            var ry = _yearOf(statements[rr]);
+            var rm = _monthOf(statements[rr]);
+            if (ry === null) { continue; }
+            if (refYear === null || ry > refYear || (ry === refYear && rm !== null && (refMonth === null || rm > refMonth))) {
+                refYear = ry; refMonth = rm; referenceStatement = statements[rr];
+            }
+        }
+
+        var today = new GlideDateTime();
+        var currentCalYear = today.getYearUTC();
+        if (refYear === null) { refYear = currentCalYear; }
+        if (refMonth === null) { refMonth = today.getMonthUTC(); }
+
+        // Completed prior year -> QTD reflects the finished year (= YTD). Current year -> live quarter.
+        var completedYear = (refYear < currentCalYear);
+        var ytdCutoff = completedYear ? 12 : today.getMonthUTC();
+        var qtrStart = Math.floor((today.getMonthUTC() - 1) / 3) * 3 + 1;
+
+        var qtdCommission = 0, ytdCommission = 0;
+        for (var si = 0; si < statements.length; si++) {
+            var s = statements[si];
+            if (_yearOf(s) !== refYear) { continue; }
+            var sm = _monthOf(s);
+            if (sm === null) { continue; }
+            if (sm <= ytdCutoff) { ytdCommission += s.totalCommission; }
+            if (!completedYear && sm >= qtrStart && sm <= today.getMonthUTC()) { qtdCommission += s.totalCommission; }
+        }
+        if (completedYear) { qtdCommission = ytdCommission; }
+
+        var quarterNames = ["Q1 (January-March)", "Q2 (April-June)", "Q3 (July-September)", "Q4 (October-December)"];
+        var qtdPeriodLabel = completedYear
+            ? ("Full year " + refYear + " (completed)")
+            : (quarterNames[Math.floor((qtrStart - 1) / 3)] + " " + refYear);
+
+        context.performanceSummary = {
+            qtdCommission: parseFloat(qtdCommission.toFixed(2)),
+            qtdPeriodLabel: qtdPeriodLabel,
+            qtdDataExists: qtdCommission > 0,
+            ytdCommission: parseFloat(ytdCommission.toFixed(2)),
+            ytdYear: refYear
+        };
+
+        var latestStatement = referenceStatement || (statements.length > 0 ? statements[0] : null);
+
+        if (latestStatement && latestStatement.targetQuota > 0) {
+
+            var attainmentPct = latestStatement.quotaAttainment || 0;
+            var currentCredit = (attainmentPct / 100) * latestStatement.targetQuota;
+            var creditNeeded = latestStatement.targetQuota - currentCredit;
+
+            context.targetProgress = {
+                fiscalPeriod: latestStatement.fiscalPeriod,
+                currentAttainmentPercent: attainmentPct,
+                targetQuota: latestStatement.targetQuota,
+                estimatedCurrentCredit: parseFloat(currentCredit.toFixed(2)),
+                creditNeededToReachTarget: parseFloat((creditNeeded > 0 ? creditNeeded : 0).toFixed(2))
+            };
+        }
+
+        var payouts = [];
+
+        var payoutGR = new GlideRecordSecure('x_ctans_incentnow_payout_results');
+        payoutGR.addQuery('user', profileId);
+        payoutGR.orderByDesc('fiscal_period');
+        payoutGR.query();
+
+        while (payoutGR.next()) {
+            payouts.push({
+                fiscalPeriod: payoutGR.getDisplayValue('fiscal_period'),
+                rule: payoutGR.getDisplayValue('payout_summary_rule'),
+                formula: payoutGR.getValue('formula'),
+                amount: parseFloat(payoutGR.getValue('payout_value')) || 0
+            });
+        }
+
+        context.payoutComponents = payouts;
+
+        if (planId) {
+
+            var earningRules = [];
+            var erGR = new GlideRecordSecure('x_ctans_incentnow_earning_rule');
+            erGR.addQuery('plan', planId);
+            erGR.orderBy('order');
+            erGR.query();
+            while (erGR.next()) {
+                earningRules.push({
+                    ruleName: erGR.getValue('rule_name'),
+                    sourceObject: erGR.getDisplayValue('source_object'),
+                    field: erGR.getDisplayValue('field'),
+                    aggregation: erGR.getValue('aggregation'),
+                    earningLevel: erGR.getValue('earning_level')
+                });
+            }
+            context.earningRules = earningRules;
+
+            var lookupRules = [];
+            var lrGR = new GlideRecordSecure('x_ctans_incentnow_lookup_rule');
+            lrGR.addQuery('plan', planId);
+            lrGR.orderBy('step_number');
+            lrGR.query();
+            while (lrGR.next()) {
+                lookupRules.push({
+                    stepName: lrGR.getDisplayValue('step_name'),
+                    ruleType: lrGR.getValue('rule_type'),
+                    rateValue: lrGR.getValue('rate_value'),
+                    rateUnit: lrGR.getValue('rate_unit')
+                });
+            }
+            context.lookupRules = lookupRules;
+
+            var payoutSummaries = [];
+            var psGR = new GlideRecordSecure('x_ctans_incentnow_payout_summary');
+            psGR.addQuery('plan', planId);
+            psGR.orderBy('order');
+            psGR.query();
+            while (psGR.next()) {
+                payoutSummaries.push({
+                    ruleName: psGR.getValue('rule_name'),
+                    operator: psGR.getValue('operator'),
+                    payoutType: psGR.getValue('payout_type')
+                });
+            }
+            context.planPayoutStructure = payoutSummaries;
+        }
+
+        return context;
+    },
+
+    type: 'IncentIQ360ContextService'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+        <sys_created_on>2026-07-01 14:11:32</sys_created_on>
+        <sys_id>eb5947bd33354b50dccb9c173e5c7b2a</sys_id>
+        <sys_mod_count>9</sys_mod_count>
+        <sys_name>IncentIQ360ContextService</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_script_include_eb5947bd33354b50dccb9c173e5c7b2a</sys_update_name>
+        <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
+        <sys_updated_on>2026-07-22 10:33:24</sys_updated_on>
+    </sys_script_include>
+</record_update>

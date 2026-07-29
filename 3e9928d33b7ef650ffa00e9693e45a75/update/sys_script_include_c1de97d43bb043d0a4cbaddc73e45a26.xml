@@ -5,7 +5,7 @@
         <api_name>x_ctans_incentnow.IncentNowAccessUtils</api_name>
         <caller_access/>
         <client_callable>false</client_callable>
-        <description/>
+        <description>This file manages data filtering and access to date across all the IncentIQ tables for different roles</description>
         <mobile_callable>false</mobile_callable>
         <name>IncentNowAccessUtils</name>
         <sandbox_callable>false</sandbox_callable>
@@ -943,7 +943,7 @@ IncentNowAccessUtils.prototype = {
     }
 
     collectChildren(profile.business_unit.toString());
-	gs.addErrorMessage(JSON.stringify(result));
+	//gs.addErrorMessage(JSON.stringify(result));
     return "sys_idIN"+result.join(",");
 },
 
@@ -953,13 +953,13 @@ IncentNowAccessUtils.prototype = {
         <sys_created_by>shroin.mandal</sys_created_by>
         <sys_created_on>2026-05-08 06:54:59</sys_created_on>
         <sys_id>c1de97d43bb043d0a4cbaddc73e45a26</sys_id>
-        <sys_mod_count>99</sys_mod_count>
+        <sys_mod_count>101</sys_mod_count>
         <sys_name>IncentNowAccessUtils</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
         <sys_update_name>sys_script_include_c1de97d43bb043d0a4cbaddc73e45a26</sys_update_name>
-        <sys_updated_by>upma.rai</sys_updated_by>
-        <sys_updated_on>2026-06-15 10:18:36</sys_updated_on>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-29 11:04:06</sys_updated_on>
     </sys_script_include>
 </record_update>

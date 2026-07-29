@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update sys_domain="global" table="sys_script_client">
+    <sys_script_client action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <applies_extended>false</applies_extended>
+        <condition/>
+        <description/>
+        <field>business_unit</field>
+        <global>true</global>
+        <isolate_script>true</isolate_script>
+        <messages/>
+        <name>Validate Company</name>
+        <order/>
+        <script><![CDATA[function onChange(control, oldValue, newValue, isLoading) {
+    if (isLoading)
+        return;
+
+    var companyId = g_form.getValue('user.company');
+
+    // If Business Unit is empty, allow manual company selection
+    if (!newValue)
+        return;
+
+    var ga = new GlideAjax('IncentNowClientUtils');
+    ga.addParam('sysparm_name', 'validateBusinessUnitCompany');
+    ga.addParam('sysparm_company_id', companyId);
+    ga.addParam('sysparm_business_unit_id', newValue);
+
+    ga.getXMLAnswer(function(answer) {
+
+        var result = JSON.parse(answer || '{}');
+
+        if (!result.valid) {
+            g_form.addErrorMessage('Selected Company does not match with Business Unit company.');
+            g_form.clearValue('business_unit');
+            return;
+        }
+
+        // If company is empty, set it from Business Unit company
+        if (!companyId && result.business_unit_company) {
+            g_form.setValue('user.company', result.business_unit_company);
+        }
+    });
+}]]></script>
+        <sys_class_name>sys_script_client</sys_class_name>
+        <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+        <sys_created_on>2026-07-09 06:29:29</sys_created_on>
+        <sys_domain>global</sys_domain>
+        <sys_domain_path>/</sys_domain_path>
+        <sys_id>8bebe2143b4e0b104be1ef9e53e45aa0</sys_id>
+        <sys_mod_count>14</sys_mod_count>
+        <sys_name>Validate Company</sys_name>
+        <sys_overrides/>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_script_client_8bebe2143b4e0b104be1ef9e53e45aa0</sys_update_name>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-09 15:44:58</sys_updated_on>
+        <table>x_ctans_incentnow_user_profile</table>
+        <type>onChange</type>
+        <ui_type>10</ui_type>
+        <view/>
+    </sys_script_client>
+</record_update>

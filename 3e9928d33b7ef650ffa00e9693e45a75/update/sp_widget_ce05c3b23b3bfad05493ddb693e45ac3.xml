@@ -22,9 +22,15 @@
 
     var q = c.quotaModel;
 
-    if (!q.name || !q.fiscalPeriodId || !q.frequency || !q.valueType || !q.businessUnit)
-        return false;
+    if (!q.name || !q.fiscalPeriodId || !q.frequency || !q.valueType)
+    return false;
 
+		if (q.businessDimension === "business_unit" && !q.businessUnit)
+				return false;
+
+		if (q.businessDimension === "territory" && !q.territory)
+				return false;
+		
     if (q.frequency === 'annually' && q.yearlyValue <= 0)
         return false;
 
@@ -70,6 +76,20 @@
   c.saveDraft = function () {
     c.server.update({ quotaModel: c.quotaModel });
   };
+	
+	c.quotaModel = {
+			name: '',
+			notes: '',
+			fiscalPeriodId: '',
+			frequency: '',
+			valueType: '',
+			businessDimension: 'business_unit',   // default
+			businessUnit: '',
+			territory: '',
+			yearlyValue: 0,
+			quarterlyValue: 0,
+			monthlyValue: 0
+	};
 
   c.quotaModel = {
     name:           '',
@@ -285,7 +305,9 @@
 					c.quotaModel.fiscalPeriodId = r.fiscalPeriodId;
 					c.quotaModel.valueType      = r.valueType;
 					c.quotaModel.frequency      = r.frequency;
-					c.quotaModel.businessUnit   = r.businessUnit;
+					c.quotaModel.businessDimension = r.businessDimension;
+					c.quotaModel.businessUnit = r.businessUnit;
+					c.quotaModel.territory = r.territory;
 
 					var yearly = 0;
 
@@ -1171,441 +1193,591 @@ textarea::placeholder {
         <roles>x_ctans_incentnow.user</roles>
         <script><![CDATA[(function() {
 
-  /* populate the 'data' object */
-  data.isEdit    = !!options.quota_batch_id;
-  data.quotaModel = {};
-	data.distribution = [];
-	data.sys_id = $sp.getParameter('sys_id');
-	
-	//data.incentnowAdForm= $sp.getWidget('incentnow-form-advanced',{table:"x_ctans_incentnow_quota",view:""});
-  /* ================= FISCAL CALENDAR ================= */
+    /* populate the 'data' object */
+    data.isEdit = !!options.quota_batch_id;
+    data.quotaModel = {};
+    data.distribution = [];
+    data.sys_id = $sp.getParameter('sys_id');
 
-  data.fiscalPeriods = [];
+    data.isTerritoryEnabled =
+        new x_ctans_incentnow.IncentNowUtils().isTerritoryExtensionActive() === true;
+		var TERRITORY_FIELD = 'x_ctans_territory_territory';
 
-  var periodGR = new GlideRecordSecure('x_ctans_incentnow_fiscal_calendar');
-	periodGR.addQuery('active', true);
-  periodGR.orderByDesc('fiscal_year_name');
-  //periodGR.setLimit(12);
-  periodGR.query();
+    //data.incentnowAdForm= $sp.getWidget('incentnow-form-advanced',{table:"x_ctans_incentnow_quota",view:""});
+    /* ================= FISCAL CALENDAR ================= */
 
-  while (periodGR.next()) {
-    data.fiscalPeriods.push({
-      id:        periodGR.getUniqueValue(),
-      name:      periodGR.getValue('fiscal_year_name'),
-      startDate: '',
-      endDate:   ''
-    });
-  }
+    data.fiscalPeriods = [];
 
-/* ================= BUSINESS UNITS ================= */
+    var periodGR = new GlideRecordSecure('x_ctans_incentnow_fiscal_calendar');
+    periodGR.addQuery('active', true);
+    periodGR.orderByDesc('fiscal_year_name');
+    //periodGR.setLimit(12);
+    periodGR.query();
 
-	data.businessUnits = [];
-
-	var buGR = new GlideRecordSecure('business_unit');
-
-if (
-    (gs.getUser().hasRole('admin')) ||
-    gs.hasRole('x_ctans_incentnow.admin') ||
-    gs.hasRole('x_ctans_incentnow.business_group_executive')
-) {
-
-    buGR.orderBy('name');
-    buGR.query();
-
-}
-else if (gs.hasRole('x_ctans_incentnow.business_group_admin')) {
-
-    var profileGR = new GlideRecordSecure('x_ctans_incentnow_user_profile');
-    profileGR.addQuery('user', gs.getUserID());
-    profileGR.query();
-
-    if (profileGR.next() && profileGR.getValue('business_unit')) {
-
-        var rootBU = profileGR.getValue('business_unit');
-
-        var buIds = [];
-
-        function getChildren(parentId) {
-
-            buIds.push(parentId);
-
-            var childGR = new GlideRecordSecure('business_unit');
-            childGR.addQuery('parent', parentId);
-            childGR.query();
-
-            while (childGR.next()) {
-                getChildren(childGR.getUniqueValue());
-            }
-        }
-
-        getChildren(rootBU);
-
-        buGR.addQuery('sys_id', 'IN', buIds.join(','));
-        buGR.orderBy('name');
-        buGR.query();
+    while (periodGR.next()) {
+        data.fiscalPeriods.push({
+            id: periodGR.getUniqueValue(),
+            name: periodGR.getValue('fiscal_year_name'),
+            startDate: '',
+            endDate: ''
+        });
     }
-}
 
-	var allBU = {};
+		/* ================= TERRITORIES ================= */
 
-	while (buGR.next()) {
+		data.territories = [];
 
-			allBU[buGR.getUniqueValue()] = {
-					id: buGR.getUniqueValue(),
-					name: buGR.getValue('name'),
-					parent: buGR.getValue('parent'),
-					children: []
-			};
-	}
+		if (data.isTerritoryEnabled) {
 
-	// Build hierarchy
-	for (var id in allBU) {
+				var terrGR = new GlideRecordSecure('sn_tp_territory');
 
-			var bu = allBU[id];
+				// Admins - Show all territories
+				if (
+						gs.getUser().hasRole('admin') ||
+						gs.hasRole('x_ctans_incentnow.admin')
+				) {
 
-			if (bu.parent && allBU[bu.parent]) {
-					allBU[bu.parent].children.push(bu);
-			}
-	}
+						var qualifier = new sn_sales_territory.TerritoryUtil()
+								.getTerritoryReferenceQualifier();
 
-	data.businessUnits = [];
+						if (qualifier)
+								terrGR.addEncodedQuery(qualifier);
 
-	function addChildren(parent, level) {
+						terrGR.orderBy('name');
+						terrGR.query();
+				}
 
-			parent.children.sort(function(a, b) {
-					return a.name.localeCompare(b.name);
-			});
+				// Territory Admin - Show assigned territory + all child territories
+				else {
 
-			parent.children.forEach(function(child) {
+						var profileGR = new GlideRecordSecure('x_ctans_incentnow_user_profile');
+						profileGR.addQuery('user', gs.getUserID());
+						profileGR.query();
 
-					data.businessUnits.push({
-							id: child.id,
-							name: child.name,
-							label: '\u2003\u2003\u2003'.repeat(level) + child.name
-					});
+						if (profileGR.next() && profileGR.getValue('x_ctans_territory_territory')) {
 
-					addChildren(child, level + 1);
-			});
-	}
+								var territoryIds = [];
 
-	// Add root BUs first
-	for (var key in allBU) {
+								function getChildren(parentId) {
 
-			if (!allBU[key].parent) {
+										if (territoryIds.indexOf(parentId) > -1)
+												return;
 
-					data.businessUnits.push({
-							id: allBU[key].id,
-							name: allBU[key].name,
-							label: allBU[key].name
-					});
+										territoryIds.push(parentId);
 
-					addChildren(allBU[key], 1);
-			}
-}
+										var childGR = new GlideRecordSecure('sn_tp_territory');
+										childGR.addQuery('parent', parentId);
+										childGR.query();
 
-  /* ================= USERS ================= */
+										while (childGR.next()) {
+												getChildren(childGR.getUniqueValue());
+										}
+								}
 
-  data.availableUsers = [];
+								getChildren(profileGR.getValue('x_ctans_territory_territory'));
 
-  var userGR = new GlideRecordSecure('x_ctans_incentnow_user_profile');
-  userGR.orderBy('name');
-  userGR.query();
+								terrGR.addQuery('sys_id', 'IN', territoryIds.join(','));
+								terrGR.orderBy('name');
+								terrGR.query();
+						}
+				}
 
-  while (userGR.next()) {
-    data.availableUsers.push({
-      id:    userGR.getUniqueValue(),
-      name:  userGR.getValue('name'),
-      email: userGR.getValue('email')
-    });
-  }
+				var allTerritories = {};
 
-  /* ================= CHECK EXISTING ================= */
+				while (terrGR.next()) {
+						allTerritories[terrGR.getUniqueValue()] = {
+								id: terrGR.getUniqueValue(),
+								name: terrGR.getDisplayValue('name'),
+								parent: terrGR.getValue('parent'),
+								children: []
+						};
+				}
 
-  if (input && input.action === 'check_existing') {
+				// Build hierarchy
+				for (var id in allTerritories) {
+						var territory = allTerritories[id];
+						if (territory.parent && allTerritories[territory.parent]) {
+								allTerritories[territory.parent].children.push(territory);
+						}
+				}
 
-    data.count = 0;
+				function addChildren(parent, level) {
 
-    var countGR = new GlideAggregate('x_ctans_incentnow_user_quota_assignment');
-    countGR.addQuery('quota.financial_year', input.period_id);
-    countGR.addAggregate('COUNT');
-    countGR.query();
+						parent.children.sort(function(a, b) {
+								return a.name.localeCompare(b.name);
+						});
 
-    if (countGR.next()) {
-        data.count = parseInt(countGR.getAggregate('COUNT'), 10);
-    }
-}
+						parent.children.forEach(function(child) {
 
-  /* ================= GET USER INFO ================= */
+								data.territories.push({
+										id: child.id,
+										name: child.name,
+										label: '\u2003\u2003\u2003'.repeat(level) + child.name
+								});
 
-  if (input && input.action === 'get_user_info') {
-    var uGR = new GlideRecordSecure('x_ctans_incentnow_user_profile');
-    if (uGR.get(input.user_id)) {
-      var businessUnit   = '';
-      var businessUnitId = '';
-      if (uGR.getValue('business_unit')) {
-        var bu = new GlideRecordSecure('business_unit');
-        if (bu.get(uGR.getValue('business_unit'))) {
-          businessUnit   = bu.getValue('name');
-          businessUnitId = bu.getUniqueValue();
-        }
-      }
-      data.userInfo = {
-        name:           uGR.getValue('name'),
-        email:          uGR.getValue('email'),
-        businessUnit:   businessUnit,
-        businessUnitId: businessUnitId
-      };
-    }
-  }
-	
-	/* ================= GET Record ================= */
-	
-	if (input && input.action === 'getRecord') {
+								addChildren(child, level + 1);
+						});
+				}
 
-  data.record = {};
+				// Add root territories
+				for (var key in allTerritories) {
 
-  var grQuota = new GlideRecordSecure('x_ctans_incentnow_quota'); // ✅ fixed table
-	gs.info("Frequency: " + grQuota.getValue('quota_frequency'));
+						if (!allTerritories[key].parent) {
 
-  if (grQuota.get(input.sys_id)) {
+								data.territories.push({
+										id: allTerritories[key].id,
+										name: allTerritories[key].name,
+										label: allTerritories[key].name
+								});
 
-			data.sys_id = grQuota.getUniqueValue();
-
-			data.record = {
-				status: grQuota.getValue('status'),
-				name: grQuota.getValue('name'),
-				notes: grQuota.getValue('description'),
-				fiscalPeriodId: grQuota.getValue('fiscal_year'),
-				valueType: grQuota.getValue('quota_metric'),
-				frequency: grQuota.getValue('quota_frequency'),
-				businessUnit: grQuota.getValue('business_unit'),
-				
-
-				yearlyValue:    grQuota.getValue('quota_frequency') === 'annually'  ? grQuota.getValue('target_value') : '',
-				quarterlyValue: grQuota.getValue('quota_frequency') === 'quarterly' ? grQuota.getValue('target_value') : '',
-				monthlyValue:   grQuota.getValue('quota_frequency') === 'monthly'   ? grQuota.getValue('target_value') : ''
-			};
+								addChildren(allTerritories[key], 1);
+						}
+				}
 		}
 		
-	var qpGR = new GlideRecordSecure('x_ctans_incentnow_quota_period');
-	qpGR.addQuery('quota', input.sys_id);
-	qpGR.orderBy('period_type');
-	qpGR.orderBy('period_number');
-	qpGR.query();
+    /* ================= BUSINESS UNITS ================= */
 
-	var quarters = {};
-	var months = {};
+    data.businessUnits = [];
 
-	while (qpGR.next()) {
+    var buGR = new GlideRecordSecure('business_unit');
 
-		var type = qpGR.getValue('period_type');
-		var num  = parseInt(qpGR.getValue('period_number'));
-		var val  = Number(qpGR.getValue('target_value') || 0);
+    if (
+        (gs.getUser().hasRole('admin')) ||
+        gs.hasRole('x_ctans_incentnow.admin') ||
+        gs.hasRole('x_ctans_incentnow.business_group_executive')
+    ) {
 
-		// QUARTERS
-		if (type === 'quarter') {
-			quarters[num] = {
-				total: val,
-				months: []
-			};
-		}
+        buGR.orderBy('name');
+        buGR.query();
 
-		// MONTHS
-		if (type === 'month') {
-			var qIndex = Math.ceil(num / 3);
-			if (!months[qIndex]) months[qIndex] = [];
+    } else if (gs.hasRole('x_ctans_incentnow.business_group_admin')) {
 
-			months[qIndex].push({
-				value: val
-			});
-		}
-	}
+        var profileGR = new GlideRecordSecure('x_ctans_incentnow_user_profile');
+        profileGR.addQuery('user', gs.getUserID());
+        profileGR.query();
 
-	// Merge months into quarters
-	var monthNames = [
-			["January", "February", "March"],
-			["April", "May", "June"],
-			["July", "August", "September"],
-			["October", "November", "December"]
-		];
+        if (profileGR.next() && profileGR.getValue('business_unit')) {
 
-		for (var q = 1; q <= 4; q++) {
+            var rootBU = profileGR.getValue('business_unit');
 
-			var quarterMonths = [];
+            var buIds = [];
 
-			for (var m = 0; m < 3; m++) {
+            function getChildren(parentId) {
 
-				var monthData = (months[q] && months[q][m]) ? months[q][m] : { value: 0 };
+                buIds.push(parentId);
 
-				quarterMonths.push({
-					name: monthNames[q-1][m],
-					value: Number(monthData.value || 0)
-				});
-			}
+                var childGR = new GlideRecordSecure('business_unit');
+                childGR.addQuery('parent', parentId);
+                childGR.query();
 
-			data.distribution.push({
-				total: quarters[q] ? Number(quarters[q].total || 0) : 0,
-				months: quarterMonths
-			});
-		}
-	}
+                while (childGR.next()) {
+                    getChildren(childGR.getUniqueValue());
+                }
+            }
 
-  /* ================= GET BU USERS ================= */
+            getChildren(rootBU);
 
-  if (input && input.action === 'get_bu_users') {
-    data.users = [];
-    var buUserGR = new GlideRecordSecure('x_ctans_incentnow_user_profile');
-    buUserGR.addQuery('business_unit', input.bu_id);
-    buUserGR.query();
-    while (buUserGR.next()) {
-      var buName = '';
-      if (buUserGR.getValue('business_unit')) {
-        var b = new GlideRecordSecure('business_unit');
-        if (b.get(buUserGR.getValue('business_unit'))) {
-          buName = b.getValue('name');
+            buGR.addQuery('sys_id', 'IN', buIds.join(','));
+            buGR.orderBy('name');
+            buGR.query();
         }
-      }
-      data.users.push({
-        id:           buUserGR.getUniqueValue(),
-        name:         buUserGR.getValue('name'),
-        email:        buUserGR.getValue('email'),
-        businessUnit: buName
-      });
-    }
-  }
-
-  /* ================= SAVE QUOTAS ================= */
-	
-		if (input && input.action === 'saveQuota') {
-
-    data.status = "error";
-    data.message = "";
-
-    var q = input.quotaData;
-    var sysId = input.sys_id; // ✅ FIXED (single source)
-
-    // ✅ UNIQUE NAME CHECK
-    var check = new GlideRecordSecure('x_ctans_incentnow_quota');
-    check.addQuery('name', q.name);
-
-    if (sysId) {
-        check.addQuery('sys_id', '!=', sysId);
     }
 
-    check.query();
+    var allBU = {};
 
-    if (check.next()) {
+    while (buGR.next()) {
+
+        allBU[buGR.getUniqueValue()] = {
+            id: buGR.getUniqueValue(),
+            name: buGR.getValue('name'),
+            parent: buGR.getValue('parent'),
+            children: []
+        };
+    }
+
+    // Build hierarchy
+    for (var id in allBU) {
+
+        var bu = allBU[id];
+
+        if (bu.parent && allBU[bu.parent]) {
+            allBU[bu.parent].children.push(bu);
+        }
+    }
+
+    data.businessUnits = [];
+
+    function addChildren(parent, level) {
+
+        parent.children.sort(function(a, b) {
+            return a.name.localeCompare(b.name);
+        });
+
+        parent.children.forEach(function(child) {
+
+            data.businessUnits.push({
+                id: child.id,
+                name: child.name,
+                label: '\u2003\u2003\u2003'.repeat(level) + child.name
+            });
+
+            addChildren(child, level + 1);
+        });
+    }
+
+    // Add root BUs first
+    for (var key in allBU) {
+
+        if (!allBU[key].parent) {
+
+            data.businessUnits.push({
+                id: allBU[key].id,
+                name: allBU[key].name,
+                label: allBU[key].name
+            });
+
+            addChildren(allBU[key], 1);
+        }
+    }
+
+    /* ================= USERS ================= */
+
+    data.availableUsers = [];
+
+    var userGR = new GlideRecordSecure('x_ctans_incentnow_user_profile');
+    userGR.orderBy('name');
+    userGR.query();
+
+    while (userGR.next()) {
+        data.availableUsers.push({
+            id: userGR.getUniqueValue(),
+            name: userGR.getValue('name'),
+            email: userGR.getValue('email')
+        });
+    }
+
+    /* ================= CHECK EXISTING ================= */
+
+    if (input && input.action === 'check_existing') {
+
+        data.count = 0;
+
+        var countGR = new GlideAggregate('x_ctans_incentnow_user_quota_assignment');
+        countGR.addQuery('quota.financial_year', input.period_id);
+        countGR.addAggregate('COUNT');
+        countGR.query();
+
+        if (countGR.next()) {
+            data.count = parseInt(countGR.getAggregate('COUNT'), 10);
+        }
+    }
+
+    /* ================= GET USER INFO ================= */
+
+    if (input && input.action === 'get_user_info') {
+        var uGR = new GlideRecordSecure('x_ctans_incentnow_user_profile');
+        if (uGR.get(input.user_id)) {
+            var businessUnit = '';
+            var businessUnitId = '';
+            if (uGR.getValue('business_unit')) {
+                var bu = new GlideRecordSecure('business_unit');
+                if (bu.get(uGR.getValue('business_unit'))) {
+                    businessUnit = bu.getValue('name');
+                    businessUnitId = bu.getUniqueValue();
+                }
+            }
+            data.userInfo = {
+                name: uGR.getValue('name'),
+                email: uGR.getValue('email'),
+                businessUnit: businessUnit,
+                businessUnitId: businessUnitId
+            };
+        }
+    }
+
+    /* ================= GET Record ================= */
+
+    if (input && input.action === 'getRecord') {
+
+        data.record = {};
+
+        var grQuota = new GlideRecordSecure('x_ctans_incentnow_quota'); // ✅ fixed table
+        gs.info("Frequency: " + grQuota.getValue('quota_frequency'));
+
+        if (grQuota.get(input.sys_id)) {
+
+            data.sys_id = grQuota.getUniqueValue();
+
+            var territoryValue = '';
+
+            if (data.isTerritoryEnabled && grQuota.isValidField(TERRITORY_FIELD)) {
+                territoryValue = grQuota.getValue(TERRITORY_FIELD) || '';
+            }
+
+            data.record = {
+                status: grQuota.getValue('status'),
+                name: grQuota.getValue('name'),
+                notes: grQuota.getValue('description'),
+                fiscalPeriodId: grQuota.getValue('fiscal_year'),
+                valueType: grQuota.getValue('quota_metric'),
+                frequency: grQuota.getValue('quota_frequency'),
+                businessDimension: grQuota.getValue('business_dimension'),
+                businessUnit: grQuota.getValue('business_unit'),
+                territory: territoryValue,
+
+
+                yearlyValue: grQuota.getValue('quota_frequency') === 'annually' ? grQuota.getValue('target_value') : '',
+                quarterlyValue: grQuota.getValue('quota_frequency') === 'quarterly' ? grQuota.getValue('target_value') : '',
+                monthlyValue: grQuota.getValue('quota_frequency') === 'monthly' ? grQuota.getValue('target_value') : ''
+            };
+        }
+
+        var qpGR = new GlideRecordSecure('x_ctans_incentnow_quota_period');
+        qpGR.addQuery('quota', input.sys_id);
+        qpGR.orderBy('period_type');
+        qpGR.orderBy('period_number');
+        qpGR.query();
+
+        var quarters = {};
+        var months = {};
+
+        while (qpGR.next()) {
+
+            var type = qpGR.getValue('period_type');
+            var num = parseInt(qpGR.getValue('period_number'));
+            var val = Number(qpGR.getValue('target_value') || 0);
+
+            // QUARTERS
+            if (type === 'quarter') {
+                quarters[num] = {
+                    total: val,
+                    months: []
+                };
+            }
+
+            // MONTHS
+            if (type === 'month') {
+                var qIndex = Math.ceil(num / 3);
+                if (!months[qIndex]) months[qIndex] = [];
+
+                months[qIndex].push({
+                    value: val
+                });
+            }
+        }
+
+        // Merge months into quarters
+        var monthNames = [
+            ["January", "February", "March"],
+            ["April", "May", "June"],
+            ["July", "August", "September"],
+            ["October", "November", "December"]
+        ];
+
+        for (var q = 1; q <= 4; q++) {
+
+            var quarterMonths = [];
+
+            for (var m = 0; m < 3; m++) {
+
+                var monthData = (months[q] && months[q][m]) ? months[q][m] : {
+                    value: 0
+                };
+
+                quarterMonths.push({
+                    name: monthNames[q - 1][m],
+                    value: Number(monthData.value || 0)
+                });
+            }
+
+            data.distribution.push({
+                total: quarters[q] ? Number(quarters[q].total || 0) : 0,
+                months: quarterMonths
+            });
+        }
+    }
+
+    /* ================= GET BU USERS ================= */
+
+    if (input && input.action === 'get_bu_users') {
+        data.users = [];
+        var buUserGR = new GlideRecordSecure('x_ctans_incentnow_user_profile');
+        buUserGR.addQuery('business_unit', input.bu_id);
+        buUserGR.query();
+        while (buUserGR.next()) {
+            var buName = '';
+            if (buUserGR.getValue('business_unit')) {
+                var b = new GlideRecordSecure('business_unit');
+                if (b.get(buUserGR.getValue('business_unit'))) {
+                    buName = b.getValue('name');
+                }
+            }
+            data.users.push({
+                id: buUserGR.getUniqueValue(),
+                name: buUserGR.getValue('name'),
+                email: buUserGR.getValue('email'),
+                businessUnit: buName
+            });
+        }
+    }
+
+    /* ================= SAVE QUOTAS ================= */
+
+    if (input && input.action === 'saveQuota') {
+
         data.status = "error";
-        data.message = "Quota name already exists";
-        return;
-    }
+        data.message = "";
 
-    // ✅ SINGLE GlideRecord (removed duplicate)
-    var quotaGR = new GlideRecordSecure('x_ctans_incentnow_quota');
+        var q = input.quotaData;
+        var sysId = input.sys_id; // ✅ FIXED (single source)
 
-    if (quotaGR.get(sysId)) {
-        
-    } else {
-        quotaGR.initialize();
-    }
+        // ✅ UNIQUE NAME CHECK
+        var check = new GlideRecordSecure('x_ctans_incentnow_quota');
+        check.addQuery('name', q.name);
 
-    // ✅ VALIDATION
-    if (!q.name || !q.fiscalPeriodId || !q.frequency || !q.businessUnit || !q.valueType) {
-        data.message = "Missing required fields";
-        return;
-    }
-
-    var targetValue = Number(q.quotaValue || 0);
-
-    quotaGR.name            = q.name;
-    quotaGR.description     = q.notes;
-    quotaGR.fiscal_year     = q.fiscalPeriodId;
-    quotaGR.quota_frequency = q.frequency;
-    quotaGR.quota_metric    = q.valueType;
-    quotaGR.target_value    = targetValue;
-    quotaGR.business_unit   = q.businessUnit;
-
-    var newSysId;
-
-    if (sysId) {
-        quotaGR.update();   //  update
-        newSysId = sysId;
-    } else {
-        newSysId = quotaGR.insert(); //  insert
-    }
-
-    //  IMPORTANT FIX: refresh distribution
-    updateQuotaPeriods(newSysId, q.fiscalPeriodId, input.distribution || []);
-
-    data.status = "success";
-    data.sys_id = newSysId;
-}
-
-	
-	function updateQuotaPeriods(quotaSysId, fiscalYear, distribution) {
-
-    // DELETE OLD (this is what your code was missing)
-    var del = new GlideRecordSecure('x_ctans_incentnow_quota_period');
-    del.addQuery('quota', quotaSysId);
-    del.query();
-    while (del.next()) {
-        del.deleteRecord();
-    }
-
-    var fiscalToQuotaMap = {};
-
-    function create(periodType) {
-
-        var fp = new GlideRecordSecure('x_ctans_incentnow_fiscal_period');
-        fp.addQuery('fiscal_year', fiscalYear);
-        fp.addQuery('period_type', periodType);
-        fp.orderBy('period_number');
-        fp.query();
-
-        while (fp.next()) {
-
-            var qp = new GlideRecordSecure('x_ctans_incentnow_quota_period');
-            qp.initialize();
-
-            qp.quota = quotaSysId;
-            qp.fiscal_period = fp.sys_id;
-            qp.period_type = fp.period_type;
-            qp.period_number = fp.period_number;
-            qp.calculation_mode = 'driven_by_annual_quota';
-
-            if (periodType === 'year') {
-								 qp.target_value = Number(input.quotaData.quotaValue || 0);
-							}
-
-            if (periodType === 'quarter') {
-                var qIndex = parseInt(fp.period_number) - 1;
-               qp.target_value = Number(
-									(distribution[qIndex] && distribution[qIndex].total) || 0
-							);
-            }
-
-            if (periodType === 'month') {
-                var mIndex = parseInt(fp.period_number) - 1;
-                var qIndex = Math.floor(mIndex / 3);
-                var mInQ = mIndex % 3;
-
-                qp.target_value = Number(
-										(distribution[qIndex] &&
-										 distribution[qIndex].months &&
-										 distribution[qIndex].months[mInQ] &&
-										 distribution[qIndex].months[mInQ].value) || 0
-								);
-            }
-
-            var qpSysId = qp.insert();
-            fiscalToQuotaMap[fp.sys_id.toString()] = qpSysId;
+        if (sysId) {
+            check.addQuery('sys_id', '!=', sysId);
         }
+
+        check.query();
+
+        if (check.next()) {
+            data.status = "error";
+            data.message = "Quota name already exists";
+            return;
+        }
+
+        // ✅ SINGLE GlideRecord (removed duplicate)
+        var quotaGR = new GlideRecordSecure('x_ctans_incentnow_quota');
+
+        if (quotaGR.get(sysId)) {
+
+        } else {
+            quotaGR.initialize();
+        }
+
+        // ✅ VALIDATION
+        if (!q.name || !q.fiscalPeriodId || !q.frequency || !q.valueType) {
+            data.message = "Missing required fields";
+            return;
+        }
+
+        if (q.businessDimension === 'business_unit' && !q.businessUnit) {
+            data.message = "Business Unit is required";
+            return;
+        }
+
+        if (q.businessDimension === 'territory') {
+
+            if (!data.isTerritoryEnabled) {
+                data.message =
+                    'Territory configuration is unavailable because the ' +
+                    'Territory extension is not active.';
+                return;
+            }
+
+            if (!q.territory) {
+                data.message = 'Territory is required';
+                return;
+            }
+        }
+
+        var targetValue = Number(q.quotaValue || 0);
+
+        quotaGR.name = q.name;
+        quotaGR.description = q.notes;
+        quotaGR.fiscal_year = q.fiscalPeriodId;
+        quotaGR.quota_frequency = q.frequency;
+        quotaGR.quota_metric = q.valueType;
+        quotaGR.target_value = targetValue;
+        quotaGR.business_dimension = q.businessDimension;
+        quotaGR.business_unit = q.businessUnit || '';
+
+        if (data.isTerritoryEnabled && quotaGR.isValidField(TERRITORY_FIELD)) {
+            quotaGR.setValue(TERRITORY_FIELD, q.territory || '');
+        }
+
+        var newSysId;
+
+        if (sysId) {
+            quotaGR.update(); //  update
+            newSysId = sysId;
+        } else {
+            newSysId = quotaGR.insert(); //  insert
+        }
+
+        //  IMPORTANT FIX: refresh distribution
+        updateQuotaPeriods(newSysId, q.fiscalPeriodId, input.distribution || []);
+
+        data.status = "success";
+        data.sys_id = newSysId;
     }
 
-    create('year');
-    create('quarter');
-    create('month');
-}
+
+    function updateQuotaPeriods(quotaSysId, fiscalYear, distribution) {
+
+        // DELETE OLD (this is what your code was missing)
+        var del = new GlideRecordSecure('x_ctans_incentnow_quota_period');
+        del.addQuery('quota', quotaSysId);
+        del.query();
+        while (del.next()) {
+            del.deleteRecord();
+        }
+
+        var fiscalToQuotaMap = {};
+
+        function create(periodType) {
+
+            var fp = new GlideRecordSecure('x_ctans_incentnow_fiscal_period');
+            fp.addQuery('fiscal_year', fiscalYear);
+            fp.addQuery('period_type', periodType);
+            fp.orderBy('period_number');
+            fp.query();
+
+            while (fp.next()) {
+
+                var qp = new GlideRecordSecure('x_ctans_incentnow_quota_period');
+                qp.initialize();
+
+                qp.quota = quotaSysId;
+                qp.fiscal_period = fp.sys_id;
+                qp.period_type = fp.period_type;
+                qp.period_number = fp.period_number;
+                qp.calculation_mode = 'driven_by_annual_quota';
+
+                if (periodType === 'year') {
+                    qp.target_value = Number(input.quotaData.quotaValue || 0);
+                }
+
+                if (periodType === 'quarter') {
+                    var qIndex = parseInt(fp.period_number) - 1;
+                    qp.target_value = Number(
+                        (distribution[qIndex] && distribution[qIndex].total) || 0
+                    );
+                }
+
+                if (periodType === 'month') {
+                    var mIndex = parseInt(fp.period_number) - 1;
+                    var qIndex = Math.floor(mIndex / 3);
+                    var mInQ = mIndex % 3;
+
+                    qp.target_value = Number(
+                        (distribution[qIndex] &&
+                            distribution[qIndex].months &&
+                            distribution[qIndex].months[mInQ] &&
+                            distribution[qIndex].months[mInQ].value) || 0
+                    );
+                }
+
+                var qpSysId = qp.insert();
+                fiscalToQuotaMap[fp.sys_id.toString()] = qpSysId;
+            }
+        }
+
+        create('year');
+        create('quarter');
+        create('month');
+    }
 
 })();]]></script>
         <servicenow>false</servicenow>
@@ -1613,14 +1785,14 @@ else if (gs.hasRole('x_ctans_incentnow.business_group_admin')) {
         <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
         <sys_created_on>2026-03-27 06:22:02</sys_created_on>
         <sys_id>ce05c3b23b3bfad05493ddb693e45ac3</sys_id>
-        <sys_mod_count>375</sys_mod_count>
+        <sys_mod_count>402</sys_mod_count>
         <sys_name>Quota Builder</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
         <sys_update_name>sp_widget_ce05c3b23b3bfad05493ddb693e45ac3</sys_update_name>
         <sys_updated_by>shroin.mandal</sys_updated_by>
-        <sys_updated_on>2026-06-12 09:29:11</sys_updated_on>
+        <sys_updated_on>2026-07-29 09:25:10</sys_updated_on>
         <template><![CDATA[<div class="quota-builder">
 
   <!-- Header -->
@@ -1704,115 +1876,215 @@ else if (gs.hasRole('x_ctans_incentnow.business_group_admin')) {
         <div class="panel-body">
           <form class="form-horizontal">
             
-            
-
-            <!-- Quota Name -->
+            <!-- Row 1 : Quota Name + Fiscal Year -->
             <div class="form-group">
-                <div class="col-sm-6">
-                  <label class="control-label-section"> Quota Name <span class="text-danger">*</span>
-                  </label>
-                  <input type="text" class="form-control-section" ng-model="c.quotaModel.name" ng-disabled="c.data.isEdit && !c.isDraft" placeholder="e.g., Q1 2026 Sales Quota">
-                </div>
-                <!-- Business Unit -->
-                <div class="col-sm-6">
-                  <label class="control-label-section"> Business Unit <span class="text-danger">*</span>
-                  </label>
-                  <select class="form-control-section" ng-model="c.quotaModel.businessUnit" ng-disabled="c.data.isEdit && !c.isDraft">
-                    <option value="">Select Business Unit</option>
-                    <option ng-repeat="bu in c.data.businessUnits track by bu.id"
-                            value="{{::bu.id}}">
-                      {{::bu.label}}
-                    </option>
-                  </select>
-                </div>
+
+              <!-- Quota Name -->
+              <div class="col-sm-6">
+                <label class="control-label-section">
+                  Quota Name <span class="text-danger">*</span>
+                </label>
+                <input type="text"
+                       class="form-control-section"
+                       ng-model="c.quotaModel.name"
+                       ng-disabled="c.data.isEdit && !c.isDraft"
+                       placeholder="e.g., Q1 2026 Sales Quota">
               </div>
 
-            <!-- Fiscal Calendar + Value Type -->
-            <div class="form-group">
+              <!-- Fiscal Year -->
               <div class="col-sm-6">
                 <label class="control-label-section">
                   Fiscal Year <span class="text-danger">*</span>
                 </label>
                 <select class="form-control-section"
-                  ng-model="c.quotaModel.fiscalPeriodId"
-                  ng-change="c.loadExistingQuotas()"
-                  ng-disabled="c.data.isEdit && !c.isDraft">
+                        ng-model="c.quotaModel.fiscalPeriodId"
+                        ng-change="c.loadExistingQuotas()"
+                        ng-disabled="c.data.isEdit && !c.isDraft">
                   <option value="">Select FY</option>
                   <option ng-repeat="fy in c.fiscalPeriods" value="{{fy.id}}">
                     {{fy.name}}
                   </option>
                 </select>
               </div>
-              <div class="col-sm-6">
-                <label class="control-label-section">Value Type <span class="text-danger">*</span></label>
-                <select class="form-control-section" ng-model="c.quotaModel.valueType" ng-disabled="c.data.isEdit && !c.isDraft">
-                  <option value="">Select Type</option>
-                  <option value="currency">$ Currency</option>
-                  <option value="number">Number</option>
-                </select>
-              </div>
+
             </div>
 
-            <!-- Frequency + Value -->
+
+            <!-- Row 2 : Frequency + Value Type -->
             <div class="form-group">
+
+              <!-- Frequency -->
               <div class="col-sm-6">
-                <label class="control-label-section">Frequency <span class="text-danger">*</span></label>
+                <label class="control-label-section">
+                  Frequency <span class="text-danger">*</span>
+                </label>
+
                 <select class="form-control-section"
-                  ng-model="c.quotaModel.frequency"
-                  ng-change="c.updateAutoDistribution()"
-                  ng-disabled="c.data.isEdit && !c.isDraft">
+                        ng-model="c.quotaModel.frequency"
+                        ng-change="c.updateAutoDistribution()"
+                        ng-disabled="c.data.isEdit && !c.isDraft">
+
                   <option value="">Select Frequency</option>
                   <option value="annually">Annually</option>
                   <option value="quarterly">Quarterly</option>
                   <option value="monthly">Monthly</option>
+
                 </select>
               </div>
 
+              <!-- Value Type -->
+              <div class="col-sm-6">
+                <label class="control-label-section">
+                  Value Type <span class="text-danger">*</span>
+                </label>
+
+                <select class="form-control-section"
+                        ng-model="c.quotaModel.valueType"
+                        ng-disabled="c.data.isEdit && !c.isDraft">
+
+                  <option value="">Select Type</option>
+                  <option value="currency">$ Currency</option>
+                  <option value="number">Number</option>
+
+                </select>
+              </div>
+
+            </div>
+
+
+            <!-- Row 3 : Business Dimension + Value -->
+            <div class="form-group">
+
+              <!-- Business Dimension -->
+              <div class="col-sm-6">
+                <label class="control-label-section">
+                  Business Dimension
+                  <span class="text-danger">*</span>
+                </label>
+
+                <select class="form-control-section"
+                        ng-model="c.quotaModel.businessDimension">
+
+                  <option value="">None</option>
+                  <option value="business_unit">Business Unit</option>
+                  <option value="territory"
+                          ng-if="c.data.isTerritoryEnabled">
+                      Territory
+                  </option>
+
+                </select>
+              </div>
+
+              <!-- Value -->
               <div class="col-sm-6">
                 <label>
-                    {{ c.quotaModel.frequency === 'annually'  ? 'Yearly Value' :
-                       c.quotaModel.frequency === 'quarterly' ? 'Per Quarter Value' :
-                       c.quotaModel.frequency === 'monthly'   ? 'Per Month Value' :
-                                                                'Value' }}
-                    <span class="text-danger">*</span>
-                  </label>
+                  {{ c.quotaModel.frequency === 'annually'  ? 'Yearly Value' :
+                     c.quotaModel.frequency === 'quarterly' ? 'Per Quarter Value' :
+                     c.quotaModel.frequency === 'monthly'   ? 'Per Month Value' :
+                                                              'Value' }}
+                  <span class="text-danger">*</span>
+                </label>
+
                 <div>
-                  <input type="text" min="0" class="form-control-section"
-                    ng-model="c.quotaModel.yearlyValue"
-                    ng-show="c.quotaModel.frequency === 'annually'"
-                    ng-change="c.updateAutoDistribution()"
-                    ng-disabled="c.data.isEdit && !c.isDraft"
-                    oninput="this.value=this.value.replace(/[^0-9]/g,'')">
-                  <input type="text" min="0" class="form-control-section"
-                    ng-model="c.quotaModel.quarterlyValue"
-                    ng-show="c.quotaModel.frequency === 'quarterly'"
-                    ng-change="c.updateAutoDistribution()"
-                    ng-disabled="c.data.isEdit && !c.isDraft"
-                    oninput="this.value=this.value.replace(/[^0-9.]/g,'').replace(/(\..*)\./g,'$1').replace(/^(\d+\.\d{0,2}).*$/,'$1')">
-                  <input type="text" min="0" class="form-control-section"
-                    ng-model="c.quotaModel.monthlyValue"
-                    ng-show="c.quotaModel.frequency === 'monthly'"
-                    ng-change="c.updateAutoDistribution()"
-                    ng-disabled="c.data.isEdit && !c.isDraft"
-                    oninput="this.value=this.value.replace(/[^0-9.]/g,'').replace(/(\..*)\./g,'$1').replace(/^(\d+\.\d{0,2}).*$/,'$1')">
-                  <input type="text" min="0" class="form-control-section"
-                    ng-show="!c.quotaModel.frequency"
-                    step="any"
-                    oninput="this.value=this.value.replace(/[^0-9.]/g,'').replace(/(\..*)\./g,'$1').replace(/^(\d+\.\d{0,2}).*$/,'$1')"
-                    placeholder="Enter Value">
+
+                  <input type="text"
+                         min="0"
+                         class="form-control-section"
+                         ng-model="c.quotaModel.yearlyValue"
+                         ng-show="c.quotaModel.frequency === 'annually'"
+                         ng-change="c.updateAutoDistribution()"
+                         ng-disabled="c.data.isEdit && !c.isDraft"
+                         oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+
+                  <input type="text"
+                         min="0"
+                         class="form-control-section"
+                         ng-model="c.quotaModel.quarterlyValue"
+                         ng-show="c.quotaModel.frequency === 'quarterly'"
+                         ng-change="c.updateAutoDistribution()"
+                         ng-disabled="c.data.isEdit && !c.isDraft"
+                         oninput="this.value=this.value.replace(/[^0-9.]/g,'').replace(/(\..*)\./g,'$1').replace(/^(\d+\.\d{0,2}).*$/,'$1')">
+
+                  <input type="text"
+                         min="0"
+                         class="form-control-section"
+                         ng-model="c.quotaModel.monthlyValue"
+                         ng-show="c.quotaModel.frequency === 'monthly'"
+                         ng-change="c.updateAutoDistribution()"
+                         ng-disabled="c.data.isEdit && !c.isDraft"
+                         oninput="this.value=this.value.replace(/[^0-9.]/g,'').replace(/(\..*)\./g,'$1').replace(/^(\d+\.\d{0,2}).*$/,'$1')">
+
+                  <input type="text"
+                         min="0"
+                         class="form-control-section"
+                         ng-show="!c.quotaModel.frequency"
+                         step="any"
+                         oninput="this.value=this.value.replace(/[^0-9.]/g,'').replace(/(\..*)\./g,'$1').replace(/^(\d+\.\d{0,2}).*$/,'$1')"
+                         placeholder="Enter Value">
+
                 </div>
               </div>
+
             </div>
-            
-						<!-- Notes -->
+
+
+            <!-- Row 4 : Business Unit / Territory -->
+            <div class="form-group">
+
+              <!-- Business Unit -->
+              <div class="col-sm-6" ng-if="c.quotaModel.businessDimension=='business_unit'">
+                <label class="control-label-section">
+                  Business Unit <span class="text-danger">*</span>
+                </label>
+
+                <select class="form-control-section"
+                        ng-model="c.quotaModel.businessUnit"
+                        ng-disabled="c.data.isEdit && !c.isDraft">
+
+                  <option value="">Select Business Unit</option>
+
+                  <option ng-repeat="bu in c.data.businessUnits track by bu.id"
+                          value="{{::bu.id}}">
+                    {{::bu.label}}
+                  </option>
+
+                </select>
+              </div>
+
+              <!-- Territory -->
+              <div class="col-sm-6" ng-if="c.quotaModel.businessDimension=='territory'">
+                <label class="control-label-section">
+                  Territory <span class="text-danger">*</span>
+                </label>
+
+                <select class="form-control-section"
+                        ng-model="c.quotaModel.territory">
+
+                  <option value="">Select Territory</option>
+
+                  <option ng-repeat="t in c.data.territories"
+                          value="{{t.id}}">
+                    {{t.name}}
+                  </option>
+
+                </select>
+              </div>
+
+            </div>
+
+
+            <!-- Description -->
             <div class="form-group">
               <label class="col-sm-3 control-label">Description</label>
             </div>
+
             <div class="form-group">
               <div class="col-sm-6">
-                <textarea class="form-control-a" rows="3"
-                  ng-model="c.quotaModel.notes" ng-disabled="c.data.isEdit && !c.isDraft"
-                  placeholder="Describe the Quota purpose and coverage..."></textarea>
+                <textarea class="form-control-a"
+                          rows="3"
+                          ng-model="c.quotaModel.notes"
+                          ng-disabled="c.data.isEdit && !c.isDraft"
+                          placeholder="Describe the Quota purpose and coverage..."></textarea>
               </div>
             </div>
             

@@ -13,6 +13,7 @@ This skill is designed for production-safe use inside Now Assist, AI Agents, and
         <external>true</external>
         <metadata>{"isGuidedStep":false}</metadata>
         <name>IncentNow Copilot Skill</name>
+        <offglide_enabled>false</offglide_enabled>
         <short_description/>
         <sys_class_name>sys_one_extend_capability</sys_class_name>
         <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>

@@ -28,11 +28,37 @@
         <rest_variables/>
         <role_conditions/>
         <script><![CDATA[(function executeRule(current, previous) {
-	
-	var utils = new IncentNowAccessUtils();
-	utils.applyQuotaAssignmentFilter(current);
-	return;
-	
+	//Business Group Admin
+    if (gs.hasRole('x_ctans_incentnow.business_group_admin')) {
+        var utils = new IncentNowAccessUtils();
+        utils.applyQuotaAssignmentFilter(current);
+        return;
+    }
+	// =========================================
+    // TERRITORY ADMIN
+    // =========================================
+    if (gs.hasRole('x_ctans_incentnow.territory_admin')) {
+
+        var territoryEnabled = false;
+
+        try {
+            territoryEnabled = new IncentNowUtils().isTerritoryExtensionActive() === true;
+
+            if (!territoryEnabled) {
+                current.addEncodedQuery('sys_idISEMPTY');
+                return;
+            }
+            new x_ctans_territory.IncentNowTerritoryResolver().applyTerritoryAdminUserTerritoryFilter(current);
+
+        } catch (territoryError) {
+            gs.error('[IncentIQ Access] Territory filter failed. ' + 'User=' + gs.getUserName() + ', error=' + territoryError.message);
+            current.addEncodedQuery('sys_idISEMPTY');
+        }
+
+        return;
+    }
+
+
 })(current, previous);]]></script>
         <sys_class_name>sys_script</sys_class_name>
         <sys_created_by>shroin.mandal</sys_created_by>
@@ -40,15 +66,15 @@
         <sys_domain>global</sys_domain>
         <sys_domain_path>/</sys_domain_path>
         <sys_id>ed8b69e43b410f10a4cbaddc73e45a91</sys_id>
-        <sys_mod_count>8</sys_mod_count>
+        <sys_mod_count>9</sys_mod_count>
         <sys_name>Quota Assignment Filter Incentnow</sys_name>
         <sys_overrides/>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy/>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
         <sys_update_name>sys_script_ed8b69e43b410f10a4cbaddc73e45a91</sys_update_name>
-        <sys_updated_by>shroin.mandal</sys_updated_by>
-        <sys_updated_on>2026-05-21 04:16:06</sys_updated_on>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-16 13:38:42</sys_updated_on>
         <template/>
         <when>before</when>
     </sys_script>

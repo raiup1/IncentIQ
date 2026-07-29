@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
     <sys_script_include action="INSERT_OR_UPDATE">
         <access>public</access>
-        <active>true</active>
+        <active>false</active>
         <api_name>x_ctans_incentnow.IncentNowTransformEngine</api_name>
         <caller_access>1</caller_access>
         <client_callable>false</client_callable>
-        <description/>
+        <description>This file is deprecated and is no longer required. It has been retained for reference purposes only and is not used in the current application functionality.</description>
         <mobile_callable>false</mobile_callable>
         <name>IncentNowTransformEngine</name>
         <sandbox_callable>false</sandbox_callable>
@@ -111,7 +111,7 @@ IncentNowTransformEngine.prototype = {
 
                 var rowObj = JSON.parse(stagingGR.getValue("raw_json"));
 
-                var targetGR = new GlideRecordSecure("x_ctans_incentnow_data_lake");
+                var targetGR = new GlideRecordSecure("x_ctans_incentnow_data_lake_master");
                 targetGR.initialize();
 
                 /* ===============================
@@ -121,10 +121,10 @@ IncentNowTransformEngine.prototype = {
                 targetGR.setValue("data_model_object", context.dataModelId);
                 targetGR.setValue("processing_status", "Raw");
                 targetGR.setValue("raw_payload", stagingGR.getValue("raw_json"));
-                targetGR.setValue("sys_import_set", stagingGR.getValue("sys_import_set"));
+             //   targetGR.setValue("sys_import_set", stagingGR.getValue("sys_import_set"));
                 targetGR.setValue("transaction_date", new GlideDateTime());
                 targetGR.setValue("user_id", gs.getUserID());
-                targetGR.setValue("import_run", context.runSysId);
+               // targetGR.setValue("import_run", context.runSysId);
 
                 /* ===============================
                    DYNAMIC METADATA MAPPING
@@ -195,13 +195,13 @@ IncentNowTransformEngine.prototype = {
         <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
         <sys_created_on>2026-02-21 17:18:49</sys_created_on>
         <sys_id>b60556003bdf7a90ffa00e9693e45a41</sys_id>
-        <sys_mod_count>15</sys_mod_count>
+        <sys_mod_count>18</sys_mod_count>
         <sys_name>IncentNowTransformEngine</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
         <sys_update_name>sys_script_include_b60556003bdf7a90ffa00e9693e45a41</sys_update_name>
-        <sys_updated_by>upma.rai</sys_updated_by>
-        <sys_updated_on>2026-04-22 17:42:32</sys_updated_on>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-06-24 12:58:11</sys_updated_on>
     </sys_script_include>
 </record_update>

@@ -4,7 +4,7 @@
         <definition display_value="Tool choice evaluation">ede67bf8eba25210b356f4a8cad0cdfd</definition>
         <eval_strategy display_value="IncentNow Payout Validation Test">15d82b303b2043905493ddb693e45a19</eval_strategy>
         <gen_ai_config display_value="OneExtend Capability Definition: Tool choice evaluation">79e6bbf8eba25210b356f4a8cad0cd02</gen_ai_config>
-        <metric_name>Tool choice evaluation</metric_name>
+        <metric_name>Tool choice accuracy</metric_name>
         <sys_class_name>sys_one_extend_eval_strategy_metric</sys_class_name>
         <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
         <sys_created_on>2026-04-27 10:37:47</sys_created_on>

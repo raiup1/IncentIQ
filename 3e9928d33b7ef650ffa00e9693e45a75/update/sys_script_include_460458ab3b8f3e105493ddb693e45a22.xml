@@ -5,14 +5,14 @@
         <api_name>x_ctans_incentnow.DataLakeUtils</api_name>
         <caller_access/>
         <client_callable>false</client_callable>
-        <description/>
+        <description>This Script is used in MetaData Mapping table for filtering the columns of Data Lake Master table based on Field Type</description>
         <mobile_callable>false</mobile_callable>
         <name>DataLakeUtils</name>
         <sandbox_callable>false</sandbox_callable>
         <script><![CDATA[var DataLakeUtils = Class.create();
 DataLakeUtils.prototype = {
-	
-    TABLE_NAME: 'x_ctans_incentnow_data_lake',
+
+    TABLE_NAME: 'x_ctans_incentnow_data_lake_master',
     EXCLUDED_FIELDS: [
         'sys_created_by',
         'sys_created_on',
@@ -20,7 +20,7 @@ DataLakeUtils.prototype = {
         'sys_updated_on',
         'processing_status',
         'number',
-		'transaction_date',
+        'transaction_date',
         'raw_payload',
         'sys_mod_count',
         'sys_id'
@@ -47,25 +47,48 @@ DataLakeUtils.prototype = {
         return query;
     },
 
-	applyColumnFilter: function(grDB, fieldTypeSysId) {
+    applyColumnFilter: function(grDB, fieldTypeSysId) {
 
-    grDB.addQuery('name', this.TABLE_NAME);
+        grDB.addQuery('name', this.TABLE_NAME);
 
-    if (fieldTypeSysId) {
-        var typeGR = new GlideRecordSecure('sys_glide_object');
-        if (typeGR.get(fieldTypeSysId)) {
-            grDB.addQuery('internal_type', typeGR.getValue('name'));
+        if (fieldTypeSysId) {
+            var typeGR = new GlideRecordSecure('sys_glide_object');
+            if (typeGR.get(fieldTypeSysId)) {
+                grDB.addQuery('internal_type', typeGR.getValue('name'));
+            }
         }
-    }
 
-    grDB.addQuery(
-        'element',
-        'NOT IN',
-        this.EXCLUDED_FIELDS.join(',')
-    );
+        grDB.addQuery(
+            'element',
+            'NOT IN',
+            this.EXCLUDED_FIELDS.join(',')
+        );
 
-    grDB.orderBy('element');
-	},
+        grDB.orderBy('element');
+    },
+
+    getFieldTypeQualifier: function(current) {
+
+        var dataModel = current.data_model_object_id;
+
+        if (!dataModel)
+            return '';
+
+        var dataModelGR = new GlideRecordSecure('x_ctans_incentnow_data_model_object');
+
+        if (dataModelGR.get(dataModel)) {
+
+            if (dataModelGR.data_source_system == 'External') {
+
+                return "nameINinteger,decimal,string,glide_date_time,currency";
+
+            }
+
+        }
+
+        return '';
+
+    },
 
     type: 'DataLakeUtils'
 };]]></script>
@@ -73,13 +96,13 @@ DataLakeUtils.prototype = {
         <sys_created_by>upma.rai</sys_created_by>
         <sys_created_on>2026-02-19 18:37:37</sys_created_on>
         <sys_id>460458ab3b8f3e105493ddb693e45a22</sys_id>
-        <sys_mod_count>14</sys_mod_count>
+        <sys_mod_count>17</sys_mod_count>
         <sys_name>DataLakeUtils</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
         <sys_update_name>sys_script_include_460458ab3b8f3e105493ddb693e45a22</sys_update_name>
-        <sys_updated_by>upma.rai</sys_updated_by>
-        <sys_updated_on>2026-06-15 06:54:39</sys_updated_on>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-06-24 12:59:43</sys_updated_on>
     </sys_script_include>
 </record_update>

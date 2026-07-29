@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_agent_access_role_configuration">
+    <sys_agent_access_role_configuration action="INSERT_OR_UPDATE">
+        <action>limit_to_roles</action>
+        <agent>0da34b2b332d4b10dccb9c173e5c7b1a</agent>
+        <agent_table>sn_aia_agent</agent_table>
+        <allow_all_session_roles>false</allow_all_session_roles>
+        <description/>
+        <name>0da34b2b332d4b10dccb9c173e5c7b1a</name>
+        <role_list name="x_ctans_incentnow.user">439928d33b7ef650ffa00e9693e45ad5</role_list>
+        <sys_class_name>sys_agent_access_role_configuration</sys_class_name>
+        <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+        <sys_created_on>2026-06-24 17:04:05</sys_created_on>
+        <sys_id>0ecda76f3ba98b104be1ef9e53e45a4b</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>0da34b2b332d4b10dccb9c173e5c7b1a</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_agent_access_role_configuration_0ecda76f3ba98b104be1ef9e53e45a4b</sys_update_name>
+        <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
+        <sys_updated_on>2026-06-24 17:04:05</sys_updated_on>
+    </sys_agent_access_role_configuration>
+</record_update>

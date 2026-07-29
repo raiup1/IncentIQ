@@ -5,7 +5,8 @@
         <api_name>x_ctans_incentnow.IncentNowCopilotService</api_name>
         <caller_access/>
         <client_callable>false</client_callable>
-        <description/>
+        <description>This file is deprecated and is no longer required. It has been retained for reference purposes only and is not used in the current application functionality.&#13;
+</description>
         <mobile_callable>false</mobile_callable>
         <name>IncentNowCopilotService</name>
         <sandbox_callable>false</sandbox_callable>
@@ -28,9 +29,6 @@ IncentNowCopilotService.prototype = {
 
     getResponse: function(query, userId) {
 
-        gs.info("IncentNow :: RAW QUERY RECEIVED = " + query);
-        gs.info("IncentNow :: USER ID RECEIVED = " + userId);
-
         try {
 
             query = (query || "")
@@ -46,18 +44,12 @@ IncentNowCopilotService.prototype = {
 
             var intent = this.classifyIntentUsingAI(query);
 
-            gs.info("IncentNow :: FINAL DETECTED INTENT = " + intent);
-
             if (intent == "security_block") {
-
-                gs.info("IncentNow :: SECURITY BLOCK TRIGGERED");
 
                 return "⚠️ You can only view your own incentive data.";
             }
 
             if (intent == "unknown") {
-
-                gs.info("IncentNow :: UNKNOWN QUERY → LEARNING REPOSITORY");
 
                 return this.storeUnknownQuestion(
                     query,
@@ -86,8 +78,6 @@ IncentNowCopilotService.prototype = {
 
         try {
 
-            gs.info("IncentNow :: ENTERED classifyIntentUsingAI()");
-            gs.info("IncentNow :: QUESTION = " + question);
 
             var query = (question || "")
                 .toString()
@@ -110,7 +100,6 @@ IncentNowCopilotService.prototype = {
                         query.indexOf("compensation") > -1 ||
                         query.indexOf("incentive") > -1))
             ) {
-                gs.info("IncentNow :: HARDCODED MATCH = plan_components");
                 return "plan_components";
             }
 
@@ -122,10 +111,6 @@ IncentNowCopilotService.prototype = {
                 query.indexOf("latest statement") > -1
             ) {
 
-                gs.info(
-                    "IncentNow :: HARDCODED MATCH = incentive_statement"
-                );
-
                 return "incentive_statement";
             }
 
@@ -135,7 +120,6 @@ IncentNowCopilotService.prototype = {
                 query.indexOf("what is my plan") === 0 ||
                 query.indexOf("show my plan") === 0
             ) {
-                gs.info("IncentNow :: HARDCODED MATCH = plan");
                 return "plan";
             }
 
@@ -143,7 +127,6 @@ IncentNowCopilotService.prototype = {
                 query.indexOf("ytd") > -1 ||
                 query.indexOf("year to date") > -1
             ) {
-                gs.info("IncentNow :: SAFE MATCH = ytd_payout");
                 return "ytd_payout";
             }
 
@@ -151,7 +134,6 @@ IncentNowCopilotService.prototype = {
                 query.indexOf("qtd") > -1 ||
                 query.indexOf("quarter to date") > -1
             ) {
-                gs.info("IncentNow :: SAFE MATCH = qtd_payout");
                 return "qtd_payout";
             }
 
@@ -165,7 +147,6 @@ IncentNowCopilotService.prototype = {
                 query.indexOf("monthwise payout") > -1 ||
                 query.indexOf("monthwise payouts") > -1
             ) {
-                gs.info("IncentNow :: HARDCODED MATCH = monthly_payout");
                 return "monthly_payout";
             }
 
@@ -176,7 +157,6 @@ IncentNowCopilotService.prototype = {
                 query.indexOf("earnings breakdown") > -1 ||
                 query.indexOf("show my payout breakdown") > -1
             ) {
-                gs.info("IncentNow :: HARDCODED MATCH = breakdown");
                 return "breakdown";
             }
 
@@ -186,10 +166,6 @@ IncentNowCopilotService.prototype = {
                 query.indexOf("show my earning rules") > -1 ||
                 query.indexOf("what are my earning rules") > -1
             ) {
-
-                gs.info(
-                    "IncentNow :: HARDCODED MATCH = earning_rules"
-                );
 
                 return "earning_rules";
             }
@@ -203,10 +179,6 @@ IncentNowCopilotService.prototype = {
                 query.indexOf("commission split") > -1
             ) {
 
-                gs.info(
-                    "IncentNow :: HARDCODED MATCH = payout_components"
-                );
-
                 return "payout_components";
             }
 
@@ -215,7 +187,6 @@ IncentNowCopilotService.prototype = {
                 query.indexOf("show my payout summary") > -1 ||
                 query.indexOf("summary") > -1
             ) {
-                gs.info("IncentNow :: HARDCODED MATCH = summary");
                 return "summary";
             }
 
@@ -229,10 +200,6 @@ IncentNowCopilotService.prototype = {
                 )
             ) {
 
-                gs.info(
-                    "IncentNow :: HARDCODED MATCH = ai_explanation"
-                );
-
                 return "ai_explanation";
             }
 
@@ -242,7 +209,6 @@ IncentNowCopilotService.prototype = {
                 query.indexOf("latest payout") > -1 ||
                 query.indexOf("total payout") > -1
             ) {
-                gs.info("IncentNow :: HARDCODED MATCH = payout");
                 return "payout";
             }
             if (
@@ -250,7 +216,6 @@ IncentNowCopilotService.prototype = {
                 query.indexOf("business unit") > -1 ||
                 query.indexOf("my bu") > -1
             ) {
-                gs.info("IncentNow :: HARDCODED MATCH = business_unit");
                 return "business_unit";
             }
 
@@ -300,7 +265,6 @@ IncentNowCopilotService.prototype = {
                 }
             }
 
-            gs.info("IncentNow :: No config match found");
 
             return "unknown";
 
@@ -374,8 +338,6 @@ IncentNowCopilotService.prototype = {
             .replace(/\s+/g, " ")
             .trim();
 
-        gs.info("IncentNow :: NORMALIZED MONTH TEXT = " + text);
-
         return text;
     },
 
@@ -403,9 +365,6 @@ IncentNowCopilotService.prototype = {
 
         if (yearMatch)
             year = yearMatch[0];
-
-        gs.info("IncentNow :: EXTRACTED MONTH = " + month);
-        gs.info("IncentNow :: EXTRACTED YEAR = " + year);
 
         if (month && year)
             return month + " " + year;
@@ -461,11 +420,6 @@ IncentNowCopilotService.prototype = {
 
                 existingGR.update();
 
-                gs.info(
-                    "IncentNow :: Existing learning record updated = " +
-                    question
-                );
-
                 return "Your request has been captured for improvement. Our team is enhancing IncentNow Copilot for this scenario.";
             }
 
@@ -494,11 +448,6 @@ IncentNowCopilotService.prototype = {
             learnGR.setValue("source_channel", "Portal");
 
             learnGR.insert();
-
-            gs.info(
-                "IncentNow :: Learning record created for question = " +
-                question
-            );
 
             return "Your request has been captured for improvement. Our team is enhancing IncentNow Copilot for this scenario.";
 
@@ -577,12 +526,6 @@ IncentNowCopilotService.prototype = {
                 );
             }
 
-            gs.info(
-                "IntentRouter :: YTD Commission Calculated = " +
-                totalCommission +
-                " | Profile = " +
-                profileId
-            );
 
             return "Your Year-to-Date (YTD) commission is $" +
                 totalCommission.toFixed(2);
@@ -721,25 +664,13 @@ IncentNowCopilotService.prototype = {
         }
     },
 
-    //Handlelookup
-    // handleLookupRules: function(userId) {
-
-    //     gs.error("LOOKUP_DEBUG :: ENTERED");
-
-    //     return "ASHOK_LOOKUP_TEST_123456789";
-    // },
-
-
-
     handleQTDPayout: function(userId) {
 
-        gs.error("QTD_DEBUG :: START");
 
         try {
 
             var profileId = this.getUserProfileId(userId);
 
-            gs.error("QTD_DEBUG :: PROFILE = " + profileId);
 
             var gr = new GlideRecord("x_ctans_incentnow_metric_report");
 
@@ -747,8 +678,6 @@ IncentNowCopilotService.prototype = {
             gr.addQuery("period_type", "month");
             gr.orderByDesc("sys_created_on");
             gr.query();
-
-            gs.error("QTD_DEBUG :: COUNT = " + gr.getRowCount());
 
             var totalCommission = 0;
             var recordCount = 0;
@@ -765,19 +694,7 @@ IncentNowCopilotService.prototype = {
                 periods.push(
                     gr.getDisplayValue("fiscal_period")
                 );
-
-                gs.error(
-                    "QTD_DEBUG :: RECORD = " +
-                    gr.getValue("number") +
-                    " | COMMISSION = " +
-                    commission
-                );
             }
-
-            gs.error(
-                "QTD_DEBUG :: TOTAL = " +
-                totalCommission
-            );
 
             if (recordCount === 0) {
 
@@ -788,11 +705,6 @@ IncentNowCopilotService.prototype = {
                 totalCommission.toFixed(2);
 
         } catch (ex) {
-
-            gs.error(
-                "QTD_DEBUG :: ERROR = " +
-                ex.message
-            );
 
             return "Unable to retrieve QTD commission details.";
         }
@@ -826,23 +738,10 @@ IncentNowCopilotService.prototype = {
 
     handlePayout: function(userId, query) {
 
-        gs.info("IntentRouter :: ENTERED handlePayout()");
-        gs.info("IntentRouter :: USER = " + userId);
-        gs.info("IntentRouter :: QUERY = " + query);
-
         try {
 
             var profileId = this.getUserProfileId(userId);
-
-            gs.info("IntentRouter :: PROFILE = " + profileId);
-
             var periodFromQuery = this.extractMonthYear(query || "");
-
-            gs.info(
-                "IntentRouter :: EXTRACTED PERIOD = " +
-                periodFromQuery
-            );
-
             var stmtGR = new GlideRecord(
                 "x_ctans_incentnow_incentive_statement"
             );
@@ -956,17 +855,8 @@ IncentNowCopilotService.prototype = {
     handleQuota: function(userId, query) {
 
         var profileId = this.getUserProfileId(userId);
-
-        gs.info("QUOTA_DEBUG :: USER ID = " + userId);
-        gs.info("QUOTA_DEBUG :: PROFILE ID = " + profileId);
-
-        gs.info("IncentNow :: ENTERED handleQuota()");
-
         var originalQuery = query || "";
         var periodFromQuery = this.extractMonthYear(originalQuery);
-
-        gs.info("IncentNow :: EXTRACTED PERIOD = " + periodFromQuery);
-
         query = (query || "").toLowerCase();
 
         /*
@@ -1055,14 +945,10 @@ IncentNowCopilotService.prototype = {
         assignGR.query();
 
         if (!assignGR.next()) {
-            gs.info("IncentNow :: No quota assignment found");
             return "No quota assigned.";
         }
 
         var quotaId = assignGR.getValue("quota");
-
-        gs.info("IncentNow :: QUOTA ID = " + quotaId);
-
         if (!quotaId) {
             return "No quota assigned.";
         }
@@ -1077,7 +963,6 @@ IncentNowCopilotService.prototype = {
         var quotaGR = new GlideRecord("x_ctans_incentnow_quota");
 
         if (!quotaGR.get(quotaId)) {
-            gs.info("IncentNow :: Quota record not found");
             return "Quota details not found.";
         }
 
@@ -1088,9 +973,6 @@ IncentNowCopilotService.prototype = {
             quotaGR.getDisplayValue("fiscal_year") ||
             quotaGR.getDisplayValue("fiscal_period") ||
             "FY 2026";
-
-        gs.info("IncentNow :: YEARLY QUOTA = " + yearlyQuota);
-        gs.info("IncentNow :: FISCAL YEAR = " + fiscalYear);
 
         /*
         =====================================================
@@ -1197,11 +1079,6 @@ IncentNowCopilotService.prototype = {
 
             var monthOrder =
                 this.getMonthOrder(period);
-
-            gs.info("IncentNow :: CHECKING PERIOD = " + period);
-            gs.info("IncentNow :: PARENT PERIOD = " + parentPeriod);
-            gs.info("IncentNow :: MONTHLY VALUE = " + monthlyQuota);
-            gs.info("IncentNow :: MONTH ORDER = " + monthOrder);
 
             if (!firstParentPeriod && parentPeriod) {
                 firstParentPeriod = parentPeriod;
@@ -1452,11 +1329,8 @@ IncentNowCopilotService.prototype = {
 
         return "No business unit found.";
     },
-	
-    handleBreakdown: function(userId, question) {
 
-        gs.info("IncentNow :: ENTERED handleBreakdown()");
-        gs.info("IncentNow :: QUESTION = " + question);
+    handleBreakdown: function(userId, question) {
 
         try {
 
@@ -1702,12 +1576,6 @@ IncentNowCopilotService.prototype = {
             response +=
                 "]]>💰<![CDATA[ Total Breakdown Amount: $" +
                 totalPayout.toLocaleString("en-IN");
-
-            gs.info(
-                "BREAKDOWN_DEBUG :: RESPONSE = \n" +
-                response
-            );
-
             return response;
 
         } catch (ex) {
@@ -1722,14 +1590,7 @@ IncentNowCopilotService.prototype = {
 
     handleSummary: function(userId) {
 
-        gs.info("IncentNow :: ENTERED handleSummary()");
-        gs.info("IncentNow :: handleSummary USER = " + userId);
-
         var profileId = this.getUserProfileId(userId);
-
-        gs.info("SUMMARY_DEBUG :: PROFILE ID = " + profileId);
-        gs.info("SUMMARY_DEBUG :: USER ID = " + userId);
-
         var pu = new GlideRecord("x_ctans_incentnow_plan_users");
         pu.addQuery("x_ctans_incentnow_sales_user", profileId);
         pu.setLimit(1);
@@ -1737,21 +1598,11 @@ IncentNowCopilotService.prototype = {
 
         if (!pu.next()) {
 
-            gs.info(
-                "IncentNow :: No plan assigned for profile = " +
-                profileId
-            );
-
             return "No compensation plan assigned.";
         }
 
         var planId = pu.getValue(
             "x_ctans_incentnow_plan"
-        );
-
-        gs.info(
-            "IncentNow :: PLAN ID = " +
-            planId
         );
 
         var ps = new GlideRecord(
@@ -1788,12 +1639,6 @@ IncentNowCopilotService.prototype = {
 
             var input2Lookup =
                 ps.getDisplayValue("input2_id") || "";
-
-            gs.info(
-                "SUMMARY_DEBUG :: RULE = " +
-                ruleName
-            );
-
             response +=
                 "]]>🔹<![CDATA[ " + ruleName + "\n";
 
@@ -1851,30 +1696,15 @@ IncentNowCopilotService.prototype = {
 
         if (!hasData) {
 
-            gs.info(
-                "IncentNow :: No payout summary records found"
-            );
-
             return "No payout summary found for your compensation plan.";
         }
-
-        gs.info(
-            "SUMMARY_DEBUG :: RESPONSE = \n" +
-            response
-        );
 
         return response;
     },
 
     handleEarningRules: function(userId) {
 
-        gs.info("IncentNow :: ENTERED handleEarningRules()");
-        gs.info("IncentNow :: handleEarningRules USER = " + userId);
-
         var profileId = this.getUserProfileId(userId);
-
-        gs.info("EARNING_DEBUG :: PROFILE ID = " + profileId);
-        gs.info("EARNING_DEBUG :: USER ID = " + userId);
 
         var pu = new GlideRecord("x_ctans_incentnow_plan_users");
         pu.addQuery(
@@ -1886,20 +1716,11 @@ IncentNowCopilotService.prototype = {
 
         if (!pu.next()) {
 
-            gs.info(
-                "IncentNow :: No plan assigned for earning rules"
-            );
-
             return "No compensation plan assigned.";
         }
 
         var planId =
             pu.getValue("x_ctans_incentnow_plan");
-
-        gs.info(
-            "IncentNow :: PLAN ID (Earning Rules) = " +
-            planId
-        );
 
         var er = new GlideRecord(
             "x_ctans_incentnow_earning_rule"
@@ -1931,14 +1752,6 @@ IncentNowCopilotService.prototype = {
 
             var earningLevel =
                 er.getDisplayValue("earning_level") || "";
-
-            gs.info(
-                "EARNING_DEBUG :: RULE " +
-                count +
-                " = " +
-                ruleName
-            );
-
             response +=
                 "]]>🔹<![CDATA[ " + ruleName + "\n";
 
@@ -1971,17 +1784,8 @@ IncentNowCopilotService.prototype = {
 
         if (!hasData) {
 
-            gs.info(
-                "IncentNow :: No earning rules found"
-            );
-
             return "No earning rules found for your compensation plan.";
         }
-
-        gs.info(
-            "EARNING_DEBUG :: RESPONSE = \n" +
-            response
-        );
 
         return response;
     },
@@ -1990,15 +1794,7 @@ IncentNowCopilotService.prototype = {
 
         try {
 
-            gs.info("IncentNow :: ENTERED handlePayoutComponents()");
-            gs.info("PAYOUT_COMPONENT_DEBUG :: USER ID = " + userId);
-
             var profileId = this.getUserProfileId(userId);
-
-            gs.info(
-                "PAYOUT_COMPONENT_DEBUG :: PROFILE ID = " +
-                profileId
-            );
 
             var stmtGR = new GlideRecord(
                 "x_ctans_incentnow_incentive_statement"
@@ -2011,22 +1807,8 @@ IncentNowCopilotService.prototype = {
 
             if (!stmtGR.next()) {
 
-                gs.info(
-                    "PAYOUT_COMPONENT_DEBUG :: NO INCENTIVE STATEMENT FOUND"
-                );
-
                 return "No payout component details found for your profile.";
             }
-
-            gs.info(
-                "PAYOUT_COMPONENT_DEBUG :: STATEMENT SYS_ID = " +
-                stmtGR.getUniqueValue()
-            );
-
-            gs.info(
-                "PAYOUT_COMPONENT_DEBUG :: PERIOD = " +
-                stmtGR.getDisplayValue("fiscal_period")
-            );
 
             var fiscalPeriod =
                 stmtGR.getDisplayValue("fiscal_period") || "";
@@ -2042,20 +1824,12 @@ IncentNowCopilotService.prototype = {
 
             if (!payoutResults) {
 
-                gs.info(
-                    "PAYOUT_COMPONENT_DEBUG :: PAYOUT RESULTS EMPTY"
-                );
-
                 return "No payout components found for your latest incentive statement.";
             }
 
             var parsedResults = JSON.parse(payoutResults);
 
             if (!parsedResults || parsedResults.length === 0) {
-
-                gs.info(
-                    "PAYOUT_COMPONENT_DEBUG :: PARSED RESULTS EMPTY"
-                );
 
                 return "No payout components found for your latest incentive statement.";
             }
@@ -2092,11 +1866,6 @@ IncentNowCopilotService.prototype = {
 
                 var formula =
                     item.formula || "";
-
-                gs.info(
-                    "PAYOUT_COMPONENT_DEBUG :: RULE = " +
-                    ruleName
-                );
 
                 response +=
                     "]]>🔹<![CDATA[ " +
@@ -2253,11 +2022,6 @@ IncentNowCopilotService.prototype = {
                     "en-IN"
                 );
 
-            gs.info(
-                "PAYOUT_COMPONENT_DEBUG :: RESPONSE = \n" +
-                response
-            );
-
             return response.trim();
 
         } catch (ex) {
@@ -2273,16 +2037,7 @@ IncentNowCopilotService.prototype = {
 
     handlePlanComponents: function(userId) {
 
-        gs.info("IncentNow :: ENTERED handlePlanComponents()");
-        gs.info("IncentNow :: USER = " + userId);
-
         var profileId = this.getUserProfileId(userId);
-
-        gs.info(
-            "PLAN_COMPONENTS :: PROFILE ID = " +
-            profileId
-        );
-
         /*
         =====================================================
         STEP 1: GET ASSIGNED PLAN
@@ -2317,11 +2072,6 @@ IncentNowCopilotService.prototype = {
             pu.getDisplayValue(
                 "x_ctans_incentnow_plan"
             );
-
-        gs.info(
-            "PLAN_COMPONENTS :: PLAN ID = " +
-            planId
-        );
 
         var response =
             "]]>📄<![CDATA[ Plan Components for " +
@@ -2584,26 +2334,13 @@ IncentNowCopilotService.prototype = {
 
         if (!hasData) {
 
-            gs.info(
-                "PLAN_COMPONENTS :: NO DATA FOUND"
-            );
-
             return "No plan components found for your compensation plan.";
         }
-
-        gs.info(
-            "PLAN_COMPONENTS :: RESPONSE = \n" +
-            response
-        );
 
         return response;
     },
 
     handlePlan: function(userId) {
-
-        gs.info("IncentNow :: ENTERED handlePlan()");
-        gs.info("IncentNow :: USER = " + userId);
-
         /*
         =====================================================
         STEP 1: GET USER PROFILE
@@ -2612,20 +2349,12 @@ IncentNowCopilotService.prototype = {
 
         var profileId = this.getUserProfileId(userId);
 
-        gs.info(
-            "PLAN_DEBUG :: PROFILE ID = " +
-            profileId
-        );
 
         var userGR = new GlideRecord(
             "x_ctans_incentnow_user_profile"
         );
 
         if (!userGR.get(profileId)) {
-
-            gs.info(
-                "PLAN_DEBUG :: USER PROFILE NOT FOUND"
-            );
 
             return "User profile is not available.";
         }
@@ -2658,10 +2387,6 @@ IncentNowCopilotService.prototype = {
 
         if (!pu.next()) {
 
-            gs.info(
-                "PLAN_DEBUG :: NO PLAN ASSIGNED"
-            );
-
             return "No compensation plan assigned.";
         }
 
@@ -2672,16 +2397,6 @@ IncentNowCopilotService.prototype = {
             pu.getDisplayValue(
                 "x_ctans_incentnow_plan"
             ) || "a compensation plan";
-
-        gs.info(
-            "PLAN_DEBUG :: PLAN ID = " +
-            planId
-        );
-
-        gs.info(
-            "PLAN_DEBUG :: PLAN NAME = " +
-            planName
-        );
 
         /*
         =====================================================
@@ -2698,48 +2413,12 @@ IncentNowCopilotService.prototype = {
             " business unit.";
     },
 
-    // handleBU: function(userId) {
-
-    //     gs.info("IncentNow :: ENTERED handleBU()");
-    //     gs.info("IncentNow :: handleBU USER = " + userId);
-
-    //     var userGR = new GlideRecord("x_ctans_incentnow_user_profile");
-
-    //     if (!userGR.get(userId)) {
-    //         gs.info("IncentNow :: User profile not found");
-    //         return "Business unit details are not available.";
-    //     }
-
-    //     var businessUnit = (userGR.getDisplayValue("business_unit") || "").trim();
-
-    //     gs.info("IncentNow :: USER BUSINESS UNIT = " + businessUnit);
-
-    //     if (!businessUnit)
-    //         return "Business unit is not assigned.";
-
-    //     return "]]>🏢<![CDATA[ Your Business Unit: " + businessUnit;
-    // },
-
     handleIncentiveStatement: function(userId, query) {
-
-        gs.info("IncentNow :: ENTERED handleIncentiveStatement()");
-        gs.info("IncentNow :: Statement Query = " + query);
-        gs.info("IncentNow :: USER = " + userId);
 
         var profileId = this.getUserProfileId(userId);
 
-        gs.info(
-            "STATEMENT_DEBUG :: PROFILE ID = " +
-            profileId
-        );
-
         var periodFromQuery =
             this.extractMonthYear(query) || "";
-
-        gs.info(
-            "IncentNow :: Extracted Statement Period = " +
-            periodFromQuery
-        );
 
         var isMonthYearQuery = false;
         var isMonthOnlyQuery = false;
@@ -2825,11 +2504,6 @@ IncentNowCopilotService.prototype = {
                         "total_commission"
                     )
                 ) || 0;
-
-            gs.info(
-                "STATEMENT_DEBUG :: PERIOD = " +
-                fiscalPeriod
-            );
 
             if (isMonthYearQuery) {
 
@@ -2944,18 +2618,9 @@ IncentNowCopilotService.prototype = {
         return "No incentive statement found.";
     },
 
-    handleAIExplanation: function(userId, query) {
-
-        gs.info("IncentNow :: ENTERED handleAIExplanation()");
-        gs.info("IncentNow :: AI Explanation Query = " + query);
-        gs.info("IncentNow :: USER = " + userId);
+    handleAIExplanation: function(userId, query) {       
 
         var profileId = this.getUserProfileId(userId);
-
-        gs.info(
-            "AI_EXPLANATION :: PROFILE ID = " +
-            profileId
-        );
 
         var stmtGR = new GlideRecord(
             "x_ctans_incentnow_incentive_statement"
@@ -2972,10 +2637,6 @@ IncentNowCopilotService.prototype = {
 
         if (!stmtGR.next()) {
 
-            gs.info(
-                "AI_EXPLANATION :: NO PAYOUT DATA FOUND"
-            );
-
             return "No payout data available.";
         }
 
@@ -2990,16 +2651,6 @@ IncentNowCopilotService.prototype = {
             stmtGR.getDisplayValue(
                 "fiscal_period"
             ) || "";
-
-        gs.info(
-            "AI_EXPLANATION :: PAYOUT = " +
-            payout
-        );
-
-        gs.info(
-            "AI_EXPLANATION :: PERIOD = " +
-            fiscalPeriod
-        );
 
         var payoutLevel = "";
 
@@ -3040,13 +2691,13 @@ IncentNowCopilotService.prototype = {
         <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
         <sys_created_on>2026-04-14 14:59:18</sys_created_on>
         <sys_id>8a87a5fc3b98c310ffa00e9693e45a39</sys_id>
-        <sys_mod_count>292</sys_mod_count>
+        <sys_mod_count>294</sys_mod_count>
         <sys_name>IncentNowCopilotService</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
         <sys_update_name>sys_script_include_8a87a5fc3b98c310ffa00e9693e45a39</sys_update_name>
         <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
-        <sys_updated_on>2026-06-16 19:11:12</sys_updated_on>
+        <sys_updated_on>2026-06-23 09:39:20</sys_updated_on>
     </sys_script_include>
 </record_update>

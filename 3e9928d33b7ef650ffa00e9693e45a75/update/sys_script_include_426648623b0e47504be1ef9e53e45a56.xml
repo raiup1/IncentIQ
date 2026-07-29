@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>package_private</access>
+        <active>true</active>
+        <api_name>x_ctans_incentnow.IncentIQProviderAdmin </api_name>
+        <caller_access/>
+        <client_callable>false</client_callable>
+        <description>Privileged provider administration (admin / app-admin only). Resolves the Generic Prompt capability, reports the active LLM provider, and switches between ServiceNow Now LLM (default), OpenAI, and Claude by flipping the One Extend definition-config default and publishing the matching model config. Also exposes the admin role check used by the advisor and settings widgets.</description>
+        <mobile_callable>false</mobile_callable>
+        <name>IncentIQProviderAdmin </name>
+        <sandbox_callable>false</sandbox_callable>
+        <script><![CDATA[var IncentIQProviderAdmin = Class.create();
+IncentIQProviderAdmin.prototype = {
+
+    initialize: function() {
+        this.CAP_NAME = 'Generic Prompt';
+        this.ADMIN_ROLES = ['x_ctans_incentnow.admin'];
+    },
+
+    isAdmin: function() {
+        for (var i = 0; i < this.ADMIN_ROLES.length; i++) {
+            if (gs.hasRole(this.ADMIN_ROLES[i])) {
+                return true;
+            }
+        }
+        return false;
+    },
+
+    _capabilityId: function() {
+        var cap = new GlideRecord('sys_one_extend_capability');
+        cap.addQuery('name', this.CAP_NAME);
+        cap.setLimit(1);
+        cap.query();
+        return cap.next() ? cap.getUniqueValue() : '';
+    },
+
+    getCapabilityId: function() {
+        return this._capabilityId();
+    },
+
+    _findDefinitionId: function(capId, includeFrag, excludeFrag) {
+        var def = new GlideRecord('sys_one_extend_capability_definition');
+        def.addQuery('capability', capId);
+        def.query();
+        while (def.next()) {
+            var nm = ('' + def.getValue('name')).toLowerCase();
+            if (nm.indexOf(includeFrag) > -1 && (!excludeFrag || nm.indexOf(excludeFrag) === -1)) {
+                return def.getUniqueValue();
+            }
+        }
+        return '';
+    },
+
+    // Returns { key, label } for the currently active provider (read-only).
+    // Source of truth = the One Extend default definition-config; no system property needed.
+    getActiveProvider: function() {
+        var capId = this._capabilityId();
+        if (!capId) {
+            return {
+                key: 'unknown',
+                label: 'Not configured'
+            };
+        }
+
+        var dc = new GlideRecord('sys_one_extend_definition_config');
+        dc.addQuery('capability', capId);
+        dc.addQuery('default', 1);
+        dc.setLimit(1);
+        dc.query();
+        if (!dc.next()) {
+            return {
+                key: 'unknown',
+                label: 'Not configured'
+            };
+        }
+
+        var defId = dc.getValue('definition');
+        var def = new GlideRecord('sys_one_extend_capability_definition');
+        var defName = '';
+        if (def.get(defId)) {
+            defName = ('' + def.getValue('name')).toLowerCase();
+        }
+
+        if (defName.indexOf('now llm') > -1) {
+            return {
+                key: 'servicenow',
+                label: 'ServiceNow LLM (Now LLM)'
+            };
+        }
+        if (defName.indexOf('custom llm') > -1) {
+            var cfg = new GlideRecord('sys_generative_ai_config');
+            cfg.addQuery('definition', defId);
+            cfg.addQuery('state', 'published');
+            cfg.setLimit(1);
+            cfg.query();
+            if (cfg.next()) {
+                var m = ('' + cfg.getValue('model')).toLowerCase();
+                if (m.indexOf('claude') > -1) {
+                    return {
+                        key: 'claude',
+                        label: 'Anthropic Claude'
+                    };
+                }
+                if (m.indexOf('gpt') > -1) {
+                    return {
+                        key: 'openai',
+                        label: 'OpenAI (GPT-4o)'
+                    };
+                }
+            }
+            return {
+                key: 'external',
+                label: 'External LLM'
+            };
+        }
+        return {
+            key: 'unknown',
+            label: 'Not configured'
+        };
+    },
+
+    // Admin-only. providerKey: 'servicenow' | 'openai' | 'claude'
+    setProvider: function(providerKey) {
+        gs.info('[IncentIQ] setProvider called with: "' + providerKey + '"');
+
+        if (!this.isAdmin()) {
+            return {
+                success: false,
+                message: 'Not authorized.'
+            };
+        }
+        if (providerKey !== 'servicenow' && providerKey !== 'openai' && providerKey !== 'claude') {
+            return {
+                success: false,
+                message: 'Invalid/empty provider received: "' + providerKey + '"'
+            };
+        }
+
+        var capId = this._capabilityId();
+        if (!capId) {
+            return {
+                success: false,
+                message: 'Capability not found.'
+            };
+        }
+
+        var isServiceNow = (providerKey === 'servicenow');
+        var targetDefId = isServiceNow ?
+            this._findDefinitionId(capId, 'now llm', 'lts') :
+            this._findDefinitionId(capId, 'custom llm');
+        if (!targetDefId) {
+            return {
+                success: false,
+                message: 'Definition not found for ' + providerKey
+            };
+        }
+
+        var clr = new GlideRecord('sys_one_extend_definition_config');
+        clr.addQuery('capability', capId);
+        clr.addQuery('definition', '!=', targetDefId);
+        clr.addQuery('default', 1);
+        clr.query();
+        while (clr.next()) {
+            clr.setValue('default', 0);
+            clr.update();
+        }
+
+        var tgt = new GlideRecord('sys_one_extend_definition_config');
+        tgt.addQuery('capability', capId);
+        tgt.addQuery('definition', targetDefId);
+        tgt.setLimit(1);
+        tgt.query();
+        if (tgt.next() && tgt.getValue('default') != '1') {
+            tgt.setValue('default', 1);
+            tgt.update();
+        }
+
+        if (!isServiceNow) {
+            var wantModel = (providerKey === 'claude') ? 'claude' : 'gpt';
+            var cfg = new GlideRecord('sys_generative_ai_config');
+            cfg.addQuery('definition', targetDefId);
+            cfg.query();
+            while (cfg.next()) {
+                var isTarget = (('' + cfg.getValue('model')).toLowerCase().indexOf(wantModel) > -1);
+                cfg.setValue('active', isTarget);
+                cfg.setValue('state', isTarget ? 'published' : 'draft');
+                cfg.update();
+            }
+        }
+
+        // No system property write — the active provider is derived from the
+        // One Extend default definition-config above (see getActiveProvider()).
+        return {
+            success: true,
+            message: 'AI provider set to ' + providerKey
+        };
+    },
+
+    type: 'IncentIQProviderAdmin'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+        <sys_created_on>2026-07-15 18:11:10</sys_created_on>
+        <sys_id>426648623b0e47504be1ef9e53e45a56</sys_id>
+        <sys_mod_count>7</sys_mod_count>
+        <sys_name>IncentIQProviderAdmin </sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_script_include_426648623b0e47504be1ef9e53e45a56</sys_update_name>
+        <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
+        <sys_updated_on>2026-07-22 10:30:25</sys_updated_on>
+    </sys_script_include>
+</record_update>

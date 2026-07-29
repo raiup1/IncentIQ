@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_atf_test">
+    <sys_atf_test action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <copied_from/>
+        <description/>
+        <enable_parameterized_testing>false</enable_parameterized_testing>
+        <fail_on_server_error>true</fail_on_server_error>
+        <name>ATF Add Business Unit</name>
+        <parameters/>
+        <remember/>
+        <sn_atf_tg_generated>false</sn_atf_tg_generated>
+        <sys_class_name>sys_atf_test</sys_class_name>
+        <sys_created_by>shroin.mandal</sys_created_by>
+        <sys_created_on>2026-07-22 15:10:30</sys_created_on>
+        <sys_id>9b4e97e83bd6c3904be1ef9e53e45abc</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>ATF Add Business Unit</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_atf_test_9b4e97e83bd6c3904be1ef9e53e45abc</sys_update_name>
+        <sys_updated_by>shroin.mandal</sys_updated_by>
+        <sys_updated_on>2026-07-22 15:10:30</sys_updated_on>
+        <test_origin>manual</test_origin>
+    </sys_atf_test>
+    <sys_variable_value action="delete_multiple" query="document_key=9b4e97e83bd6c3904be1ef9e53e45abc"/>
+</record_update>

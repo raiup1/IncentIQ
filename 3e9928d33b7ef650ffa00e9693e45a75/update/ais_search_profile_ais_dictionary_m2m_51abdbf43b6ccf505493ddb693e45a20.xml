@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><record_update table="ais_search_profile_ais_dictionary_m2m">
     <ais_search_profile_ais_dictionary_m2m action="INSERT_OR_UPDATE">
-        <dictionary display_value="">a2097ae6ff5b221081adffffffffffae</dictionary>
+        <dictionary display_value="sn_prd_pm_product_catalog_stop_word_dictionary">a2097ae6ff5b221081adffffffffffae</dictionary>
         <dictionary_reference_qualifier/>
         <marked_for_deletion>false</marked_for_deletion>
         <profile display_value="Now Assist in Virtual Agent - 1">15ab9bf43b6ccf505493ddb693e45a92</profile>

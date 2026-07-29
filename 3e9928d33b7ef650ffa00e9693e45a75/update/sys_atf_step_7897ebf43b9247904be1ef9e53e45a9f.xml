@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_atf_step">
+    <sys_atf_step action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <callable_outputs/>
+        <copied_from display_value="Set Component Values (Custom UI)">01b527343b9247904be1ef9e53e45a57</copied_from>
+        <description>Set the components on the page as follows:
+'Text &lt;input&gt;: e.g., Q1 2026 Sales Quota' = 'ATF Quota', Page area = 'default'
+'Choice list &lt;select&gt;: Select FY FY 2026 Budget Year FY25 ATF Year' = 'e595eff03b9247904be1ef9e53e45a6e', Page area = 'default'
+'Choice list &lt;select&gt;: None Business Unit Territory' = 'business_unit', Page area = 'default'
+'Choice list &lt;select&gt;: Select Frequency Annually Quarterly Monthly' = 'annually', Page area = 'default'
+'Choice list &lt;select&gt;: Select Type $ Currency Number' = 'currency', Page area = 'default'
+'Text &lt;input&gt;: (empty)' = '43235', Page area = 'default'
+</description>
+        <display_name>Set Component Values (Custom UI)</display_name>
+        <inputs/>
+        <mugshots_cache_json>{"0aa02108227133b5871ccb4872812b16":"{\"area\":\"Quota Builder\",\"sn_atf_mugshot_short_description\":\"Text &lt;input&gt;: (empty)\",\"role\":\"textbox\",\"sn_atf_mugshot_long_description\":\"Text &lt;input&gt;: (empty) in page area Quota Builder\",\"methods\":[\"setValue\"],\"sn_atf_mugshot_label\":\"\",\"index\":0,\"type\":\"text\",\"version\":\"26.0\",\"sn_atf_mugshot_label_for_label_path\":\"\",\"interesting_element_path\":[\"body\",\"div\",\"div\",\"sp-page-row\",\"span\",\"div\",\"form\",\"input\"],\"get_value_result\":\"\",\"sn_atf_mugshot_tag_display_name\":\"Text &lt;input&gt;\",\"sn_atf_mugshot_value\":\"\",\"tag\":\"input\",\"isDisabled\":false,\"label_path\":[\"default\"],\"hash\":\"0aa02108227133b5871ccb4872812b16\",\"html_value\":\"\"}","80ee4a3fc01a005d4824ae65a6213283":"{\"area\":\"Quota Builder\",\"sn_atf_mugshot_short_description\":\"Choice list &lt;select&gt;: Select FY FY 2026 Budget Year FY25 ATF Year\",\"inner_text\":\"Select FY FY 2026 Budget Year FY25 ATF Year\",\"sn_atf_mugshot_long_description\":\"Choice list &lt;select&gt;: Select FY FY 2026 Budget Year FY25 ATF Year in page area Quota Builder\",\"methods\":[\"setValue\"],\"sn_atf_mugshot_label\":\"Select FY FY 2026 Budget Year FY25 ATF Year\",\"type\":\"select-one\",\"version\":\"26.0\",\"sn_atf_mugshot_label_for_label_path\":\"\",\"interesting_element_path\":[\"body\",\"div\",\"div\",\"sp-page-row\",\"span\",\"div\",\"form\",\"select\"],\"get_value_result\":\"\",\"sn_atf_mugshot_tag_display_name\":\"Choice list &lt;select&gt;\",\"sn_atf_mugshot_value\":\"\",\"options\":[{\"label\":\"Select FY\",\"value\":\"\"},{\"label\":\"FY 2026\",\"value\":\"16ab7a7233610710dccb9c173e5c7b35\"},{\"label\":\"Budget Year FY25\",\"value\":\"4390af9f3bbd83104be1ef9e53e45a4f\"},{\"label\":\"ATF Year\",\"value\":\"e595eff03b9247904be1ef9e53e45a6e\"}],\"tag\":\"select\",\"isDisabled\":false,\"label_path\":[\"default\"],\"hash\":\"80ee4a3fc01a005d4824ae65a6213283\",\"html_value\":\"\"}","53ce7345f0a882a2d68a0f285a428055":"{\"area\":\"Quota Builder\",\"sn_atf_mugshot_short_description\":\"Text &lt;input&gt;: e.g., Q1 2026 Sales Quota\",\"role\":\"textbox\",\"sn_atf_mugshot_long_description\":\"Text &lt;input&gt;: e.g., Q1 2026 Sales Quota in page area Quota Builder\",\"methods\":[\"setValue\"],\"sn_atf_mugshot_label\":\"e.g., Q1 2026 Sales Quota\",\"type\":\"text\",\"version\":\"26.0\",\"sn_atf_mugshot_label_for_label_path\":\"\",\"interesting_element_path\":[\"body\",\"div\",\"div\",\"sp-page-row\",\"span\",\"div\",\"form\",\"input\"],\"get_value_result\":\"\",\"sn_atf_mugshot_tag_display_name\":\"Text &lt;input&gt;\",\"sn_atf_mugshot_value\":\"e.g., Q1 2026 Sales Quota\",\"tag\":\"input\",\"isDisabled\":false,\"placeholder\":\"e.g., Q1 2026 Sales Quota\",\"label_path\":[\"default\"],\"hash\":\"53ce7345f0a882a2d68a0f285a428055\",\"html_value\":\"\"}","fcad7e5f724531a373c69e6b069bfb02":"{\"area\":\"Quota Builder\",\"sn_atf_mugshot_short_description\":\"Choice list &lt;select&gt;: Select Frequency Annually Quarterly Monthly\",\"inner_text\":\"Select Frequency Annually Quarterly Monthly\",\"sn_atf_mugshot_long_description\":\"Choice list &lt;select&gt;: Select Frequency Annually Quarterly Monthly in page area Quota Builder\",\"methods\":[\"setValue\"],\"sn_atf_mugshot_label\":\"Select Frequency Annually Quarterly Monthly\",\"type\":\"select-one\",\"version\":\"26.0\",\"sn_atf_mugshot_label_for_label_path\":\"\",\"interesting_element_path\":[\"body\",\"div\",\"div\",\"sp-page-row\",\"span\",\"div\",\"form\",\"select\"],\"get_value_result\":\"\",\"sn_atf_mugshot_tag_display_name\":\"Choice list &lt;select&gt;\",\"sn_atf_mugshot_value\":\"\",\"options\":[{\"label\":\"Select Frequency\",\"value\":\"\"},{\"label\":\"Annually\",\"value\":\"annually\"},{\"label\":\"Quarterly\",\"value\":\"quarterly\"},{\"label\":\"Monthly\",\"value\":\"monthly\"}],\"tag\":\"select\",\"isDisabled\":false,\"label_path\":[\"default\"],\"hash\":\"fcad7e5f724531a373c69e6b069bfb02\",\"html_value\":\"\"}","4bf3e08f88fc57d64c182bd0dc3fa707":"{\"area\":\"Quota Builder\",\"sn_atf_mugshot_short_description\":\"Choice list &lt;select&gt;: Select Type $ Currency Number\",\"inner_text\":\"Select Type $ Currency Number\",\"sn_atf_mugshot_long_description\":\"Choice list &lt;select&gt;: Select Type $ Currency Number in page area Quota Builder\",\"methods\":[\"setValue\"],\"sn_atf_mugshot_label\":\"Select Type $ Currency Number\",\"type\":\"select-one\",\"version\":\"26.0\",\"sn_atf_mugshot_label_for_label_path\":\"\",\"interesting_element_path\":[\"body\",\"div\",\"div\",\"sp-page-row\",\"span\",\"div\",\"form\",\"select\"],\"get_value_result\":\"\",\"sn_atf_mugshot_tag_display_name\":\"Choice list &lt;select&gt;\",\"sn_atf_mugshot_value\":\"\",\"options\":[{\"label\":\"Select Type\",\"value\":\"\"},{\"label\":\"$ Currency\",\"value\":\"currency\"},{\"label\":\"Number\",\"value\":\"number\"}],\"tag\":\"select\",\"isDisabled\":false,\"label_path\":[\"default\"],\"hash\":\"4bf3e08f88fc57d64c182bd0dc3fa707\",\"html_value\":\"\"}","be595988568debb0c8ad43e26f1303e8":"{\"area\":\"Quota Builder\",\"sn_atf_mugshot_short_description\":\"Choice list &lt;select&gt;: None Business Unit Territory\",\"inner_text\":\"None Business Unit Territory\",\"sn_atf_mugshot_long_description\":\"Choice list &lt;select&gt;: None Business Unit Territory in page area Quota Builder\",\"methods\":[\"setValue\"],\"sn_atf_mugshot_label\":\"None Business Unit Territory\",\"type\":\"select-one\",\"version\":\"26.0\",\"sn_atf_mugshot_label_for_label_path\":\"\",\"interesting_element_path\":[\"body\",\"div\",\"div\",\"sp-page-row\",\"span\",\"div\",\"form\",\"select\"],\"get_value_result\":\"\",\"sn_atf_mugshot_tag_display_name\":\"Choice list &lt;select&gt;\",\"sn_atf_mugshot_value\":\"\",\"options\":[{\"label\":\"None\",\"value\":\"\"},{\"label\":\"Business Unit\",\"value\":\"business_unit\"},{\"label\":\"Territory\",\"value\":\"territory\"}],\"tag\":\"select\",\"isDisabled\":false,\"label_path\":[\"default\"],\"hash\":\"be595988568debb0c8ad43e26f1303e8\",\"html_value\":\"\"}"}</mugshots_cache_json>
+        <notes/>
+        <order>9</order>
+        <step_config display_value="Set Component Values (Custom UI)">e5dd168473330300c79260bdfaf6a794</step_config>
+        <sys_class_name>sys_atf_step</sys_class_name>
+        <sys_created_by>shiva.erla</sys_created_by>
+        <sys_created_on>2026-07-23 10:20:46</sys_created_on>
+        <sys_id>7897ebf43b9247904be1ef9e53e45a9f</sys_id>
+        <sys_mod_count>4</sys_mod_count>
+        <sys_name>Set Component Values (Custom UI)</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_atf_step_7897ebf43b9247904be1ef9e53e45a9f</sys_update_name>
+        <sys_updated_by>shiva.erla</sys_updated_by>
+        <sys_updated_on>2026-07-23 10:29:33</sys_updated_on>
+        <table/>
+        <test display_value="ATF_IncentIQ_Quota_Territory_ApprovalFlow">5c97e7f43b9247904be1ef9e53e45ad5</test>
+        <timeout/>
+        <warning_message/>
+    </sys_atf_step>
+    <sys_variable_value action="delete_multiple" query="document_key=7897ebf43b9247904be1ef9e53e45a9f"/>
+    <sys_variable_value action="INSERT_OR_UPDATE">
+        <document>sys_atf_step</document>
+        <document_key>7897ebf43b9247904be1ef9e53e45a9f</document_key>
+        <order>100</order>
+        <sys_class_name>sys_variable_value</sys_class_name>
+        <sys_created_by>shiva.erla</sys_created_by>
+        <sys_created_on>2026-07-23 10:20:46</sys_created_on>
+        <sys_id>7c97ebf43b9247904be1ef9e53e45aa0</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>shiva.erla</sys_updated_by>
+        <sys_updated_on>2026-07-23 10:20:46</sys_updated_on>
+        <value>53ce7345f0a882a2d68a0f285a428055=ATF Quota^80ee4a3fc01a005d4824ae65a6213283=e595eff03b9247904be1ef9e53e45a6e^be595988568debb0c8ad43e26f1303e8=business_unit^fcad7e5f724531a373c69e6b069bfb02=annually^4bf3e08f88fc57d64c182bd0dc3fa707=currency^0aa02108227133b5871ccb4872812b16=43235^EQ</value>
+        <variable display_value="Component values">d12fde8473330300c79260bdfaf6a7b5</variable>
+    </sys_variable_value>
+    <sys_element_mapping action="delete_multiple" query="table=var__m_atf_input_variable_e5dd168473330300c79260bdfaf6a794^id=7897ebf43b9247904be1ef9e53e45a9f"/>
+</record_update>

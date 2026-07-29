@@ -5,38 +5,27 @@
     var c = this;
 
   	c.save = function() {
-			
 			console.log("BUTTON CLICKED");
-
 			var result = mandatoryValidator.validate(c.data.f);
-
 			if (!result.valid) {
 					spUtil.addErrorMessage(result.message);
 					return;
 			}
-
 			// ]]>🔥<![CDATA[ CHANGE ACTION NAME
 			c.data.action = "generate";
-
 			c.data.form = { _fields: c.data.f._fields };
-			
 			console.log("Sending request to server...");
-
 			c.server.get({
 					action: "generate",
 					form: { _fields: c.data.f._fields }
 			}).then(function(response) {
-				
 				console.log("Response received:", response);
-
 					var res = response.data;
-
 					// ❌ ERROR
 					if (res.valid === false) {
 							spUtil.addErrorMessage(res.message);
 							return;
 					}
-
 					// ✅ EXISTING
 					if (res.exists) {
 							spUtil.addInfoMessage("Statement already exists. Redirecting...");
@@ -47,19 +36,15 @@
 					}
 
 					var url = "?id=incentive_statement_view&statement_id=" + res.sys_id;
-
-					setTimeout(function() {
-							
+					setTimeout(function() {			
 							$location.url(url);
 					}, 100);
-
 			});
 	};
 
     c.goBack = function () {
         const prev = sessionStorage.getItem('prevPage');
         if (prev) {
-					
             $location.url(prev);
         } else {
             window.history.back();
@@ -262,28 +247,39 @@
 				var dupGR = new GlideRecordSecure('x_ctans_incentnow_incentive_statement');
 				dupGR.addQuery('user', user);
 				dupGR.addQuery('fiscal_period', period);
-			 	dupGR.addQuery('fiscal_year', year);
 				dupGR.setLimit(1);
 				dupGR.query();
 
+				var statementGR;
+
+				// Existing statement found
 				if (dupGR.next()) {
-						data.exists = true;
-						data.sys_id = dupGR.getUniqueValue();
-						return;
+
+						// Allow regenerate only when Draft
+						if (dupGR.getValue('status') == 'draft') {
+
+								statementGR = dupGR;
+
+						} else {
+
+								data.exists = true;
+								data.sys_id = dupGR.getUniqueValue();
+								return;
+						}
+
+				} else {
+
+						// Create new statement
+						statementGR = new GlideRecordSecure('x_ctans_incentnow_incentive_statement');
+						statementGR.initialize();
+
+						statementGR.setValue('user', user);
+						statementGR.setValue('plan', plan);
+						statementGR.setValue('fiscal_period', period);
+						statementGR.setValue('fiscal_year', year);
 				}
 
-				// ===============================
-				// ⚙️ STEP 2: CREATE + PROCESS
-				// ===============================
-				var statementGR = new GlideRecordSecure('x_ctans_incentnow_incentive_statement');
-				statementGR.initialize();
-
-				statementGR.setValue('user', user);
-				statementGR.setValue('plan', plan);
-				statementGR.setValue('fiscal_period', period);
-			  statementGR.setValue('fiscal_year', year);
-			 
-			 	statementGR.user.getRefRecord();
+				statementGR.user.getRefRecord();
 				statementGR.plan.getRefRecord();
 				statementGR.fiscal_period.getRefRecord();
 
@@ -313,14 +309,14 @@
         <sys_created_by>shroin.mandal</sys_created_by>
         <sys_created_on>2026-04-23 12:04:28</sys_created_on>
         <sys_id>10a6176f3b144f10ffa00e9693e45a95</sys_id>
-        <sys_mod_count>47</sys_mod_count>
+        <sys_mod_count>48</sys_mod_count>
         <sys_name>IncentNow Form Statement</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
         <sys_update_name>sp_widget_10a6176f3b144f10ffa00e9693e45a95</sys_update_name>
-        <sys_updated_by>upma.rai</sys_updated_by>
-        <sys_updated_on>2026-06-18 14:44:06</sys_updated_on>
+        <sys_updated_by>shroin.mandal</sys_updated_by>
+        <sys_updated_on>2026-06-25 12:46:56</sys_updated_on>
         <template><![CDATA[<div>
   <div class="panel panel-default modern-card">   
     <!-- BODY -->

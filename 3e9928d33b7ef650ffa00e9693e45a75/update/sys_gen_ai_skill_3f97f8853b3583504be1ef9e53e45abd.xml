@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update sys_domain="global" table="sys_gen_ai_skill">
+    <sys_gen_ai_skill action="INSERT_OR_UPDATE">
+        <skill_description>An AI-powered compensation advisor that provides personalized, conversational guidance using IncentIQ business context. The advisor analyzes plans, quotas, performance, payouts, incentive statements, and future opportunities to deliver actionable recommendations for sales representatives, managers, and executives.</skill_description>
+        <skill_document>c2d0900d3b3183504be1ef9e53e45ad3</skill_document>
+        <skill_name>IncentIQSmartAdvisor</skill_name>
+        <skill_table>sys_one_extend_capability</skill_table>
+        <sys_class_name>sys_gen_ai_skill</sys_class_name>
+        <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+        <sys_created_on>2026-06-28 19:39:06</sys_created_on>
+        <sys_domain>global</sys_domain>
+        <sys_domain_path>/</sys_domain_path>
+        <sys_id>3f97f8853b3583504be1ef9e53e45abd</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name/>
+        <sys_overrides/>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_gen_ai_skill_3f97f8853b3583504be1ef9e53e45abd</sys_update_name>
+        <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
+        <sys_updated_on>2026-06-28 19:39:06</sys_updated_on>
+    </sys_gen_ai_skill>
+    <sys_translated_text action="delete_multiple" query="documentkey=3f97f8853b3583504be1ef9e53e45abd"/>
+</record_update>

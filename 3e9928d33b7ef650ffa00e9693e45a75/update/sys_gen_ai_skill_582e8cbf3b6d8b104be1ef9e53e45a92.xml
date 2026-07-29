@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update sys_domain="global" table="sys_gen_ai_skill">
+    <sys_gen_ai_skill action="INSERT_OR_UPDATE">
+        <skill_description>IncentIQ Smart Agent is an AI-powered assistant for IncentIQ that provides intelligent, contextual, and conversational support for compensation administrators, sales managers, sales representatives, sales operations teams, and incentive plan designers.
+
+The agent answers questions about commissions, incentive statements, quotas, quota attainment, earnings, compensation plans, performance, payouts, credits, and organizational data by securely retrieving and analyzing IncentIQ business information. It also provides page-aware configuration guidance, industry best practices, quota planning recommendations, incentive plan design suggestions, earning rule guidance, lookup rule recommendations, and performance management insights based on the user's current context.
+
+The agent understands the user's role, organization, security permissions, and current page within IncentIQ to deliver accurate, personalized, and actionable responses. It uses approved AI Skills, Actions, and business data as the source of truth, avoids unsupported assumptions, and recommends relevant next steps to help users configure, manage, and optimize their incentive compensation programs.</skill_description>
+        <skill_document>d82e8cbf3b6d8b104be1ef9e53e45a8d</skill_document>
+        <skill_name>IncentIQ Smart Agent</skill_name>
+        <skill_table>sn_aia_skill_metadata</skill_table>
+        <sys_class_name>sys_gen_ai_skill</sys_class_name>
+        <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+        <sys_created_on>2026-06-24 19:25:26</sys_created_on>
+        <sys_domain>global</sys_domain>
+        <sys_domain_path>/</sys_domain_path>
+        <sys_id>582e8cbf3b6d8b104be1ef9e53e45a92</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name/>
+        <sys_overrides/>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_gen_ai_skill_582e8cbf3b6d8b104be1ef9e53e45a92</sys_update_name>
+        <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
+        <sys_updated_on>2026-06-24 19:25:26</sys_updated_on>
+    </sys_gen_ai_skill>
+    <sys_translated_text action="delete_multiple" query="documentkey=582e8cbf3b6d8b104be1ef9e53e45a92"/>
+</record_update>

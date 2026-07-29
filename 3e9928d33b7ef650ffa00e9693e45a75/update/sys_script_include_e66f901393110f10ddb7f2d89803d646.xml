@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
     <sys_script_include action="INSERT_OR_UPDATE">
         <access>public</access>
-        <active>true</active>
+        <active>false</active>
         <api_name>x_ctans_incentnow.IncentNowPlanHandler</api_name>
         <caller_access/>
         <client_callable>false</client_callable>
-        <description/>
+        <description>This File is depricated and related script is moved into DataLakeUtils</description>
         <mobile_callable>false</mobile_callable>
         <name>IncentNowPlanHandler</name>
         <sandbox_callable>false</sandbox_callable>
@@ -677,13 +677,13 @@ IncentNowPlanHandler.prototype = {
         <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
         <sys_created_on>2026-06-10 21:08:27</sys_created_on>
         <sys_id>e66f901393110f10ddb7f2d89803d646</sys_id>
-        <sys_mod_count>9</sys_mod_count>
+        <sys_mod_count>11</sys_mod_count>
         <sys_name>IncentNowPlanHandler</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
         <sys_update_name>sys_script_include_e66f901393110f10ddb7f2d89803d646</sys_update_name>
         <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
-        <sys_updated_on>2026-06-17 08:16:23</sys_updated_on>
+        <sys_updated_on>2026-07-21 05:31:39</sys_updated_on>
     </sys_script_include>
 </record_update>

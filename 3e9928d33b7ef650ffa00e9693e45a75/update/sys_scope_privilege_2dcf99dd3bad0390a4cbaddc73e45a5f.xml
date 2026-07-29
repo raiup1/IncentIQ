@@ -16,7 +16,7 @@
         <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
         <sys_updated_on>2026-06-17 06:57:19</sys_updated_on>
         <target_name>sn_csm_cfgrul_mgt_elmt_type</target_name>
-        <target_scope display_value="">7618e57c93b11210320c2af8b28918ea</target_scope>
+        <target_scope display_value="Product Conditions Core">7618e57c93b11210320c2af8b28918ea</target_scope>
         <target_type>sys_db_object</target_type>
     </sys_scope_privilege>
 </record_update>

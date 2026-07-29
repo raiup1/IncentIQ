@@ -30,8 +30,9 @@
         <script><![CDATA[(function executeRule(current, previous) {
 
     var utils = new IncentNowAccessUtils();
+    var userId = gs.getUserID();
 
-	// ORG EXECUTIVE - FULL ACCESS
+    // ORG EXECUTIVE - FULL ACCESS
     if (gs.hasRole('x_ctans_incentnow.org_executive')) {
         return;
     }
@@ -40,7 +41,7 @@
     // SYSTEM ADMIN / APPLICATION ADMIN
     // =========================================
     if (
-       	gs.getUser().hasRole('admin') ||
+        gs.getUser().hasRole('admin') ||
         gs.hasRole('x_ctans_incentnow.admin')
     ) {
         return;
@@ -61,6 +62,30 @@
     if (gs.hasRole('x_ctans_incentnow.business_group_admin')) {
 
         utils.applyBusinessGroupAdminStatementFilter(current);
+        return;
+    }
+
+ // =========================================
+    // TERRITORY ADMIN
+    // =========================================
+    if (gs.hasRole('x_ctans_incentnow.territory_admin')) {
+
+        var territoryEnabled = false;
+
+        try {
+            territoryEnabled = new IncentNowUtils().isTerritoryExtensionActive() === true;
+
+            if (!territoryEnabled) {
+                current.addEncodedQuery('sys_idISEMPTY');
+                return;
+            }
+            new x_ctans_territory.IncentNowTerritoryResolver().applyTerritoryAdminUserTerritoryFilter(current);
+
+        } catch (territoryError) {
+            gs.error('[IncentIQ Access] Territory filter failed. ' + 'User=' + gs.getUserName() + ', error=' + territoryError.message);
+            current.addEncodedQuery('sys_idISEMPTY');
+        }
+
         return;
     }
 
@@ -89,15 +114,15 @@
         <sys_domain>global</sys_domain>
         <sys_domain_path>/</sys_domain_path>
         <sys_id>be68851c3b454b10a4cbaddc73e45aaf</sys_id>
-        <sys_mod_count>4</sys_mod_count>
+        <sys_mod_count>10</sys_mod_count>
         <sys_name>Statement Filter Incentnow</sys_name>
         <sys_overrides/>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy/>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
         <sys_update_name>sys_script_be68851c3b454b10a4cbaddc73e45aaf</sys_update_name>
-        <sys_updated_by>shroin.mandal</sys_updated_by>
-        <sys_updated_on>2026-06-08 06:53:37</sys_updated_on>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-16 13:06:14</sys_updated_on>
         <template/>
         <when>before</when>
     </sys_script>

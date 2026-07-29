@@ -383,407 +383,452 @@ c.charts.repAvgChart = new Chart(ctx, {
         <roles>x_ctans_incentnow.user,x_ctans_incentnow.admin</roles>
         <script><![CDATA[(function() {
 
-  var fiscalYear = input && input.fiscalYear ? input.fiscalYear : '';
-  var fiscalPeriod = input && input.fiscalPeriod ? input.fiscalPeriod : '';
+    data.isTerritoryEnabled =
+        new x_ctans_incentnow.IncentNowUtils().isTerritoryExtensionActive() === true;
 
-  /* ===================== COMMON HELPERS ===================== */
+    var fiscalYear = input && input.fiscalYear ? input.fiscalYear : '';
+    var fiscalPeriod = input && input.fiscalPeriod ? input.fiscalPeriod : '';
 
-  var MONTH_MAP_FULL_TO_SHORT = {
-    "January": "Jan", "February": "Feb", "March": "Mar",
-    "April": "Apr", "May": "May", "June": "Jun",
-    "July": "Jul", "August": "Aug", "September": "Sep",
-    "October": "Oct", "November": "Nov", "December": "Dec"
-  };
+    /* ===================== COMMON HELPERS ===================== */
 
-  var MONTH_ORDER_FULL = [
-    "January","February","March","April","May","June",
-    "July","August","September","October","November","December"
-  ];
+    var MONTH_MAP_FULL_TO_SHORT = {
+        "January": "Jan",
+        "February": "Feb",
+        "March": "Mar",
+        "April": "Apr",
+        "May": "May",
+        "June": "Jun",
+        "July": "Jul",
+        "August": "Aug",
+        "September": "Sep",
+        "October": "Oct",
+        "November": "Nov",
+        "December": "Dec"
+    };
 
-  var MONTH_ORDER_SHORT = [
-    "Jan","Feb","Mar","Apr","May","Jun",
-    "Jul","Aug","Sep","Oct","Nov","Dec"
-  ];
+    var MONTH_ORDER_FULL = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+    ];
 
-  function applyFilters(grF) {
+    var MONTH_ORDER_SHORT = [
+        "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+    ];
+
+    function applyFilters(grF) {
+
+        if (fiscalYear) {
+            //gr.addQuery('fiscal_year.fiscal_year_name', 'CONTAINS', fiscalYear);
+            grF.addQuery('fiscal_year', fiscalYear);
+        }
+        if (fiscalPeriod) {
+            //gr.addQuery('fiscal_period.period_display_name', 'STARTSWITH', fiscalPeriod.split(" ")[0]);
+            grF.addQuery('fiscal_period', fiscalPeriod);
+        }
+    }
+
+    function getMonthShort(fp) {
+        var month = fp ? fp.split(" ")[0] : "";
+        return MONTH_MAP_FULL_TO_SHORT[month] || month;
+    }
+
+    function formatNumber(num) {
+        return num.toFixed(1).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
+    /* ===================== FILTER OPTIONS ===================== */
+
+    data.fiscalYears = [];
+
+    var fyMap = {};
+    var fyGR = new GlideRecordSecure('x_ctans_incentnow_fiscal_calendar');
+    fyGR.orderBy('fiscal_year_name');
+    fyGR.query();
+
+    while (fyGR.next()) {
+
+        var fyId = fyGR.getUniqueValue();
+        var fyName = fyGR.getValue('fiscal_year_name');
+
+        if (!fyMap[fyId]) {
+            fyMap[fyId] = true;
+
+            data.fiscalYears.push({
+                id: fyId,
+                name: fyName
+            });
+        }
+    }
+
+    data.fiscalPeriods = [];
+
+    var fpGR = new GlideRecordSecure('x_ctans_incentnow_fiscal_period');
 
     if (fiscalYear) {
-      //gr.addQuery('fiscal_year.fiscal_year_name', 'CONTAINS', fiscalYear);
-			grF.addQuery('fiscal_year', fiscalYear);
+        fpGR.addQuery('fiscal_year', fiscalYear);
     }
+
+    fpGR.addQuery('period_type', 'month');
+    fpGR.orderBy("period_start_date");
+    fpGR.query();
+
+    var tempPeriods = [];
+
+    while (fpGR.next()) {
+        tempPeriods.push({
+            id: fpGR.getUniqueValue(),
+            name: fpGR.getValue('period_name')
+        });
+    }
+
+    // ✅ Sort manually using MONTH_ORDER_FULL
+    tempPeriods.sort(function(a, b) {
+        var monthA = a.name.split(" ")[0];
+        var monthB = b.name.split(" ")[0];
+
+        return MONTH_ORDER_FULL.indexOf(monthA) - MONTH_ORDER_FULL.indexOf(monthB);
+    });
+
+    data.fiscalPeriods = tempPeriods;
+
+    /* =====================Average Incentive per Rep===================== */
+
+    data.avgIncentive = 0;
+
+    var totalCommissionAvg = 0;
+    var recordCount = 0;
+
+    var grAvg = new GlideRecordSecure('x_ctans_incentnow_metric_report');
+    grAvg.addQuery('period_type', 'month');
+    applyFilters(grAvg);
+    grAvg.query();
+
+    while (grAvg.next()) {
+        var comm = parseFloat(grAvg.getValue('total_commission'));
+
+        if (!isNaN(comm)) {
+            totalCommissionAvg += comm;
+            recordCount++;
+        }
+    }
+
+    // Final average
+    data.avgIncentive = recordCount > 0 ? (totalCommissionAvg / recordCount) : 0;
+
+
+    /* ===================== TOTALS ===================== */
+
+    var totalCommission = 0;
+    var totalQuota = 0;
+    var totalAttainment = 0;
+    var count = 0;
+
+    var grTotal = new GlideRecordSecure('x_ctans_incentnow_metric_report');
+    grTotal.addQuery('period_type', 'month');
+    applyFilters(grTotal);
+    grTotal.query();
+
+    while (grTotal.next()) {
+        totalCommission += parseFloat(grTotal.getValue('total_commission')) || 0;
+        totalQuota += parseFloat(grTotal.target_quota) || 0;
+
+        var att = parseFloat(grTotal.getValue('quota_attainment'));
+        if (!isNaN(att)) {
+            totalAttainment += att;
+            count++;
+        }
+    }
+
+    data.totalIncentives = totalCommission;
+    data.totalQuota = totalQuota;
+    data.avgAchievement = count > 0 ? (totalAttainment / count) : 0;
+
+    /* ===================== STATS ===================== */
+
+    data.stats = [{
+            title: 'Total Incentives',
+            value: '$' + (data.totalIncentives / 1000).toFixed(1) + 'K',
+            change: '+12.5%',
+            trend: 'up',
+            icon: 'fa-dollar'
+        },
+        {
+            title: 'Total Quota Amount',
+            value: '$' + (data.totalQuota / 1000).toFixed(1) + 'K',
+            change: '+8.2%',
+            trend: 'up',
+            icon: 'fa-dollar'
+        },
+        {
+            title: 'Average Quota Attainment',
+            value: (data.avgAchievement || 0).toFixed(1) + '%',
+            change: '+2',
+            trend: 'up',
+            icon: 'fa-percent'
+        },
+        {
+            title: 'Average Incentive per Rep',
+            value: '$' + (data.avgIncentive || 0).toFixed(2),
+            change: '+5.3%',
+            trend: 'up',
+            icon: 'fa-users'
+        }
+    ];
+
+    /* ===================== TOTAL COMMISSION BY MONTH ===================== */
+
+    data.totalCommissionByMonth = [];
+    data.totalCreditsByMonth = [];
+
+    var monthlyMap = {};
+
+    var grMR = new GlideRecordSecure('x_ctans_incentnow_metric_report');
+    grMR.addQuery('period_type', 'month');
+    applyFilters(grMR);
+    grMR.query();
+
+    while (grMR.next()) {
+        var month = getMonthShort(grMR.getDisplayValue("fiscal_period"));
+        var commission = parseFloat(grMR.getValue("total_commission")) || 0;
+        var credits = parseFloat(grMR.getValue("total_credits")) || 0;
+
+        if (!monthlyMap[month]) {
+            monthlyMap[month] = {
+                month: month,
+                totalCommission: 0,
+                totalCredits: 0
+            };
+        }
+
+        monthlyMap[month].totalCommission += commission;
+        monthlyMap[month].totalCredits += credits;
+    }
+
+    // Populate both datasets
     if (fiscalPeriod) {
-      //gr.addQuery('fiscal_period.period_display_name', 'STARTSWITH', fiscalPeriod.split(" ")[0]);
-			grF.addQuery('fiscal_period', fiscalPeriod);
-    }
-  }
+        for (var m in monthlyMap) {
+            data.totalCommissionByMonth.push({
+                month: m,
+                totalCommission: monthlyMap[m].totalCommission
+            });
 
-  function getMonthShort(fp) {
-    var month = fp ? fp.split(" ")[0] : "";
-    return MONTH_MAP_FULL_TO_SHORT[month] || month;
-  }
+            data.totalCreditsByMonth.push({
+                month: m,
+                totalCredits: monthlyMap[m].totalCredits
+            });
+        }
+    } else {
+        MONTH_ORDER_SHORT.forEach(function(m) {
+            if (monthlyMap[m]) {
+                data.totalCommissionByMonth.push({
+                    month: m,
+                    totalCommission: monthlyMap[m].totalCommission
+                });
 
-  function formatNumber(num) {
-    return num.toFixed(1).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-  }
-
-  /* ===================== FILTER OPTIONS ===================== */
-
-  data.fiscalYears = [];
-
-	var fyMap = {};
-	var fyGR = new GlideRecordSecure('x_ctans_incentnow_fiscal_calendar');
-	fyGR.orderBy('fiscal_year_name');
-	fyGR.query();
-
-	while (fyGR.next()) {
-
-			var fyId = fyGR.getUniqueValue();
-			var fyName = fyGR.getValue('fiscal_year_name');
-
-			if (!fyMap[fyId]) {
-					fyMap[fyId] = true;
-
-					data.fiscalYears.push({
-							id: fyId,
-							name: fyName
-					});
-			}
-	}
-
-	data.fiscalPeriods = [];
-
-	var fpGR = new GlideRecordSecure('x_ctans_incentnow_fiscal_period');
-
-	if (fiscalYear) {
-		fpGR.addQuery('fiscal_year', fiscalYear);
-	}
-
-	fpGR.addQuery('period_type', 'month');
-	fpGR.query();
-
-	var tempPeriods = [];
-
-	while (fpGR.next()) {
-		tempPeriods.push({
-			id: fpGR.getUniqueValue(),
-			name: fpGR.getValue('period_name')
-		});
-	}
-
-	// ✅ Sort manually using MONTH_ORDER_FULL
-	tempPeriods.sort(function(a, b) {
-		var monthA = a.name.split(" ")[0];
-		var monthB = b.name.split(" ")[0];
-
-		return MONTH_ORDER_FULL.indexOf(monthA) - MONTH_ORDER_FULL.indexOf(monthB);
-	});
-
-	data.fiscalPeriods = tempPeriods;
-	
-	 /* =====================Average Incentive per Rep===================== */
-
-	data.avgIncentive = 0;
-
-	var totalCommissionAvg = 0;
-	var recordCount = 0;
-
-	var grAvg = new GlideRecordSecure('x_ctans_incentnow_metric_report');
-	grAvg.addQuery('period_type', 'month');
-	applyFilters(grAvg);
-	grAvg.query();
-
-	while (grAvg.next()) {
-		var comm = parseFloat(grAvg.getValue('total_commission'));
-
-		if (!isNaN(comm)) {
-			totalCommissionAvg += comm;
-			recordCount++;
-		}
-	}
-
-	// Final average
-	data.avgIncentive = recordCount > 0 ? (totalCommissionAvg / recordCount) : 0;
-
-	
-	/* ===================== TOTALS ===================== */
-
-  var totalCommission = 0;
-  var totalQuota = 0;
-  var totalAttainment = 0;
-  var count = 0;
-
-  var grTotal = new GlideRecordSecure('x_ctans_incentnow_metric_report');
-  grTotal.addQuery('period_type', 'month');
-  applyFilters(grTotal);
-  grTotal.query();
-
-  while (grTotal.next()) {
-    totalCommission += parseFloat(grTotal.getValue('total_commission')) || 0;
-    totalQuota += parseFloat(grTotal.target_quota) || 0;
-
-    var att = parseFloat(grTotal.getValue('quota_attainment'));
-    if (!isNaN(att)) {
-      totalAttainment += att;
-      count++;
-    }
-  }
-
-  data.totalIncentives = totalCommission;
-  data.totalQuota = totalQuota;
-  data.avgAchievement = count > 0 ? (totalAttainment / count) : 0;
-
-  /* ===================== STATS ===================== */
-
-  data.stats = [
-    {
-      title: 'Total Incentives',
-      value: '$' + (data.totalIncentives / 1000).toFixed(1) + 'K',
-      change: '+12.5%',
-      trend: 'up',
-      icon: 'fa-dollar'
-    },
-    {
-      title: 'Total Quota Amount',
-      value: '$' + (data.totalQuota / 1000).toFixed(1) + 'K',
-      change: '+8.2%',
-      trend: 'up',
-      icon: 'fa-dollar'
-    },
-    {
-      title: 'Average Quota Attainment',
-      value: (data.avgAchievement || 0).toFixed(1) + '%',
-      change: '+2',
-      trend: 'up',
-      icon: 'fa-percent'
-    },
-    {
-      title: 'Average Incentive per Rep',
-      value: '$' + (data.avgIncentive || 0).toFixed(2),
-      change: '+5.3%',
-      trend: 'up',
-      icon: 'fa-users'
-    }
-  ];
-
-  /* ===================== TOTAL COMMISSION BY MONTH ===================== */
-	
-	data.totalCommissionByMonth = [];
-	data.totalCreditsByMonth = [];
-
-	var monthlyMap = {};
-
-	var grMR = new GlideRecordSecure('x_ctans_incentnow_metric_report');
-	grMR.addQuery('period_type', 'month');
-	applyFilters(grMR);
-	grMR.query();
-
-	while (grMR.next()) {
-		var month = getMonthShort(grMR.getDisplayValue("fiscal_period"));
-		var commission = parseFloat(grMR.getValue("total_commission")) || 0;
-		var credits = parseFloat(grMR.getValue("total_credits")) || 0;
-
-		if (!monthlyMap[month]) {
-			monthlyMap[month] = {
-				month: month,
-				totalCommission: 0,
-				totalCredits: 0
-			};
-		}
-
-		monthlyMap[month].totalCommission += commission;
-		monthlyMap[month].totalCredits += credits;
-	}
-
-	// Populate both datasets
-	if (fiscalPeriod) {
-		for (var m in monthlyMap) {
-			data.totalCommissionByMonth.push({
-				month: m,
-				totalCommission: monthlyMap[m].totalCommission
-			});
-
-			data.totalCreditsByMonth.push({
-				month: m,
-				totalCredits: monthlyMap[m].totalCredits
-			});
-		}
-	} else {
-		MONTH_ORDER_SHORT.forEach(function(m) {
-			if (monthlyMap[m]) {
-				data.totalCommissionByMonth.push({
-					month: m,
-					totalCommission: monthlyMap[m].totalCommission
-				});
-
-				data.totalCreditsByMonth.push({
-					month: m,
-					totalCredits: monthlyMap[m].totalCredits
-				});
-			}
-		});
-	}
-	
-	  /* ===================== BUSINESS INCENTIVES ===================== */
-
-  data.businessIncentives = [];
-  var buMap = {};
-
-  var grBU = new GlideRecordSecure('x_ctans_incentnow_metric_report');
-  grBU.addQuery('period_type', 'month');
-  applyFilters(grBU);
-  grBU.query();
-
-  while (grBU.next()) {
-    var user = grBU.user.getRefRecord();
-    var buName = "Unknown";
-
-    if (user && user.business_unit) {
-      var bu = user.business_unit.getRefRecord();
-      buName = bu ? bu.getDisplayValue("name") : "Unknown";
+                data.totalCreditsByMonth.push({
+                    month: m,
+                    totalCredits: monthlyMap[m].totalCredits
+                });
+            }
+        });
     }
 
-    var commission = parseFloat(grBU.getValue("total_commission")) || 0;
+    /* ===================== BUSINESS INCENTIVES ===================== */
 
-    if (!buMap[buName]) {
-      buMap[buName] = { business_unit: buName, totalCommission: 0 };
+    data.businessIncentives = [];
+    var buMap = {};
+
+    var grBU = new GlideRecordSecure('x_ctans_incentnow_metric_report');
+    grBU.addQuery('period_type', 'month');
+    applyFilters(grBU);
+    grBU.query();
+
+    while (grBU.next()) {
+        var buName;
+
+        if (data.isTerritoryEnabled) {
+            buName = grBU.getDisplayValue("x_ctans_territory_territory");
+            if (!buName) {
+                buName = grBU.getDisplayValue("business_unit");
+            }
+            if (!buName) {
+                buName = "Unknown";
+            }
+
+        } else {
+
+            buName = grBU.getDisplayValue("business_unit");
+            // Skip records with no Business Unit
+            if (!buName) {
+                continue;
+            }
+        }
+
+        var commission = parseFloat(grBU.getValue("total_commission")) || 0;
+
+        if (!buMap[buName]) {
+            buMap[buName] = {
+                business_unit: buName,
+                totalCommission: 0
+            };
+        }
+
+        buMap[buName].totalCommission += commission;
     }
 
-    buMap[buName].totalCommission += commission;
-  }
+    if (fiscalPeriod) {
+        // ]]>👉<![CDATA[ Collapse everything into one value (like graph)
+        var total = 0;
 
-  if (fiscalPeriod) {
-		// ]]>👉<![CDATA[ Collapse everything into one value (like graph)
-		var total = 0;
+        for (var b in buMap) {
+            total += buMap[b].totalCommission;
+        }
 
-		for (var b in buMap) {
-			total += buMap[b].totalCommission;
-		}
+        var fiscalPeriodName = "";
 
-		data.businessIncentives.push({
-			business_unit: fiscalPeriod, // label
-			totalCommission: total
-		});
+        if (fiscalPeriod) {
+            var fp = new GlideRecordSecure("x_ctans_incentnow_fiscal_period");
+            if (fp.get(fiscalPeriod)) {
+                fiscalPeriodName = fp.getValue("period_name"); // or getDisplayValue()
+            }
+        }
 
-	} else {
-		// ]]>👉<![CDATA[ Normal full-year breakdown
-		for (var b in buMap) {
-			data.businessIncentives.push(buMap[b]);
-		}
-	}
+        data.businessIncentives.push({
+            business_unit: fiscalPeriodName, // label
+            totalCommission: total
+        });
 
-  /* ===================== REP AVG BY PLAN ===================== */
-
-  data.repAvgByPlan = [];
-  var planMap = {};
-
-  var grPlan = new GlideRecordSecure('x_ctans_incentnow_metric_report');
-  applyFilters(grPlan);
-	grPlan.addQuery('period_type', 'month');
-  grPlan.query();
-
-  while (grPlan.next()) {
-    var plan = grPlan.getDisplayValue("plan") || "Unknown";
-    var userId = grPlan.getValue("user");
-    var commission = parseFloat(grPlan.getValue("total_commission")) || 0;
-
-    if (!planMap[plan]) {
-      planMap[plan] = { plan: plan, totalCommission: 0, users: {} };
+    } else {
+        // ]]>👉<![CDATA[ Normal full-year breakdown
+        for (var b in buMap) {
+            data.businessIncentives.push(buMap[b]);
+        }
     }
 
-    planMap[plan].totalCommission += commission;
+    /* ===================== REP AVG BY PLAN ===================== */
 
-    if (userId) {
-      planMap[plan].users[userId] = true;
-    }
-  }
+    data.repAvgByPlan = [];
+    var planMap = {};
 
-  for (var p in planMap) {
-    var userCount = Object.keys(planMap[p].users).length;
+    var grPlan = new GlideRecordSecure('x_ctans_incentnow_metric_report');
+    applyFilters(grPlan);
+    grPlan.addQuery('period_type', 'month');
+    grPlan.query();
 
-    data.repAvgByPlan.push({
-      plan: p,
-      avgCommission: userCount > 0 ? (planMap[p].totalCommission / userCount) : 0
-    });
-  }
+    while (grPlan.next()) {
+        var plan = grPlan.getDisplayValue("plan") || "Unknown";
+        var userId = grPlan.getValue("user");
+        var commission = parseFloat(grPlan.getValue("total_commission")) || 0;
 
+        if (!planMap[plan]) {
+            planMap[plan] = {
+                plan: plan,
+                totalCommission: 0,
+                users: {}
+            };
+        }
 
-  /* ===================== QUOTA ATTAINMENT BY MONTH ===================== */
+        planMap[plan].totalCommission += commission;
 
-  data.quotaAttainmentByMonth = [];
-  var quotaMap = {};
-
-  var grQuota = new GlideRecordSecure('x_ctans_incentnow_metric_report');
-  grQuota.addQuery('period_type', 'month');
-  applyFilters(grQuota);
-  grQuota.query();
-
-  while (grQuota.next()) {
-    var month = getMonthShort(grQuota.getDisplayValue("fiscal_period"));
-    var att = parseFloat(grQuota.getValue("quota_attainment"));
-
-    if (isNaN(att)) continue;
-
-    if (!quotaMap[month]) {
-      quotaMap[month] = { total: 0, count: 0 };
+        if (userId) {
+            planMap[plan].users[userId] = true;
+        }
     }
 
-    quotaMap[month].total += att;
-    quotaMap[month].count++;
-  }
+    for (var p in planMap) {
+        var userCount = Object.keys(planMap[p].users).length;
 
-  if (fiscalPeriod) {
-		// ]]>👉<![CDATA[ Only selected month
-		for (var m in quotaMap) {
-			data.quotaAttainmentByMonth.push({
-				month: m,
-				quotaAttainment: quotaMap[m].total / quotaMap[m].count
-			});
-		}
-	} else {
-		// ]]>👉<![CDATA[ Full year
-		MONTH_ORDER_SHORT.forEach(function(m) {
-			if (quotaMap[m]) {
-				data.quotaAttainmentByMonth.push({
-					month: m,
-					quotaAttainment: quotaMap[m].total / quotaMap[m].count
-				});
-			}
-		});
-	}
-
-
-  /* ===================== TOP PERFORMERS ===================== */
-
-  data.topPerformers = [];
-
-  var tpGR = new GlideRecordSecure('x_ctans_incentnow_metric_report');
-  tpGR.orderByDesc('total_commission');
-	tpGR.addQuery('period_type', 'month');
-	applyFilters(tpGR);
-  tpGR.query();
-
-  while (tpGR.next()) {
-    var userName = tpGR.getDisplayValue("user");
-
-    var teamName = "";
-    if (user && user.business_unit) {
-      var bu = user.business_unit.getRefRecord();
-      teamName = bu ? bu.getDisplayValue("name") : "";
+        data.repAvgByPlan.push({
+            plan: p,
+            avgCommission: userCount > 0 ? (planMap[p].totalCommission / userCount) : 0
+        });
     }
 
-    data.topPerformers.push({
-      name: userName,
-			fiscalYear: tpGR.getDisplayValue("fiscal_year"),
-    	fiscalPeriod: tpGR.getDisplayValue("fiscal_period"),
-      team: teamName,
-      commission: formatNumber(Number(tpGR.getValue("total_commission")) || 0),
-      targetQuota: formatNumber(Number(tpGR.getValue("target_quota")) || 0),
-      quotaAttainment: formatNumber(Number(tpGR.getValue("quota_attainment")) || 0),
-      totalCredits: formatNumber(Number(tpGR.getValue("total_credits")) || 0)
-    });
-  }
 
-  data.topPerformers = data.topPerformers.slice(0, 5);
+    /* ===================== QUOTA ATTAINMENT BY MONTH ===================== */
+
+    data.quotaAttainmentByMonth = [];
+    var quotaMap = {};
+
+    var grQuota = new GlideRecordSecure('x_ctans_incentnow_metric_report');
+    grQuota.addQuery('period_type', 'month');
+    applyFilters(grQuota);
+    grQuota.query();
+
+    while (grQuota.next()) {
+        var month = getMonthShort(grQuota.getDisplayValue("fiscal_period"));
+        var att = parseFloat(grQuota.getValue("quota_attainment"));
+
+        if (isNaN(att)) continue;
+
+        if (!quotaMap[month]) {
+            quotaMap[month] = {
+                total: 0,
+                count: 0
+            };
+        }
+
+        quotaMap[month].total += att;
+        quotaMap[month].count++;
+    }
+
+    if (fiscalPeriod) {
+        // ]]>👉<![CDATA[ Only selected month
+        for (var m in quotaMap) {
+            data.quotaAttainmentByMonth.push({
+                month: m,
+                quotaAttainment: quotaMap[m].total / quotaMap[m].count
+            });
+        }
+    } else {
+        // ]]>👉<![CDATA[ Full year
+        MONTH_ORDER_SHORT.forEach(function(m) {
+            if (quotaMap[m]) {
+                data.quotaAttainmentByMonth.push({
+                    month: m,
+                    quotaAttainment: quotaMap[m].total / quotaMap[m].count
+                });
+            }
+        });
+    }
+
+
+    /* ===================== TOP PERFORMERS ===================== */
+
+    data.topPerformers = [];
+
+    var tpGR = new GlideRecordSecure('x_ctans_incentnow_metric_report');
+    tpGR.orderByDesc('total_commission');
+    tpGR.addQuery('period_type', 'month');
+    applyFilters(tpGR);
+    tpGR.query();
+
+    while (tpGR.next()) {
+
+        var userName = tpGR.getDisplayValue("user");
+
+        var territoryName = "";
+        if (data.isTerritoryEnabled) {
+            territoryName = tpGR.getDisplayValue("x_ctans_territory_territory");
+        }
+
+        var teamName = tpGR.getDisplayValue("business_unit");
+
+        data.topPerformers.push({
+            name: userName,
+            fiscalYear: tpGR.getDisplayValue("fiscal_year"),
+            fiscalPeriod: tpGR.getDisplayValue("fiscal_period"),
+            territory: territoryName,
+            team: teamName,
+            commission: formatNumber(Number(tpGR.getValue("total_commission")) || 0),
+            targetQuota: formatNumber(Number(tpGR.getValue("target_quota")) || 0),
+            quotaAttainment: formatNumber(Number(tpGR.getValue("quota_attainment")) || 0),
+            totalCredits: formatNumber(Number(tpGR.getValue("total_credits")) || 0)
+        });
+    }
+
+    data.topPerformers = data.topPerformers.slice(0, 5);
 
 })();]]></script>
         <servicenow>false</servicenow>
@@ -791,14 +836,14 @@ c.charts.repAvgChart = new Chart(ctx, {
         <sys_created_by>karan.kumar</sys_created_by>
         <sys_created_on>2026-03-16 19:40:53</sys_created_on>
         <sys_id>d382d1273b6ffa505493ddb693e45a29</sys_id>
-        <sys_mod_count>317</sys_mod_count>
+        <sys_mod_count>333</sys_mod_count>
         <sys_name>IncentNow Dashboard</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
         <sys_update_name>sp_widget_d382d1273b6ffa505493ddb693e45a29</sys_update_name>
-        <sys_updated_by>karan.kumar</sys_updated_by>
-        <sys_updated_on>2026-06-12 08:33:53</sys_updated_on>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-14 11:22:07</sys_updated_on>
         <template><![CDATA[<div class="incentnow-dashboard">
   <div class="m-b-md">
     <h1>Dashboard</h1>
@@ -837,11 +882,11 @@ c.charts.repAvgChart = new Chart(ctx, {
             <i class="fa {{stat.icon}} pull-right text-muted"></i>
           </div>
           <div class="pt-scorecard-value">{{stat.value}}</div>
-          <div class="pt-scorecard-trend">
+          <!--div class="pt-scorecard-trend">
             <i class="fa" ng-class="stat.trend === 'up' ? 'fa-arrow-up text-success' : 'fa-arrow-down text-danger'"></i>
             <span ng-class="stat.trend === 'up' ? 'text-success' : 'text-danger'">{{stat.change}}</span>
             <span class="pt-scorecard-period">vs Last Period</span>
-          </div>
+          </div-->
         </div>
       </div>
     </div>
@@ -863,7 +908,7 @@ c.charts.repAvgChart = new Chart(ctx, {
     <div class="col-md-6">
     <div class="panel panel-default">
       <div class="panel-heading">
-        <h3 class="panel-title">Incentives by Business Unit</h3>
+        <h3 class="panel-title">Incentives by Team</h3>
       </div>
       <div class="panel-body" style="height: 330px;">
         <canvas id="businessIncentivesChart_{{c.chartId}}" height="300"></canvas>
@@ -904,7 +949,7 @@ c.charts.repAvgChart = new Chart(ctx, {
       <table class="table table-striped table-hover">
         <thead>
           <tr>
-            <th>Name</th><th>Fiscal Year</th><th>Fiscal Period</th><th>Business Unit</th><th>Total Incentives</th><th>Target Quota</th><th>Quota Attainment</th><th>Total Credits</th>
+            <th>Name</th><th>Fiscal Year</th><th>Fiscal Period</th><th ng-if="c.data.isTerritoryEnabled">Territory</th><th>Business Unit</th><th>Total Incentives</th><th>Target Quota</th><th>Quota Attainment</th><th>Total Credits</th>
           </tr>
         </thead>
         <tbody>
@@ -914,6 +959,9 @@ c.charts.repAvgChart = new Chart(ctx, {
             </td>
             <td><span class="label label-default">{{rep.fiscalYear}}</span></td>
             <td><span class="label label-default">{{rep.fiscalPeriod}}</span></td>
+            <td ng-if="c.data.isTerritoryEnabled">
+                <span class="label label-default">{{rep.territory}}</span>
+            </td>
             <td><span class="label label-default">{{rep.team}}</span></td>
             <td class="currency"><p><span>$</span>{{rep.commission}}</p></td>
             <td class="currency"><p><span>$</span>{{rep.targetQuota}}</p></td>

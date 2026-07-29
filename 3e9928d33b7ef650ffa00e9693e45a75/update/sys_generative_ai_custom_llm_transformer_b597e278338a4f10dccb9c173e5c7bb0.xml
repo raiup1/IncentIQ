@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_generative_ai_custom_llm_transformer">
+    <sys_generative_ai_custom_llm_transformer action="INSERT_OR_UPDATE">
+        <model display_value="claude-sonnet-4-5">39f62ef4338a4f10dccb9c173e5c7bbf</model>
+        <request_transformer><![CDATA[(function(inputs) {
+    var requestData = inputs.request_data;
+    var promptData = inputs.prompt_data;
+    var prompt = promptData.prompt;
+
+    var body = {
+        model: "claude-sonnet-4-5",
+        max_tokens: 700,
+        messages: [{
+            "role": "user",
+            "content": prompt
+        }]
+    };
+
+    var headers = {
+        "x-api-key": "",
+        "anthropic-version": "2023-06-01"
+    };
+
+    return {
+        body: body,
+        headers: headers
+    };
+})(inputs);]]></request_transformer>
+        <response_transformer><![CDATA[(function(inputs) {
+    var requestData = inputs.request_data;
+    var promptData = inputs.prompt_data;
+    var responseBody = JSON.parse(inputs.response_body);
+
+    var responseTexts = [];
+    responseTexts.push(responseBody.content[0].text);
+
+    return responseTexts;
+})(inputs);]]></response_transformer>
+        <sys_class_name>sys_generative_ai_custom_llm_transformer</sys_class_name>
+        <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+        <sys_created_on>2026-07-10 19:26:03</sys_created_on>
+        <sys_id>b597e278338a4f10dccb9c173e5c7bb0</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name/>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_generative_ai_custom_llm_transformer_b597e278338a4f10dccb9c173e5c7bb0</sys_update_name>
+        <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
+        <sys_updated_on>2026-07-10 19:26:03</sys_updated_on>
+    </sys_generative_ai_custom_llm_transformer>
+</record_update>

@@ -59,23 +59,29 @@ No wrappers.
 No model_output payloads.
 
 This tool is the required execution layer for IncentNow Copilot.</description>
+        <display_mode>inline</display_mode>
         <display_output>true</display_output>
         <document_status/>
+        <entity>sn_aia_agent</entity>
+        <entity_id>e84100753b504f105493ddb693e45a6c</entity_id>
         <execution_mode>autopilot</execution_mode>
         <inputs>[]</inputs>
         <max_auto_executions>10</max_auto_executions>
         <name>IncentIQ Assistant</name>
-        <output_transformation_strategy>none</output_transformation_strategy>
+        <output_transformation_strategy>custom</output_transformation_strategy>
         <post_message>Processed incentive tool</post_message>
         <post_processing_script/>
         <pre_message>Processing incentive tool</pre_message>
         <pre_run>false</pre_run>
+        <requires_text_refined_message>false</requires_text_refined_message>
+        <requires_widget_transformation>true</requires_widget_transformation>
+        <should_display_refined_message>false</should_display_refined_message>
         <sys_class_name>sn_aia_agent_tool_m2m</sys_class_name>
         <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
         <sys_created_on>2026-04-24 18:06:10</sys_created_on>
         <sys_domain>global</sys_domain>
         <sys_id>9403f1c43b6c4350ffa00e9693e45abc</sys_id>
-        <sys_mod_count>21</sys_mod_count>
+        <sys_mod_count>25</sys_mod_count>
         <sys_name>IncentIQ Assistant</sys_name>
         <sys_overrides/>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
@@ -83,37 +89,132 @@ This tool is the required execution layer for IncentNow Copilot.</description>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
         <sys_update_name>sn_aia_agent_tool_m2m_9403f1c43b6c4350ffa00e9693e45abc</sys_update_name>
         <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
-        <sys_updated_on>2026-06-18 15:12:34</sys_updated_on>
+        <sys_updated_on>2026-06-23 11:53:43</sys_updated_on>
         <timeout/>
         <tool display_value="IncentNow Compensation Assistant">d403f9843b6c4350ffa00e9693e45a3d</tool>
         <tool_attributes>{}</tool_attributes>
-        <transformation_instructions>Transform the tool response into clean user-facing text.
+        <transformation_instructions>You are IncentIQ Copilot.
+
+Format all incentive, quota, payout, plan, and commission responses in a clean executive-style format.
 
 Rules:
 
-1. Preserve the exact wording, values, formatting, bullets, emojis, line breaks, and structure of the tool response.
-2. Never modify, summarize, explain, enhance, rephrase, interpret, or expand the response.
-3. Never change currency values, percentages, dates, plan names, quota values, payout values, business units, months, quarters, or years.
-4. Never add business explanations, recommendations, assumptions, or contextual information.
-5. Never generate additional content.
-6. Never return JSON.
-7. If the response contains response.model_output, display only the value of response.model_output.
-8. Do not display:
+1. Preserve all values exactly as received.
+2. Never modify calculations, percentages, dates, months, quarters, years, quotas, payouts, commissions, plans, business units, or incentive values.
+3. Never invent information.
+4. Never recalculate values.
+5. Never display JSON.
+6. Never display model_output, response wrappers, payloads, or technical details.
+7. Remove phrases such as:
 
-   * response
-   * model_output
-   * JSON objects
-   * wrappers
-   * payloads
-   * key names
-9. Return only the final clean text exactly as provided by the tool.
+   * All done!
+   * Let me look that up
+   * Processed incentive tool
+   * Optimized results
+   * Started AI Agent
+   * Checked on remaining steps
+8. Display only the final business response.
+9. Use headings, bullets, spacing, and emojis where appropriate.
+10. Responses should look like executive compensation statements.
 
-Example:
+Formatting Standards:
 
-Input:
-{"response":{"model_output":"Your quota is $120,000"}}
+For Quota Responses:
 
-Output:
-Your quota is $120,000</transformation_instructions>
+🎯 Quota Information
+
+• Fiscal Year: {year}
+• Total Quota: {amount}
+
+For Monthly Quota:
+
+📅 Monthly Quota Breakdown
+
+• January: {amount}
+• February: {amount}
+• March: {amount}
+
+For Monthly Payout:
+
+💰 Monthly Payout Summary
+
+• January 2026: {amount}
+• February 2026: {amount}
+• March 2026: {amount}
+
+────────────────────
+
+Total Payout: {amount}
+
+For QTD/YTD Commission:
+
+📊 Commission Summary
+
+• Period: {period}
+• Commission Earned: {amount}
+
+For Plan Information:
+
+📋 Compensation Plan
+
+Plan Name:
+{plan}
+
+Business Unit:
+{business_unit}
+
+Plan Components:
+• Component 1
+• Component 2
+
+For Plan Components:
+
+📋 Compensation Plan Components
+
+Earning Rules
+
+• Rule 1
+• Rule 2
+
+Lookup Rules
+
+• Rule 1
+• Rule 2
+
+Payout Summaries
+
+• Summary 1
+• Summary 2
+
+For Payout Components:
+
+💰 Payout Components
+
+• Component Name: Amount
+• Component Name: Amount
+• Component Name: Amount
+
+────────────────────
+
+Total Payout: Amount
+
+For Breakdown Responses:
+
+📊 Payout Breakdown
+
+• Component
+Formula: {formula}
+Amount: {amount}
+
+────────────────────
+
+Total Breakdown Amount: {amount}
+
+Return only the final formatted response.
+Do not add conversational filler.
+Do not add conclusions.
+Do not add "anything else I can help with".
+</transformation_instructions>
+        <widgets/>
     </sn_aia_agent_tool_m2m>
 </record_update>

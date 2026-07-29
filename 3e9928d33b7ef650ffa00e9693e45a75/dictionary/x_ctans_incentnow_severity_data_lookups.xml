@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element attributes="update_synch=true" db_object_id="957d14b93bb987504be1ef9e53e45a0c" extends="dl_matcher" label="Severity Data Lookups" max_length="40" name="x_ctans_incentnow_severity_data_lookups" type="collection">
+        <element choice="3" choice_field="impact" choice_table="x_ctans_incentnow_incentiq_dispute" label="Impact" max_length="40" name="impact" type="choice">
+            <choice/>
+        </element>
+        <element choice="3" choice_field="severity" choice_table="x_ctans_incentnow_dispute" label="Severity" max_length="40" name="severity" type="choice">
+            <choice/>
+        </element>
+        <element choice="3" choice_field="priority" choice_table="task" label="Priority" max_length="40" name="priority" type="choice">
+            <choice/>
+        </element>
+        <element choice="3" choice_field="urgency" choice_table="x_ctans_incentnow_incentiq_dispute" label="Urgency" max_length="40" name="urgency" type="choice">
+            <choice/>
+        </element>
+    </element>
+</database>

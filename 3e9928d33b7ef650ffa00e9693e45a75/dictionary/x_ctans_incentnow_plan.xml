@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?><database>
     <element db_object_id="d718465d3b537e505493ddb693e45a26" label="Plan" max_length="40" name="x_ctans_incentnow_plan" type="collection">
-        <element attributes="encode_utf8=false,ref_auto_completer=AJAXTableCompleter,ref_ac_columns=parent,ref_ac_columns_search=true, tree_picker=true" hint="Choose the business unit this plan applies to (e.g., APAC Enterprise)." label="Business Unit" mandatory="true" max_length="32" name="business_unit" reference="business_unit" reference_qual="javascript:new IncentNowAccessUtils().getUserBusinessUnitQuery();" type="reference" use_reference_qualifier="advanced"/>
+        <element attributes="edge_encryption_enabled=true" choice="1" label="Business Dimension" mandatory="true" max_length="40" name="business_dimension" type="string">
+            <choice>
+                <element inactive_on_update="false" label="Territory" sequence="1" value="territory"/>
+                <element inactive_on_update="false" label="Business Unit" sequence="0" value="business_unit"/>
+            </choice>
+        </element>
+        <element attributes="edge_encryption_enabled=true,encode_utf8=false,ref_ac_columns=parent,ref_ac_columns_search=true,ref_auto_completer=AJAXTableCompleter,tree_picker=true" hint="Choose the business unit this plan applies to (e.g., APAC Enterprise)." label="Business Unit" max_length="32" name="business_unit" reference="business_unit" reference_qual="javascript:new IncentNowAccessUtils().getUserBusinessUnitQuery();" type="reference" use_reference_qualifier="advanced"/>
         <element attributes="edge_encryption_enabled=true" choice="1" default="draft" hint="Set the current status of the plan (Active or Inactive). Only active plans are applied." label="Status" mandatory="true" max_length="40" name="status" type="string">
             <choice>
                 <element inactive_on_update="false" label="Draft" sequence="0" value="draft"/>

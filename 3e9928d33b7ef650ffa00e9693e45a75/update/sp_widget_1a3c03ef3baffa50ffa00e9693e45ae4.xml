@@ -1,13 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
     <sp_widget action="INSERT_OR_UPDATE">
         <category>custom</category>
-        <client_script><![CDATA[api.controller = function($location) {
+        <client_script><![CDATA[api.controller = function($location, $scope, $timeout) {
     /* widget controller */
     var c = this;
-    c.selectedPeriod = '';
-		c.selectedYear = ''; 
-    c.selectedUser = '';
-    c.selectedStatus = '';
     c.showDetailModal = false;
     c.showDisputeModal = false;
     c.currentStatement = null;
@@ -16,46 +12,6 @@
         comments: ''
     };
 	
-		/* Get display name for selected user */
-		/* Get display name for selected user */
-		c.getSelectedUserName = function() {
-				if (!c.selectedUser || !c.data.users) 
-						return "All Team Members";
-
-				for (var i = 0; i < c.data.users.length; i++) {
-						if (c.data.users[i].id === c.selectedUser) {
-								return c.data.users[i].name;
-						}
-				}
-				return "All Team Members";
-		};
-
-		/* Get display name for selected period */
-		c.getSelectedPeriodName = function() {
-				if (!c.selectedPeriod || !c.data.fiscalPeriods)
-						return "";
-
-				for (var i = 0; i < c.data.fiscalPeriods.length; i++) {
-						if (c.data.fiscalPeriods[i].id === c.selectedPeriod) {
-								return c.data.fiscalPeriods[i].name;
-						}
-				}
-				return "";
-		};
-
-    c.loadStatements = function() {
-    c.currentPage = 1;
-    c.data.period = c.selectedPeriod;
-		c.data.year   = c.selectedYear;
-    c.data.user = c.selectedUser;
-    c.data.status = c.selectedStatus;
-
-    // Trigger the server script to run again with these new values
-    c.server.update().then(function(response) {
-        // The table will now refresh with the filtered data
-        console.log("Found " + c.data.statements.length + " statements.");
-				});
-		};
 
     c.viewStatement = function(statementId) {
 			
@@ -158,9 +114,136 @@
         if (!num) return "$0";
         return "$" + Number(num).toLocaleString();
     };
+	
+		// Approval Flow Pagination
+		c.approvalCurrentPage = 1;
+		c.approvalPageSize = 5;
+
+		c.getPaginatedApprovalFlow = function () {
+
+				if (!c.approvalFlow)
+						return [];
+
+				var start = (c.approvalCurrentPage - 1) * c.approvalPageSize;
+				var end = start + c.approvalPageSize;
+
+				return c.approvalFlow.slice(start, end);
+		};
+
+		c.approvalTotalPages = function () {
+
+				if (!c.approvalFlow || c.approvalFlow.length === 0)
+						return 1;
+
+				return Math.ceil(c.approvalFlow.length / c.approvalPageSize);
+		};
+
+		c.nextApprovalPage = function () {
+
+				if (c.approvalCurrentPage < c.approvalTotalPages()) {
+						c.approvalCurrentPage++;
+				}
+		};
+
+		c.prevApprovalPage = function () {
+
+				if (c.approvalCurrentPage > 1) {
+						c.approvalCurrentPage--;
+				}
+		};
+	
+		//approval flow
+
+		c.showApprovalFlow = false;
+		c.approvalFlow = [];
+
+		c.openApprovalFlow = function(statementId) {
+			
+				c.server.get({
+						action: "getApprovalFlow",
+						statementId: statementId
+				}).then(function(response) {
+
+						c.approvalFlow = response.data.approvalFlow;
+						c.showApprovalFlow = true;
+				});
+		};
+	
+		$scope.$on('showStatementApprovalFlow', function(event, data) {
+
+				c.server.get({
+						action: 'getApprovalFlow',
+						statementId: data.statementId
+				}).then(function(response){
+
+						c.approvalFlow = response.data.approvalFlow;
+						c.approvalCurrentPage = 1; 
+						c.showApprovalFlow = true;
+					
+						$timeout(function () {
+
+						var el = document.getElementById("approvalFlowSection");
+
+						if (el) {
+								el.scrollIntoView({
+										behavior: "smooth",
+										block: "start"
+								});
+						}
+
+				}, 100);
+
+				});
+
+		});
+	
 };]]></client_script>
         <controller_as>c</controller_as>
-        <css>.incentive-statements {
+        <css>
+.box {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #475569;
+    margin-bottom: 1.2rem;
+}
+
+.stats-row {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+.set {
+    font-size: 3.4rem !important;
+    font-weight: 700;
+    color: #0f172a;
+    line-height: 1;
+    margin-bottom: .6rem;
+}
+
+.stat-box {
+  flex: 1;
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  text-align: left;
+  border: 1px solid #eee;
+  color: black;
+}
+
+.stat-box h3 { 
+    font-size: 3.4rem;
+    font-weight: 700;
+    color: #0f172a;
+    line-height: 1;
+    margin-bottom: .6rem;
+}
+
+.stat-box span {
+  font-size: 1.3rem;
+  color: #94a3b8;
+}
+
+.incentive-statements {
   background: #f1f5f9;
   
   .h2{
@@ -443,115 +526,62 @@
     /* populate the 'data' object */
     /* e.g., data.table = $sp.getValue('table'); */
     // Check if user is admin
-		data.tableWidget=$sp.getWidget('incentnow-table-widget',{ table: 'x_ctans_incentnow_incentive_statement',view:'',viewperiod:'false'});
+		data.tableWidget=$sp.getWidget('incentnow-table-widget',{ table: 'x_ctans_incentnow_incentive_statement',view:'portal_view',viewperiod:'false'});
     data.isAdmin =
     gs.hasRole('x_ctans_incentnow.admin') ||
     gs.hasRole('x_ctans_incentnow.manager') ||
 		gs.hasRole('x_ctans_incentnow.business_group_executive') ||
 		gs.hasRole('x_ctans_incentnow.business_group_admin') ||
+		gs.hasRole('x_ctans_incentnow.territory_admin') ||
 		gs.hasRole('x_ctans_incentnow.org_executive');
 		//data.isAdmin = gs.hasRole('snc_internal'); 
-    // Get fiscal periods
-    data.fiscalYears = [];
-		data.isIncentBusinessGroupAdmin = gs.hasRole('x_ctans_incentnow.business_group_admin') || gs.hasRole('x_ctans_incentnow.admin');
 
-
-		var yearMap = {};
-		var yearGR = new GlideRecordSecure('x_ctans_incentnow_fiscal_calendar');
-		yearGR.orderBy('fiscal_year_name');
-		yearGR.query();
-
-		while (yearGR.next()) {
-
-				var yearName = yearGR.getValue('fiscal_year_name');
-				var yearId = yearGR.getUniqueValue(); //  important
-
-				if (yearName && !yearMap[yearId]) {
-						yearMap[yearId] = true;
-
-						data.fiscalYears.push({
-								id: yearId,     // use sys_id
-								name: yearName  // display
-						});
-				}
-		}
-		var MONTH_ORDER_FULL = [
-			"January","February","March","April","May","June",
-			"July","August","September","October","November","December"
-		];
-
-		data.fiscalPeriods = [];
-
-		var periodGR = new GlideRecordSecure('x_ctans_incentnow_fiscal_period');
-
-		if (input && input.year) {
-				periodGR.addQuery('fiscal_year', input.year); 
-		}
-		
-		//periodGR.addQuery('period_type', 'month');
-		periodGR.query();
-
-		var tempPeriods = [];
-
-		while (periodGR.next()) {
-				tempPeriods.push({
-						id: periodGR.getUniqueValue(),
-						name: periodGR.getValue('period_name')
-				});
-		}
-
-		// Sort properly
-		tempPeriods.sort(function(a, b) {
-				var monthA = a.name.split(" ")[0];
-				var monthB = b.name.split(" ")[0];
-
-				return MONTH_ORDER_FULL.indexOf(monthA) - MONTH_ORDER_FULL.indexOf(monthB);
-		});
-
-		data.fiscalPeriods = tempPeriods;
-
-    // Get users (for admin)
-    data.users = [];
-    if (data.isAdmin) {
-        var userGR = new GlideRecordSecure('x_ctans_incentnow_user_profile');
-        userGR.addActiveQuery();
-        userGR.orderBy('name');
-        userGR.query();
-        while (userGR.next()) {
-            data.users.push({
-                id: userGR.getUniqueValue(),
-                name: userGR.getValue('name')
-            });
-        }
-    }
-		
-		
-
+		data.isIncentGroupAdmin =
+    gs.hasRole('x_ctans_incentnow.business_group_admin') || gs.hasRole('x_ctans_incentnow.territory_admin');
     // Get statements
 		data.statements = [];
 		var stmtGR = new GlideRecordSecure('x_ctans_incentnow_incentive_statement');
+	
+		//================ Statement Dashboard Statistics ================
+		data.statementStats = {
+				published: 0,
+				generated: 0,
+				pending: 0,
+				totalCommission: 0
+		};
+
+		var statsGR = new GlideRecordSecure('x_ctans_incentnow_incentive_statement');
+
+		// Restrict for non-admin
+		if (!data.isAdmin) {
+				var profileGR = new GlideRecordSecure('x_ctans_incentnow_user_profile');
+				profileGR.addQuery('user', gs.getUserID());
+				profileGR.setLimit(1);
+				profileGR.query();
+
+				if (profileGR.next()) {
+						statsGR.addQuery('user', profileGR.getUniqueValue());
+				}
+		}
+
+		statsGR.query();
+		while (statsGR.next()) {
+				var status = statsGR.getValue('status');
+				if (status == 'statement_published') {
+						data.statementStats.published++;
+						data.statementStats.totalCommission += parseFloat(statsGR.getValue('total_commission') || 0);
+				}
+				else if (status == 'statement_generated') {
+						data.statementStats.generated++;
+				}
+				else if (status == 'pending_approval') {
+						data.statementStats.pending++;
+				}
+		}
 
   // Status Filter
 	stmtGR.addQuery('status', 'statement_generated');
-
-		if (input) {
-			
-				if (input.year && input.year != "") {
-						stmtGR.addQuery('fiscal_year', input.year);
-				}
-				// 1. Period Filter
-				if (input.period && input.period != "") {
-						stmtGR.addQuery('fiscal_period', input.period);
-				}
-
-				// 2. Team Member Filter (Dynamic)
-				// input.user contains the sys_id of the record from x_ctans_incentnow_sales_user
-				if (input.user && input.user != "") {
-
-						stmtGR.addQuery('user', input.user);
-				}
-			
-		} else if (!data.isAdmin) {
+ if (!data.isAdmin) {
 
 				var profileGR = new GlideRecordSecure('x_ctans_incentnow_user_profile');
 				profileGR.addQuery('user', gs.getUserID()); // adjust field name if needed
@@ -601,20 +631,7 @@
   // Status Filter
 	recGR.addQuery('status', 'statement_generated');	
 
-	// Apply filters if input exists
-	if (input) {
-			// 1. Period Filter
-			if (input.period && input.period != "") {
-					recGR.addQuery('fiscal_period', input.period);
-			}
-
-			// 2. Team Member Filter
-			if (input.user && input.user != "") {
-					recGR.addQuery('user', input.user);
-			}
-
-		
-	} else if (!data.isAdmin) {
+ if (!data.isAdmin) {
 			// Initial load for non-admins
 			recGR.addQuery('user', gs.getUserID());
 	}
@@ -746,20 +763,42 @@
         }
 
     }
+	
+		//approval flow
+
+		if (input && input.action == "getApprovalFlow") {
+
+				data.approvalFlow = [];
+
+				var apprGR = new GlideRecordSecure('sysapproval_approver');
+				apprGR.addQuery('document_id', input.statementId);
+				apprGR.orderByDesc('sys_created_on');
+				apprGR.query();
+
+				while (apprGR.next()) {
+						data.approvalFlow.push({
+								approver: apprGR.getDisplayValue('approver'),
+								state: apprGR.getDisplayValue('state'),
+								updated: apprGR.getDisplayValue('sys_updated_on'),
+								comments: apprGR.getDisplayValue('comments')
+						});
+				}
+		}
+	
 })();]]></script>
         <servicenow>false</servicenow>
         <sys_class_name>sp_widget</sys_class_name>
         <sys_created_by>karan.kumar</sys_created_by>
         <sys_created_on>2026-03-17 04:33:20</sys_created_on>
         <sys_id>1a3c03ef3baffa50ffa00e9693e45ae4</sys_id>
-        <sys_mod_count>370</sys_mod_count>
+        <sys_mod_count>396</sys_mod_count>
         <sys_name>Incentive Statements</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
         <sys_update_name>sp_widget_1a3c03ef3baffa50ffa00e9693e45ae4</sys_update_name>
-        <sys_updated_by>shroin.mandal</sys_updated_by>
-        <sys_updated_on>2026-06-15 11:19:39</sys_updated_on>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-07-28 17:35:23</sys_updated_on>
         <template><![CDATA[<div class="incentive-statements">
   <!-- Header -->
   <div class="row m-b-lg">
@@ -768,7 +807,7 @@
       <p>Commission statements and payment details</p>
     </div>
     <div class="col-sm-4 text-right">
-      <button class="btn btn-generate" ng-click="c.generateStatements()" ng-if="data.isIncentBusinessGroupAdmin">
+      <button class="btn btn-generate" ng-click="c.generateStatements()" ng-if="data.isIncentGroupAdmin">
         <i class="fa fa-refresh"></i> Generate Statements
       </button>
     </div>
@@ -776,47 +815,85 @@
 		
   <!--ng-if="c.data.isAdmin"-->
 
-  <!-- Filters -->
-    <div class="panel-body">
-      <div class="row">
-        <p class="heading">Search Statement</p>
-      	<p class="statement">Select a sales representative and fiscal period to search their incentive statement</p>
-        <div class="col-sm-3">
-          <label >Fiscal Year</label>
-          <select class="form-control" ng-model="c.selectedYear" ng-change="c.loadStatements()">
-            <option value="">All</option>
-            <option ng-repeat="year in c.data.fiscalYears" value="{{year.id}}">
-              {{year.name}}
-            </option>
-          </select>
-        </div>
-        <div class="col-sm-3">
-          <label>Fiscal Period</label>
-          <select class="form-control" ng-model="c.selectedPeriod" ng-change="c.loadStatements()">
-            <option value="">All Months</option>
-            <option ng-repeat="period in c.data.fiscalPeriods" value="{{period.id}}">
-              {{period.name}}
-            </option>
-          </select>
-        </div>
-        <div class="col-sm-3" ng-if="c.data.isAdmin">
-          <label>Team Member</label>
-          <select class="form-control" ng-model="c.selectedUser" ng-change="c.loadStatements()">
-            <option value="">All Members</option>
-            <option ng-repeat="user in c.data.users" value="{{user.id}}">{{user.name}}</option>
-          </select>
-        </div>
-      </div>
+  <!-- Stats Boxes -->
+  <div class="stats-row">
+    <div class="stat-box">
+      <p class="box">Published Statements</p>
+      <p class="set">{{data.statementStats.published}}</p>
+      <span>Total Statements Published</span>
+    </div>
+    <div class="stat-box">
+      <p class="box">Statements Generated</p>
+      <p class="set">{{data.statementStats.generated}}</p>
+      <span>Active Generated Statemets</span>
+    </div>
+    <div class="stat-box">
+      <p class="box">Pending Statements</p>
+      <p class="set">{{data.statementStats.pending}}</p>
+      <span>Pending Status</span>
+    </div>
+    <div class="stat-box">
+      <p class="box">Total Commission</p>
+      <p class="set">$ {{data.statementStats.totalCommission | number:2}}</p>
+      <span>Across all Published Statemets</span>
     </div>
   </div>
 
-		<!-- Statement table >
+		<!--Statement table -->
       <div>
         <sp-widget widget="data.tableWidget"></sp-widget>
-      </div-->
+      </div>
+
+	<div id="approvalFlowSection" class="panel panel-default m-t-lg"
+       ng-if="c.showApprovalFlow">
+      <div class="panel-heading">
+          <h4>Approval Flow</h4>
+      </div>
+      <div class="panel-body">
+          <table class="table table-striped">
+              <thead>
+                  <tr>
+                      <th>Approver</th>
+                      <th>Status</th>
+                      <th>Updated</th>
+                      <th>Comments</th>
+                  </tr>
+              </thead>
+              <tbody>
+                  <tr ng-repeat="item in c.getPaginatedApprovalFlow()">
+                      <td>{{item.approver}}</td>
+                      <td>{{item.state}}</td>
+                      <td>{{item.updated}}</td>
+                      <td>{{item.comments}}</td>
+                  </tr>
+              </tbody>
+          </table>
+        <div class="pagination-wrapper" ng-if="c.approvalFlow.length">
+            <div class="pagination-container">
+
+                <button class="pg-btn"
+                        ng-click="c.prevApprovalPage()"
+                        ng-disabled="c.approvalCurrentPage === 1">
+                    ← Prev
+                </button>
+
+                <span class="pg-info">
+                    Page {{c.approvalCurrentPage}} / {{c.approvalTotalPages()}}
+                </span>
+
+                <button class="pg-btn"
+                        ng-click="c.nextApprovalPage()"
+                        ng-disabled="c.approvalCurrentPage === c.approvalTotalPages()">
+                    Next →
+                </button>
+
+            </div>
+        </div>
+      </div>
+  </div>
 
   <!-- Statements Table -->
-  <div class="panel">
+  <!--div class="panel">
     <div class="panel-head">
       <h2 class="panel-tile">All Statements ({{c.data.statements.length}})</h2>
     </div>
@@ -834,7 +911,7 @@
         </thead>
         <tbody>
           <!--tr ng-repeat="statement in c.data.statements"-->
-          <tr ng-repeat="statement in c.getPaginatedStatements()">
+          <!--tr ng-repeat="statement in c.getPaginatedStatements()">
             <td ng-if="c.data.isAdmin">
               <div>
                 <strong>{{statement.userName}}</strong>
@@ -892,7 +969,7 @@
           </button>
         </div>
       </div>
-  </div>
+  </div-->
 <!----new line code >
   
 <div class="statement-headers">
