@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_atf_step">
+    <sys_atf_step action="DELETE">
+        <active>true</active>
+        <callable_outputs/>
+        <copied_from display_value="Set Component Values (Custom UI)">2bd3478733528bd0dccb9c173e5c7ba0</copied_from>
+        <description>Set the components on the page as follows:
+'' = 
+</description>
+        <display_name>Set Component Values (Custom UI)</display_name>
+        <inputs/>
+        <mugshots_cache_json>{}</mugshots_cache_json>
+        <notes/>
+        <order>20</order>
+        <step_config display_value="Set Component Values (Custom UI)">e5dd168473330300c79260bdfaf6a794</step_config>
+        <sys_class_name>sys_atf_step</sys_class_name>
+        <sys_created_by>shiva.erla</sys_created_by>
+        <sys_created_on>2026-07-31 07:13:29</sys_created_on>
+        <sys_id>1f690c6333560fd0dccb9c173e5c7b81</sys_id>
+        <sys_mod_count>21</sys_mod_count>
+        <sys_name>Set Component Values (Custom UI)</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_atf_step_1f690c6333560fd0dccb9c173e5c7b81</sys_update_name>
+        <sys_updated_by>shiva.erla</sys_updated_by>
+        <sys_updated_on>2026-07-31 10:44:50</sys_updated_on>
+        <table/>
+        <test display_value="ATF_IncentIQ_Quota_Territory_ApprovalWorkflow_Master">c369c46333560fd0dccb9c173e5c7bfa</test>
+        <timeout>1970-01-01 00:00:30</timeout>
+        <warning_message/>
+    </sys_atf_step>
+    <sys_variable_value action="DELETE" query="document_key=1f690c6333560fd0dccb9c173e5c7b81"/>
+    <sys_variable_value action="DELETE">
+        <document>sys_atf_step</document>
+        <document_key>1f690c6333560fd0dccb9c173e5c7b81</document_key>
+        <order>100</order>
+        <sys_class_name>sys_variable_value</sys_class_name>
+        <sys_created_by>shiva.erla</sys_created_by>
+        <sys_created_on>2026-07-31 07:13:29</sys_created_on>
+        <sys_id>5b690c6333560fd0dccb9c173e5c7b8f</sys_id>
+        <sys_mod_count>1</sys_mod_count>
+        <sys_updated_by>shiva.erla</sys_updated_by>
+        <sys_updated_on>2026-07-31 09:38:09</sys_updated_on>
+        <value/>
+        <variable display_value="Component values">d12fde8473330300c79260bdfaf6a7b5</variable>
+    </sys_variable_value>
+    <sys_element_mapping action="DELETE" query="table=var__m_atf_input_variable_e5dd168473330300c79260bdfaf6a794^id=1f690c6333560fd0dccb9c173e5c7b81"/>
+    <sys_update_version action="INSERT_OR_UPDATE">
+        <action>DELETE</action>
+        <application display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</application>
+        <file_path/>
+        <instance_id>3839085c3b9d875816e44a8aa4e45afd</instance_id>
+        <instance_name>ven09219</instance_name>
+        <name>sys_atf_step_1f690c6333560fd0dccb9c173e5c7b81</name>
+        <payload><![CDATA[<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_atf_step"><sys_atf_step action="INSERT_OR_UPDATE"><active>true</active><callable_outputs/><copied_from display_value="Set Component Values (Custom UI)">2bd3478733528bd0dccb9c173e5c7ba0</copied_from><description>Set the components on the page as follows:
+'' = 
+</description><display_name>Set Component Values (Custom UI)</display_name><inputs/><mugshots_cache_json>{}</mugshots_cache_json><notes/><order>20</order><step_config display_value="Set Component Values (Custom UI)">e5dd168473330300c79260bdfaf6a794</step_config><sys_class_name>sys_atf_step</sys_class_name><sys_created_by>shiva.erla</sys_created_by><sys_created_on>2026-07-31 07:13:29</sys_created_on><sys_id>1f690c6333560fd0dccb9c173e5c7b81</sys_id><sys_mod_count>21</sys_mod_count><sys_name>Set Component Values (Custom UI)</sys_name><sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package><sys_policy/><sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope><sys_update_name>sys_atf_step_1f690c6333560fd0dccb9c173e5c7b81</sys_update_name><sys_updated_by>shiva.erla</sys_updated_by><sys_updated_on>2026-07-31 10:44:50</sys_updated_on><table/><test display_value="ATF_IncentIQ_Quota_Territory_ApprovalWorkflow_Master">c369c46333560fd0dccb9c173e5c7bfa</test><timeout>1970-01-01 00:00:30</timeout><warning_message/></sys_atf_step><sys_variable_value action="delete_multiple" query="document_key=1f690c6333560fd0dccb9c173e5c7b81"/><sys_variable_value action="INSERT_OR_UPDATE"><document>sys_atf_step</document><document_key>1f690c6333560fd0dccb9c173e5c7b81</document_key><order>100</order><sys_class_name>sys_variable_value</sys_class_name><sys_created_by>shiva.erla</sys_created_by><sys_created_on>2026-07-31 07:13:29</sys_created_on><sys_id>5b690c6333560fd0dccb9c173e5c7b8f</sys_id><sys_mod_count>1</sys_mod_count><sys_updated_by>shiva.erla</sys_updated_by><sys_updated_on>2026-07-31 09:38:09</sys_updated_on><value/><variable display_value="Component values">d12fde8473330300c79260bdfaf6a7b5</variable></sys_variable_value><sys_element_mapping action="delete_multiple" query="table=var__m_atf_input_variable_e5dd168473330300c79260bdfaf6a794^id=1f690c6333560fd0dccb9c173e5c7b81"/></record_update>]]></payload>
+        <payload_hash>-122704798</payload_hash>
+        <record_name>Set Component Values (Custom UI)</record_name>
+        <reverted_from/>
+        <source>8865e283335e4bd0dccb9c173e5c7bab</source>
+        <source_table>sys_update_set</source_table>
+        <state>previous</state>
+        <sys_created_by>shiva.erla</sys_created_by>
+        <sys_created_on>2026-07-31 10:44:50</sys_created_on>
+        <sys_id>1fc9302b3bd247d04be1ef9e53e45a56</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_recorded_at>19fb7c6da600000001</sys_recorded_at>
+        <sys_updated_by>shiva.erla</sys_updated_by>
+        <sys_updated_on>2026-07-31 10:44:50</sys_updated_on>
+        <type>Test Step</type>
+        <update_guid>93c9302b32d247d0e132fa89e7591c3d</update_guid>
+        <update_guid_history>93c9302b32d247d0e132fa89e7591c3d:-122704798,1699b8e76fd247d09cd706957c5fc006:854987340,ee8aa8eb4b5247d039fe9e9c2c0f6ebe:-2028958901,3e6ae4ebb45247d07345a72e8a639ce5:733319310,7ae9a8abc75247d0868327975273f66d:-1514780113,3fa924ab9c5247d028bb57f9c297f288:532087760,9e29e46b4c5247d02b5cd698a828008b:-1716011663,48d8ac2b865247d05f2c5c9ce8e30b1e:330856210,5a98282ba25247d0edef6eee6f2d55a0:-1917243213,2d58602b865247d0446257ff4fb7b6e5:129624660,e618e8e7235247d0726d5a98196cc49b:-2118474763,53690c63aa560fd06464325fae6a7d91:1484660078</update_guid_history>
+    </sys_update_version>
+    <sys_metadata_delete action="INSERT_OR_UPDATE">
+        <sys_audit_delete/>
+        <sys_class_name>sys_metadata_delete</sys_class_name>
+        <sys_created_by>shiva.erla</sys_created_by>
+        <sys_created_on>2026-07-31 10:50:31</sys_created_on>
+        <sys_db_object display_value="" name="sys_atf_step">sys_atf_step</sys_db_object>
+        <sys_id>6da4517bfb9f42a0a0ebad688e8edbe4</sys_id>
+        <sys_metadata>1f690c6333560fd0dccb9c173e5c7b81</sys_metadata>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>Set Component Values (Custom UI)</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_parent/>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_scope_delete display_value="">363f801cb385477c8e8fdf27676b1dc9</sys_scope_delete>
+        <sys_update_name>sys_atf_step_1f690c6333560fd0dccb9c173e5c7b81</sys_update_name>
+        <sys_update_version display_value="sys_atf_step_1f690c6333560fd0dccb9c173e5c7b81">1fc9302b3bd247d04be1ef9e53e45a56</sys_update_version>
+        <sys_updated_by>shiva.erla</sys_updated_by>
+        <sys_updated_on>2026-07-31 10:50:31</sys_updated_on>
+    </sys_metadata_delete>
+</record_update>

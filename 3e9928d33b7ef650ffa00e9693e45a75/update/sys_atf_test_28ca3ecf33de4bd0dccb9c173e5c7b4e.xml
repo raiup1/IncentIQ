@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_atf_test">
+    <sys_atf_test action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <copied_from display_value="ATF_IncentIQ_BusinessUnit">7583c6e4335ec790dccb9c173e5c7b95</copied_from>
+        <description>Creating a Business Unit from IncentIQ Portal</description>
+        <enable_parameterized_testing>false</enable_parameterized_testing>
+        <fail_on_server_error>true</fail_on_server_error>
+        <name>ATF_IncentIQ_BusinessUnit_Master</name>
+        <parameters/>
+        <remember/>
+        <sn_atf_tg_generated>false</sn_atf_tg_generated>
+        <sys_class_name>sys_atf_test</sys_class_name>
+        <sys_created_by>shiva.erla</sys_created_by>
+        <sys_created_on>2026-07-30 06:51:19</sys_created_on>
+        <sys_id>28ca3ecf33de4bd0dccb9c173e5c7b4e</sys_id>
+        <sys_mod_count>1</sys_mod_count>
+        <sys_name>ATF_IncentIQ_BusinessUnit_Master</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_atf_test_28ca3ecf33de4bd0dccb9c173e5c7b4e</sys_update_name>
+        <sys_updated_by>shiva.erla</sys_updated_by>
+        <sys_updated_on>2026-07-30 06:51:34</sys_updated_on>
+        <test_origin>manual</test_origin>
+    </sys_atf_test>
+    <sys_variable_value action="delete_multiple" query="document_key=28ca3ecf33de4bd0dccb9c173e5c7b4e"/>
+</record_update>

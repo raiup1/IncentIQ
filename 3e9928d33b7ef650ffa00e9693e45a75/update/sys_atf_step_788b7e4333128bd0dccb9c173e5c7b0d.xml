@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_atf_step">
+    <sys_atf_step action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <callable_outputs/>
+        <copied_from display_value="Set Component Values (Custom UI)">2cabe22433920b90dccb9c173e5c7bbb</copied_from>
+        <description>Set the components on the page as follows:
+'Text &lt;select2&gt;: Lookup using list' = ATF Sys User
+'Custom component &lt;select2&gt;: Type' = Wrong Amount Credited
+'Text &lt;input&gt;: Short description' = ATF Test SD
+'Text &lt;textarea&gt;: Description' = ATF Test Desc
+</description>
+        <display_name>Set Component Values (Custom UI)</display_name>
+        <inputs/>
+        <mugshots_cache_json>{"68476724b81640f5a3a1e40b8d911f4b":"{\"area\":\"IncentNow Dispute Form\",\"sn_atf_mugshot_short_description\":\"Text &lt;input&gt;: Short description\",\"sn_atf_mugshot_long_description\":\"Text &lt;input&gt; [sp_formfield_short_description]: Short description in page area IncentNow Dispute Form\",\"methods\":[\"setValue\"],\"sn_atf_mugshot_label\":\"Short description\",\"type\":\"text\",\"version\":\"26.0\",\"label_for_input\":{\"inner_text\":\"Short description\"},\"sn_atf_mugshot_label_for_label_path\":\"Short description\",\"interesting_element_path\":[\"body\",\"div\",\"div\",\"sp-page-row\",\"span\",\"div\",\"form\",\"sp-variable-layout\",\"div\",\"div\",\"input\"],\"get_value_result\":\"\",\"sn_atf_mugshot_tag_display_name\":\"Text &lt;input&gt;\",\"name\":\"short_description\",\"sn_atf_mugshot_value\":\"\",\"tag\":\"input\",\"isDisabled\":false,\"id\":\"sp_formfield_short_description\",\"label_path\":[\"Short description\"],\"aria-label\":\"Short description\",\"hash\":\"68476724b81640f5a3a1e40b8d911f4b\",\"html_value\":\"\"}","b63d2eb98dc5e7f1f21c1c517e6b0cb8":"{\"area\":\"IncentNow Dispute Form\",\"sn_atf_mugshot_short_description\":\"Text &lt;textarea&gt;: Description\",\"role\":\"textbox\",\"sn_atf_mugshot_long_description\":\"Text &lt;textarea&gt; [sp_formfield_description]: Description in page area IncentNow Dispute Form\",\"methods\":[\"setValue\"],\"sn_atf_mugshot_label\":\"Description\",\"type\":\"textarea\",\"version\":\"26.0\",\"label_for_input\":{\"inner_text\":\"Description\"},\"sn_atf_mugshot_label_for_label_path\":\"Description\",\"interesting_element_path\":[\"body\",\"div\",\"div\",\"sp-page-row\",\"span\",\"div\",\"form\",\"sp-variable-layout\",\"div\",\"div\",\"textarea\"],\"get_value_result\":\"\",\"sn_atf_mugshot_tag_display_name\":\"Text &lt;textarea&gt;\",\"name\":\"description\",\"sn_atf_mugshot_value\":\"\",\"tag\":\"textarea\",\"isDisabled\":false,\"id\":\"sp_formfield_description\",\"label_path\":[\"Description\"],\"aria-label\":\"Description\",\"hash\":\"b63d2eb98dc5e7f1f21c1c517e6b0cb8\",\"html_value\":\"\"}","d6d323c563f612e6a9d8527f3600be99":"{\"area\":\"IncentNow Dispute Form\",\"sn_atf_mugshot_short_description\":\"Custom component &lt;select2&gt;: Type\",\"inner_text\":\"Calculation Error\",\"sn_atf_mugshot_long_description\":\"Custom component &lt;select2&gt; [s2id_sp_formfield_type]: Type in page area IncentNow Dispute Form\",\"methods\":[\"setValue\"],\"sn_atf_mugshot_label\":\"Type\",\"type\":\"select-one\",\"version\":\"26.0\",\"sn_atf_mugshot_label_for_label_path\":\"Type\",\"label_for_input\":{\"inner_text\":\"Type\"},\"get_value_result\":\"Calculation Error\",\"sn_atf_mugshot_tag_display_name\":\"Custom component &lt;select2&gt;\",\"sn_atf_mugshot_value\":\"\",\"name\":\"type\",\"tag\":\"select2\",\"isDisabled\":false,\"id\":\"s2id_sp_formfield_type\",\"hash\":\"d6d323c563f612e6a9d8527f3600be99\",\"html_value\":\"Calculation Error\"}","d13e477dad7c71bea078f15d8684fba7":"{\"area\":\"IncentNow Dispute Form\",\"sn_atf_mugshot_short_description\":\"Text &lt;select2&gt;: Lookup using list\",\"inner_text\":\"Lookup using list\",\"role\":\"textbox\",\"sn_atf_mugshot_long_description\":\"Text &lt;select2&gt; [s2id_sp_formfield_raised_for]: Lookup using list in page area IncentNow Dispute Form\",\"methods\":[\"setValue\"],\"sn_atf_mugshot_label\":\"Lookup using list\",\"index\":2,\"type\":\"text\",\"title\":\"Raised For\",\"version\":\"26.0\",\"sn_atf_mugshot_label_for_label_path\":\"Raised For\",\"get_value_result\":\"\",\"sn_atf_mugshot_tag_display_name\":\"Text &lt;select2&gt;\",\"sn_atf_mugshot_value\":\"\",\"name\":\"raised_for\",\"tag\":\"select2\",\"isDisabled\":false,\"id\":\"s2id_sp_formfield_raised_for\",\"hash\":\"d13e477dad7c71bea078f15d8684fba7\",\"html_value\":\"\"}"}</mugshots_cache_json>
+        <notes/>
+        <order>16</order>
+        <step_config display_value="Set Component Values (Custom UI)">e5dd168473330300c79260bdfaf6a794</step_config>
+        <sys_class_name>sys_atf_step</sys_class_name>
+        <sys_created_by>shiva.erla</sys_created_by>
+        <sys_created_on>2026-07-30 06:54:36</sys_created_on>
+        <sys_id>788b7e4333128bd0dccb9c173e5c7b0d</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>Set Component Values (Custom UI)</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_atf_step_788b7e4333128bd0dccb9c173e5c7b0d</sys_update_name>
+        <sys_updated_by>shiva.erla</sys_updated_by>
+        <sys_updated_on>2026-07-30 06:54:36</sys_updated_on>
+        <table/>
+        <test display_value="ATF_IncentIQ_DisputeManagement_Master">6c8bfa4333128bd0dccb9c173e5c7b92</test>
+        <timeout/>
+        <warning_message/>
+    </sys_atf_step>
+    <sys_variable_value action="delete_multiple" query="document_key=788b7e4333128bd0dccb9c173e5c7b0d"/>
+    <sys_variable_value action="INSERT_OR_UPDATE">
+        <document>sys_atf_step</document>
+        <document_key>788b7e4333128bd0dccb9c173e5c7b0d</document_key>
+        <order>100</order>
+        <sys_class_name>sys_variable_value</sys_class_name>
+        <sys_created_by>shiva.erla</sys_created_by>
+        <sys_created_on>2026-07-30 06:54:36</sys_created_on>
+        <sys_id>7c8b7e4333128bd0dccb9c173e5c7b0e</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>shiva.erla</sys_updated_by>
+        <sys_updated_on>2026-07-30 06:54:36</sys_updated_on>
+        <value>d13e477dad7c71bea078f15d8684fba7=ATF Sys User^d6d323c563f612e6a9d8527f3600be99=Wrong Amount Credited^68476724b81640f5a3a1e40b8d911f4b=ATF Test SD^b63d2eb98dc5e7f1f21c1c517e6b0cb8=ATF Test Desc^EQ</value>
+        <variable display_value="Component values">d12fde8473330300c79260bdfaf6a7b5</variable>
+    </sys_variable_value>
+    <sys_element_mapping action="delete_multiple" query="table=var__m_atf_input_variable_e5dd168473330300c79260bdfaf6a794^id=788b7e4333128bd0dccb9c173e5c7b0d"/>
+</record_update>

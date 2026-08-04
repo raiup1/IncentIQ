@@ -16,7 +16,7 @@
         <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
         <sys_updated_on>2026-07-14 06:37:04</sys_updated_on>
         <target_name>IncentNowTerritoryResolver</target_name>
-        <target_scope display_value="IncentIQ Territory Extention">d6e8e28293bdcb50ddb7f2d89803d60b</target_scope>
+        <target_scope display_value="IncentIQ Territory Extension">d6e8e28293bdcb50ddb7f2d89803d60b</target_scope>
         <target_type>sys_script_include</target_type>
     </sys_scope_privilege>
 </record_update>

@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_atf_step">
+    <sys_atf_step action="DELETE">
+        <active>true</active>
+        <callable_outputs/>
+        <copied_from/>
+        <description>Set the components on the page as follows:
+'Text &lt;textarea&gt;: (empty)' = 'Test BU', Page area = 'default'
+'Choice list &lt;select&gt;: Select Business Unit ATF Business Unit CtrlAltNow Finance HR IT Legal Marketing NAM Central Sales Sales A Sales Organization' = 'd652cb8333528bd0dccb9c173e5c7b7e', Page area = 'default'
+</description>
+        <display_name>Set Component Values (Custom UI)</display_name>
+        <inputs/>
+        <mugshots_cache_json>{"2fea35716c97d1aee0cf7c337a2dc13a":"{\"area\":\"Quota Builder\",\"sn_atf_mugshot_short_description\":\"Text &lt;textarea&gt;: (empty)\",\"role\":\"textbox\",\"sn_atf_mugshot_long_description\":\"Text &lt;textarea&gt;: (empty) in page area Quota Builder\",\"methods\":[\"setValue\"],\"sn_atf_mugshot_label\":\"\",\"type\":\"textarea\",\"version\":\"26.0\",\"sn_atf_mugshot_label_for_label_path\":\"\",\"interesting_element_path\":[\"body\",\"div\",\"div\",\"sp-page-row\",\"span\",\"div\",\"form\",\"textarea\"],\"get_value_result\":\"\",\"sn_atf_mugshot_tag_display_name\":\"Text &lt;textarea&gt;\",\"sn_atf_mugshot_value\":\"\",\"tag\":\"textarea\",\"isDisabled\":false,\"label_path\":[\"default\"],\"hash\":\"2fea35716c97d1aee0cf7c337a2dc13a\",\"html_value\":\"\"}","54df85a35ac596ff4169a9e15841de91":"{\"area\":\"Quota Builder\",\"sn_atf_mugshot_short_description\":\"Choice list &lt;select&gt;: Select Business Unit ATF Business Unit CtrlAltNow Finance HR IT Legal Marketing NAM Central Sales Sales A Sales Organization\",\"inner_text\":\"Select Business Unit ATF Business Unit CtrlAltNow Finance HR IT Legal Marketing NAM Central Sales Sales A Sales Organization\",\"sn_atf_mugshot_long_description\":\"Choice list &lt;select&gt;: Select Business Unit ATF Business Unit CtrlAltN... in page area Quota Builder\",\"methods\":[\"setValue\"],\"sn_atf_mugshot_label\":\"Select Business Unit ATF Business Unit CtrlAltNow Finance HR IT Legal Marketing NAM Central Sales Sales A Sales Organization\",\"type\":\"select-one\",\"version\":\"26.0\",\"sn_atf_mugshot_label_for_label_path\":\"\",\"interesting_element_path\":[\"body\",\"div\",\"div\",\"sp-page-row\",\"span\",\"div\",\"form\",\"select\"],\"get_value_result\":\"\",\"sn_atf_mugshot_tag_display_name\":\"Choice list &lt;select&gt;\",\"sn_atf_mugshot_value\":\"\",\"options\":[{\"label\":\"Select Business Unit\",\"value\":\"\"},{\"label\":\"ATF Business Unit\",\"value\":\"d652cb8333528bd0dccb9c173e5c7b7e\"},{\"label\":\"CtrlAltNow\",\"value\":\"22460a0e33028750dccb9c173e5c7bae\"},{\"label\":\"Finance\",\"value\":\"bb06c204870221003ff35d88e3e3ec88\"},{\"label\":\"HR\",\"value\":\"9dd58ec0870221003ff35d88e3e3ec16\"},{\"label\":\"IT\",\"value\":\"ac26c204870221003ff35d88e3e3ec61\"},{\"label\":\"Legal\",\"value\":\"2d26c204870221003ff35d88e3e3ec62\"},{\"label\":\"Marketing\",\"value\":\"9406c204870221003ff35d88e3e3ec72\"},{\"label\":\"NAM Central\",\"value\":\"a99f935f3bbd83104be1ef9e53e45aff\"},{\"label\":\"Sales\",\"value\":\"9206c204870221003ff35d88e3e3ec81\"},{\"label\":\"Sales A\",\"value\":\"5d757dce338e4750dccb9c173e5c7b14\"},{\"label\":\"Sales Organization\",\"value\":\"085539ce338e4750dccb9c173e5c7bf3\"}],\"tag\":\"select\",\"isDisabled\":false,\"label_path\":[\"default\"],\"hash\":\"54df85a35ac596ff4169a9e15841de91\",\"html_value\":\"\"}"}</mugshots_cache_json>
+        <notes/>
+        <order>10</order>
+        <step_config display_value="Set Component Values (Custom UI)">e5dd168473330300c79260bdfaf6a794</step_config>
+        <sys_class_name>sys_atf_step</sys_class_name>
+        <sys_created_by>shiva.erla</sys_created_by>
+        <sys_created_on>2026-07-30 07:25:38</sys_created_on>
+        <sys_id>957243c333528bd0dccb9c173e5c7bd0</sys_id>
+        <sys_mod_count>23</sys_mod_count>
+        <sys_name>Set Component Values (Custom UI)</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_atf_step_957243c333528bd0dccb9c173e5c7bd0</sys_update_name>
+        <sys_updated_by>shiva.erla</sys_updated_by>
+        <sys_updated_on>2026-07-30 10:15:50</sys_updated_on>
+        <table/>
+        <test display_value="ATF_IncentIQ_Quota_BU_ApprovalWorkflow_Master">469e764b33128bd0dccb9c173e5c7be3</test>
+        <timeout>1970-01-01 00:00:30</timeout>
+        <warning_message/>
+    </sys_atf_step>
+    <sys_variable_value action="DELETE" query="document_key=957243c333528bd0dccb9c173e5c7bd0"/>
+    <sys_variable_value action="DELETE">
+        <document>sys_atf_step</document>
+        <document_key>957243c333528bd0dccb9c173e5c7bd0</document_key>
+        <order>100</order>
+        <sys_class_name>sys_variable_value</sys_class_name>
+        <sys_created_by>shiva.erla</sys_created_by>
+        <sys_created_on>2026-07-30 07:25:38</sys_created_on>
+        <sys_id>af9287c333528bd0dccb9c173e5c7bd6</sys_id>
+        <sys_mod_count>3</sys_mod_count>
+        <sys_updated_by>shiva.erla</sys_updated_by>
+        <sys_updated_on>2026-07-30 08:37:03</sys_updated_on>
+        <value>2fea35716c97d1aee0cf7c337a2dc13a=Test BU^54df85a35ac596ff4169a9e15841de91=d652cb8333528bd0dccb9c173e5c7b7e^EQ</value>
+        <variable display_value="Component values">d12fde8473330300c79260bdfaf6a7b5</variable>
+    </sys_variable_value>
+    <sys_element_mapping action="DELETE" query="table=var__m_atf_input_variable_e5dd168473330300c79260bdfaf6a794^id=957243c333528bd0dccb9c173e5c7bd0"/>
+    <sys_update_version action="INSERT_OR_UPDATE">
+        <action>DELETE</action>
+        <application display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</application>
+        <file_path/>
+        <instance_id>3839085c3b9d875816e44a8aa4e45afd</instance_id>
+        <instance_name>ven09219</instance_name>
+        <name>sys_atf_step_957243c333528bd0dccb9c173e5c7bd0</name>
+        <payload><![CDATA[<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_atf_step"><sys_atf_step action="INSERT_OR_UPDATE"><active>true</active><callable_outputs/><copied_from/><description>Set the components on the page as follows:
+'Text &lt;textarea&gt;: (empty)' = 'Test BU', Page area = 'default'
+'Choice list &lt;select&gt;: Select Business Unit ATF Business Unit CtrlAltNow Finance HR IT Legal Marketing NAM Central Sales Sales A Sales Organization' = 'd652cb8333528bd0dccb9c173e5c7b7e', Page area = 'default'
+</description><display_name>Set Component Values (Custom UI)</display_name><inputs/><mugshots_cache_json>{"2fea35716c97d1aee0cf7c337a2dc13a":"{\"area\":\"Quota Builder\",\"sn_atf_mugshot_short_description\":\"Text &lt;textarea&gt;: (empty)\",\"role\":\"textbox\",\"sn_atf_mugshot_long_description\":\"Text &lt;textarea&gt;: (empty) in page area Quota Builder\",\"methods\":[\"setValue\"],\"sn_atf_mugshot_label\":\"\",\"type\":\"textarea\",\"version\":\"26.0\",\"sn_atf_mugshot_label_for_label_path\":\"\",\"interesting_element_path\":[\"body\",\"div\",\"div\",\"sp-page-row\",\"span\",\"div\",\"form\",\"textarea\"],\"get_value_result\":\"\",\"sn_atf_mugshot_tag_display_name\":\"Text &lt;textarea&gt;\",\"sn_atf_mugshot_value\":\"\",\"tag\":\"textarea\",\"isDisabled\":false,\"label_path\":[\"default\"],\"hash\":\"2fea35716c97d1aee0cf7c337a2dc13a\",\"html_value\":\"\"}","54df85a35ac596ff4169a9e15841de91":"{\"area\":\"Quota Builder\",\"sn_atf_mugshot_short_description\":\"Choice list &lt;select&gt;: Select Business Unit ATF Business Unit CtrlAltNow Finance HR IT Legal Marketing NAM Central Sales Sales A Sales Organization\",\"inner_text\":\"Select Business Unit ATF Business Unit CtrlAltNow Finance HR IT Legal Marketing NAM Central Sales Sales A Sales Organization\",\"sn_atf_mugshot_long_description\":\"Choice list &lt;select&gt;: Select Business Unit ATF Business Unit CtrlAltN... in page area Quota Builder\",\"methods\":[\"setValue\"],\"sn_atf_mugshot_label\":\"Select Business Unit ATF Business Unit CtrlAltNow Finance HR IT Legal Marketing NAM Central Sales Sales A Sales Organization\",\"type\":\"select-one\",\"version\":\"26.0\",\"sn_atf_mugshot_label_for_label_path\":\"\",\"interesting_element_path\":[\"body\",\"div\",\"div\",\"sp-page-row\",\"span\",\"div\",\"form\",\"select\"],\"get_value_result\":\"\",\"sn_atf_mugshot_tag_display_name\":\"Choice list &lt;select&gt;\",\"sn_atf_mugshot_value\":\"\",\"options\":[{\"label\":\"Select Business Unit\",\"value\":\"\"},{\"label\":\"ATF Business Unit\",\"value\":\"d652cb8333528bd0dccb9c173e5c7b7e\"},{\"label\":\"CtrlAltNow\",\"value\":\"22460a0e33028750dccb9c173e5c7bae\"},{\"label\":\"Finance\",\"value\":\"bb06c204870221003ff35d88e3e3ec88\"},{\"label\":\"HR\",\"value\":\"9dd58ec0870221003ff35d88e3e3ec16\"},{\"label\":\"IT\",\"value\":\"ac26c204870221003ff35d88e3e3ec61\"},{\"label\":\"Legal\",\"value\":\"2d26c204870221003ff35d88e3e3ec62\"},{\"label\":\"Marketing\",\"value\":\"9406c204870221003ff35d88e3e3ec72\"},{\"label\":\"NAM Central\",\"value\":\"a99f935f3bbd83104be1ef9e53e45aff\"},{\"label\":\"Sales\",\"value\":\"9206c204870221003ff35d88e3e3ec81\"},{\"label\":\"Sales A\",\"value\":\"5d757dce338e4750dccb9c173e5c7b14\"},{\"label\":\"Sales Organization\",\"value\":\"085539ce338e4750dccb9c173e5c7bf3\"}],\"tag\":\"select\",\"isDisabled\":false,\"label_path\":[\"default\"],\"hash\":\"54df85a35ac596ff4169a9e15841de91\",\"html_value\":\"\"}"}</mugshots_cache_json><notes/><order>10</order><step_config display_value="Set Component Values (Custom UI)">e5dd168473330300c79260bdfaf6a794</step_config><sys_class_name>sys_atf_step</sys_class_name><sys_created_by>shiva.erla</sys_created_by><sys_created_on>2026-07-30 07:25:38</sys_created_on><sys_id>957243c333528bd0dccb9c173e5c7bd0</sys_id><sys_mod_count>23</sys_mod_count><sys_name>Set Component Values (Custom UI)</sys_name><sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package><sys_policy/><sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope><sys_update_name>sys_atf_step_957243c333528bd0dccb9c173e5c7bd0</sys_update_name><sys_updated_by>shiva.erla</sys_updated_by><sys_updated_on>2026-07-30 10:15:50</sys_updated_on><table/><test display_value="ATF_IncentIQ_Quota_BU_ApprovalWorkflow_Master">469e764b33128bd0dccb9c173e5c7be3</test><timeout>1970-01-01 00:00:30</timeout><warning_message/></sys_atf_step><sys_variable_value action="delete_multiple" query="document_key=957243c333528bd0dccb9c173e5c7bd0"/><sys_variable_value action="INSERT_OR_UPDATE"><document>sys_atf_step</document><document_key>957243c333528bd0dccb9c173e5c7bd0</document_key><order>100</order><sys_class_name>sys_variable_value</sys_class_name><sys_created_by>shiva.erla</sys_created_by><sys_created_on>2026-07-30 07:25:38</sys_created_on><sys_id>af9287c333528bd0dccb9c173e5c7bd6</sys_id><sys_mod_count>3</sys_mod_count><sys_updated_by>shiva.erla</sys_updated_by><sys_updated_on>2026-07-30 08:37:03</sys_updated_on><value>2fea35716c97d1aee0cf7c337a2dc13a=Test BU^54df85a35ac596ff4169a9e15841de91=d652cb8333528bd0dccb9c173e5c7b7e^EQ</value><variable display_value="Component values">d12fde8473330300c79260bdfaf6a7b5</variable></sys_variable_value><sys_element_mapping action="delete_multiple" query="table=var__m_atf_input_variable_e5dd168473330300c79260bdfaf6a794^id=957243c333528bd0dccb9c173e5c7bd0"/></record_update>]]></payload>
+        <payload_hash>-439833347</payload_hash>
+        <record_name>Set Component Values (Custom UI)</record_name>
+        <reverted_from/>
+        <source>8865e283335e4bd0dccb9c173e5c7bab</source>
+        <source_table>sys_update_set</source_table>
+        <state>previous</state>
+        <sys_created_by>shiva.erla</sys_created_by>
+        <sys_created_on>2026-07-30 10:15:50</sys_created_on>
+        <sys_id>e4992b4333968bd0dccb9c173e5c7b5d</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_recorded_at>19fb285f3210000001</sys_recorded_at>
+        <sys_updated_by>shiva.erla</sys_updated_by>
+        <sys_updated_on>2026-07-30 10:15:50</sys_updated_on>
+        <type>Test Step</type>
+        <update_guid>e8992b433b968bd0a0b02409f678315c</update_guid>
+        <update_guid_history>e8992b433b968bd0a0b02409f678315c:-439833347,ac992b4331968bd0f49607b37fee832a:-1696228452,1899e743ad968bd035dfbe55e42462d7:1342343739,bbf76b8f8c568bd07551f97485f64a97:85948634,bbf76b8f2a568bd07e26c11dd622385e:-1170446471,a5475b031c168bd00124617b1b279e00:1868125720,81179fcfaad28bd0769a87e795094d41:-1170446471,d666978f8fd28bd0b94ce621f584e290:85948634,25f2d787ead28bd0781e011043db8c5a:1342343739,136217479dd28bd0980eb12ee0c00f5e:-1591177545,2ce0570f95928bd089ea8fd1eda92590:1342343739,b7c0534351d28bd01283b4943c4e0811:-1184919366,8fb6474ffc528bd0f58deb360537ab16:-48265286,6545078b1f528bd060b4667e9dfcf5ac:-1665350501,679287c399528bd084d389cb64a27dd8:35512102</update_guid_history>
+    </sys_update_version>
+    <sys_metadata_delete action="INSERT_OR_UPDATE">
+        <sys_audit_delete/>
+        <sys_class_name>sys_metadata_delete</sys_class_name>
+        <sys_created_by>shiva.erla</sys_created_by>
+        <sys_created_on>2026-07-30 10:16:36</sys_created_on>
+        <sys_db_object display_value="" name="sys_atf_step">sys_atf_step</sys_db_object>
+        <sys_id>973926f3071c46809cb1db6f160ab1e4</sys_id>
+        <sys_metadata>957243c333528bd0dccb9c173e5c7bd0</sys_metadata>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>Set Component Values (Custom UI)</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_parent/>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_scope_delete display_value="">363f801cb385477c8e8fdf27676b1dc9</sys_scope_delete>
+        <sys_update_name>sys_atf_step_957243c333528bd0dccb9c173e5c7bd0</sys_update_name>
+        <sys_update_version display_value="sys_atf_step_957243c333528bd0dccb9c173e5c7bd0">e4992b4333968bd0dccb9c173e5c7b5d</sys_update_version>
+        <sys_updated_by>shiva.erla</sys_updated_by>
+        <sys_updated_on>2026-07-30 10:16:36</sys_updated_on>
+    </sys_metadata_delete>
+</record_update>

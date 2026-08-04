@@ -8,10 +8,10 @@
         <derived>true</derived>
         <field/>
         <label>Now Assist in Virtual Agent - IncentNow Primary Default Spell Check Dictionary</label>
-        <last_derived>2026-07-28 23:22:47</last_derived>
+        <last_derived>2026-08-04 02:22:47</last_derived>
         <locale>en</locale>
         <name>x_ctans_incentnow_now_assist_in_virtual_agent_incentnow_primary_default_spell_check_dictionary</name>
-        <publish_id>9a476d46-b3d4-4471-828a-e3bb636ecdd5</publish_id>
+        <publish_id>3cc59b86-8f0d-4d74-b638-246be9d722c5</publish_id>
         <punctuation_sensitive>false</punctuation_sensitive>
         <state>PUBLISHED</state>
         <sys_class_name>ais_dictionary</sys_class_name>
