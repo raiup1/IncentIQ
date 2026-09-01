@@ -3,6 +3,23 @@
         <category>custom</category>
         <client_script><![CDATA[api.controller = function($scope,$location) {
   var c = this;
+	
+	c.formatCurrency = function(amount) {
+			amount = parseFloat(amount) || 0;
+
+			var value;
+
+			if (amount >= 1000000)
+					value = (amount / 1000000).toFixed(2) + 'M';
+			else if (amount >= 1000)
+					value = (amount / 1000).toFixed(1) + 'K';
+			else
+					value = amount.toFixed(0);
+
+			return c.data.currencyPosition === 'after'
+					? value + c.data.currencySymbol
+					: c.data.currencySymbol + value;
+	};
 
   /* ─────────────────────────────────────────────
      STATE
@@ -278,7 +295,7 @@
 							grid: { color: '#f3f4f6' },
 							ticks: {
 								callback: function(v) {
-									return v >= 1000 ? '$' + (v / 1000).toFixed(0) + 'K' : '$' + v;
+										return c.formatCurrency(v);
 								}
 							}
 						}
@@ -367,8 +384,8 @@
 							grid: { color: '#f3f4f6' },
 							ticks: {
 								callback: function(v) {
-									return v >= 1000 ? '$' + (v / 1000).toFixed(0) + 'K' : '$' + v;
-								}
+    return c.formatCurrency(v);
+}
 							}
 						}
 					}
@@ -393,7 +410,7 @@
         labels: labels,
         datasets: [{
           label: (key === 'incentive') 
-					? 'Incentives by Month ($)' 
+					? 'Incentives by Month (' + c.data.currencySymbol + ')' 
 					: 'Top Performer',
           data: values,
           borderColor: '#f59e0b',
@@ -415,8 +432,8 @@
           tooltip: {
             callbacks: {
               label: function(ctx) {
-                return ' $' + ctx.raw.toFixed(2);
-              }
+    return c.formatCurrency(ctx.raw);
+}
             }
           }
         },
@@ -427,8 +444,8 @@
             grid: { color: '#f3f4f6' },
             ticks: {
               callback: function(v) {
-                return v >= 1000 ? '$' + (v / 1000).toFixed(0) + 'K' : '$' + v;
-              }
+    return c.formatCurrency(v);
+}
             }
           }
         }
@@ -603,7 +620,7 @@
       data: {
         labels: labels,
         datasets: [{
-          label: 'Incentives by Month ($)',
+          label: 'Incentives by Month (' + c.data.currencySymbol + ')',
           data: values,
           borderColor: '#f59e0b',
           backgroundColor: 'rgba(245,158,11,0.12)',
@@ -643,8 +660,8 @@
               color: '#6b7280',
               font: { size: 12, family: 'Arial' },
               callback: function(v) {
-                return v >= 1000 ? '$' + (v / 1000).toFixed(0) + 'K' : '$' + v;
-              }
+    return c.formatCurrency(v);
+}
             }
           }
         }
@@ -1041,6 +1058,800 @@
     i { margin-bottom: 10px; display: block; }
     p { margin: 0; font-size: 13px; }
   }
+}
+/* ============================================================
+   REPORTS &amp; ANALYTICS
+   FINAL FULL RESPONSIVE OVERRIDES
+   Existing HTML / classes / Angular / JS untouched
+   ============================================================ */
+
+
+/* ============================================================
+   TABLET
+   992px - 1199px
+   ============================================================ */
+@media (max-width: 1199px) {
+
+  .reports-main {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
+  }
+
+  /* Header */
+  .reports-main .reports-header {
+    flex-wrap: wrap;
+    gap: 14px;
+  }
+
+  /* Summary */
+  .reports-main .summary-cards-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* Templates */
+  .reports-main .template-cards-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* Custom filters */
+  .reports-main .custom-builder-filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* Recent reports */
+  #generatedReport {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+
+  #generatedReport &gt; div[ng-show="c.data.generatedReports.length &gt; 0"] {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: visible;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  #generatedReport .recent-reports-table {
+    width: 100%;
+    min-width: 720px;
+  }
+
+  /* Chart */
+  #generatedReport .inline-chart-body {
+    height: 340px;
+  }
+
+  /* Scheduled */
+  .reports-main .scheduled-info {
+    min-width: 0;
+  }
+}
+
+
+/* ============================================================
+   MOBILE
+   768px - 991px
+   ============================================================ */
+@media (max-width: 767px) {
+
+  .reports-main {
+    width: 100%;
+    max-width: 100%;
+    padding: 0 10px;
+    margin: 0;
+    box-sizing: border-box;
+    overflow-x: hidden;
+  }
+
+
+  /* ==========================================================
+     HEADER
+     ========================================================== */
+
+  .reports-main .reports-header {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .reports-main .reports-header-left {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .reports-main .reports-header-left h1 {
+    font-size: 24px;
+    line-height: 1.2;
+    margin: 0 0 5px;
+  }
+
+  .reports-main .reports-header-left p {
+    margin: 0;
+    font-size: 11px;
+    line-height: 1.5;
+  }
+
+  .reports-main .reports-header-right {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 7px;
+  }
+
+  .reports-main .reports-header-right .btn-outline-filter,
+  .reports-main .reports-header-right .btn-export-all {
+    width: 100%;
+    min-height: 40px;
+    justify-content: center;
+    font-size: 12px;
+  }
+
+
+  /* ==========================================================
+     SUMMARY CARDS
+     ========================================================== */
+
+  .reports-main .summary-cards-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .reports-main .summary-cards-row .summary-card {
+    width: 100%;
+    min-width: 0;
+    padding: 14px;
+    border-radius: 9px;
+    box-sizing: border-box;
+  }
+
+  .reports-main .summary-card-label {
+    font-size: 10px !important;
+    line-height: 1.35;
+    margin-bottom: 7px !important;
+  }
+
+  .reports-main .summary-card-value {
+    font-size: 21px !important;
+    line-height: 1.15;
+    margin-bottom: 4px !important;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  .reports-main .summary-card-sub {
+    font-size: 9px !important;
+    line-height: 1.4;
+  }
+
+
+  /* ==========================================================
+     SECTION BLOCKS
+     ========================================================== */
+
+  .reports-main .section-block {
+    width: 100%;
+    max-width: 100%;
+    padding: 14px;
+    margin-bottom: 14px;
+    border-radius: 10px;
+    box-sizing: border-box;
+  }
+
+  .reports-main .section-block .section-header {
+    margin-bottom: 14px;
+  }
+
+  .reports-main .section-block .section-title {
+    font-size: 14px;
+    line-height: 1.35;
+    margin-bottom: 4px;
+  }
+
+  .reports-main .section-block .section-sub {
+    font-size: 11px;
+    line-height: 1.5;
+  }
+
+
+  /* ==========================================================
+     TEMPLATE CARDS
+     ========================================================== */
+
+  .reports-main .template-cards-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .reports-main .template-cards-grid .template-card {
+    width: 100%;
+    min-width: 0;
+    padding: 14px;
+    gap: 10px;
+    border-radius: 9px;
+    box-sizing: border-box;
+  }
+
+  .reports-main .template-card-top {
+    min-width: 0;
+  }
+
+  .reports-main .template-icon {
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 9px !important;
+    font-size: 14px !important;
+    flex-shrink: 0;
+  }
+
+  .reports-main .template-badge {
+    font-size: 10px !important;
+    padding: 3px 8px !important;
+    white-space: nowrap;
+  }
+
+  .reports-main .template-card-body {
+    min-width: 0;
+  }
+
+  .reports-main .template-name {
+    font-size: 13px !important;
+    line-height: 1.35;
+    margin-bottom: 5px !important;
+  }
+
+  .reports-main .template-desc {
+    font-size: 11px !important;
+    line-height: 1.45;
+  }
+
+  .reports-main .template-card .btn-generate {
+    width: 100%;
+    min-height: 36px;
+    padding: 8px;
+    font-size: 11px;
+  }
+
+
+  /* ==========================================================
+     CUSTOM REPORT BUILDER
+     ========================================================== */
+
+  .reports-main .custom-builder-filters {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .reports-main .filter-group {
+    width: 100%;
+    min-width: 0;
+    gap: 5px !important;
+  }
+
+  .reports-main .filter-label {
+    font-size: 11px !important;
+  }
+
+  .reports-main .filter-select {
+    width: 100%;
+    max-width: 100%;
+    min-height: 38px;
+    padding: 8px 10px !important;
+    font-size: 11px !important;
+    box-sizing: border-box;
+  }
+
+  .reports-main .custom-builder-actions {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 7px;
+  }
+
+  .reports-main .btn-generate-custom,
+  .reports-main .btn-save-template {
+    width: 100%;
+    min-height: 38px;
+    justify-content: center;
+    font-size: 11px;
+    box-sizing: border-box;
+  }
+
+
+  /* ==========================================================
+     RECENTLY GENERATED REPORTS
+     ========================================================== */
+
+  #generatedReport {
+    width: 100%;
+    max-width: 100%;
+    padding: 14px;
+    overflow: hidden;
+    box-sizing: border-box;
+  }
+
+  #generatedReport .section-header {
+    margin-bottom: 12px !important;
+  }
+
+  #generatedReport .section-title {
+    font-size: 14px !important;
+    line-height: 1.3;
+  }
+
+  /*
+     Only the report table gets horizontal scrolling.
+     The entire card/page stays inside the phone width.
+  */
+  #generatedReport &gt; div[ng-show="c.data.generatedReports.length &gt; 0"] {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: visible;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    box-sizing: border-box;
+    overscroll-behavior-x: contain;
+  }
+
+  #generatedReport .recent-reports-table {
+    width: 100%;
+    min-width: 650px;
+    margin: 0;
+    border-collapse: collapse;
+  }
+
+  #generatedReport .recent-reports-table th {
+    padding: 9px 10px;
+    font-size: 10px;
+    white-space: nowrap;
+    vertical-align: middle;
+  }
+
+  #generatedReport .recent-reports-table td {
+    padding: 10px;
+    font-size: 11px;
+    white-space: nowrap;
+    vertical-align: middle;
+  }
+
+  #generatedReport .report-name-cell {
+    min-width: 160px;
+    max-width: 220px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 11px;
+  }
+
+  #generatedReport .date-cell {
+    white-space: nowrap;
+  }
+
+  #generatedReport .actions-cell {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 5px;
+    min-width: 110px;
+    white-space: nowrap;
+  }
+
+  #generatedReport .btn-action-icon {
+    width: 30px;
+    height: 30px;
+    padding: 5px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  #generatedReport .btn-action-link {
+    padding: 5px 7px;
+    font-size: 10px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  /* Empty state */
+  #generatedReport .empty-state {
+    padding: 25px 8px;
+    text-align: center;
+  }
+
+  #generatedReport .empty-state p {
+    font-size: 11px;
+    line-height: 1.5;
+    margin: 8px 0 0;
+  }
+
+
+  /* ==========================================================
+     INLINE CHART
+     ========================================================== */
+
+  #generatedReport .inline-chart-panel {
+    width: 100%;
+    max-width: 100%;
+    margin-top: 14px;
+    border-radius: 9px;
+    overflow: hidden;
+    box-sizing: border-box;
+  }
+
+  #generatedReport .inline-chart-header {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    padding: 11px 12px;
+    font-size: 12px;
+  }
+
+  #generatedReport .inline-chart-header &gt; strong {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  #generatedReport .inline-chart-header &gt; div {
+    display: flex !important;
+    width: 100%;
+    gap: 6px !important;
+  }
+
+  #generatedReport .inline-chart-header .btn-dl-csv,
+  #generatedReport .inline-chart-header .btn-action-link {
+    flex: 1;
+    min-height: 34px;
+    justify-content: center;
+    padding: 6px 8px;
+    font-size: 10px;
+    white-space: nowrap;
+    box-sizing: border-box;
+  }
+
+  #generatedReport .inline-chart-meta {
+    padding: 9px 12px;
+    font-size: 10px;
+    line-height: 1.6;
+    white-space: normal;
+    word-break: break-word;
+  }
+
+  #generatedReport .inline-chart-body {
+    width: 100%;
+    height: 250px;
+    padding: 12px;
+    position: relative;
+    overflow: hidden;
+    box-sizing: border-box;
+  }
+
+  #generatedReport .inline-chart-body canvas {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    width: calc(100% - 24px) !important;
+    height: calc(100% - 24px) !important;
+    max-width: calc(100% - 24px);
+    max-height: calc(100% - 24px);
+  }
+
+
+  /* ==========================================================
+     SCHEDULED REPORTS
+     ========================================================== */
+
+  .reports-main .scheduled-list {
+    width: 100%;
+  }
+
+  .reports-main .scheduled-item {
+    display: flex;
+    align-items: center;
+    gap: 9px !important;
+    padding: 12px 0 !important;
+  }
+
+  .reports-main .scheduled-icon {
+    width: 34px !important;
+    height: 34px !important;
+    font-size: 13px !important;
+    flex-shrink: 0;
+  }
+
+  .reports-main .scheduled-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .reports-main .scheduled-name {
+    font-size: 12px !important;
+    margin-bottom: 2px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .reports-main .scheduled-freq {
+    font-size: 10px !important;
+  }
+
+  .reports-main .status-pill {
+    font-size: 9px !important;
+    padding: 3px 8px !important;
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
+  .reports-main .btn-schedule-new {
+    width: 100%;
+    min-height: 38px;
+    padding: 9px;
+    font-size: 11px;
+  }
+
+
+  /* ==========================================================
+     EMPTY STATE
+     ========================================================== */
+
+  .reports-main .empty-state {
+    padding: 26px 10px;
+    text-align: center;
+  }
+
+  .reports-main .empty-state i {
+    margin-bottom: 9px;
+  }
+
+  .reports-main .empty-state p {
+    font-size: 11px;
+    line-height: 1.5;
+  }
+
+
+  /* ==========================================================
+     GLOBAL MOBILE SAFETY
+     ========================================================== */
+
+  .reports-main,
+  .reports-main .section-block,
+  .reports-main .summary-card,
+  .reports-main .template-card,
+  .reports-main .inline-chart-panel,
+  #generatedReport {
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .reports-main {
+    overflow-x: hidden;
+  }
+
+  .reports-main button,
+  .reports-main input,
+  .reports-main select,
+  .reports-main textarea {
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .reports-main .template-name,
+  .reports-main .template-desc,
+  .reports-main .report-name-cell,
+  .reports-main .scheduled-name {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+}
+
+
+/* ============================================================
+   SMALL PHONES
+   ============================================================ */
+@media (max-width: 480px) {
+
+  .reports-main {
+    padding: 0 7px;
+  }
+
+  /* Header */
+  .reports-main .reports-header-left h1 {
+    font-size: 22px;
+  }
+
+  .reports-main .reports-header-left p {
+    font-size: 10px;
+  }
+
+
+  /* Summary */
+  .reports-main .summary-cards-row {
+    gap: 8px;
+  }
+
+  .reports-main .summary-cards-row .summary-card {
+    padding: 11px;
+  }
+
+  .reports-main .summary-card-label {
+    font-size: 9px !important;
+  }
+
+  .reports-main .summary-card-value {
+    font-size: 18px !important;
+  }
+
+  .reports-main .summary-card-sub {
+    font-size: 8px !important;
+  }
+
+
+  /* Section */
+  .reports-main .section-block {
+    padding: 11px;
+  }
+
+  .reports-main .section-block .section-title {
+    font-size: 13px;
+  }
+
+  .reports-main .section-block .section-sub {
+    font-size: 10px;
+  }
+
+
+  /* Template */
+  .reports-main .template-card {
+    padding: 11px !important;
+  }
+
+  .reports-main .template-name {
+    font-size: 12px !important;
+  }
+
+  .reports-main .template-desc {
+    font-size: 10px !important;
+  }
+
+
+  /* Recently Generated */
+  #generatedReport {
+    padding: 11px;
+  }
+
+  #generatedReport .recent-reports-table {
+    min-width: 610px;
+  }
+
+  #generatedReport .recent-reports-table th {
+    padding: 8px;
+    font-size: 9px;
+  }
+
+  #generatedReport .recent-reports-table td {
+    padding: 8px;
+    font-size: 10px;
+  }
+
+  #generatedReport .report-name-cell {
+    min-width: 145px;
+    max-width: 180px;
+  }
+
+  #generatedReport .actions-cell {
+    min-width: 100px;
+  }
+
+  #generatedReport .btn-action-icon {
+    width: 28px;
+    height: 28px;
+  }
+
+  #generatedReport .btn-action-link {
+    font-size: 9px;
+  }
+
+
+  /* Chart */
+  #generatedReport .inline-chart-body {
+    height: 220px;
+  }
+
+  #generatedReport .inline-chart-meta {
+    font-size: 9px;
+  }
+
+
+  /* Scheduled */
+  .reports-main .scheduled-name {
+    font-size: 11px !important;
+  }
+
+  .reports-main .scheduled-freq {
+    font-size: 9px !important;
+  }
+}
+
+
+/* ============================================================
+   EXTRA SMALL PHONES
+   ============================================================ */
+@media (max-width: 360px) {
+
+  .reports-main {
+    padding: 0 5px;
+  }
+
+
+  /* Summary */
+  .reports-main .summary-cards-row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .reports-main .summary-card-value {
+    font-size: 20px !important;
+  }
+
+
+  /* Section */
+  .reports-main .section-block {
+    padding: 10px;
+  }
+
+
+  /* Recently Generated */
+  #generatedReport {
+    padding: 9px;
+  }
+
+  #generatedReport .recent-reports-table {
+    min-width: 580px;
+  }
+
+  #generatedReport .inline-chart-header &gt; div {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  #generatedReport .inline-chart-header .btn-dl-csv,
+  #generatedReport .inline-chart-header .btn-action-link {
+    width: 100%;
+    flex: none;
+  }
+
+  #generatedReport .inline-chart-body {
+    height: 200px;
+  }
+
+
+  /* Scheduled */
+  .reports-main .scheduled-item {
+    align-items: flex-start;
+  }
+
+  .reports-main .status-pill {
+    margin-left: auto;
+  }
 }</css>
         <data_table>sp_instance</data_table>
         <demo_data/>
@@ -1061,13 +1872,29 @@
 
     data.isTerritoryEnabled =
         new x_ctans_incentnow.IncentNowUtils().isTerritoryExtensionActive() === true;
+	
+		data.currencySymbol = gs.getProperty('x_ctans_incentnow.currency_symbol', '$');
+		data.currencyPosition = gs.getProperty('x_ctans_incentnow.currency_position', 'before');
 
-    function formatCurrency(amount) {
-        amount = parseFloat(amount) || 0;
-        if (amount >= 1000000) return '$' + (amount / 1000000).toFixed(2) + 'M';
-        if (amount >= 1000) return '$' + (amount / 1000).toFixed(1) + 'K';
-        return '$' + amount.toFixed(0);
-    }
+		function formatCurrency(amount) {
+				amount = parseFloat(amount) || 0;
+
+				var value;
+
+				if (amount >= 1000000)
+						value = (amount / 1000000).toFixed(2) + 'M';
+				else if (amount >= 1000)
+						value = (amount / 1000).toFixed(1) + 'K';
+				else
+						value = amount.toFixed(0);
+
+				var position = data.currencyPosition || 'before';
+
+				if (position === 'after')
+						return value + data.currencySymbol;
+
+				return data.currencySymbol + value;
+		}
 
     var MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
         'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
@@ -1702,14 +2529,14 @@
         <sys_created_by>karan.kumar</sys_created_by>
         <sys_created_on>2026-03-17 04:47:08</sys_created_on>
         <sys_id>521f4b673beffa50ffa00e9693e45a6e</sys_id>
-        <sys_mod_count>121</sys_mod_count>
+        <sys_mod_count>132</sys_mod_count>
         <sys_name>Reports Dashboard</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
         <sys_update_name>sp_widget_521f4b673beffa50ffa00e9693e45a6e</sys_update_name>
         <sys_updated_by>shroin.mandal</sys_updated_by>
-        <sys_updated_on>2026-07-29 09:01:29</sys_updated_on>
+        <sys_updated_on>2026-08-16 17:54:36</sys_updated_on>
         <template><![CDATA[<div class="reports-main">
 
   <!-- ── Header ── -->

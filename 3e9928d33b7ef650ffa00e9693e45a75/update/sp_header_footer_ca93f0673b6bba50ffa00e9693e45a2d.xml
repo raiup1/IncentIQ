@@ -292,6 +292,273 @@
     font-weight: 600;&#13;
     line-height: 18px;&#13;
     text-align: center;&#13;
+}&#13;
+&#13;
+/* =========================================================&#13;
+   MOBILE RESPONSIVE&#13;
+   ========================================================= */&#13;
+&#13;
+@media (max-width: 767px) {&#13;
+&#13;
+  /* -------------------------&#13;
+     HEADER&#13;
+     ------------------------- */&#13;
+&#13;
+  .sim-header {&#13;
+    position: sticky;&#13;
+    top: 0;&#13;
+    width: 100%;&#13;
+    overflow: visible;&#13;
+  }&#13;
+&#13;
+  .sim-container {&#13;
+    height: auto;&#13;
+    min-height: 58px;&#13;
+    padding: 10px 14px;&#13;
+    gap: 10px;&#13;
+    flex-wrap: nowrap;&#13;
+  }&#13;
+&#13;
+  .sim-left {&#13;
+    gap: 10px;&#13;
+    min-width: 0;&#13;
+    flex: 1 1 auto;&#13;
+  }&#13;
+&#13;
+  /* -------------------------&#13;
+     LOGO&#13;
+     ------------------------- */&#13;
+&#13;
+  .logo-img {&#13;
+    height: 30px;&#13;
+    max-width: 120px;&#13;
+  }&#13;
+&#13;
+  .sim-logo {&#13;
+    flex-shrink: 0;&#13;
+  }&#13;
+&#13;
+  /* -------------------------&#13;
+     NAVIGATION&#13;
+     ------------------------- */&#13;
+&#13;
+  .sim-nav {&#13;
+    gap: 4px;&#13;
+    overflow-x: auto;&#13;
+    overflow-y: hidden;&#13;
+    max-width: 100%;&#13;
+    -webkit-overflow-scrolling: touch;&#13;
+    scrollbar-width: none;&#13;
+  }&#13;
+&#13;
+  .sim-nav::-webkit-scrollbar {&#13;
+    display: none;&#13;
+  }&#13;
+&#13;
+  .sim-nav a {&#13;
+    padding: 7px 9px;&#13;
+    font-size: 12px;&#13;
+    gap: 4px;&#13;
+    flex-shrink: 0;&#13;
+  }&#13;
+&#13;
+  .sim-nav a.active {&#13;
+    padding: 7px 9px;&#13;
+  }&#13;
+&#13;
+  /* -------------------------&#13;
+     RIGHT SIDE&#13;
+     ------------------------- */&#13;
+&#13;
+  .sim-right {&#13;
+    gap: 7px;&#13;
+    flex-shrink: 0;&#13;
+  }&#13;
+&#13;
+  .period-btn {&#13;
+    padding: 5px 7px;&#13;
+    font-size: 11px;&#13;
+  }&#13;
+&#13;
+  .sparkle-icon {&#13;
+    width: 28px;&#13;
+    height: 28px;&#13;
+  }&#13;
+&#13;
+  /* -------------------------&#13;
+     NAVBAR RIGHT&#13;
+     ------------------------- */&#13;
+&#13;
+  .navbar-right {&#13;
+    gap: 6px;&#13;
+    flex-shrink: 0;&#13;
+  }&#13;
+&#13;
+  .navbar-right &gt; li {&#13;
+    flex-shrink: 0;&#13;
+  }&#13;
+&#13;
+  /* -------------------------&#13;
+     PROFILE&#13;
+     ------------------------- */&#13;
+&#13;
+  .profile-card {&#13;
+    padding: 10px;&#13;
+    gap: 10px;&#13;
+    max-width: 100%;&#13;
+  }&#13;
+&#13;
+  .profile-info h2 {&#13;
+    font-size: 24px;&#13;
+    line-height: 1.2;&#13;
+  }&#13;
+&#13;
+  .avatar {&#13;
+    width: 30px;&#13;
+    height: 30px;&#13;
+    font-size: 11px;&#13;
+    flex-shrink: 0;&#13;
+  }&#13;
+&#13;
+  /* -------------------------&#13;
+     DROPDOWN&#13;
+     ------------------------- */&#13;
+&#13;
+  .dropdown-menu {&#13;
+    position: absolute;&#13;
+    right: 0;&#13;
+    top: 110%;&#13;
+    min-width: 145px;&#13;
+    max-width: calc(100vw - 20px);&#13;
+  }&#13;
+&#13;
+  .dropdown-menu li a {&#13;
+    padding: 10px 12px;&#13;
+    font-size: 13px;&#13;
+  }&#13;
+&#13;
+  /* -------------------------&#13;
+     APPROVAL BADGE&#13;
+     ------------------------- */&#13;
+&#13;
+  .approval-badge {&#13;
+    min-width: 17px;&#13;
+    height: 17px;&#13;
+    padding: 0 5px;&#13;
+    font-size: 10px;&#13;
+    line-height: 17px;&#13;
+  }&#13;
+&#13;
+  /* -------------------------&#13;
+     IMPORTANT&#13;
+     Override desktop nowrap&#13;
+     ------------------------- */&#13;
+&#13;
+  .sim-header * {&#13;
+    white-space: normal;&#13;
+  }&#13;
+&#13;
+  .sim-nav,&#13;
+  .sim-nav a,&#13;
+  .sim-right,&#13;
+  .navbar-right,&#13;
+  .period-btn {&#13;
+    white-space: nowrap;&#13;
+  }&#13;
+&#13;
+  /* -------------------------&#13;
+     TOOLTIP&#13;
+     ------------------------- */&#13;
+&#13;
+  .sim-logo-tooltip-text,&#13;
+  .sparkle-tooltip-text {&#13;
+    display: none;&#13;
+  }&#13;
+}&#13;
+&#13;
+&#13;
+/* =========================================================&#13;
+   VERY SMALL PHONES&#13;
+   320px - 480px&#13;
+   ========================================================= */&#13;
+&#13;
+@media (max-width: 480px) {&#13;
+&#13;
+  .sim-container {&#13;
+    padding: 8px 10px;&#13;
+    gap: 6px;&#13;
+  }&#13;
+&#13;
+  .sim-left {&#13;
+    gap: 7px;&#13;
+  }&#13;
+&#13;
+  .logo-img {&#13;
+    height: 27px;&#13;
+    max-width: 95px;&#13;
+  }&#13;
+&#13;
+  .sim-nav {&#13;
+    gap: 2px;&#13;
+  }&#13;
+&#13;
+  .sim-nav a {&#13;
+    padding: 6px 7px;&#13;
+    font-size: 11px;&#13;
+  }&#13;
+&#13;
+  .sim-nav a.active {&#13;
+    padding: 6px 7px;&#13;
+  }&#13;
+&#13;
+  .sim-right {&#13;
+    gap: 5px;&#13;
+  }&#13;
+&#13;
+  .period-btn {&#13;
+    padding: 4px 6px;&#13;
+    font-size: 10px;&#13;
+  }&#13;
+&#13;
+  .sparkle-icon {&#13;
+    width: 25px;&#13;
+    height: 25px;&#13;
+  }&#13;
+&#13;
+  .profile-info h2 {&#13;
+    font-size: 21px;&#13;
+  }&#13;
+}&#13;
+&#13;
+&#13;
+/* =========================================================&#13;
+   EXTRA SMALL PHONES&#13;
+   ========================================================= */&#13;
+&#13;
+@media (max-width: 360px) {&#13;
+&#13;
+  .sim-container {&#13;
+    padding-left: 8px;&#13;
+    padding-right: 8px;&#13;
+  }&#13;
+&#13;
+  .logo-img {&#13;
+    max-width: 80px;&#13;
+  }&#13;
+&#13;
+  .sim-nav a {&#13;
+    padding: 5px 6px;&#13;
+    font-size: 10px;&#13;
+  }&#13;
+&#13;
+  .period-btn {&#13;
+    display: none;&#13;
+  }&#13;
+&#13;
+  .sparkle-icon {&#13;
+    width: 23px;&#13;
+    height: 23px;&#13;
+  }&#13;
 }</css>
         <data_table>sp_instance</data_table>
         <demo_data/>
@@ -371,14 +638,14 @@
         <sys_created_by>karan.kumar</sys_created_by>
         <sys_created_on>2026-03-16 17:26:54</sys_created_on>
         <sys_id>ca93f0673b6bba50ffa00e9693e45a2d</sys_id>
-        <sys_mod_count>147</sys_mod_count>
+        <sys_mod_count>153</sys_mod_count>
         <sys_name>IncentNow Header Widget</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
         <sys_update_name>sp_header_footer_ca93f0673b6bba50ffa00e9693e45a2d</sys_update_name>
-        <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
-        <sys_updated_on>2026-07-24 10:52:40</sys_updated_on>
+        <sys_updated_by>shroin.mandal</sys_updated_by>
+        <sys_updated_on>2026-08-25 08:24:10</sys_updated_on>
         <template><![CDATA[<div>
   <header class="sim-header">
     <div class="sim-container">
@@ -395,19 +662,22 @@
             <i class="fa fa-th-large"></i> Dashboard
           </a>
           <a href="?id=organization" id="nav-organization">
-            <i class="fa fa-building"></i> Organization
+            <i class="fa fa-solid fa-sitemap"></i> Organization
           </a>
           <a href="?id=quota_setup" id="nav-quota">
-            <i class="fa fa-bullseye"></i> Quota Setup
+            <i class="fa fa-bullseye"></i> Quota
           </a>
           <a href="?id=incentive_plans_home" id="nav-incentive_plans_home">
-            <i class="fa fa-crosshairs"></i> Incentive Plans
+            <i class="fa fa-crosshairs"></i> Plans
           </a>
-          <a href="?id=performance_tracking" id="nav-performance_tracking">
-            <i class="fa fa-line-chart"></i> Performance
+          <a href="?id=incentiq_assignment" id="nav-incentiq_assignment">
+            <i class="fa fa-user-plus"></i> Assignment
           </a>
           <a href="?id=incentive_statements" id="nav-incentive_statements">
             <i class="fa fa-file-text"></i> Statements
+          </a>
+          <a href="?id=performance_tracking" id="nav-performance_tracking">
+            <i class="fa fa-line-chart"></i> Performance
           </a>
           <a href="?id=reports_main" id="nav-reports_main" ng-if="data.canViewReports">
             <i class="fa fa-bar-chart"></i> Reports

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element attributes="enforce_dot_walk_cross_scope_access=true" audit="true" db_object_id="8e8015b83be24bd0a4cbaddc73e45ad6" label="Participant Assignment" max_length="40" name="x_ctans_incentnow_participant_assignment" type="collection">
+        <element attributes="edge_encryption_enabled=true" choice="1" default="draft" label="Status" max_length="40" name="status" type="string">
+            <choice>
+                <element inactive_on_update="false" label="Pending Approval" sequence="1" value="pending_approval"/>
+                <element inactive_on_update="false" label="Draft" sequence="0" value="draft"/>
+                <element inactive_on_update="false" label="Inactive" sequence="3" value="inactive"/>
+                <element inactive_on_update="false" label="Active" sequence="2" value="active"/>
+            </choice>
+        </element>
+        <element attributes="ignore_filter_on_new=true" default="javascript:global.getNextObjNumberPadded();" display="true" label="Number" max_length="40" name="number" type="string"/>
+        <element attributes="edge_encryption_enabled=true,encode_utf8=false" label="Business Unit" max_length="32" name="business_unit" reference="business_unit" type="reference"/>
+        <element attributes="edge_encryption_enabled=true" choice="3" choice_field="business_dimension" choice_table="x_ctans_incentnow_plan" label="Business Dimension" mandatory="true" max_length="40" name="business_dimension" type="string">
+            <choice>
+                <element inactive_on_update="false" label="Business Unit" sequence="0" value="business_unit"/>
+                <element inactive_on_update="false" label="Territory" sequence="1" value="territory"/>
+            </choice>
+        </element>
+        <element attributes="business_unit=true,edge_encryption_enabled=true,encode_utf8=false,fiscal_year=true,ref_qual_elements=business_dimension" label="User" mandatory="true" max_length="32" name="user" reference="x_ctans_incentnow_user_profile" reference_qual="javascript:new IncentIQAssignmentReferenceResolver().getEligibleParticipantUserQualifier(current);" type="reference" use_reference_qualifier="advanced"/>
+        <element attributes="edge_encryption_enabled=true" label="Domain" max_length="32" name="sys_domain" type="domain_id"/>
+        <element attributes="edge_encryption_enabled=true,encode_utf8=false" label="Fiscal Year" mandatory="true" max_length="32" name="fiscal_year" reference="x_ctans_incentnow_fiscal_calendar" type="reference"/>
+        <index name="index">
+            <element name="business_unit"/>
+        </index>
+        <index name="index2">
+            <element name="fiscal_year"/>
+        </index>
+        <index name="index3">
+            <element name="user"/>
+        </index>
+        <index name="index4">
+            <element name="sys_domain"/>
+        </index>
+    </element>
+</database>

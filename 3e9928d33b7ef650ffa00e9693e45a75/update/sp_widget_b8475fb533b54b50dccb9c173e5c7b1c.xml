@@ -262,7 +262,7 @@
 
     if (input && input.action === 'sendMessage') {
         try {
-            var orchestrator = new x_ctans_incentnow.IncentIQChatOrchestrator();
+            var orchestrator = new x_ctans_incentnow.IncentIQAdvisorRouter();
             var result = orchestrator.sendMessage(input.question, input.conversationHistory);
 
             if (result.success) {
@@ -282,14 +282,14 @@
         <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
         <sys_created_on>2026-07-01 15:14:15</sys_created_on>
         <sys_id>b8475fb533b54b50dccb9c173e5c7b1c</sys_id>
-        <sys_mod_count>33</sys_mod_count>
+        <sys_mod_count>34</sys_mod_count>
         <sys_name>IncentIQ Smart Compensation Advisor</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy/>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
         <sys_update_name>sp_widget_b8475fb533b54b50dccb9c173e5c7b1c</sys_update_name>
         <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
-        <sys_updated_on>2026-07-22 09:32:14</sys_updated_on>
+        <sys_updated_on>2026-08-24 10:09:29</sys_updated_on>
         <template><![CDATA[<div class="incentiq-page">
   <div class="incentiq-side">
     <p class="incentiq-label"><span class="incentiq-label-tab"></span>Objects</p>

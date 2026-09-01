@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_atf_step">
+    <sys_atf_step action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <callable_outputs/>
+        <copied_from display_value="">f08b3e4333128bd0dccb9c173e5c7be9</copied_from>
+        <description>Set the components on the page as follows:
+'Text &lt;select2&gt;: Lookup using list' = ATF Sys User
+'Text &lt;select2&gt;: Lookup using list' = ATF Location
+'Text &lt;select2&gt;: Lookup using list' = ATF User Manager
+'Custom component &lt;select2&gt;: Business Dimension' = Business Unit
+'Custom component &lt;select2&gt;: Role' = Application Admin
+</description>
+        <display_name>Set Component Values (Custom UI)</display_name>
+        <inputs/>
+        <mugshots_cache_json>{"6d869295bac5a49f74542fad0bfeebc4":"{\"area\":\"Organization Management &gt; IncentNow Form Advanced\",\"sn_atf_mugshot_short_description\":\"Custom component &lt;select2&gt;: Role\",\"inner_text\":\"-- None --   Role          Role\",\"sn_atf_mugshot_long_description\":\"Custom component &lt;select2&gt; [s2id_sp_formfield_role]: Role in page area Organization Management &gt; IncentNow Form Advanced\",\"methods\":[\"setValue\"],\"sn_atf_mugshot_label\":\"Role\",\"type\":\"select-one\",\"version\":\"26.0\",\"sn_atf_mugshot_label_for_label_path\":\"Role\",\"label_for_input\":{\"inner_text\":\"Role\"},\"get_value_result\":\"\",\"sn_atf_mugshot_tag_display_name\":\"Custom component &lt;select2&gt;\",\"sn_atf_mugshot_value\":\"\",\"name\":\"role\",\"tag\":\"select2\",\"isDisabled\":false,\"id\":\"s2id_sp_formfield_role\",\"hash\":\"6d869295bac5a49f74542fad0bfeebc4\",\"html_value\":\"\"}","6b2cfa72e49054ed38489f035777271c":"{\"area\":\"Organization Management &gt; IncentNow Form Advanced\",\"sn_atf_mugshot_short_description\":\"Custom component &lt;select2&gt;: Business Dimension\",\"inner_text\":\"-- None --\",\"sn_atf_mugshot_long_description\":\"Custom component &lt;select2&gt; [s2id_sp_formfield_business_dimension]: Business Dimension in page area Organization Management &gt; IncentNow Form Advanced\",\"methods\":[\"setValue\"],\"sn_atf_mugshot_label\":\"Business Dimension\",\"type\":\"select-one\",\"version\":\"26.0\",\"sn_atf_mugshot_label_for_label_path\":\"Business Dimension\",\"label_for_input\":{\"inner_text\":\"Business Dimension\"},\"get_value_result\":\"\",\"sn_atf_mugshot_tag_display_name\":\"Custom component &lt;select2&gt;\",\"sn_atf_mugshot_value\":\"\",\"name\":\"business_dimension\",\"tag\":\"select2\",\"isDisabled\":false,\"id\":\"s2id_sp_formfield_business_dimension\",\"hash\":\"6b2cfa72e49054ed38489f035777271c\",\"html_value\":\"\"}","4bacb3ef5173f39dbba221333d26ad72":"{\"area\":\"Organization Management &gt; IncentNow Form Advanced\",\"sn_atf_mugshot_short_description\":\"Text &lt;select2&gt;: Lookup using list\",\"inner_text\":\"Lookup using list\",\"role\":\"textbox\",\"sn_atf_mugshot_long_description\":\"Text &lt;select2&gt; [s2id_sp_formfield_user]: Lookup using list in page area Organization Management &gt; IncentNow Form Advanced\",\"methods\":[\"setValue\"],\"sn_atf_mugshot_label\":\"Lookup using list\",\"index\":2,\"type\":\"text\",\"title\":\"UserUser\",\"version\":\"26.0\",\"sn_atf_mugshot_label_for_label_path\":\"UserUser\",\"get_value_result\":\"\",\"sn_atf_mugshot_tag_display_name\":\"Text &lt;select2&gt;\",\"sn_atf_mugshot_value\":\"\",\"name\":\"user\",\"tag\":\"select2\",\"isDisabled\":false,\"id\":\"s2id_sp_formfield_user\",\"hash\":\"4bacb3ef5173f39dbba221333d26ad72\",\"html_value\":\"\"}","9aac713f90e36e010a56e0d9a8fd8979":"{\"area\":\"Organization Management &gt; IncentNow Form Advanced\",\"sn_atf_mugshot_short_description\":\"Text &lt;select2&gt;: Lookup using list\",\"inner_text\":\"Lookup using list\",\"role\":\"textbox\",\"sn_atf_mugshot_long_description\":\"Text &lt;select2&gt; [s2id_sp_formfield_user.location]: Lookup using list in page area Organization Management &gt; IncentNow Form Advanced\",\"methods\":[\"setValue\"],\"sn_atf_mugshot_label\":\"Lookup using list\",\"index\":2,\"type\":\"text\",\"title\":\"LocationLocation\",\"version\":\"26.0\",\"sn_atf_mugshot_label_for_label_path\":\"LocationLocation\",\"get_value_result\":\"\",\"sn_atf_mugshot_tag_display_name\":\"Text &lt;select2&gt;\",\"sn_atf_mugshot_value\":\"\",\"name\":\"user.location\",\"tag\":\"select2\",\"isDisabled\":false,\"id\":\"s2id_sp_formfield_user.location\",\"hash\":\"9aac713f90e36e010a56e0d9a8fd8979\",\"html_value\":\"\"}","11d8436f275d63e5fd4e253ee869337d":"{\"area\":\"Organization Management &gt; IncentNow Form Advanced\",\"sn_atf_mugshot_short_description\":\"Text &lt;select2&gt;: Lookup using list\",\"inner_text\":\"Lookup using list\",\"role\":\"textbox\",\"sn_atf_mugshot_long_description\":\"Text &lt;select2&gt; [s2id_sp_formfield_user.manager]: Lookup using list in page area Organization Management &gt; IncentNow Form Advanced\",\"methods\":[\"setValue\"],\"sn_atf_mugshot_label\":\"Lookup using list\",\"index\":2,\"type\":\"text\",\"title\":\"ManagerManager\",\"version\":\"26.0\",\"sn_atf_mugshot_label_for_label_path\":\"ManagerManager\",\"get_value_result\":\"\",\"sn_atf_mugshot_tag_display_name\":\"Text &lt;select2&gt;\",\"sn_atf_mugshot_value\":\"\",\"name\":\"user.manager\",\"tag\":\"select2\",\"isDisabled\":false,\"id\":\"s2id_sp_formfield_user.manager\",\"hash\":\"11d8436f275d63e5fd4e253ee869337d\",\"html_value\":\"\"}"}</mugshots_cache_json>
+        <notes/>
+        <order>11</order>
+        <step_config display_value="Set Component Values (Custom UI)">e5dd168473330300c79260bdfaf6a794</step_config>
+        <sys_class_name>sys_atf_step</sys_class_name>
+        <sys_created_by>shiva.erla</sys_created_by>
+        <sys_created_on>2026-08-05 05:22:30</sys_created_on>
+        <sys_id>56ffd5c533e2c714dccb9c173e5c7b15</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>Set Component Values (Custom UI)</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_atf_step_56ffd5c533e2c714dccb9c173e5c7b15</sys_update_name>
+        <sys_updated_by>shiva.erla</sys_updated_by>
+        <sys_updated_on>2026-08-05 05:22:30</sys_updated_on>
+        <table/>
+        <test display_value="IncentIQ_DisputeManagement">f1ff55c533e2c714dccb9c173e5c7bc5</test>
+        <timeout/>
+        <warning_message/>
+    </sys_atf_step>
+    <sys_variable_value action="delete_multiple" query="document_key=56ffd5c533e2c714dccb9c173e5c7b15"/>
+    <sys_variable_value action="INSERT_OR_UPDATE">
+        <document>sys_atf_step</document>
+        <document_key>56ffd5c533e2c714dccb9c173e5c7b15</document_key>
+        <order>100</order>
+        <sys_class_name>sys_variable_value</sys_class_name>
+        <sys_created_by>shiva.erla</sys_created_by>
+        <sys_created_on>2026-08-05 05:22:30</sys_created_on>
+        <sys_id>5effd5c533e2c714dccb9c173e5c7b16</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>shiva.erla</sys_updated_by>
+        <sys_updated_on>2026-08-05 05:22:30</sys_updated_on>
+        <value>4bacb3ef5173f39dbba221333d26ad72=ATF Sys User^9aac713f90e36e010a56e0d9a8fd8979=ATF Location^11d8436f275d63e5fd4e253ee869337d=ATF User Manager^6b2cfa72e49054ed38489f035777271c=Business Unit^6d869295bac5a49f74542fad0bfeebc4=Application Admin^EQ</value>
+        <variable display_value="Component values">d12fde8473330300c79260bdfaf6a7b5</variable>
+    </sys_variable_value>
+    <sys_element_mapping action="delete_multiple" query="table=var__m_atf_input_variable_e5dd168473330300c79260bdfaf6a794^id=56ffd5c533e2c714dccb9c173e5c7b15"/>
+</record_update>

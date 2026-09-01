@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_atf_step">
+    <sys_atf_step action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <callable_outputs/>
+        <copied_from/>
+        <description>Set the components on the page as follows:
+'Text &lt;input&gt;: Rule Name' = ATF Rule 1
+'Custom component &lt;select2&gt;: Earning Level' = Individual
+'Text &lt;select2&gt;: Select the source data object (e.g., Salesforce Deal) on which this rule will run.' = ATF - Data
+'Text &lt;select2&gt;: Choose the field from the source object that will be evaluated or aggregated.' = amount
+'Custom component &lt;select2&gt;: Aggregation' = Sum
+'Text &lt;textarea&gt;: Description' = ATF Test Rule Description
+</description>
+        <display_name>Set Component Values (Custom UI)</display_name>
+        <inputs/>
+        <mugshots_cache_json>{"fef745ec17aeb67a15e20f90d8b24e9f":"{\"area\":\"IncentNow Create Plan &gt; IncentNow Rule Builder Form\",\"sn_atf_mugshot_short_description\":\"Text &lt;textarea&gt;: Description\",\"role\":\"textbox\",\"sn_atf_mugshot_long_description\":\"Text &lt;textarea&gt; [sp_formfield_description]: Description in page area IncentNow Create Plan &gt; IncentNow Rule Builder Form\",\"methods\":[\"setValue\"],\"sn_atf_mugshot_label\":\"Description\",\"type\":\"textarea\",\"version\":\"26.0\",\"label_for_input\":{\"inner_text\":\"Description\"},\"sn_atf_mugshot_label_for_label_path\":\"Description\",\"interesting_element_path\":[\"body\",\"div\",\"div\",\"sp-page-row\",\"span\",\"div\",\"div\",\"form\",\"sp-variable-layout\",\"div\",\"div\",\"textarea\"],\"get_value_result\":\"\",\"sn_atf_mugshot_tag_display_name\":\"Text &lt;textarea&gt;\",\"name\":\"description\",\"sn_atf_mugshot_value\":\"\",\"tag\":\"textarea\",\"isDisabled\":false,\"id\":\"sp_formfield_description\",\"label_path\":[\"Description\"],\"aria-label\":\"Description\",\"hash\":\"fef745ec17aeb67a15e20f90d8b24e9f\",\"html_value\":\"\"}","cc0a812278349ec7115d881499876726":"{\"area\":\"IncentNow Create Plan &gt; IncentNow Rule Builder Form\",\"sn_atf_mugshot_short_description\":\"Text &lt;input&gt;: Rule Name\",\"sn_atf_mugshot_long_description\":\"Text &lt;input&gt; [sp_formfield_rule_name]: Rule Name with value Enter a unique name for this rule to identify i... in page area IncentNow Create Plan &gt; IncentNow Rule Builder Form\",\"methods\":[\"setValue\"],\"sn_atf_mugshot_label\":\"Rule Name\",\"type\":\"text\",\"version\":\"26.0\",\"label_for_input\":{\"inner_text\":\"Rule Name\"},\"sn_atf_mugshot_label_for_label_path\":\"Rule Name\",\"interesting_element_path\":[\"body\",\"div\",\"div\",\"sp-page-row\",\"span\",\"div\",\"div\",\"form\",\"sp-variable-layout\",\"div\",\"div\",\"input\"],\"get_value_result\":\"\",\"sn_atf_mugshot_tag_display_name\":\"Text &lt;input&gt;\",\"name\":\"rule_name\",\"sn_atf_mugshot_value\":\"Enter a unique name for this rule to identify its purpose.\",\"tag\":\"input\",\"isDisabled\":false,\"id\":\"sp_formfield_rule_name\",\"placeholder\":\"Enter a unique name for this rule to identify its purpose.\",\"label_path\":[\"Rule Name\"],\"aria-label\":\"Rule Name\",\"hash\":\"cc0a812278349ec7115d881499876726\",\"html_value\":\"\"}","f225fc3612906333ae7ca47d5228154b":"{\"area\":\"IncentNow Create Plan &gt; IncentNow Rule Builder Form\",\"sn_atf_mugshot_short_description\":\"Custom component &lt;select2&gt;: Aggregation\",\"inner_text\":\"-- None --\",\"sn_atf_mugshot_long_description\":\"Custom component &lt;select2&gt; [s2id_sp_formfield_aggregation]: Aggregation in page area IncentNow Create Plan &gt; IncentNow Rule Builder Form\",\"methods\":[\"setValue\"],\"sn_atf_mugshot_label\":\"Aggregation\",\"type\":\"select-one\",\"version\":\"26.0\",\"sn_atf_mugshot_label_for_label_path\":\"Aggregation\",\"label_for_input\":{\"inner_text\":\"Aggregation\"},\"get_value_result\":\"\",\"sn_atf_mugshot_tag_display_name\":\"Custom component &lt;select2&gt;\",\"sn_atf_mugshot_value\":\"\",\"name\":\"aggregation\",\"tag\":\"select2\",\"isDisabled\":false,\"id\":\"s2id_sp_formfield_aggregation\",\"hash\":\"f225fc3612906333ae7ca47d5228154b\",\"html_value\":\"\"}","8ec17f2565708fcb2111eb90cc738c4d":"{\"area\":\"IncentNow Create Plan &gt; IncentNow Rule Builder Form\",\"sn_atf_mugshot_short_description\":\"Text &lt;select2&gt;: Select the source data object (e.g., Salesforce Deal) on which this rule will run.\",\"inner_text\":\"Select the source data object (e.g., Salesforce Deal) on which this rule will run.\",\"role\":\"textbox\",\"sn_atf_mugshot_long_description\":\"Text &lt;select2&gt; [s2id_sp_formfield_source_object]: Select the source data object (e.g., Salesforce... in page area IncentNow Create Plan &gt; IncentNow Rule Builder Form\",\"methods\":[\"setValue\"],\"sn_atf_mugshot_label\":\"Select the source data object (e.g., Salesforce Deal) on which this rule will run.\",\"index\":2,\"type\":\"text\",\"title\":\"Source Object\",\"version\":\"26.0\",\"sn_atf_mugshot_label_for_label_path\":\"Source Object\",\"get_value_result\":\"\",\"sn_atf_mugshot_tag_display_name\":\"Text &lt;select2&gt;\",\"sn_atf_mugshot_value\":\"\",\"name\":\"source_object\",\"tag\":\"select2\",\"isDisabled\":false,\"id\":\"s2id_sp_formfield_source_object\",\"hash\":\"8ec17f2565708fcb2111eb90cc738c4d\",\"html_value\":\"\"}","8c923b3cb00b055b1082ff713c5030d8":"{\"area\":\"IncentNow Create Plan &gt; IncentNow Rule Builder Form\",\"sn_atf_mugshot_short_description\":\"Text &lt;select2&gt;: Choose the field from the source object that will be evaluated or aggregated.\",\"inner_text\":\"Choose the field from the source object that will be evaluated or aggregated.\",\"role\":\"textbox\",\"sn_atf_mugshot_long_description\":\"Text &lt;select2&gt; [s2id_sp_formfield_field]: Choose the field from the source object that wi... in page area IncentNow Create Plan &gt; IncentNow Rule Builder Form\",\"methods\":[\"setValue\"],\"sn_atf_mugshot_label\":\"Choose the field from the source object that will be evaluated or aggregated.\",\"index\":2,\"type\":\"text\",\"title\":\"Field\",\"version\":\"26.0\",\"sn_atf_mugshot_label_for_label_path\":\"Field\",\"get_value_result\":\"\",\"sn_atf_mugshot_tag_display_name\":\"Text &lt;select2&gt;\",\"sn_atf_mugshot_value\":\"\",\"name\":\"field\",\"tag\":\"select2\",\"isDisabled\":false,\"id\":\"s2id_sp_formfield_field\",\"hash\":\"8c923b3cb00b055b1082ff713c5030d8\",\"html_value\":\"\"}","1a1731076124cb526e9edb05ea8786e8":"{\"area\":\"IncentNow Create Plan &gt; IncentNow Rule Builder Form\",\"sn_atf_mugshot_short_description\":\"Custom component &lt;select2&gt;: Earning Level\",\"inner_text\":\"-- None --\",\"sn_atf_mugshot_long_description\":\"Custom component &lt;select2&gt; [s2id_sp_formfield_earning_level]: Earning Level in page area IncentNow Create Plan &gt; IncentNow Rule Builder Form\",\"methods\":[\"setValue\"],\"sn_atf_mugshot_label\":\"Earning Level\",\"type\":\"select-one\",\"version\":\"26.0\",\"sn_atf_mugshot_label_for_label_path\":\"Earning Level\",\"label_for_input\":{\"inner_text\":\"Earning Level\"},\"get_value_result\":\"\",\"sn_atf_mugshot_tag_display_name\":\"Custom component &lt;select2&gt;\",\"sn_atf_mugshot_value\":\"\",\"name\":\"earning_level\",\"tag\":\"select2\",\"isDisabled\":false,\"id\":\"s2id_sp_formfield_earning_level\",\"hash\":\"1a1731076124cb526e9edb05ea8786e8\",\"html_value\":\"\"}"}</mugshots_cache_json>
+        <notes/>
+        <order>15</order>
+        <step_config display_value="Set Component Values (Custom UI)">e5dd168473330300c79260bdfaf6a794</step_config>
+        <sys_class_name>sys_atf_step</sys_class_name>
+        <sys_created_by>shiva.erla</sys_created_by>
+        <sys_created_on>2026-08-24 17:36:14</sys_created_on>
+        <sys_id>c20eb99733720710dccb9c173e5c7b17</sys_id>
+        <sys_mod_count>7</sys_mod_count>
+        <sys_name>Set Component Values (Custom UI)</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_atf_step_c20eb99733720710dccb9c173e5c7b17</sys_update_name>
+        <sys_updated_by>atfappadminuser</sys_updated_by>
+        <sys_updated_on>2026-08-24 18:16:26</sys_updated_on>
+        <table/>
+        <test display_value="IncentIQ_IncentivePlan_BusinessUnit_ApprovalFlow">a44e00133336c310dccb9c173e5c7b68</test>
+        <timeout/>
+        <warning_message/>
+    </sys_atf_step>
+    <sys_variable_value action="delete_multiple" query="document_key=c20eb99733720710dccb9c173e5c7b17"/>
+    <sys_variable_value action="INSERT_OR_UPDATE">
+        <document>sys_atf_step</document>
+        <document_key>c20eb99733720710dccb9c173e5c7b17</document_key>
+        <order>100</order>
+        <sys_class_name>sys_variable_value</sys_class_name>
+        <sys_created_by>shiva.erla</sys_created_by>
+        <sys_created_on>2026-08-24 17:36:14</sys_created_on>
+        <sys_id>e71e3d9733720710dccb9c173e5c7bc4</sys_id>
+        <sys_mod_count>1</sys_mod_count>
+        <sys_updated_by>shiva.erla</sys_updated_by>
+        <sys_updated_on>2026-08-24 17:38:53</sys_updated_on>
+        <value>cc0a812278349ec7115d881499876726=ATF Rule 1^1a1731076124cb526e9edb05ea8786e8=Individual^8ec17f2565708fcb2111eb90cc738c4d=ATF - Data^8c923b3cb00b055b1082ff713c5030d8=amount^f225fc3612906333ae7ca47d5228154b=Sum^fef745ec17aeb67a15e20f90d8b24e9f=ATF Test Rule Description^EQ</value>
+        <variable display_value="Component values">d12fde8473330300c79260bdfaf6a7b5</variable>
+    </sys_variable_value>
+    <sys_element_mapping action="delete_multiple" query="table=var__m_atf_input_variable_e5dd168473330300c79260bdfaf6a794^id=c20eb99733720710dccb9c173e5c7b17"/>
+</record_update>

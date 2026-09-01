@@ -29,25 +29,14 @@
         <role_conditions/>
         <script><![CDATA[(function executeRule(current, previous) {
 
-    var utils = new IncentNowAccessUtils();
-    var userId = gs.getUserID();
-
     // =========================================
-    // SYSTEM ADMIN / APPLICATION ADMIN
+    //  ADMINs
     // =========================================
     if (
         gs.getUser().hasRole('admin') ||
-        gs.hasRole('x_ctans_incentnow.admin')
+        gs.hasRole('x_ctans_incentnow.admin') ||
+        gs.hasRole('x_ctans_incentnow.org_executive')
     ) {
-        return;
-    }
-
-    // =========================================
-    // BUSINESS GROUP ADMIN
-    // =========================================
-    if (gs.hasRole('x_ctans_incentnow.business_group_admin')) {
-
-        utils.applyBusinessGroupAdminMetricReportFilter(current);
         return;
     }
 
@@ -74,34 +63,10 @@
 
         return;
     }
+    //All other roles
+    var utils = new IncentNowAccessUtils();
+    utils.applyAssignmentFilter(current);
 
-    // =========================================
-    // BUSINESS GROUP EXECUTIVE
-    // =========================================
-    if (gs.hasRole('x_ctans_incentnow.business_group_executive')) {
-
-        utils.applyBusinessGroupExecutiveMetricReportFilter(current);
-        return;
-    }
-
-
-    // =========================================
-    // SALES MANAGER
-    // =========================================
-    if (gs.hasRole('x_ctans_incentnow.manager')) {
-
-        utils.applyManagerMetricReportFilter(current);
-        return;
-    }
-
-    // =========================================
-    // SALES REPRESENTATIVE
-    // =========================================
-    if (gs.hasRole('x_ctans_incentnow.user')) {
-
-        utils.applySalesRepMetricReportFilter(current);
-        return;
-    }
 
 })(current, previous);]]></script>
         <sys_class_name>sys_script</sys_class_name>
@@ -110,15 +75,15 @@
         <sys_domain>global</sys_domain>
         <sys_domain_path>/</sys_domain_path>
         <sys_id>7d8d4dd83b854b10a4cbaddc73e45a25</sys_id>
-        <sys_mod_count>6</sys_mod_count>
+        <sys_mod_count>7</sys_mod_count>
         <sys_name>Metric Filter Incentnow</sys_name>
         <sys_overrides/>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy/>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
         <sys_update_name>sys_script_7d8d4dd83b854b10a4cbaddc73e45a25</sys_update_name>
-        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
-        <sys_updated_on>2026-07-16 12:41:00</sys_updated_on>
+        <sys_updated_by>upma.rai</sys_updated_by>
+        <sys_updated_on>2026-08-21 19:46:48</sys_updated_on>
         <template/>
         <when>before</when>
     </sys_script>

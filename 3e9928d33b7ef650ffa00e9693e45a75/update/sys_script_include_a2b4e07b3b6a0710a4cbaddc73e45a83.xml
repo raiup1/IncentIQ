@@ -1,0 +1,685 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>package_private</access>
+        <active>true</active>
+        <api_name>x_ctans_incentnow.IncentNowStatementProcessor</api_name>
+        <caller_access/>
+        <client_callable>false</client_callable>
+        <description>This script is responsible for generating Incentive Statement</description>
+        <mobile_callable>false</mobile_callable>
+        <name>IncentNowStatementProcessor</name>
+        <sandbox_callable>false</sandbox_callable>
+        <script><![CDATA[var IncentNowStatementProcessor = Class.create();
+IncentNowStatementProcessor.prototype = {
+    initialize: function() {
+        this.LOG = 'IncentNowStatementProcessor | ';
+        this.formatter = new IncentNowSystemConfigUtil();
+    },
+    // ============================================================
+    // MAIN PROCESS
+    // ============================================================
+    process: function(current) {
+        try {
+            // ====================================================
+            // 1. GET / REUSE STATEMENT
+            // ====================================================
+            var resultObj = this._getTargetRecord(current);
+            var targetGR = resultObj.record;
+            var isDuplicate = resultObj.isDuplicate;
+            if (!targetGR)
+                return this._fail('Unable to initialize Incentive Statement.');
+            // ====================================================
+            // 2. VALIDATE USER / PERIOD
+            // ====================================================
+            if (!targetGR.getValue('user'))
+                return this._fail('User is required.');
+            if (!targetGR.getValue('fiscal_period'))
+                return this._fail('Fiscal Period is required.');
+            var userGR = targetGR.user.getRefRecord();
+            if (!userGR || !userGR.isValidRecord())
+                return this._fail('Selected User is invalid.');
+            var periodGR = targetGR.fiscal_period.getRefRecord();
+            if (!periodGR || !periodGR.isValidRecord())
+                return this._fail('Selected Fiscal Period is invalid.');
+            var periodType = periodGR.getValue('period_type');
+            // Current statement generation supports monthly periods
+            if (periodType != 'month') {
+                return this._fail(
+                    'Statements can currently be generated only for monthly Fiscal Periods.'
+                );
+            }
+            // ====================================================
+            // 3. PERIOD DATE VALIDATION
+            // ====================================================
+            var today = new GlideDateTime();
+            var periodStart = new GlideDateTime(
+                periodGR.getValue('period_start_date')
+            );
+            var periodEnd = new GlideDateTime(
+                periodGR.getValue('period_end_date')
+            );
+            if (periodStart > today) {
+                return this._fail(
+                    'Cannot generate statement for a future fiscal period.'
+                );
+            }
+            if (periodEnd > today) {
+                return this._fail(
+                    'Statement can only be generated after fiscal period is completed.'
+                );
+            }
+            // ====================================================
+            // 4. GET FISCAL YEAR
+            // ====================================================
+            var fiscalYearSysId =
+                periodGR.getValue('fiscal_year');
+            if (!fiscalYearSysId) {
+                return this._fail(
+                    'Fiscal Year is not configured on the selected Fiscal Period.'
+                );
+            }
+            // Keep Statement Fiscal Year aligned with Period
+            if (targetGR.isValidField('fiscal_year')) {
+                targetGR.setValue(
+                    'fiscal_year',
+                    fiscalYearSysId
+                );
+            }
+            // ====================================================
+            // 5. GET ACTIVE PARTICIPANT ASSIGNMENT
+            // ====================================================
+            var participantResult = this._getActiveParticipantAssignment(userGR.getUniqueValue(), fiscalYearSysId);
+            if (!participantResult.valid)
+                return this._fail(participantResult.message);
+
+            var participantAssignmentSysId = participantResult.sysId;
+            // ====================================================
+            // 6. GET PLAN ASSIGNMENTS FOR SELECTED PERIOD
+            // ====================================================
+            var planAssignmentIds = this._getPlanAssignmentsForPeriod(participantAssignmentSysId, userGR.getUniqueValue(), fiscalYearSysId, periodGR.getUniqueValue());
+            if (!planAssignmentIds.length) {
+                return this._fail(
+                    'No active Plan Assignments are available for the selected User and Fiscal Period.'
+                );
+            }
+
+            // ====================================================
+            // 7. PREPARE ENGINES
+            // ====================================================
+            var validator = new IncentNowPayoutValidator();
+            var earningEngine = new IncentNowEarningRuleEngine();
+            var payoutEngine = new IncentNowPayoutEngine();
+            var planResults = [];
+            var planIds = [];
+            var grandTotal = 0;
+            var consolidatedRevenue = 0;
+            // Used for JSON persistence
+            var allEarningResults = [];
+            var allPayoutResults = [];
+
+            // ====================================================
+            // 8. PROCESS EACH PLAN ASSIGNMENT
+            // ====================================================
+
+            for (var p = 0; p < planAssignmentIds.length; p++) {
+                var planAssignmentGR = new GlideRecordSecure('x_ctans_incentnow_plan_users');
+                if (!planAssignmentGR.get(planAssignmentIds[p])) {
+                    return this._fail('A Plan Assignment could not be retrieved during statement generation.');
+                }
+                var planGR = planAssignmentGR.x_ctans_incentnow_plan.getRefRecord();
+                if (!planGR || !planGR.isValidRecord()) {
+                    return this._fail('Invalid Plan found on Plan Assignment: ' + planAssignmentGR.getDisplayValue());
+                }
+                var planSysId = planGR.getUniqueValue();
+                var planDisplay = planGR.getDisplayValue();
+
+                // =================================================
+                // 8A. VALIDATE PLAN / QUOTA CONFIGURATION
+                // =================================================
+                var validation = validator.validateStatementPlan(userGR, periodGR, planAssignmentGR);
+                if (!validation.valid) {
+                    return this._fail('Plan "' + planDisplay + '": ' + validation.message);
+                }
+                // =================================================
+                // 8B. RUN EARNING ENGINE
+                // =================================================
+                var earningResult =
+                    earningEngine.calculateMetrics(
+                        userGR,
+                        periodGR,
+                        planGR,
+                        targetGR.sys_id
+                    );
+                if (!earningResult || earningResult.length === 0) {
+                    return this._fail('No earnings generated for Plan "' + planDisplay + '" for this period.');
+                }
+                var totalCredit = 0;
+                for (var e = 0; e < earningResult.length; e++) {
+                    totalCredit += parseFloat(earningResult[e].credit) || 0;
+                }
+                consolidatedRevenue += totalCredit;
+                if (totalCredit === 0) {
+                    return this._fail('No orders found for Plan "' + planDisplay + '" for this period.');
+                }
+                // =================================================
+                // 8C. FORMAT EARNING RULES
+                // =================================================
+                var earningRulesArr = [];
+                for (var er = 0; er < earningResult.length; er++) {
+                    earningRulesArr.push({
+                        name: earningResult[er].rule,
+                        type: earningResult[er].aggregation_type,
+                        object: earningResult[er].object,
+                        field: earningResult[er].field,
+                        condition: earningResult[er].condition,
+                        earning_level: earningResult[er].earning_level,
+                        value: this.formatter.format(
+                            earningResult[er].credit,
+                            earningResult[er].unit
+                        )
+                    });
+                }
+                // =================================================
+                // 8D. RUN PAYOUT ENGINE
+                // =================================================
+                var payoutResult =
+                    payoutEngine.executePlan(
+                        userGR,
+                        periodGR,
+                        planGR,
+                        planAssignmentGR,
+                        targetGR.sys_id
+                    );
+                if (!payoutResult ||
+                    payoutResult.status == 'error') {
+                    return this._fail(
+                        payoutResult &&
+                        payoutResult.message ?
+                        payoutResult.message :
+                        'Payout calculation failed for Plan "' +
+                        planDisplay +
+                        '".'
+                    );
+                }
+                // =================================================
+                // 8E. FORMAT PAYOUT STEPS
+                // =================================================
+                var formattedSteps = [];
+                var steps =
+                    payoutResult.breakdown || [];
+                for (var s = 0; s < steps.length; s++) {
+                    formattedSteps.push({
+                        ruleName: steps[s].ruleName ||
+                            steps[s].rule_name,
+                        formula: steps[s].formula,
+                        payoutValue: steps[s].payoutValue ||
+                            steps[s].display_value,
+                        trace: steps[s].trace
+                    });
+                }
+                // =================================================
+                // 8F. QUOTA RESULTS
+                // =================================================
+                var quotaResults =
+                    payoutResult.quota_results || [];
+                // =================================================
+                // 8G. COLLECT PLAN RESULT
+                // =================================================
+                var planTotal =
+                    parseFloat(
+                        payoutResult.total_payout
+                    ) || 0;
+                grandTotal += planTotal;
+                if (planIds.indexOf(planSysId) == -1)
+                    planIds.push(planSysId);
+                planResults.push({
+                    planSysId: planSysId,
+                    planName: planDisplay,
+                    planAssignmentSysId: planAssignmentGR.getUniqueValue(),
+                    earningRules: earningRulesArr,
+                    quotaResults: quotaResults,
+                    payoutBreakdown: formattedSteps,
+                    totalPayout: planTotal,
+                    formattedTotal: this.formatter.formatCurrency(planTotal)
+                });
+                // =================================================
+                // 8H. JSON AUDIT DATA
+                // =================================================
+                allEarningResults.push({
+                    plan: planSysId,
+                    plan_name: planDisplay,
+                    plan_assignment: planAssignmentGR.getUniqueValue(),
+                    results: earningResult
+                });
+                allPayoutResults.push({
+                    plan: planSysId,
+                    plan_name: planDisplay,
+                    plan_assignment: planAssignmentGR.getUniqueValue(),
+                    quota_results: quotaResults,
+                    breakdown: payoutResult.breakdown || [],
+                    total: planTotal
+                });
+                // =================================================
+                // 8I. PERSIST PAYOUT RESULT RECORDS
+                // =================================================
+                this._insertPayoutResults(
+                    targetGR,
+                    planGR,
+                    payoutResult
+                );
+            }
+            // ====================================================
+            // 8J. CONSOLIDATED QUOTA
+            // ====================================================
+            var consolidatedTargetQuota = this._getConsolidatedTargetQuota(
+                participantAssignmentSysId,
+                planAssignmentIds,
+                userGR.getUniqueValue(),
+                fiscalYearSysId,
+                periodGR.getUniqueValue()
+            );
+
+            var consolidatedQuotaAttainment = 0;
+
+            if (consolidatedTargetQuota > 0) {
+                consolidatedQuotaAttainment =
+                    consolidatedRevenue / consolidatedTargetQuota;
+            }
+            // ====================================================
+            // 9. BUILD CONSOLIDATED STATEMENT
+            // ====================================================
+            var planDisplayNames = [];
+            for (var pn = 0; pn < planResults.length; pn++) {
+                planDisplayNames.push(
+                    planResults[pn].planName
+                );
+            }
+            var meta = {
+                user: targetGR.user.getDisplayValue(),
+                period: targetGR.fiscal_period.getDisplayValue(),
+                fiscalYear: periodGR.getDisplayValue('fiscal_year'),
+                plans: planDisplayNames.join(', '),
+                generatedOn: this._getFormattedGeneratedOn(),
+                total: this.formatter.formatCurrency(grandTotal)
+            };
+            var helper = new IncentNowStatementHelper();
+            var html = helper.buildConsolidatedStatementHTML(planResults, meta);
+
+            // ====================================================
+            // 10. UPDATE STATEMENT
+            // ====================================================
+
+            targetGR.statement = html;
+            // Plan is now a List field
+            targetGR.setValue('plan', planIds.join(','));
+            targetGR.total_commission = grandTotal;
+            targetGR.earning_results = JSON.stringify(allEarningResults);
+            targetGR.payout_results =
+                JSON.stringify(
+                    allPayoutResults
+                );
+            /*
+             * A consolidated statement can contain multiple
+             * Quotas and multiple quota-attainment values.
+             *
+             * Therefore these legacy single-value fields should
+             * no longer represent the consolidated statement.
+             */
+            // if (targetGR.isValidField('target_quota'))
+            //     targetGR.setValue('target_quota', '');
+            // if (targetGR.isValidField('quota_attainment'))
+            //     targetGR.setValue('quota_attainment', '');
+            if (targetGR.isValidField('target_quota'))
+                targetGR.setValue('target_quota', consolidatedTargetQuota);
+
+            if (targetGR.isValidField('quota_attainment'))
+                targetGR.setValue('quota_attainment', consolidatedQuotaAttainment * 100);
+            targetGR.status = 'statement_generated';
+            // ====================================================
+            // 11. SAVE STATEMENT
+            // ====================================================
+            if (targetGR.isNewRecord()) {
+                targetGR.insert();
+            } else {
+                targetGR.update();
+            }
+            return {
+                valid: true,
+                record: targetGR,
+                total: grandTotal,
+                planCount: planResults.length,
+                isDuplicate: isDuplicate
+            };
+        } catch (ex) {
+            gs.error(
+                this.LOG +
+                'Processing failed: ' +
+                (ex.message || ex)
+            );
+            return this._fail(
+                'Processing failed: ' +
+                (ex.message || ex)
+            );
+        }
+    },
+    // ============================================================
+    // ACTIVE PARTICIPANT ASSIGNMENT
+    // ============================================================
+    _getActiveParticipantAssignment: function(
+        userSysId,
+        fiscalYearSysId
+    ) {
+        if (!userSysId || !fiscalYearSysId) {
+            return {
+                valid: false,
+                message: 'User and Fiscal Year are required.'
+            };
+        }
+        var paGR = new GlideRecordSecure('x_ctans_incentnow_participant_assignment');
+        paGR.addQuery('user', userSysId);
+        paGR.addQuery('fiscal_year', fiscalYearSysId);
+        paGR.addQuery('status', 'active');
+        // Fetch at most two to detect invalid duplicates
+        paGR.setLimit(2);
+        paGR.query();
+        if (!paGR.next()) {
+            return {
+                valid: false,
+                message: 'No active Participant Assignment exists for the selected User and Fiscal Year.'
+            };
+        }
+        var participantAssignmentSysId = paGR.getUniqueValue();
+        if (paGR.next()) {
+            return {
+                valid: false,
+                message: 'Multiple active Participant Assignments exist for the selected User and Fiscal Year. Only one active Participant Assignment is allowed.'
+            };
+        }
+        return {
+            valid: true,
+            sysId: participantAssignmentSysId
+        };
+    },
+    // ============================================================
+    // PLAN ASSIGNMENTS FOR PERIOD
+    // ============================================================
+    _getPlanAssignmentsForPeriod: function(
+        participantAssignmentSysId,
+        userSysId,
+        fiscalYearSysId,
+        fiscalPeriodSysId
+    ) {
+
+        var ids = [];
+
+        if (!participantAssignmentSysId ||
+            !fiscalYearSysId ||
+            !fiscalPeriodSysId) {
+
+            return ids;
+        }
+
+        var assignmentGR =
+            new GlideRecordSecure(
+                'x_ctans_incentnow_plan_users'
+            );
+
+        // Must belong to selected active Participant Assignment
+        assignmentGR.addQuery(
+            'participant_assignment',
+            participantAssignmentSysId
+        );
+
+        // ========================================================
+        // Fiscal Period:
+        // blank  = applicable for whole Fiscal Year
+        // value  = applicable only for that Fiscal Period
+        // ========================================================
+
+        var periodQC = assignmentGR.addQuery(
+            'fiscal_period',
+            fiscalPeriodSysId
+        );
+
+        periodQC.addOrCondition(
+            'fiscal_period',
+            ''
+        );
+
+        // Plan belongs to same Fiscal Year
+        assignmentGR.addQuery(
+            'x_ctans_incentnow_plan.fiscal_year',
+            fiscalYearSysId
+        );
+
+        // Plan must be Active
+        assignmentGR.addQuery(
+            'x_ctans_incentnow_plan.status',
+            'active'
+        );
+
+        gs.info(
+            this.LOG +
+            'Plan Assignment Search | ' +
+            'Participant=' + participantAssignmentSysId +
+            ' | FY=' + fiscalYearSysId +
+            ' | Period=' + fiscalPeriodSysId +
+            ' | Query=' + assignmentGR.getEncodedQuery()
+        );
+
+        assignmentGR.query();
+
+        // gs.info(this.LOG +'Plan Assignment Search Result Count=' +assignmentGR.getRowCount());
+
+        while (assignmentGR.next()) {
+
+            gs.info(
+                this.LOG +
+                'Eligible Plan Assignment=' +
+                assignmentGR.getDisplayValue() +
+                ' | Plan=' +
+                assignmentGR.getDisplayValue(
+                    'x_ctans_incentnow_plan'
+                ) +
+                ' | Fiscal Period=' +
+                assignmentGR.getDisplayValue(
+                    'fiscal_period'
+                )
+            );
+
+            ids.push(
+                assignmentGR.getUniqueValue()
+            );
+        }
+
+        return ids;
+    },
+    // ============================================================
+    // DUPLICATE STATEMENT
+    // ONE STATEMENT PER USER + FISCAL PERIOD
+    // ============================================================
+    _getTargetRecord: function(current) {
+        var dupGR =
+            new GlideRecordSecure(
+                'x_ctans_incentnow_incentive_statement'
+            );
+        dupGR.addQuery('user', current.user);
+        dupGR.addQuery('fiscal_period', current.fiscal_period);
+        dupGR.setLimit(1);
+        dupGR.query();
+        if (dupGR.next()) {
+            return {
+                record: dupGR,
+                isDuplicate: true
+            };
+        }
+        return {
+            record: current,
+            isDuplicate: false
+        };
+    },
+    // ============================================================
+    // PAYOUT RESULT RECORDS
+    // ============================================================
+    _insertPayoutResults: function(
+        targetGR,
+        planGR,
+        payoutResult
+    ) {
+        var steps = payoutResult.breakdown || [];
+        if (!steps.length) {
+            gs.warn(
+                this.LOG + 'No payout generated for Plan: ' + planGR.getDisplayValue());
+            return;
+        }
+        var planSysId = planGR.getUniqueValue();
+
+        // Delete previous result for this User + Plan + Period
+        var old = new GlideRecordSecure('x_ctans_incentnow_payout_results');
+        old.addQuery('user', targetGR.user);
+        old.addQuery('plan', planSysId);
+        old.addQuery('fiscal_period', targetGR.fiscal_period);
+        old.deleteMultiple();
+        for (var i = 0; i < steps.length; i++) {
+            var step =
+                steps[i];
+            var rec = new GlideRecordSecure('x_ctans_incentnow_payout_results');
+            rec.initialize();
+            rec.statement_id = targetGR.sys_id;
+            rec.user = targetGR.user;
+            rec.plan = planSysId;
+            rec.fiscal_period = targetGR.fiscal_period;
+            rec.payout_summary_rule = step.rule_id;
+            rec.step_number = i + 1;
+            rec.input1_type = step.input1.type;
+            rec.input_1 = step.input1.name;
+            rec.input1_value = step.input1.value;
+            rec.input2_type = step.input2.type;
+            rec.input_2 = step.input2.name;
+            rec.input2_value = step.input2.value;
+            rec.operator = step.operator;
+            rec.formula = step.formula;
+            rec.rate_unit = step.rate_unit;
+            rec.payout_type = 'payable';
+            rec.payout_value = step.payoutNumeric;
+            rec.insert();
+        }
+    },
+    // ============================================================
+    // HELPERS
+    // ============================================================
+    _getFormattedGeneratedOn: function() {
+        return new GlideDateTime()
+            .getDisplayValue() +
+            ' (System)';
+    },
+    _fail: function(msg) {
+        return {
+            valid: false,
+            message: msg
+        };
+    },
+    // ============================================================
+    // CONSOLIDATED TARGET QUOTA
+    // ============================================================
+    _getConsolidatedTargetQuota: function(
+        participantAssignmentSysId,
+        planAssignmentIds,
+        userSysId,
+        fiscalYearSysId,
+        fiscalPeriodSysId
+    ) {
+
+        var totalTarget = 0;
+
+        if (!participantAssignmentSysId ||
+            !planAssignmentIds ||
+            !planAssignmentIds.length ||
+            !fiscalPeriodSysId) {
+            return totalTarget;
+        }
+
+        /*
+         * Get all Quota Assignments associated with the
+         * current active Participant Assignment and eligible Plans.
+         */
+        var qaGR = new GlideRecordSecure('x_ctans_incentnow_user_quota_assignment');
+        qaGR.addQuery('participant_assignment', participantAssignmentSysId);
+        qaGR.addQuery('plan_assignment', 'IN', planAssignmentIds.join(','));
+        qaGR.addQuery('user', userSysId);
+        qaGR.query();
+        /*
+        //  * Keep this if Fiscal Year exists directly on Quota Assignment.
+        //  */
+        // if (qaGR.isValidField('fiscal_year')) {
+        //     qaGR.addQuery(
+        //         'fiscal_year',
+        //         fiscalYearSysId
+        //     );
+        // }
+
+        //     if (qaGR.isValidField('user'))
+        //  qaGR.addQuery('user', userSysId);
+        // /*
+        //  * If Quota Assignment has an active/status field,
+        //  * restrict calculation to active assignments.
+        //  */
+        // if (qaGR.isValidField('status'))
+        //     qaGR.addQuery('status', 'active');
+
+        while (qaGR.next()) {
+
+            var quotaSysId = qaGR.getValue('quota');
+
+            if (!quotaSysId)
+                continue;
+
+            var target =
+                this._getQuotaTargetForPeriod(quotaSysId,fiscalPeriodSysId);
+            totalTarget += target;
+        }
+
+        return totalTarget;
+    },
+	// ============================================================
+// QUOTA TARGET FOR FISCAL PERIOD
+// ============================================================
+_getQuotaTargetForPeriod: function(
+    quotaSysId,
+    fiscalPeriodSysId
+) {
+
+    if (!quotaSysId || !fiscalPeriodSysId)
+        return 0;
+
+    var quotaPeriodGR =
+        new GlideRecordSecure('x_ctans_incentnow_quota_period');
+    quotaPeriodGR.addQuery('quota',quotaSysId);
+    quotaPeriodGR.addQuery('fiscal_period',fiscalPeriodSysId);
+    quotaPeriodGR.setLimit(1);
+    quotaPeriodGR.query();
+
+    if (!quotaPeriodGR.next())
+        return 0;
+
+    var target =
+        parseFloat(quotaPeriodGR.getValue('target_value')) || 0;
+
+    return target;
+},
+    type: 'IncentNowStatementProcessor'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>upma.rai</sys_created_by>
+        <sys_created_on>2026-08-13 14:31:10</sys_created_on>
+        <sys_id>a2b4e07b3b6a0710a4cbaddc73e45a83</sys_id>
+        <sys_mod_count>10</sys_mod_count>
+        <sys_name>IncentNowStatementProcessor</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_script_include_a2b4e07b3b6a0710a4cbaddc73e45a83</sys_update_name>
+        <sys_updated_by>upma.rai</sys_updated_by>
+        <sys_updated_on>2026-08-31 09:54:14</sys_updated_on>
+    </sys_script_include>
+</record_update>

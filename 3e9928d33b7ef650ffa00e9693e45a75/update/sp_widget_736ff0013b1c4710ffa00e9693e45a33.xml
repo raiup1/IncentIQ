@@ -1233,6 +1233,35 @@
 
 .qa-uf-noresult {
   color: #ef4444;
+}
+
+/* ============================================================
+   QA FORM FOOTER - MOBILE FIX
+   ============================================================ */
+
+@media (max-width: 767px) {
+
+  .qa-form-footer {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: stretch;
+    gap: 8px;
+    width: 100%;
+    padding: 14px 16px 18px;
+    box-sizing: border-box;
+  }
+
+  .qa-form-footer .qa-btn-cancel,
+  .qa-form-footer .qa-btn-assign {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    height: 40px;
+    box-sizing: border-box;
+    margin: 0 !important;
+  }
+
 }</css>
         <data_table>sp_instance</data_table>
         <demo_data/>
@@ -1577,14 +1606,14 @@ function getUsers()
         <sys_created_by>shroin.mandal</sys_created_by>
         <sys_created_on>2026-04-15 06:39:28</sys_created_on>
         <sys_id>736ff0013b1c4710ffa00e9693e45a33</sys_id>
-        <sys_mod_count>50</sys_mod_count>
+        <sys_mod_count>51</sys_mod_count>
         <sys_name>Incentnow Assignment Page</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
         <sys_update_name>sp_widget_736ff0013b1c4710ffa00e9693e45a33</sys_update_name>
         <sys_updated_by>shroin.mandal</sys_updated_by>
-        <sys_updated_on>2026-07-17 05:18:12</sys_updated_on>
+        <sys_updated_on>2026-08-18 05:37:20</sys_updated_on>
         <template><![CDATA[  <!-- Back header bar -->
 <div class="assignement-page">
   <div class="qa-page-topbar">

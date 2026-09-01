@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_properties_category">
+    <sys_properties_category action="INSERT_OR_UPDATE">
+        <name>Governance</name>
+        <sys_class_name>sys_properties_category</sys_class_name>
+        <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+        <sys_created_on>2026-09-01 06:42:04</sys_created_on>
+        <sys_id>8b15b0b133cf4710dccb9c173e5c7b4b</sys_id>
+        <sys_mod_count>4</sys_mod_count>
+        <sys_name>Governance</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_properties_category_8b15b0b133cf4710dccb9c173e5c7b4b</sys_update_name>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-09-01 07:39:38</sys_updated_on>
+        <title><![CDATA[<p><span style="font-size: 12pt;"><strong> Governance and Data Retention Settings</strong></span></p>
+<hr />
+<p> </p>]]></title>
+    </sys_properties_category>
+    <sys_translated_text action="delete_multiple" query="documentkey=8b15b0b133cf4710dccb9c173e5c7b4b"/>
+</record_update>

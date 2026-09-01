@@ -32,24 +32,26 @@
     try {
 
         // ================================
-        // 1. Fetch Plan
+        // 1. FETCH SELECTED PLAN
         // ================================
         var planGR = new GlideRecord('x_ctans_incentnow_plan');
 
-         if (!planGR.get(current.x_ctans_incentnow_plan)) {
-             return;
-         }
+        if (!planGR.get(current.getValue('x_ctans_incentnow_plan'))) {
+            return;
+        }
 
         var planStatus = planGR.getValue('status');
+        var planType = planGR.getValue('plan_type');
+        var planName = planGR.getDisplayValue('name') || planGR.getDisplayValue();
 
         // ================================
-        // 2. BLOCK NON-ACTIVE PLAN ASSIGNMENT
+        // 2. BLOCK NON-ACTIVE PLAN
         // ================================
         if (planStatus != 'active') {
 
             gs.addErrorMessage(
-                "Only ACTIVE plans can be assigned to users. " +
-                "Please activate the plan before assignment."
+                'Only ACTIVE plans can be assigned to users. ' +
+                'Please activate the plan before assignment.'
             );
 
             current.setAbortAction(true);
@@ -57,37 +59,57 @@
         }
 
         // ================================
-        // 3. CHECK EXISTING ACTIVE PLAN
+        // 3. BLOCK SAME PLAN ASSIGNMENT
         // ================================
-    
+        var duplicatePlanGR = new GlideRecord('x_ctans_incentnow_plan_users');
+
+        duplicatePlanGR.addQuery('x_ctans_incentnow_sales_user', current.getValue('x_ctans_incentnow_sales_user'));
+        duplicatePlanGR.addQuery('x_ctans_incentnow_plan', current.getValue('x_ctans_incentnow_plan'));
+        duplicatePlanGR.addQuery('sys_id', '!=', current.getUniqueValue());
+        duplicatePlanGR.setLimit(1);
+        duplicatePlanGR.query();
+
+        if (duplicatePlanGR.next()) {
+
+            gs.addErrorMessage('The Plan "' + planName + '" is already assigned to this user.');
+            current.setAbortAction(true);
+            return;
+        }
+
+        // ================================
+        // 4. Individual PLAN VALIDATION
+        // ================================
+        if (planType != 'individual')
+            return;
+
         var existing = new GlideRecord('x_ctans_incentnow_plan_users');
-        existing.addQuery('x_ctans_incentnow_sales_user', current.x_ctans_incentnow_sales_user);
-        existing.addQuery('sys_id', '!=', current.sys_id);
+        existing.addQuery('x_ctans_incentnow_sales_user', current.getValue('x_ctans_incentnow_sales_user'));
+        existing.addQuery('sys_id', '!=', current.getUniqueValue());
+		existing.addQuery('x_ctans_incentnow_plan.fiscal_year',planGR.getValue('fiscal_year'));
         existing.query();
 
         while (existing.next()) {
 
             var existingPlanGR = new GlideRecord('x_ctans_incentnow_plan');
+            if (!existingPlanGR.get(existing.getValue('x_ctans_incentnow_plan'))) {
+                continue;
+            }
 
-            if (existingPlanGR.get(existing.x_ctans_incentnow_plan)) {
-
-                if (existingPlanGR.getValue('status') == 'active') {
-
-                    gs.addErrorMessage(
-                        "User already has an active plan assigned: " +
-                        existingPlanGR.getDisplayValue() +
-                        ". Please deactivate it or remove existing assignment before assigning a new plan."
-                    );
-
-                    current.setAbortAction(true);
-                    return;
-                }
+            if (
+                existingPlanGR.getValue('status') == 'active' &&
+                existingPlanGR.getValue('plan_type') == 'individual'
+            ) {
+                gs.addErrorMessage('User already has an active Individual Plan assigned: ' + existingPlanGR.getDisplayValue() + '. Please deactivate it or remove the existing ' + 'assignment before assigning another Individual Plan.');
+                current.setAbortAction(true);
+                return;
             }
         }
 
+
     } catch (ex) {
 
-        gs.addErrorMessage("Validation failed: " + ex.message);
+        gs.error('[Plan Assignment Validation] ' + ex.message);
+        gs.addErrorMessage('Validation failed: ' + ex.message);
         current.setAbortAction(true);
     }
 
@@ -98,7 +120,7 @@
         <sys_domain>global</sys_domain>
         <sys_domain_path>/</sys_domain_path>
         <sys_id>0f5b47763b4c8b10ffa00e9693e45a72</sys_id>
-        <sys_mod_count>7</sys_mod_count>
+        <sys_mod_count>18</sys_mod_count>
         <sys_name>Prevent Duplicate Plan Assignment</sys_name>
         <sys_overrides/>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
@@ -106,7 +128,7 @@
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
         <sys_update_name>sys_script_0f5b47763b4c8b10ffa00e9693e45a72</sys_update_name>
         <sys_updated_by>upma.rai</sys_updated_by>
-        <sys_updated_on>2026-05-18 11:11:18</sys_updated_on>
+        <sys_updated_on>2026-08-31 12:52:52</sys_updated_on>
         <template/>
         <when>before</when>
     </sys_script>

@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_atf_step">
+    <sys_atf_step action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <callable_outputs/>
+        <copied_from display_value="">76ceafcb33968bd0dccb9c173e5c7ba8</copied_from>
+        <description>Create and impersonate user with the following values:
+First name = ATF Territory
+and Last name = Admin User
+and User ID = atfterritoryadminuser
+and Email = atfterritoryadminuser@example.com
+and Active = true
+With roles: sn_tp.territory_admin, sn_tp.territory_read, sn_sales_territory.sales_territory_basic, sn_tp.territory_manager, sn_tp.territory_planner</description>
+        <display_name>Create a User</display_name>
+        <inputs/>
+        <mugshots_cache_json/>
+        <notes/>
+        <order>2</order>
+        <step_config display_value="Create a User">d9bc5f21ff6033008d3f5d9ad53bf12d</step_config>
+        <sys_class_name>sys_atf_step</sys_class_name>
+        <sys_created_by>shiva.erla</sys_created_by>
+        <sys_created_on>2026-08-07 04:52:23</sys_created_on>
+        <sys_id>2c4caba13bea83144be1ef9e53e45a6e</sys_id>
+        <sys_mod_count>3</sys_mod_count>
+        <sys_name>Create a User</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_atf_step_2c4caba13bea83144be1ef9e53e45a6e</sys_update_name>
+        <sys_updated_by>shiva.erla</sys_updated_by>
+        <sys_updated_on>2026-08-25 02:36:03</sys_updated_on>
+        <table>sys_user</table>
+        <test display_value="IncentIQ_AddTerritory">ec4c6ba13bea83144be1ef9e53e45a03</test>
+        <timeout/>
+        <warning_message/>
+    </sys_atf_step>
+    <sys_variable_value action="delete_multiple" query="document_key=2c4caba13bea83144be1ef9e53e45a6e"/>
+    <sys_variable_value action="INSERT_OR_UPDATE">
+        <document>sys_atf_step</document>
+        <document_key>2c4caba13bea83144be1ef9e53e45a6e</document_key>
+        <order>100</order>
+        <sys_class_name>sys_variable_value</sys_class_name>
+        <sys_created_by>shiva.erla</sys_created_by>
+        <sys_created_on>2026-08-07 04:52:23</sys_created_on>
+        <sys_id>684caba13bea83144be1ef9e53e45a71</sys_id>
+        <sys_mod_count>3</sys_mod_count>
+        <sys_updated_by>shiva.erla</sys_updated_by>
+        <sys_updated_on>2026-08-25 02:36:03</sys_updated_on>
+        <value>112d06fcc3350110d367f55a8840ddd5,af2eec2e53252210163d78d130e5e658,e73563a5c3411110d367f55a8840dd0c,f8f05670c3750110d367f55a8840ddaa,0c0e92f0c3750110d367f55a8840ddfc</value>
+        <variable display_value="Roles">8c07aba5ff6033008d3f5d9ad53bf13b</variable>
+    </sys_variable_value>
+    <sys_variable_value action="INSERT_OR_UPDATE">
+        <document>sys_atf_step</document>
+        <document_key>2c4caba13bea83144be1ef9e53e45a6e</document_key>
+        <order>100</order>
+        <sys_class_name>sys_variable_value</sys_class_name>
+        <sys_created_by>shiva.erla</sys_created_by>
+        <sys_created_on>2026-08-07 04:52:23</sys_created_on>
+        <sys_id>244caba13bea83144be1ef9e53e45a71</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>shiva.erla</sys_updated_by>
+        <sys_updated_on>2026-08-07 04:52:23</sys_updated_on>
+        <value>1</value>
+        <variable display_value="Impersonate this user">98c44875ffa033008d3f5d9ad53bf1fa</variable>
+    </sys_variable_value>
+    <sys_variable_value action="INSERT_OR_UPDATE">
+        <document>sys_atf_step</document>
+        <document_key>2c4caba13bea83144be1ef9e53e45a6e</document_key>
+        <order>100</order>
+        <sys_class_name>sys_variable_value</sys_class_name>
+        <sys_created_by>shiva.erla</sys_created_by>
+        <sys_created_on>2026-08-07 04:52:23</sys_created_on>
+        <sys_id>ac4caba13bea83144be1ef9e53e45a71</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>shiva.erla</sys_updated_by>
+        <sys_updated_on>2026-08-07 04:52:23</sys_updated_on>
+        <value>Admin User</value>
+        <variable display_value="Last name">6f69fc4aff6433008d3f5d9ad53bf18c</variable>
+    </sys_variable_value>
+    <sys_variable_value action="INSERT_OR_UPDATE">
+        <document>sys_atf_step</document>
+        <document_key>2c4caba13bea83144be1ef9e53e45a6e</document_key>
+        <order>100</order>
+        <sys_class_name>sys_variable_value</sys_class_name>
+        <sys_created_by>shiva.erla</sys_created_by>
+        <sys_created_on>2026-08-07 04:52:23</sys_created_on>
+        <sys_id>e04caba13bea83144be1ef9e53e45a72</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>shiva.erla</sys_updated_by>
+        <sys_updated_on>2026-08-07 04:52:23</sys_updated_on>
+        <value/>
+        <variable display_value="Groups">b27b2b29ff6033008d3f5d9ad53bf164</variable>
+    </sys_variable_value>
+    <sys_variable_value action="INSERT_OR_UPDATE">
+        <document>sys_atf_step</document>
+        <document_key>2c4caba13bea83144be1ef9e53e45a6e</document_key>
+        <order>100</order>
+        <sys_class_name>sys_variable_value</sys_class_name>
+        <sys_created_by>shiva.erla</sys_created_by>
+        <sys_created_on>2026-08-07 04:52:23</sys_created_on>
+        <sys_id>284caba13bea83144be1ef9e53e45a72</sys_id>
+        <sys_mod_count>1</sys_mod_count>
+        <sys_updated_by>shiva.erla</sys_updated_by>
+        <sys_updated_on>2026-08-25 02:36:03</sys_updated_on>
+        <value>ATF Territory</value>
+        <variable display_value="First name">1985e0ceff2433008d3f5d9ad53bf1ba</variable>
+    </sys_variable_value>
+    <sys_variable_value action="INSERT_OR_UPDATE">
+        <document>sys_atf_step</document>
+        <document_key>2c4caba13bea83144be1ef9e53e45a6e</document_key>
+        <order>100</order>
+        <sys_class_name>sys_variable_value</sys_class_name>
+        <sys_created_by>shiva.erla</sys_created_by>
+        <sys_created_on>2026-08-07 04:52:23</sys_created_on>
+        <sys_id>6c4caba13bea83144be1ef9e53e45a72</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>shiva.erla</sys_updated_by>
+        <sys_updated_on>2026-08-07 04:52:23</sys_updated_on>
+        <value>sys_user</value>
+        <variable display_value="Table">ff06ab840f20101091d0f00c97767e6d</variable>
+    </sys_variable_value>
+    <sys_variable_value action="INSERT_OR_UPDATE">
+        <document>sys_atf_step</document>
+        <document_key>2c4caba13bea83144be1ef9e53e45a6e</document_key>
+        <order>100</order>
+        <sys_class_name>sys_variable_value</sys_class_name>
+        <sys_created_by>shiva.erla</sys_created_by>
+        <sys_created_on>2026-08-07 04:52:23</sys_created_on>
+        <sys_id>204caba13bea83144be1ef9e53e45a8c</sys_id>
+        <sys_mod_count>1</sys_mod_count>
+        <sys_updated_by>shiva.erla</sys_updated_by>
+        <sys_updated_on>2026-08-25 02:36:03</sys_updated_on>
+        <value>user_name=atfterritoryadminuser^email=atfterritoryadminuser@example.com^active=true^EQ</value>
+        <variable display_value="User field values">1778a7480f20101091d0f00c97767e03</variable>
+    </sys_variable_value>
+    <sys_element_mapping action="delete_multiple" query="table=var__m_atf_input_variable_d9bc5f21ff6033008d3f5d9ad53bf12d^id=2c4caba13bea83144be1ef9e53e45a6e"/>
+</record_update>

@@ -17,6 +17,6 @@
         <sys_update_name>sys_atf_whitelist_c957c874331e0b90dccb9c173e5c7ba1</sys_update_name>
         <sys_updated_by>shiva.erla</sys_updated_by>
         <sys_updated_on>2026-07-22 18:01:15</sys_updated_on>
-        <test display_value="ATF_IncentIQ_DisputeManagement">0fa616e833dec790dccb9c173e5c7be6</test>
+        <test/>
     </sys_atf_whitelist>
 </record_update>

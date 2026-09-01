@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>package_private</access>
+        <active>true</active>
+        <api_name>x_ctans_incentnow.IncentIQDataSourceResolver</api_name>
+        <caller_access/>
+        <client_callable>false</client_callable>
+        <description/>
+        <mobile_callable>false</mobile_callable>
+        <name>IncentIQDataSourceResolver</name>
+        <sandbox_callable>false</sandbox_callable>
+        <script><![CDATA[var IncentIQDataSourceResolver = Class.create();
+IncentIQDataSourceResolver.prototype = {
+
+    CONFIG: {
+        dmoTable: 'x_ctans_incentnow_data_model_object',
+        mappingTable: 'x_ctans_incentnow_metadata_mapping',
+        dataLakeTable: 'x_ctans_incentnow_data_lake_master',
+        dictionaryTable: 'sys_dictionary',
+        dictionaryElementField: 'element',
+
+        dmoFields: { sourceSystem: 'data_source_system', objectTable: 'object_table', objectName: 'object_name', active: 'active' },
+        mappingFields: { dmoRef: 'data_model_object_id', sourceFieldName: 'source_field_name', dataLakeColumn: 'data_lake_field_name', active: 'active' },
+        dataLakeFields: { dmoRef: 'data_model_object', userId: 'user_id', transactionDate: 'transaction_date', processingStatus: 'processing_status' },
+        dataLakeUsableStatuses: ['processed'],
+
+        dmoColumnOverride: {},
+        defaultColumns: { orderId: 'column_02', account: 'column_01', amount: 'column_61' },
+
+        internalFieldMap: {
+            'Opportunity': { orderId: 'number', account: 'account', amount: 'amount', date: 'estimated_closed_date' }
+        },
+
+        maxRows: 5000
+    },
+
+    initialize: function () {
+        this._mappingCache = {};
+        this._dictCache = {};
+        this.lastAssumptions = [];
+    },
+
+    getDmo: function (dmoIdOrName) {
+        if (!dmoIdOrName) return null;
+        // Config table (org metadata, not user data) - system read, no end-user ACL required.
+        var gr = new GlideRecord(this.CONFIG.dmoTable);
+        if (gr.get(dmoIdOrName)) return gr;
+        var byName = new GlideRecord(this.CONFIG.dmoTable);
+        byName.addQuery(this.CONFIG.dmoFields.objectName, dmoIdOrName);
+        byName.setLimit(1);
+        byName.query();
+        return byName.next() ? byName : null;
+    },
+
+    isInternal: function (dmoGr) {
+        return String(dmoGr.getValue(this.CONFIG.dmoFields.sourceSystem) || '').toLowerCase() === 'internal';
+    },
+
+    fetchOrders: function (dmo, options) {
+        options = options || {};
+        this.lastAssumptions = [];
+        var dmoGr = (typeof dmo === 'string') ? this.getDmo(dmo) : dmo;
+        if (!dmoGr) {
+            this.lastAssumptions.push('DMO not found for source_object "' + dmo + '"; no orders read.');
+            return [];
+        }
+        return this.isInternal(dmoGr) ? this._fetchInternal(dmoGr, options) : this._fetchExternal(dmoGr, options);
+    },
+
+    _fetchExternal: function (dmoGr, options) {
+        var dmoId = dmoGr.getUniqueValue();
+        var cols = this._resolveColumns(dmoGr);
+
+        // Data lake holds imported order rows not exposed to end users via ACLs.
+        // System read, HARD-SCOPED to the caller's own external_user_id. If no external id,
+        // return nothing (never an unscoped read) so cross-user exposure is impossible.
+        if (!options.userExternalId) {
+            this.lastAssumptions.push('No external user id supplied; external orders not read (self-scoped read requires the caller\'s external_user_id).');
+            return [];
+        }
+
+        var gr = new GlideRecord(this.CONFIG.dataLakeTable);
+        gr.addQuery(this.CONFIG.dataLakeFields.dmoRef, dmoId);
+        gr.addQuery(this.CONFIG.dataLakeFields.userId, options.userExternalId); // hard per-user scope
+
+        var usable = this.CONFIG.dataLakeUsableStatuses;
+        if (usable && usable.length) {
+            gr.addQuery(this.CONFIG.dataLakeFields.processingStatus, 'IN', usable.join(','));
+        }
+        if (options.startDate) gr.addQuery(this.CONFIG.dataLakeFields.transactionDate, '>=', options.startDate);
+        if (options.endDate) gr.addQuery(this.CONFIG.dataLakeFields.transactionDate, '<=', options.endDate);
+        gr.orderByDesc(this.CONFIG.dataLakeFields.transactionDate);
+        gr.setLimit(options.limit || this.CONFIG.maxRows);
+        gr.query();
+
+        var rows = [];
+        while (gr.next()) {
+            rows.push({
+                _id: gr.getUniqueValue(),
+                _source: 'external',
+                orderId: cols.orderId ? gr.getValue(cols.orderId) : '',
+                account: cols.account ? gr.getValue(cols.account) : '',
+                amount: cols.amount ? (parseFloat(gr.getValue(cols.amount)) || 0) : 0,
+                date: gr.getValue(this.CONFIG.dataLakeFields.transactionDate)
+            });
+        }
+        return rows;
+    },
+
+    _resolveColumns: function (dmoGr) {
+        var dmoId = dmoGr.getUniqueValue();
+        var override = this.CONFIG.dmoColumnOverride[dmoId] || {};
+        var mapped = this._getMappingForDmo(dmoId);
+        var defaults = this.CONFIG.defaultColumns;
+        var out = {};
+        var usedDefaultFor = [];
+
+        ['orderId', 'account', 'amount'].forEach(function (lf) {
+            if (override[lf]) { out[lf] = override[lf]; return; }
+            if (mapped[lf]) { out[lf] = mapped[lf]; return; }
+            out[lf] = defaults[lf];
+            usedDefaultFor.push(lf);
+        });
+
+        if (usedDefaultFor.length) {
+            this.lastAssumptions.push('DMO ' + dmoId + ' (' + dmoGr.getValue(this.CONFIG.dmoFields.objectName) +
+                '): metadata_mapping had no column for [' + usedDefaultFor.join(', ') +
+                ']; used convention defaults. Populate metadata_mapping for this DMO to make it fully dynamic.');
+        }
+        return out;
+    },
+
+    _fetchInternal: function (dmoGr, options) {
+        var tableName = dmoGr.getValue(this.CONFIG.dmoFields.objectTable);
+        var objectName = dmoGr.getValue(this.CONFIG.dmoFields.objectName);
+        var fieldMap = this.CONFIG.internalFieldMap[objectName];
+        if (!tableName || !fieldMap) {
+            this.lastAssumptions.push('Internal DMO "' + objectName + '" has no internalFieldMap entry (or no object_table); no orders read.');
+            return [];
+        }
+        // Native ServiceNow table - GlideRecordSecure enforces the table's own ACLs.
+        var gr = new GlideRecordSecure(tableName);
+        if (options.userSysId && fieldMap.user) gr.addQuery(fieldMap.user, options.userSysId);
+        if (options.startDate && fieldMap.date) gr.addQuery(fieldMap.date, '>=', options.startDate);
+        if (options.endDate && fieldMap.date) gr.addQuery(fieldMap.date, '<=', options.endDate);
+        gr.setLimit(options.limit || this.CONFIG.maxRows);
+        gr.query();
+
+        var rows = [];
+        while (gr.next()) {
+            rows.push({
+                _id: gr.getUniqueValue(),
+                _source: 'internal',
+                orderId: fieldMap.orderId ? gr.getValue(fieldMap.orderId) : '',
+                account: fieldMap.account ? gr.getDisplayValue(fieldMap.account) : '',
+                amount: fieldMap.amount ? (parseFloat(gr.getValue(fieldMap.amount)) || 0) : 0,
+                date: fieldMap.date ? gr.getValue(fieldMap.date) : ''
+            });
+        }
+        return rows;
+    },
+
+    _getMappingForDmo: function (dmoId) {
+        if (this._mappingCache[dmoId]) return this._mappingCache[dmoId];
+        var map = {};
+        // Config table (integration mapping, not user data) - system read, no end-user ACL required.
+        var gr = new GlideRecord(this.CONFIG.mappingTable);
+        gr.addQuery(this.CONFIG.mappingFields.dmoRef, dmoId);
+        gr.query();
+        while (gr.next()) {
+            if (gr.isValidField(this.CONFIG.mappingFields.active) && !gr.getValue(this.CONFIG.mappingFields.active)) continue;
+            var key = this._logicalKeyFor(gr.getValue(this.CONFIG.mappingFields.sourceFieldName));
+            if (!key) continue;
+            var column = this._resolvePhysicalColumn(gr.getValue(this.CONFIG.mappingFields.dataLakeColumn));
+            if (column) map[key] = column;
+        }
+        this._mappingCache[dmoId] = map;
+        return map;
+    },
+
+    // data_lake_field_name is a reference to sys_dictionary; the physical column is its 'element'.
+    // Handles both a sys_id reference (resolve via dictionary) and a literal column string.
+    _resolvePhysicalColumn: function (val) {
+        if (!val) return '';
+        if (!/^[0-9a-f]{32}$/.test(val)) return val; // already a literal column name
+        if (this._dictCache[val] !== undefined) return this._dictCache[val];
+        var col = '';
+        var dic = new GlideRecord(this.CONFIG.dictionaryTable);
+        if (dic.get(val)) col = dic.getValue(this.CONFIG.dictionaryElementField) || '';
+        this._dictCache[val] = col;
+        return col;
+    },
+
+    _logicalKeyFor: function (label) {
+        var l = String(label || '').toLowerCase();
+        if (l.indexOf('date') > -1) return null; // dates handled via transaction_date, not a mapped column
+        if (l.indexOf('amount') > -1 || l.indexOf('arr') > -1 || l.indexOf('value') > -1 || l.indexOf('revenue') > -1) return 'amount';
+        if (l.indexOf('account') > -1 || l.indexOf('customer') > -1 || l.indexOf('client') > -1) return 'account';
+        if (l.indexOf('order') > -1 || l.indexOf('quote') > -1 || l.indexOf('deal') > -1 || l.indexOf('opportunity') > -1) return 'orderId';
+        return null;
+    },
+
+    type: 'IncentIQDataSourceResolver'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+        <sys_created_on>2026-08-24 08:41:16</sys_created_on>
+        <sys_id>d69348db33b2c310dccb9c173e5c7b3b</sys_id>
+        <sys_mod_count>10</sys_mod_count>
+        <sys_name>IncentIQDataSourceResolver</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_script_include_d69348db33b2c310dccb9c173e5c7b3b</sys_update_name>
+        <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
+        <sys_updated_on>2026-08-25 18:20:18</sys_updated_on>
+    </sys_script_include>
+</record_update>

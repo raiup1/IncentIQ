@@ -5,7 +5,7 @@
         <api_name>x_ctans_incentnow.DisputeUtils</api_name>
         <caller_access/>
         <client_callable>false</client_callable>
-        <description/>
+        <description>This script is used for Dispute Management</description>
         <mobile_callable>false</mobile_callable>
         <name>DisputeUtils</name>
         <sandbox_callable>true</sandbox_callable>
@@ -43,13 +43,13 @@ DisputeUtils.prototype = {
         <sys_created_by>karan.kumar</sys_created_by>
         <sys_created_on>2026-07-14 11:22:46</sys_created_on>
         <sys_id>d05fddce3b82c3504be1ef9e53e45a31</sys_id>
-        <sys_mod_count>9</sys_mod_count>
+        <sys_mod_count>10</sys_mod_count>
         <sys_name>DisputeUtils</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
         <sys_update_name>sys_script_include_d05fddce3b82c3504be1ef9e53e45a31</sys_update_name>
-        <sys_updated_by>shroin.mandal</sys_updated_by>
-        <sys_updated_on>2026-07-23 05:48:11</sys_updated_on>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-08-20 08:50:34</sys_updated_on>
     </sys_script_include>
 </record_update>

@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update sys_domain="global" table="sys_script">
+    <sys_script action="INSERT_OR_UPDATE">
+        <abort_action>false</abort_action>
+        <access>package_private</access>
+        <action_delete>false</action_delete>
+        <action_insert>false</action_insert>
+        <action_query>false</action_query>
+        <action_update>true</action_update>
+        <active>true</active>
+        <add_message>false</add_message>
+        <advanced>true</advanced>
+        <change_fields>false</change_fields>
+        <client_callable>false</client_callable>
+        <collection>x_ctans_incentnow_participant_assignment</collection>
+        <condition/>
+        <description/>
+        <execute_function>false</execute_function>
+        <filter_condition/>
+        <is_rest>false</is_rest>
+        <message/>
+        <name>Validate PA before activation</name>
+        <order>100</order>
+        <priority>100</priority>
+        <rest_method/>
+        <rest_method_text/>
+        <rest_service/>
+        <rest_service_text/>
+        <rest_variables/>
+        <role_conditions/>
+        <script><![CDATA[(function executeRule(current, previous) {
+
+    try {
+
+        // Run validation only when Status changes to a non-Draft state
+        if (!current.status.changes() || current.getValue('status') == 'draft')
+            return;
+
+        var participantAssignmentSysId = current.getUniqueValue();
+
+        if (!participantAssignmentSysId)
+            return;
+
+        var missingMappings = [];
+
+        // ============================================================
+        // 1. GET ALL PLAN ASSIGNMENTS
+        // ============================================================
+
+        var planAssignmentGR = new GlideRecord('x_ctans_incentnow_plan_users');
+        planAssignmentGR.addQuery('participant_assignment', participantAssignmentSysId);
+        planAssignmentGR.query();
+
+        // At least one Plan Assignment is mandatory
+        if (!planAssignmentGR.hasNext()) {
+            gs.addErrorMessage(
+                'Participant Assignment cannot move out of Draft. ' +
+                'At least one Plan Assignment must be added first.'
+            );
+
+            current.setAbortAction(true);
+            return;
+        }
+
+        while (planAssignmentGR.next()) {
+
+            var planAssignmentSysId = planAssignmentGR.getUniqueValue();
+            var planSysId = planAssignmentGR.getValue('x_ctans_incentnow_plan');
+
+            if (!planSysId)
+                continue;
+
+            var planDisplay = planAssignmentGR.getDisplayValue('x_ctans_incentnow_plan');
+
+            // ========================================================
+            // 2. GET ACTIVE QUOTA ATTAINMENT LOOKUP RULES
+            // ========================================================
+
+            var lookupGR = new GlideRecord('x_ctans_incentnow_lookup_rule');
+            lookupGR.addQuery('plan', planSysId);
+            lookupGR.addQuery('active', true);
+            lookupGR.addQuery('rule_type', 'quota_attainment');
+            lookupGR.query();
+
+            while (lookupGR.next()) {
+
+                var lookupRuleSysId = lookupGR.getUniqueValue();
+                var lookupRuleDisplay = lookupGR.getDisplayValue();
+
+                // ====================================================
+                // 3. VERIFY LOOKUP RULE -> QUOTA MAPPING
+                // ====================================================
+
+                var quotaAssignmentGR = new GlideRecord('x_ctans_incentnow_user_quota_assignment');
+                quotaAssignmentGR.addQuery('participant_assignment', participantAssignmentSysId);
+                quotaAssignmentGR.addQuery('plan_assignment', planAssignmentSysId);
+                quotaAssignmentGR.addQuery('lookup_rule', lookupRuleSysId);
+                quotaAssignmentGR.addNotNullQuery('quota');
+                quotaAssignmentGR.setLimit(1);
+                quotaAssignmentGR.query();
+
+                if (!quotaAssignmentGR.hasNext())
+                    missingMappings.push(planDisplay + ' → ' + lookupRuleDisplay);
+            }
+        }
+
+        // ============================================================
+        // 4. BLOCK STATUS CHANGE IF ANY MAPPING IS MISSING
+        // ============================================================
+
+        if (missingMappings.length > 0) {
+
+            gs.addErrorMessage(
+                'Participant Assignment cannot move out of Draft. ' +
+                'A Quota must be mapped to every applicable Quota Attainment Lookup Rule. ' +
+                'Missing mappings: ' +
+                missingMappings.join(', ')
+            );
+
+            current.setAbortAction(true);
+        }
+
+    } catch (e) {
+
+        gs.error(
+            '[IncentIQ Participant Assignment] Status validation failed. ' +
+            'Participant Assignment=' +
+            current.getUniqueValue() +
+            ', Error=' +
+            e.message
+        );
+
+        gs.addErrorMessage(
+            'Participant Assignment status could not be changed because validation could not be completed.'
+        );
+
+        current.setAbortAction(true);
+    }
+
+})(current, previous);]]></script>
+        <sys_class_name>sys_script</sys_class_name>
+        <sys_created_by>upma.rai</sys_created_by>
+        <sys_created_on>2026-08-12 12:20:41</sys_created_on>
+        <sys_domain>global</sys_domain>
+        <sys_domain_path>/</sys_domain_path>
+        <sys_id>7d614b9793ee0310ddb7f2d89803d64b</sys_id>
+        <sys_mod_count>4</sys_mod_count>
+        <sys_name>Validate PA before activation</sys_name>
+        <sys_overrides/>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_script_7d614b9793ee0310ddb7f2d89803d64b</sys_update_name>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-08-26 17:17:19</sys_updated_on>
+        <template/>
+        <when>before</when>
+    </sys_script>
+    <sys_translated_text action="delete_multiple" query="documentkey=7d614b9793ee0310ddb7f2d89803d64b"/>
+</record_update>

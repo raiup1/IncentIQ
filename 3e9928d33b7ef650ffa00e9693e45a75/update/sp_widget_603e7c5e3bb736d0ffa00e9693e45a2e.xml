@@ -980,7 +980,894 @@ body { font-family: "Inter", "Segoe UI", sans-serif; background: #f5f7fb; }
   transition: background 0.15s;
 }
 .lkp-next-btn:hover:not([disabled]) { background: #1e293b; }
-.lkp-next-btn[disabled] { opacity: 0.4; cursor: not-allowed; }</css>
+.lkp-next-btn[disabled] { opacity: 0.4; cursor: not-allowed; }
+
+/* ============================================================
+   ADMINISTRATION WIDGET
+   MOBILE RESPONSIVE OVERRIDES
+   Existing HTML / classes / Angular / JS untouched
+   ============================================================ */
+
+
+/* ============================================================
+   TABLET
+   ============================================================ */
+@media (max-width: 991px) {
+
+  .admin-main {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
+  }
+
+
+  /* ----------------------------------------------------------
+     PAGE HEADER
+     ---------------------------------------------------------- */
+
+  .admin-main &gt; div[ng-if="c.view === 'main'"] &gt; .m-b-lg {
+    margin-bottom: 18px;
+  }
+
+  .admin-main h1 {
+    font-size: 26px;
+  }
+
+  .admin-main &gt; div[ng-if="c.view === 'main'"] p {
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+
+  /* ----------------------------------------------------------
+     ADMIN CARDS
+     ---------------------------------------------------------- */
+
+  .row.m-b-lg[style*="display:flex"] {
+    flex-wrap: wrap !important;
+    gap: 14px !important;
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .row.m-b-lg[style*="display:flex"] &gt; [class*="col-"] {
+    width: calc(50% - 7px);
+    padding-left: 0;
+    padding-right: 0;
+    margin-bottom: 0;
+  }
+
+  .admin-card {
+    width: 100%;
+    padding: 18px;
+    border-radius: 14px;
+    min-width: 0;
+  }
+
+
+  /* ----------------------------------------------------------
+     TOPBAR
+     ---------------------------------------------------------- */
+
+  .admin-page-topbar {
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+
+  .admin-page-topbar-title {
+    font-size: 20px;
+    min-width: 0;
+  }
+
+  .admin-page-topbar-actions {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+
+  /* ----------------------------------------------------------
+     LOOKUP TABLE LIST
+     ---------------------------------------------------------- */
+
+  .admin-main &gt; div[ng-if="c.view === 'lookups' &amp;&amp; c.data.isIncentNowGroupAdmin'] {
+    width: 100%;
+  }
+
+  .lkp-pagination {
+    justify-content: center;
+  }
+
+
+  /* ----------------------------------------------------------
+     MODALS
+     ---------------------------------------------------------- */
+
+  .modal-dialog.modal-lg {
+    width: calc(100% - 40px);
+  }
+
+  .modal-dialog:not(.modal-lg) {
+    width: calc(100% - 40px);
+  }
+
+  .modal-body {
+    max-height: 65vh;
+    overflow-y: auto;
+  }
+}
+
+
+/* ============================================================
+   MOBILE
+   ============================================================ */
+@media (max-width: 767px) {
+
+  .admin-main {
+    width: 100%;
+    max-width: 100%;
+    padding: 0 8px;
+    box-sizing: border-box;
+    overflow-x: hidden;
+  }
+
+
+  /* ==========================================================
+     MAIN ADMIN PAGE
+     ========================================================== */
+
+  .admin-main &gt; div[ng-if="c.view === 'main'"] {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .admin-main &gt; div[ng-if="c.view === 'main''] &gt; .m-b-lg {
+    margin-bottom: 16px;
+  }
+
+  .admin-main &gt; div[ng-if="c.view === 'main''] h1 {
+    font-size: 23px;
+    line-height: 1.25;
+    margin-bottom: 6px;
+  }
+
+  .admin-main &gt; div[ng-if="c.view === 'main''] p {
+    font-size: 11px;
+    line-height: 1.5;
+  }
+
+
+  /* ==========================================================
+     ADMIN CARDS
+     ========================================================== */
+
+  .row.m-b-lg[style*="display:flex"] {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    border-radius: 0;
+  }
+
+  .row.m-b-lg[style*="display:flex"] &gt; [class*="col-"] {
+    width: 100% !important;
+    min-width: 0;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    margin: 0 !important;
+    display: flex;
+  }
+
+  .admin-card {
+    width: 100%;
+    min-width: 0;
+    padding: 14px;
+    border-radius: 11px;
+    box-sizing: border-box;
+  }
+
+  .admin-card i {
+    font-size: 19px;
+    margin-bottom: 7px;
+  }
+
+  .admin-card h4 {
+    font-size: 13px;
+    line-height: 1.35;
+    margin-top: 5px;
+    margin-bottom: 7px;
+  }
+
+  .admin-card p {
+    font-size: 10px;
+    line-height: 1.5;
+    margin-bottom: 0;
+  }
+
+  /* Disable desktop hover movement on touch */
+  .admin-card:hover {
+    transform: none;
+    box-shadow: none;
+  }
+
+
+  /* ==========================================================
+     TOPBAR
+     ========================================================== */
+
+  .admin-page-topbar {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 15px;
+    padding-bottom: 11px;
+  }
+
+  .admin-back-btn {
+    width: 34px;
+    height: 34px;
+    flex-shrink: 0;
+  }
+
+  .admin-page-topbar-title {
+    font-size: 18px;
+    line-height: 1.3;
+    min-width: 0;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  .admin-page-topbar-actions {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin-top: 3px;
+  }
+
+  .admin-btn-solid,
+  .admin-btn-outline {
+    min-height: 38px;
+    padding: 8px 12px;
+    font-size: 11px;
+  }
+
+
+  /* ==========================================================
+     FISCAL PERIOD / NESTED WIDGET
+     ========================================================== */
+
+  .fiscal-widget-wrap {
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  .fiscal-period-card {
+    min-height: auto;
+    margin-bottom: 10px;
+    border-radius: 10px;
+  }
+
+  .fiscal-period-card .panel-heading {
+    padding: 9px 11px;
+    font-size: 12px;
+  }
+
+  .fiscal-period-card .panel-body {
+    padding: 10px 11px;
+  }
+
+  .fiscal-period-card .panel-body div {
+    font-size: 11px;
+    line-height: 1.4;
+  }
+
+  .fiscal-period-info .info-row {
+    padding: 7px 0;
+    gap: 8px;
+  }
+
+  .fiscal-period-info .info-label,
+  .fiscal-period-info .info-value {
+    font-size: 11px;
+  }
+
+  .fiscal-period-info .info-value {
+    text-align: right;
+    overflow-wrap: anywhere;
+  }
+
+  .fiscal-filter-row,
+  .quota-filter-row {
+    margin-bottom: 18px;
+  }
+
+
+  /* ==========================================================
+     LOOKUP LIST TABLE
+     Only this table gets horizontal scrolling
+     ========================================================== */
+
+  .admin-main &gt; div[ng-if="c.view === 'lookups' &amp;&amp; c.data.isIncentNowGroupAdmin'] {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: visible;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+  }
+
+  .admin-main &gt; div[ng-if="c.view === 'lookups' &amp;&amp; c.data.isIncentNowGroupAdmin'] &gt; .table {
+    width: max-content;
+    min-width: 620px;
+    margin-bottom: 0;
+  }
+
+  .admin-main &gt; div[ng-if="c.view === 'lookups' &amp;&amp; c.data.isIncentNowGroupAdmin'] &gt; .table th {
+    padding: 9px 10px;
+    font-size: 10px;
+    white-space: nowrap;
+  }
+
+  .admin-main &gt; div[ng-if="c.view === 'lookups' &amp;&amp; c.data.isIncentNowGroupAdmin'] &gt; .table td {
+    padding: 9px 10px;
+    font-size: 11px;
+    white-space: nowrap;
+  }
+
+  .lkp-btn {
+    min-height: 30px;
+    padding: 4px 9px;
+    font-size: 10px;
+    margin-right: 3px;
+    white-space: nowrap;
+  }
+
+
+  /* ==========================================================
+     LOOKUP DECISION TABLE VIEW
+     ========================================================== */
+
+  .admin-lookup-view-card {
+    width: 100%;
+    max-width: 100%;
+    padding: 10px;
+    border-radius: 10px;
+    overflow-x: auto;
+    overflow-y: visible;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    box-sizing: border-box;
+    overscroll-behavior-x: contain;
+  }
+
+  .admin-lookup-view-card .table {
+    width: max-content;
+    min-width: 650px;
+    margin-bottom: 0;
+  }
+
+  .admin-lookup-view-card .table thead th {
+    padding: 9px 10px;
+    font-size: 9px;
+    white-space: nowrap;
+    vertical-align: middle;
+  }
+
+  .admin-lookup-view-card .table tbody td {
+    padding: 9px 10px;
+    font-size: 10px;
+    white-space: nowrap;
+    vertical-align: middle;
+  }
+
+  .lkv-group-header {
+    padding: 9px 10px !important;
+    font-size: 9px;
+    white-space: nowrap;
+  }
+
+  .lkv-subhdr,
+  .lkv-subhdr-blank {
+    padding: 7px 9px !important;
+    font-size: 8px;
+    white-space: nowrap;
+  }
+
+  .lkv-range-cell {
+    font-size: 9px;
+    white-space: nowrap;
+  }
+
+  .admin-lookup-empty {
+    padding: 30px 10px;
+    font-size: 11px;
+  }
+
+
+  /* ==========================================================
+     GENERAL LOOKUP HEADER
+     ========================================================== */
+
+  .lookup-header-row {
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: flex-start;
+  }
+
+  .lookup-header-right {
+    width: 100%;
+    margin-left: 0;
+    text-align: left;
+  }
+
+
+  /* ==========================================================
+     IO SECTION
+     ========================================================== */
+
+  .io-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    margin: 12px 0;
+  }
+
+  .io-actions {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+  }
+
+  .io-group {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .io-label {
+    font-size: 11px;
+  }
+
+  .io-btn {
+    padding: 5px 9px;
+    font-size: 10px;
+  }
+
+  .io-input-row {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    margin-bottom: 12px;
+  }
+
+  .io-input {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .io-add-row {
+    width: 100%;
+  }
+
+  .io-add-row .btn {
+    width: 100%;
+    min-height: 36px;
+  }
+
+
+  /* ==========================================================
+     MODALS
+     ========================================================== */
+
+  .modal-dialog,
+  .modal-dialog.modal-lg {
+    width: auto;
+    max-width: calc(100% - 16px);
+    margin: 8px auto;
+  }
+
+  .modal-content {
+    width: 100%;
+    border-radius: 11px;
+  }
+
+  .modal-header {
+    padding: 12px 14px;
+  }
+
+  .modal-header .modal-title {
+    font-size: 15px;
+    line-height: 1.3;
+    padding-right: 25px;
+  }
+
+  .modal-body {
+    padding: 14px;
+    max-height: 65vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  .modal-footer {
+    padding: 11px 14px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+  }
+
+  .modal-footer .btn {
+    min-height: 36px;
+  }
+
+
+  /* ==========================================================
+     CONFIGURE LOOKUP MODAL TABLE
+     Separate handling from lookup view table
+     ========================================================== */
+
+  #configureModal .modal-body {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  #configureModal .modal-body &gt; table {
+    width: max-content;
+    min-width: 650px;
+  }
+
+  #configureModal .modal-body &gt; table th,
+  #configureModal .modal-body &gt; table td {
+    white-space: nowrap;
+    font-size: 10px;
+    padding: 8px 9px;
+  }
+
+  #configureModal .modal-body &gt; table input.form-control {
+    min-width: 120px;
+    height: 34px;
+    font-size: 10px;
+  }
+
+
+  /* ==========================================================
+     FORM CONTROLS
+     ========================================================== */
+
+  .form-control {
+    width: 100%;
+    max-width: 100%;
+    height: 38px;
+    font-size: 12px;
+    box-sizing: border-box;
+  }
+
+  textarea.form-control {
+    min-height: 80px;
+    resize: vertical;
+  }
+
+
+  /* ==========================================================
+     BUTTONS
+     ========================================================== */
+
+  .btn {
+    border-radius: 8px;
+    padding: 6px 11px;
+    font-size: 11px;
+  }
+
+  .btn-xs {
+    padding: 4px 8px;
+    font-size: 10px;
+  }
+
+
+  /* ==========================================================
+     ALERTS
+     ========================================================== */
+
+  .alert {
+    padding: 10px 12px;
+    border-radius: 9px;
+    font-size: 11px;
+    line-height: 1.5;
+  }
+
+
+  /* ==========================================================
+     PAGINATION
+     ========================================================== */
+
+  .lkp-pagination {
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 12px;
+  }
+
+  .lkp-page-label {
+    font-size: 10px;
+    padding: 0 2px;
+  }
+
+  .lkp-prev-btn,
+  .lkp-next-btn {
+    min-height: 34px;
+    padding: 6px 10px;
+    font-size: 10px;
+  }
+
+
+  /* ==========================================================
+     GLOBAL MOBILE SAFETY
+     ========================================================== */
+
+  .admin-main img,
+  .admin-main svg,
+  .admin-main input,
+  .admin-main select,
+  .admin-main textarea,
+  .admin-main button {
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .admin-main .panel,
+  .admin-main .panel-body,
+  .admin-main .panel-heading {
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .admin-main {
+    overflow-x: hidden;
+  }
+
+  .admin-page-topbar-title,
+  .admin-card,
+  .fiscal-period-card,
+  .lookup-header-row,
+  .lkv-range-cell {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+}
+
+
+/* ============================================================
+   SMALL PHONES
+   ============================================================ */
+@media (max-width: 480px) {
+
+  .admin-main {
+    padding-left: 6px;
+    padding-right: 6px;
+  }
+
+
+  /* TOPBAR */
+
+  .admin-page-topbar-title {
+    font-size: 17px;
+  }
+
+  .admin-back-btn {
+    width: 32px;
+    height: 32px;
+  }
+
+
+  /* ADMIN CARDS */
+
+  .row.m-b-lg[style*="display:flex"] {
+    gap: 8px !important;
+  }
+
+  .admin-card {
+    padding: 12px;
+    border-radius: 10px;
+  }
+
+  .admin-card i {
+    font-size: 17px;
+  }
+
+  .admin-card h4 {
+    font-size: 12px;
+  }
+
+  .admin-card p {
+    font-size: 9px;
+  }
+
+
+  /* LOOKUP TABLE */
+
+  .admin-main &gt; div[ng-if="c.view === 'lookups' &amp;&amp; c.data.isIncentNowGroupAdmin'] &gt; .table {
+    min-width: 580px;
+  }
+
+  .admin-main &gt; div[ng-if="c.view === 'lookups' &amp;&amp; c.data.isIncentNowGroupAdmin'] &gt; .table th {
+    padding: 8px;
+    font-size: 9px;
+  }
+
+  .admin-main &gt; div[ng-if="c.view === 'lookups' &amp;&amp; c.data.isIncentNowGroupAdmin'] &gt; .table td {
+    padding: 8px;
+    font-size: 10px;
+  }
+
+
+  /* LOOKUP VIEW */
+
+  .admin-lookup-view-card {
+    padding: 8px;
+  }
+
+  .admin-lookup-view-card .table {
+    min-width: 600px;
+  }
+
+
+  /* IO */
+
+  .io-actions {
+    gap: 5px;
+  }
+
+  .io-label {
+    font-size: 10px;
+  }
+
+  .io-btn {
+    font-size: 9px;
+    padding: 4px 8px;
+  }
+
+
+  /* PAGINATION */
+
+  .lkp-prev-btn,
+  .lkp-next-btn {
+    min-height: 32px;
+    padding: 5px 8px;
+    font-size: 9px;
+  }
+
+  .lkp-page-label {
+    font-size: 9px;
+  }
+
+
+  /* MODAL */
+
+  .modal-dialog,
+  .modal-dialog.modal-lg {
+    max-width: calc(100% - 12px);
+    margin: 6px auto;
+  }
+
+  .modal-header {
+    padding: 11px 12px;
+  }
+
+  .modal-body {
+    padding: 12px;
+  }
+
+  .modal-footer {
+    padding: 9px 12px;
+  }
+}
+
+
+/* ============================================================
+   EXTRA SMALL PHONES
+   ============================================================ */
+@media (max-width: 360px) {
+
+  .admin-main {
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+
+
+  /* ADMIN CARDS */
+  .row.m-b-lg[style*="display:flex"] {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-card {
+    padding: 11px;
+  }
+
+
+  /* TOPBAR */
+  .admin-page-topbar-title {
+    font-size: 16px;
+  }
+
+
+  /* LOOKUP TABLE */
+  .admin-main &gt; div[ng-if="c.view === 'lookups' &amp;&amp; c.data.isIncentNowGroupAdmin'] &gt; .table {
+    min-width: 540px;
+  }
+
+  .admin-lookup-view-card .table {
+    min-width: 550px;
+  }
+
+
+  /* PAGINATION */
+  .lkp-pagination {
+    gap: 4px;
+  }
+
+  .lkp-prev-btn,
+  .lkp-next-btn {
+    padding: 5px 7px;
+  }
+
+
+  /* MODAL */
+  .modal-dialog,
+  .modal-dialog.modal-lg {
+    max-width: calc(100% - 8px);
+    margin: 4px auto;
+  }
+
+  .modal-footer {
+    flex-direction: column;
+  }
+
+  .modal-footer .btn {
+    width: 100%;
+  }
+}
+
+
+@media (max-width: 767px) {
+
+  .row.m-b-lg[style*="display:flex"] {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 10px !important;
+    margin: 0 !important;
+  }
+
+  .row.m-b-lg[style*="display:flex"] &gt; [class*="col-"] {
+    width: calc(50% - 5px) !important;
+    flex: 0 0 calc(50% - 5px) !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    display: flex !important;
+  }
+
+  /* FIRST CARD = FULL WIDTH */
+  .row.m-b-lg[style*="display:flex"] &gt; [class*="col-"]:first-child {
+    width: 100% !important;
+    flex: 0 0 100% !important;
+  }
+
+  .row.m-b-lg[style*="display:flex"] .admin-card {
+    width: 100%;
+  }
+}
+</css>
         <data_table>sp_instance</data_table>
         <demo_data/>
         <description/>
@@ -1495,14 +2382,14 @@ body { font-family: "Inter", "Segoe UI", sans-serif; background: #f5f7fb; }
         <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
         <sys_created_on>2026-03-25 07:14:40</sys_created_on>
         <sys_id>603e7c5e3bb736d0ffa00e9693e45a2e</sys_id>
-        <sys_mod_count>421</sys_mod_count>
+        <sys_mod_count>422</sys_mod_count>
         <sys_name>IncentNow Admin Dashboard</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
         <sys_update_name>sp_widget_603e7c5e3bb736d0ffa00e9693e45a2e</sys_update_name>
-        <sys_updated_by>karan.kumar</sys_updated_by>
-        <sys_updated_on>2026-06-15 11:21:45</sys_updated_on>
+        <sys_updated_by>shroin.mandal</sys_updated_by>
+        <sys_updated_on>2026-09-01 07:12:01</sys_updated_on>
         <template><![CDATA[<div class="admin-main">
 
   <!-- ============================================================
@@ -1535,13 +2422,13 @@ body { font-family: "Inter", "Segoe UI", sans-serif; background: #f5f7fb; }
           <p class="text-muted small">Manage commission rate and bonus tables</p>
         </div>
       </div>
-      <div class="col-md-3" style="flex:1;" ng-if="c.data.isIncentNowAdmin">
+      <!--div class="col-md-3" style="flex:1;" ng-if="c.data.isIncentNowAdmin">
         <div class="panel panel-default admin-card" ng-click="c.goTo('settings')">
           <i class="fa fa-cog text-success"></i>
           <h4>System Settings</h4>
           <p class="text-muted small">Configure default settings, and global preferences</p>
         </div>
-      </div>
+      </div-->
       <div class="col-md-3" style="flex:1;">
         <div class="panel panel-default admin-card" ng-click="c.goTo('importData')">
           <i class="fa fa-upload text-warning"></i>

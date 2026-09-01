@@ -16,7 +16,7 @@
         <logo>undefined</logo>
         <menu/>
         <name>IncentIQ</name>
-        <package_json/>
+        <package_json display_value="x_ctans_incentnow/x-ctans-incent-iq/1.0.11/package.json" path="x_ctans_incentnow/x-ctans-incent-iq/1.0.11/package.json">x_ctans_incentnow/x-ctans-incent-iq/1.0.11/package.json</package_json>
         <private>false</private>
         <restrict_table_access>false</restrict_table_access>
         <runtime_access_tracking>permissive</runtime_access_tracking>
@@ -24,24 +24,24 @@
         <scoped_administration>false</scoped_administration>
         <short_description>IncentIQ application is one stop shop for Sales comission calculation and Incentive payout</short_description>
         <source>x_ctans_incentnow</source>
-        <store_correlation_id>REPOAPP0002940543</store_correlation_id>
-        <store_url/>
+        <store_correlation_id>REPOAPP0003033722</store_correlation_id>
+        <store_url>https://tpp.servicenow.com/sn_appstore_s</store_url>
         <subscription_entitlement/>
         <sys_class_name>sys_app</sys_class_name>
         <sys_code/>
         <sys_created_by>upma.rai</sys_created_by>
         <sys_created_on>2026-02-06 15:15:50</sys_created_on>
         <sys_id>3e9928d33b7ef650ffa00e9693e45a75</sys_id>
-        <sys_mod_count>30</sys_mod_count>
+        <sys_mod_count>33</sys_mod_count>
         <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
-        <sys_updated_on>2026-08-04 06:54:21</sys_updated_on>
+        <sys_updated_on>2026-09-01 08:20:27</sys_updated_on>
         <template/>
         <trackable>true</trackable>
         <uninstall_blocked>false</uninstall_blocked>
         <user_role/>
         <vendor>CtrlAltNow Solutions Inc</vendor>
         <vendor_prefix/>
-        <version>1.0.11</version>
+        <version>1.0.12</version>
     </sys_app>
     <sys_translated_text action="delete_multiple" query="documentkey=3e9928d33b7ef650ffa00e9693e45a75"/>
 </record_update>

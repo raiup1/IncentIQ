@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_atf_step">
+    <sys_atf_step action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <callable_outputs/>
+        <copied_from/>
+        <description>Set the components on the page as follows:
+'Text &lt;input&gt;: Plan Name' = ATF Plan
+'Custom component &lt;select2&gt;: Plan Type' = Individual
+'Custom component &lt;select2&gt;: Business Dimension' = Business Unit
+'Text &lt;select2&gt;: Choose the business unit this plan applies to (e.g., APAC Enterprise). Business Unit' = ATF BU
+'Text &lt;select2&gt;: Lookup using list' = ATF Year
+'Text &lt;textarea&gt;: Plan Description' = Test Plan Description
+</description>
+        <display_name>Set Component Values (Custom UI)</display_name>
+        <inputs/>
+        <mugshots_cache_json>{"f4179c522fb2eb3b43b8080f24eee4e7":"{\"area\":\"IncentNow Create Plan &gt; IncentNow Form Advanced\",\"sn_atf_mugshot_short_description\":\"Custom component &lt;select2&gt;: Business Dimension\",\"inner_text\":\"-- None --\",\"sn_atf_mugshot_long_description\":\"Custom component &lt;select2&gt; [s2id_sp_formfield_business_dimension]: Business Dimension in page area IncentNow Create Plan &gt; IncentNow Form Advanced\",\"methods\":[\"setValue\"],\"sn_atf_mugshot_label\":\"Business Dimension\",\"type\":\"select-one\",\"version\":\"26.0\",\"sn_atf_mugshot_label_for_label_path\":\"Business Dimension\",\"label_for_input\":{\"inner_text\":\"Business Dimension\"},\"get_value_result\":\"\",\"sn_atf_mugshot_tag_display_name\":\"Custom component &lt;select2&gt;\",\"sn_atf_mugshot_value\":\"\",\"name\":\"business_dimension\",\"tag\":\"select2\",\"isDisabled\":false,\"id\":\"s2id_sp_formfield_business_dimension\",\"hash\":\"f4179c522fb2eb3b43b8080f24eee4e7\",\"html_value\":\"\"}","8305a0af90d4f419dd9cbad872a5a0c7":"{\"area\":\"IncentNow Create Plan &gt; IncentNow Form Advanced\",\"sn_atf_mugshot_short_description\":\"Text &lt;select2&gt;: Lookup using list\",\"inner_text\":\"Lookup using list\",\"role\":\"textbox\",\"sn_atf_mugshot_long_description\":\"Text &lt;select2&gt; [s2id_sp_formfield_fiscal_year]: Lookup using list in page area IncentNow Create Plan &gt; IncentNow Form Advanced\",\"methods\":[\"setValue\"],\"sn_atf_mugshot_label\":\"Lookup using list\",\"index\":2,\"type\":\"text\",\"title\":\"Fiscal Year\",\"version\":\"26.0\",\"sn_atf_mugshot_label_for_label_path\":\"Fiscal Year\",\"get_value_result\":\"\",\"sn_atf_mugshot_tag_display_name\":\"Text &lt;select2&gt;\",\"sn_atf_mugshot_value\":\"\",\"name\":\"fiscal_year\",\"tag\":\"select2\",\"isDisabled\":false,\"id\":\"s2id_sp_formfield_fiscal_year\",\"hash\":\"8305a0af90d4f419dd9cbad872a5a0c7\",\"html_value\":\"\"}","bb0a29f2f8fee2891c33cf1db096c781":"{\"area\":\"IncentNow Create Plan &gt; IncentNow Form Advanced\",\"sn_atf_mugshot_short_description\":\"Text &lt;select2&gt;: Choose the business unit this plan applies to (e.g., APAC Enterprise). Business Unit\",\"inner_text\":\"Choose the business unit this plan applies to (e.g., APAC Enterprise).             Business Unit\",\"role\":\"textbox\",\"sn_atf_mugshot_long_description\":\"Text &lt;select2&gt; [s2id_sp_formfield_business_unit]: Choose the business unit this plan applies to (... in page area IncentNow Create Plan &gt; IncentNow Form Advanced\",\"methods\":[\"setValue\"],\"sn_atf_mugshot_label\":\"Choose the business unit this plan applies to (e.g., APAC Enterprise).             Business Unit\",\"index\":2,\"type\":\"text\",\"title\":\"Business Unit\",\"version\":\"26.0\",\"sn_atf_mugshot_label_for_label_path\":\"Business Unit\",\"get_value_result\":\"\",\"sn_atf_mugshot_tag_display_name\":\"Text &lt;select2&gt;\",\"sn_atf_mugshot_value\":\"\",\"name\":\"business_unit\",\"tag\":\"select2\",\"isDisabled\":false,\"id\":\"s2id_sp_formfield_business_unit\",\"hash\":\"bb0a29f2f8fee2891c33cf1db096c781\",\"html_value\":\"\"}","d97adf2fe262440d972b02441aa7b84e":"{\"area\":\"IncentNow Create Plan &gt; IncentNow Form Advanced\",\"sn_atf_mugshot_short_description\":\"Text &lt;textarea&gt;: Plan Description\",\"role\":\"textbox\",\"sn_atf_mugshot_long_description\":\"Text &lt;textarea&gt; [sp_formfield_plan_description]: Plan Description in page area IncentNow Create Plan &gt; IncentNow Form Advanced\",\"methods\":[\"setValue\"],\"sn_atf_mugshot_label\":\"Plan Description\",\"type\":\"textarea\",\"version\":\"26.0\",\"label_for_input\":{\"inner_text\":\"Plan Description\"},\"sn_atf_mugshot_label_for_label_path\":\"Plan Description\",\"interesting_element_path\":[\"body\",\"div\",\"div\",\"sp-page-row\",\"span\",\"div\",\"div\",\"form\",\"sp-variable-layout\",\"div\",\"div\",\"textarea\"],\"get_value_result\":\"\",\"sn_atf_mugshot_tag_display_name\":\"Text &lt;textarea&gt;\",\"name\":\"plan_description\",\"sn_atf_mugshot_value\":\"\",\"tag\":\"textarea\",\"isDisabled\":false,\"id\":\"sp_formfield_plan_description\",\"label_path\":[\"Plan Description\"],\"aria-label\":\"Plan Description\",\"hash\":\"d97adf2fe262440d972b02441aa7b84e\",\"html_value\":\"\"}","934fe9eb9121c90d8a8cbba1785acb43":"{\"area\":\"IncentNow Create Plan &gt; IncentNow Form Advanced\",\"sn_atf_mugshot_short_description\":\"Text &lt;input&gt;: Plan Name\",\"sn_atf_mugshot_long_description\":\"Text &lt;input&gt; [sp_formfield_plan_name]: Plan Name with value Enter a unique name for the incentive plan (e.g... in page area IncentNow Create Plan &gt; IncentNow Form Advanced\",\"methods\":[\"setValue\"],\"sn_atf_mugshot_label\":\"Plan Name\",\"type\":\"text\",\"version\":\"26.0\",\"label_for_input\":{\"inner_text\":\"Plan Name\"},\"sn_atf_mugshot_label_for_label_path\":\"Plan Name\",\"interesting_element_path\":[\"body\",\"div\",\"div\",\"sp-page-row\",\"span\",\"div\",\"div\",\"form\",\"sp-variable-layout\",\"div\",\"div\",\"input\"],\"get_value_result\":\"\",\"sn_atf_mugshot_tag_display_name\":\"Text &lt;input&gt;\",\"name\":\"plan_name\",\"sn_atf_mugshot_value\":\"Enter a unique name for the incentive plan (e.g., Sales Executive FY2026).\",\"tag\":\"input\",\"isDisabled\":false,\"id\":\"sp_formfield_plan_name\",\"placeholder\":\"Enter a unique name for the incentive plan (e.g., Sales Executive FY2026).\",\"label_path\":[\"Plan Name\"],\"aria-label\":\"Plan Name\",\"hash\":\"934fe9eb9121c90d8a8cbba1785acb43\",\"html_value\":\"\"}","3e9a0e02633d73af4bad4cc248e49a60":"{\"area\":\"IncentNow Create Plan &gt; IncentNow Form Advanced\",\"sn_atf_mugshot_short_description\":\"Custom component &lt;select2&gt;: Plan Type\",\"inner_text\":\"-- None --\",\"sn_atf_mugshot_long_description\":\"Custom component &lt;select2&gt; [s2id_sp_formfield_plan_type]: Plan Type in page area IncentNow Create Plan &gt; IncentNow Form Advanced\",\"methods\":[\"setValue\"],\"sn_atf_mugshot_label\":\"Plan Type\",\"type\":\"select-one\",\"version\":\"26.0\",\"sn_atf_mugshot_label_for_label_path\":\"Plan Type\",\"label_for_input\":{\"inner_text\":\"Plan Type\"},\"get_value_result\":\"\",\"sn_atf_mugshot_tag_display_name\":\"Custom component &lt;select2&gt;\",\"sn_atf_mugshot_value\":\"\",\"name\":\"plan_type\",\"tag\":\"select2\",\"isDisabled\":false,\"id\":\"s2id_sp_formfield_plan_type\",\"hash\":\"3e9a0e02633d73af4bad4cc248e49a60\",\"html_value\":\"\"}"}</mugshots_cache_json>
+        <notes/>
+        <order>12</order>
+        <step_config display_value="Set Component Values (Custom UI)">e5dd168473330300c79260bdfaf6a794</step_config>
+        <sys_class_name>sys_atf_step</sys_class_name>
+        <sys_created_by>shiva.erla</sys_created_by>
+        <sys_created_on>2026-08-24 17:22:11</sys_created_on>
+        <sys_id>85d9391f33320710dccb9c173e5c7b19</sys_id>
+        <sys_mod_count>9</sys_mod_count>
+        <sys_name>Set Component Values (Custom UI)</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_atf_step_85d9391f33320710dccb9c173e5c7b19</sys_update_name>
+        <sys_updated_by>atfappadminuser</sys_updated_by>
+        <sys_updated_on>2026-08-24 18:16:07</sys_updated_on>
+        <table/>
+        <test display_value="IncentIQ_IncentivePlan_BusinessUnit_ApprovalFlow">a44e00133336c310dccb9c173e5c7b68</test>
+        <timeout/>
+        <warning_message/>
+    </sys_atf_step>
+    <sys_variable_value action="delete_multiple" query="document_key=85d9391f33320710dccb9c173e5c7b19"/>
+    <sys_variable_value action="INSERT_OR_UPDATE">
+        <document>sys_atf_step</document>
+        <document_key>85d9391f33320710dccb9c173e5c7b19</document_key>
+        <order>100</order>
+        <sys_class_name>sys_variable_value</sys_class_name>
+        <sys_created_by>shiva.erla</sys_created_by>
+        <sys_created_on>2026-08-24 17:22:11</sys_created_on>
+        <sys_id>31ea799f33320710dccb9c173e5c7b4d</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>shiva.erla</sys_updated_by>
+        <sys_updated_on>2026-08-24 17:22:11</sys_updated_on>
+        <value>934fe9eb9121c90d8a8cbba1785acb43=ATF Plan^3e9a0e02633d73af4bad4cc248e49a60=Individual^f4179c522fb2eb3b43b8080f24eee4e7=Business Unit^bb0a29f2f8fee2891c33cf1db096c781=ATF BU^8305a0af90d4f419dd9cbad872a5a0c7=ATF Year^d97adf2fe262440d972b02441aa7b84e=Test Plan Description^EQ</value>
+        <variable display_value="Component values">d12fde8473330300c79260bdfaf6a7b5</variable>
+    </sys_variable_value>
+    <sys_element_mapping action="delete_multiple" query="table=var__m_atf_input_variable_e5dd168473330300c79260bdfaf6a794^id=85d9391f33320710dccb9c173e5c7b19"/>
+</record_update>

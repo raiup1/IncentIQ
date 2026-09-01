@@ -10,10 +10,14 @@
   c.quotaModel     = {};
   c.fiscalPeriods  = c.data.fiscalPeriods;
 
-  c.getSymbol = function () {
-    return c.quotaModel.valueType === "currency" ? "$" : "";
-  };
-	
+  c.getCurrency = function(value) {
+			if (c.quotaModel.valueType !== 'currency')
+					return value;
+			if (c.data.currencyPosition === 'after')
+					return value + ' ' + c.data.currencySymbol;
+			return c.data.currencySymbol + value;
+	};
+
 	c.isDistributionMismatch = function () {
 			return !c.isDistributionMatched();
 	};
@@ -1170,6 +1174,866 @@ textarea::placeholder {
     overflow-y: auto;
   }
 
+}
+
+/* ============================================================
+   QUOTA BUILDER
+   FINAL FULL RESPONSIVE CSS
+   Existing HTML / Angular / JS untouched
+   ============================================================ */
+
+
+/* ============================================================
+   TABLET
+   992px - 1199px
+   ============================================================ */
+@media (max-width: 1199px) {
+
+  .quota-builder {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
+  }
+
+  /* Large fixed-width controls */
+  .quota-builder .form-control-a,
+  .quota-builder .form-control-section,
+  .quota-builder .form-control-dis,
+  .quota-builder .quota-month {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* Progress */
+  .quota-builder .quota-progress {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .quota-builder .quota-progress .progress-steps {
+    min-width: 680px;
+  }
+
+  /* Stepper */
+  .quota-builder .stepper {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    gap: 2rem;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .quota-builder .stepper li {
+    flex: 0 0 auto;
+  }
+
+  /* Quarter grid */
+  .quota-builder .quarter-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+
+/* ============================================================
+   MOBILE
+   &lt;= 767px
+   ============================================================ */
+@media (max-width: 767px) {
+
+  /* ==========================================================
+     BASE
+     ========================================================== */
+
+  .quota-builder {
+    width: 100%;
+    max-width: 100%;
+    padding: 0 10px;
+    box-sizing: border-box;
+    overflow-x: hidden;
+  }
+
+
+  /* ==========================================================
+     TOP BAR
+     ========================================================== */
+
+  .quota-builder .qb-page-topbar {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    padding-bottom: 11px;
+  }
+
+  .quota-builder .qb-back-btn {
+    width: 34px;
+    height: 34px;
+    flex-shrink: 0;
+  }
+
+  .quota-builder .qb-page-title {
+    min-width: 0;
+    font-size: 2rem;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
+  }
+
+
+  /* ==========================================================
+     SAVE / ACTION BUTTON
+     ========================================================== */
+
+  .quota-builder .btn-save {
+    width: 100%;
+    min-height: 40px;
+    justify-content: center;
+    font-size: 12px;
+    padding: 8px 14px;
+  }
+
+  .quota-builder .text-right {
+    padding-top: 8px;
+    text-align: left !important;
+  }
+
+
+  /* ==========================================================
+     PROGRESS STEPS
+     Horizontal scroll only inside stepper
+     ========================================================== */
+
+  .quota-builder .quota-progress {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 3px;
+  }
+
+  .quota-builder .quota-progress::-webkit-scrollbar {
+    display: none;
+  }
+
+  .quota-builder .quota-progress .progress-steps {
+    display: inline-flex;
+    width: max-content;
+    min-width: 560px;
+    height: 4.2rem;
+  }
+
+  .quota-builder .quota-progress .progress-step {
+    flex: 0 0 auto;
+  }
+
+  .quota-builder .quota-progress .step-number {
+    width: 160px !important;
+    height: 36px !important;
+    font-size: 10px;
+  }
+
+  .quota-builder .quota-progress .progress-connector {
+    width: 35px !important;
+    margin: 0 8px 18px !important;
+  }
+
+
+  /* ==========================================================
+     NAV STEPPER
+     ========================================================== */
+
+  .quota-builder .stepper {
+    width: 100%;
+    max-width: 100%;
+    display: flex;
+    overflow-x: auto;
+    overflow-y: hidden;
+    gap: 7px;
+    padding: 7px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    box-sizing: border-box;
+  }
+
+  .quota-builder .stepper::-webkit-scrollbar {
+    display: none;
+  }
+
+  .quota-builder .stepper li {
+    flex: 0 0 auto;
+  }
+
+  .quota-builder .stepper li a {
+    padding: 7px 10px;
+    gap: 6px;
+    font-size: 11px;
+    white-space: nowrap;
+  }
+
+  .quota-builder .step-circle {
+    width: 24px;
+    height: 24px;
+    font-size: 11px;
+    flex-shrink: 0;
+  }
+
+  .quota-builder .stepper li:not(:last-child)::after {
+    display: none;
+  }
+
+
+  /* ==========================================================
+     STANDARD NAV TABS
+     ========================================================== */
+
+  .quota-builder .nav.nav-tabs.nav-tabs-lg {
+    display: flex;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    gap: 4px;
+    padding: 4px;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .quota-builder .nav.nav-tabs.nav-tabs-lg::-webkit-scrollbar {
+    display: none;
+  }
+
+  .quota-builder .nav.nav-tabs.nav-tabs-lg &gt; li {
+    flex: 0 0 auto;
+  }
+
+  .quota-builder .nav.nav-tabs.nav-tabs-lg &gt; li &gt; a {
+    padding: 7px 14px;
+    font-size: 11px;
+    white-space: nowrap;
+  }
+
+
+  /* ==========================================================
+     PANELS
+     ========================================================== */
+
+  .quota-builder .panel {
+    width: 100%;
+    max-width: 100%;
+    border-radius: 10px;
+    box-sizing: border-box;
+  }
+
+  .quota-builder .panel-heading {
+    margin-top: 0.5rem;
+    margin-left: 0;
+    padding: 11px 13px;
+  }
+
+  .quota-builder .panel-title {
+    font-size: 15px;
+    line-height: 1.3;
+  }
+
+  .quota-builder .m-b-xs {
+    font-size: 2rem;
+  }
+
+
+  /* ==========================================================
+     FORM LABELS
+     ========================================================== */
+
+  .quota-builder .control-label,
+  .quota-builder .control-label-section {
+    width: 100%;
+    padding-left: 0;
+    margin-bottom: 6px;
+    font-size: 11px;
+  }
+
+
+  /* ==========================================================
+     FORM CONTROLS
+     ========================================================== */
+
+  .quota-builder .form-control-a,
+  .quota-builder .form-control-section,
+  .quota-builder .form-control-dis,
+  .quota-builder .quota-month {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    font-size: 12px;
+  }
+
+  .quota-builder .form-control-section {
+    height: 38px;
+  }
+
+  .quota-builder .quota {
+    height: 38px;
+  }
+
+
+  /* ==========================================================
+     BUSINESS UNIT DROPDOWN
+     ========================================================== */
+
+  .quota-builder .custom-bu-dropdown {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .quota-builder .dropdown-header {
+    width: 100%;
+    min-height: 40px;
+    font-size: 12px;
+    box-sizing: border-box;
+  }
+
+  .quota-builder .dropdown-menu-bu {
+    max-height: 240px;
+    width: 100%;
+  }
+
+  .quota-builder .bu-parent {
+    padding: 8px 10px;
+    font-size: 11px;
+  }
+
+
+  /* ==========================================================
+     FIXED YEARLY CARD
+     ========================================================== */
+
+  .quota-builder .fixed-yearly-card {
+    padding: 14px;
+    margin-bottom: 14px;
+    border-radius: 10px;
+  }
+
+  .quota-builder .fixed-title {
+    font-size: 14px;
+  }
+
+  .quota-builder .fixed-subtitle {
+    font-size: 11px;
+    line-height: 1.45;
+  }
+
+  .quota-builder .fixed-value {
+    font-size: 23px;
+  }
+
+
+  /* ==========================================================
+     AUTO DISTRIBUTION
+     ========================================================== */
+
+  .quota-builder .auto-distribution-box {
+    padding: 14px;
+    border-radius: 8px;
+  }
+
+  .quota-builder .auto-distribution-box .header {
+    font-size: 14px;
+  }
+
+  .quota-builder .auto-distribution-box .label {
+    font-size: 11px;
+  }
+
+  .quota-builder .auto-distribution-box .value {
+    font-size: 16px;
+  }
+
+
+  /* ==========================================================
+     STEP 2 TABS
+     ========================================================== */
+
+  .quota-builder .tabs-container {
+    width: 100%;
+    display: flex;
+    overflow-x: auto;
+    overflow-y: hidden;
+    gap: 6px;
+    margin-bottom: 16px;
+    padding-bottom: 3px;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .quota-builder .tabs-container::-webkit-scrollbar {
+    display: none;
+  }
+
+  .quota-builder .tab {
+    flex: 0 0 auto;
+    margin-right: 0;
+    padding: 8px 12px;
+    font-size: 11px;
+    white-space: nowrap;
+  }
+
+
+  /* ==========================================================
+     SUCCESS BANNER
+     ========================================================== */
+
+  .quota-builder .success-banner {
+    padding: 11px 13px;
+    margin-bottom: 18px;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+
+  /* ==========================================================
+     YEARLY TOTAL
+     ========================================================== */
+
+  .quota-builder .yearly-total-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 7px;
+    padding: 14px;
+    margin-bottom: 16px;
+  }
+
+  .quota-builder .yearly-total-card-label {
+    font-size: 1.5rem !important;
+  }
+
+  .quota-builder .value-box {
+    font-size: 21px;
+  }
+
+
+  /* ==========================================================
+     QUARTER CARD
+     ========================================================== */
+
+  .quota-builder .quarter-card {
+    width: 100%;
+    border-radius: 10px;
+    margin-bottom: 14px;
+  }
+
+  .quota-builder .quarter-header {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 7px;
+    padding: 14px 14px 0;
+  }
+
+  .quota-builder .quarter-title {
+    font-size: 17px;
+  }
+
+  .quota-builder .quarter-sub {
+    font-size: 11px;
+  }
+
+  .quota-builder .quarter-total-head {
+    font-size: 11px;
+    padding: 5px 9px;
+  }
+
+  .quota-builder .quarter-total {
+    font-size: 12px;
+    padding: 5px 9px;
+  }
+
+
+  /* ==========================================================
+     MONTH TABLE
+     ========================================================== */
+
+  .quota-builder .month-css {
+    width: 100%;
+    max-width: 100%;
+    padding: 0 12px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    box-sizing: border-box;
+    overscroll-behavior-x: contain;
+  }
+
+  .quota-builder .month-table {
+    width: max-content;
+    min-width: 480px;
+    margin-top: 8px;
+  }
+
+  .quota-builder .month-table th,
+  .quota-builder .month-table td {
+    font-size: 10px;
+    white-space: nowrap;
+    padding: 8px 6px;
+  }
+
+  .quota-builder .quota-input {
+    width: 90px;
+    max-width: 90px;
+    padding: 6px 8px;
+    font-size: 11px;
+    box-sizing: border-box;
+  }
+
+
+  /* ==========================================================
+     QUARTER SUMMARY
+     ========================================================== */
+
+  .quota-builder .quarter-summary {
+    margin-top: 8px;
+  }
+
+  .quota-builder .summary-value {
+    font-size: 12px;
+  }
+
+
+  /* ==========================================================
+     DISTRIBUTION BOX
+     ========================================================== */
+
+  .quota-builder .distribution-box {
+    width: 100%;
+    padding: 15px;
+    border-radius: 10px;
+    box-sizing: border-box;
+  }
+
+  .quota-builder .distribution-box .header-row {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 7px;
+  }
+
+  .quota-builder .left-title {
+    font-size: 15px;
+    line-height: 1.35;
+  }
+
+  .quota-builder .right-total {
+    font-size: 17px;
+  }
+
+  .quota-builder .sub-title {
+    font-size: 13px;
+  }
+
+  .quota-builder .divider {
+    margin: 12px 0;
+  }
+
+
+  /* ==========================================================
+     QUARTER GRID
+     ========================================================== */
+
+  .quota-builder .quarter-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 9px;
+  }
+
+  .quota-builder .quarter-cards {
+    padding: 13px 9px;
+    border-radius: 8px;
+    min-width: 0;
+  }
+
+  .quota-builder .quarter-name {
+    font-size: 13px;
+  }
+
+  .quota-builder .quarter-value {
+    margin-top: 6px;
+    font-size: 12px;
+  }
+
+
+  /* ==========================================================
+     MODALS
+     ========================================================== */
+
+  .quota-builder .modal {
+    padding-left: 6px;
+    padding-right: 6px;
+    overflow-y: auto;
+  }
+
+  .quota-builder .modal-dialog {
+    width: auto;
+    max-width: calc(100% - 12px);
+    margin: 8px auto;
+  }
+
+  .quota-builder .modal-content {
+    width: 100%;
+    border-radius: 10px;
+  }
+
+
+  /* ==========================================================
+     MOBILE SAFETY
+     ========================================================== */
+
+  .quota-builder *,
+  .quota-builder *::before,
+  .quota-builder *::after {
+    box-sizing: border-box;
+  }
+
+  .quota-builder input,
+  .quota-builder select,
+  .quota-builder textarea,
+  .quota-builder button {
+    max-width: 100%;
+  }
+
+  .quota-builder {
+    overflow-x: hidden;
+  }
+}
+
+
+/* ============================================================
+   SMALL PHONES
+   ============================================================ */
+@media (max-width: 480px) {
+
+  .quota-builder {
+    padding: 0 7px;
+  }
+
+  .quota-builder .qb-page-title {
+    font-size: 1.8rem;
+  }
+
+  .quota-builder .qb-back-btn {
+    width: 32px;
+    height: 32px;
+  }
+
+
+  /* Progress */
+  .quota-builder .quota-progress .progress-steps {
+    min-width: 520px;
+  }
+
+  .quota-builder .quota-progress .step-number {
+    width: 145px !important;
+    font-size: 9px;
+  }
+
+  .quota-builder .quota-progress .progress-connector {
+    width: 30px !important;
+  }
+
+
+  /* Forms */
+  .quota-builder .form-control-a,
+  .quota-builder .form-control-section,
+  .quota-builder .form-control-dis {
+    font-size: 11px;
+  }
+
+  .quota-builder .control-label,
+  .quota-builder .control-label-section {
+    font-size: 10px;
+  }
+
+
+  /* Fixed card */
+  .quota-builder .fixed-value {
+    font-size: 21px;
+  }
+
+
+  /* Quarter */
+  .quota-builder .quarter-title {
+    font-size: 16px;
+  }
+
+  .quota-builder .right-total {
+    font-size: 16px;
+  }
+
+
+  /* Month table */
+  .quota-builder .month-table {
+    min-width: 450px;
+  }
+
+  .quota-builder .month-table th,
+  .quota-builder .month-table td {
+    font-size: 9px;
+    padding: 7px 5px;
+  }
+
+  .quota-builder .quota-input {
+    width: 82px;
+    max-width: 82px;
+  }
+
+
+  /* Distribution */
+  .quota-builder .distribution-box {
+    padding: 12px;
+  }
+
+  .quota-builder .quarter-grid {
+    gap: 7px;
+  }
+
+  .quota-builder .quarter-cards {
+    padding: 11px 7px;
+  }
+
+  .quota-builder .quarter-name {
+    font-size: 12px;
+  }
+
+  .quota-builder .quarter-value {
+    font-size: 11px;
+  }
+}
+
+
+/* ============================================================
+   EXTRA SMALL PHONES
+   ============================================================ */
+@media (max-width: 360px) {
+
+  .quota-builder {
+    padding: 0 5px;
+  }
+
+  .quota-builder .qb-page-title {
+    font-size: 1.65rem;
+  }
+
+  .quota-builder .m-b-xs {
+    font-size: 1.8rem;
+  }
+
+  .quota-builder .fixed-yearly-card {
+    padding: 12px;
+  }
+
+  .quota-builder .fixed-value {
+    font-size: 19px;
+  }
+
+
+  /* Progress */
+  .quota-builder .quota-progress .progress-steps {
+    min-width: 490px;
+  }
+
+  .quota-builder .quota-progress .step-number {
+    width: 135px !important;
+    font-size: 9px;
+  }
+
+
+  /* Quarter summary -&gt; one column */
+  .quota-builder .quarter-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .quota-builder .quarter-cards {
+    text-align: left;
+  }
+
+
+  /* Month table remains horizontally scrollable */
+  .quota-builder .month-table {
+    min-width: 420px;
+  }
+
+
+  /* Modal */
+  .quota-builder .modal-dialog {
+    max-width: calc(100% - 8px);
+    margin: 5px auto;
+  }
+}
+
+/* ============================================================
+   FINAL MOBILE BUTTON ALIGNMENT
+   ============================================================ */
+
+@media (max-width: 767px) {
+
+  .quota-builder .text-right {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    flex-wrap: wrap;
+    width: 100%;
+  }
+
+  .quota-builder .text-right .btn {
+    flex: 0 1 auto;
+    white-space: nowrap;
+    margin: 0;
+  }
+
+}
+
+
+/* ============================================================
+   SMALL PHONE BUTTON ALIGNMENT
+   ============================================================ */
+
+@media (max-width: 480px) {
+
+  .quota-builder .text-right {
+    justify-content: stretch;
+  }
+
+  .quota-builder .text-right .btn {
+    flex: 1 1 0;
+    min-width: 0;
+    text-align: center;
+  }
+
+}
+
+
+/* ============================================================
+   VERY SMALL PHONE
+   ============================================================ */
+
+@media (max-width: 360px) {
+
+  .quota-builder .text-right {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .quota-builder .text-right .btn {
+    width: 100%;
+    flex: none;
+  }
+
 }</css>
         <data_table>sp_instance</data_table>
         <demo_data/>
@@ -1202,6 +2066,9 @@ textarea::placeholder {
     data.isTerritoryEnabled =
         new x_ctans_incentnow.IncentNowUtils().isTerritoryExtensionActive() === true;
 		var TERRITORY_FIELD = 'x_ctans_territory_territory';
+	
+		data.currencySymbol = gs.getProperty('x_ctans_incentnow.currency_symbol', '$');
+		data.currencyPosition = gs.getProperty('x_ctans_incentnow.currency_position','before');
 
     //data.incentnowAdForm= $sp.getWidget('incentnow-form-advanced',{table:"x_ctans_incentnow_quota",view:""});
     /* ================= FISCAL CALENDAR ================= */
@@ -1785,14 +2652,14 @@ textarea::placeholder {
         <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
         <sys_created_on>2026-03-27 06:22:02</sys_created_on>
         <sys_id>ce05c3b23b3bfad05493ddb693e45ac3</sys_id>
-        <sys_mod_count>402</sys_mod_count>
+        <sys_mod_count>411</sys_mod_count>
         <sys_name>Quota Builder</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
         <sys_update_name>sp_widget_ce05c3b23b3bfad05493ddb693e45ac3</sys_update_name>
         <sys_updated_by>shroin.mandal</sys_updated_by>
-        <sys_updated_on>2026-07-29 09:25:10</sys_updated_on>
+        <sys_updated_on>2026-08-25 08:33:08</sys_updated_on>
         <template><![CDATA[<div class="quota-builder">
 
   <!-- Header -->
@@ -1943,7 +2810,7 @@ textarea::placeholder {
                         ng-disabled="c.data.isEdit && !c.isDraft">
 
                   <option value="">Select Type</option>
-                  <option value="currency">$ Currency</option>
+                  <option value="currency">{{ c.getSymbol() }}Currency</option>
                   <option value="number">Number</option>
 
                 </select>
@@ -2098,15 +2965,21 @@ textarea::placeholder {
               <div class="row">
                 <div class="col-sm-4">
                   <div class="label">Yearly Total:</div>
-                  <div class="value">{{ c.getSymbol() }}{{ c.auto.yearlyTotal | number:0 }}</div>
+                  <div class="value">
+                    {{ c.quotaModel.valueType == 'currency' && c.data.currencyPosition != 'after' ? c.data.currencySymbol : '' }}{{ c.auto.yearlyTotal | number:0 }}{{ c.quotaModel.valueType == 'currency' && c.data.currencyPosition == 'after' ? c.data.currencySymbol : '' }}
+                  </div>
                 </div>
                 <div class="col-sm-4">
                   <div class="label">Per Quarter:</div>
-                  <div class="value">{{ c.getSymbol() }}{{c.auto.perQuarter}}</div>
+                  <div class="value">
+                    {{ c.quotaModel.valueType == 'currency' && c.data.currencyPosition != 'after' ? c.data.currencySymbol : '' }}{{c.auto.perQuarter}}{{ c.quotaModel.valueType == 'currency' && c.data.currencyPosition == 'after' ? c.data.currencySymbol : '' }}
+                  </div>
                 </div>
                 <div class="col-sm-4">
                   <div class="label">Per Month:</div>
-                  <div class="value">{{ c.getSymbol() }}{{c.auto.perMonth}}</div>
+                  <div class="value">
+                  	{{ c.quotaModel.valueType == 'currency' && c.data.currencyPosition != 'after' ? c.data.currencySymbol : '' }}{{c.auto.perMonth}}{{ c.quotaModel.valueType == 'currency' && c.data.currencyPosition == 'after' ? c.data.currencySymbol : '' }}
+                  </div>
                 </div>
               </div>
             </div>
@@ -2135,7 +3008,7 @@ textarea::placeholder {
           As per quota definition, Yearly Quota Value:
         </label>
         <div class="value-box quota-value-success">
-          {{ c.getSymbol() }}{{
+          {{ c.quotaModel.valueType == 'currency' && c.data.currencyPosition != 'after' ? c.data.currencySymbol : '' }}{{
             c.quotaModel.frequency === 'annually'
               ? ((c.quotaModel.yearlyValue || 0) | number:2)
 
@@ -2143,7 +3016,7 @@ textarea::placeholder {
                 ? (((c.quotaModel.quarterlyValue || 0) * 4) | number:2)
 
                 : (((c.quotaModel.monthlyValue || 0) * 12) | number:2)
-          }}
+          }}{{ c.quotaModel.valueType == 'currency' && c.data.currencyPosition == 'after' ? c.data.currencySymbol : '' }}
         </div>
       </div>
 
@@ -2157,7 +3030,7 @@ textarea::placeholder {
                'quota-value-success': !c.isDistributionMismatch(),
                'quota-value-danger': c.isDistributionMismatch()
              }">
-          {{ c.getSymbol() }}{{ c.auto.yearlyTotal | number:2 }}
+          {{ c.quotaModel.valueType == 'currency' && c.data.currencyPosition != 'after' ? c.data.currencySymbol : '' }}{{ c.auto.yearlyTotal | number:2 }}{{ c.quotaModel.valueType == 'currency' && c.data.currencyPosition == 'after' ? c.data.currencySymbol : '' }}
         </div>
       </div>
 
@@ -2169,7 +3042,7 @@ textarea::placeholder {
             <div class="quarter-sub">{{ q.range }}</div>
           </div>
           <div class="quarter-total">
-            Quarter Total: {{ c.getSymbol() }}{{ q.total | number:2 }}
+            Quarter Total: {{ c.quotaModel.valueType == 'currency' && c.data.currencyPosition != 'after' ? c.data.currencySymbol : '' }}{{ q.total | number:2 }}{{ c.quotaModel.valueType == 'currency' && c.data.currencyPosition == 'after' ? c.data.currencySymbol : '' }}
           </div>
         </div>
         <div class="month-css">
@@ -2192,7 +3065,7 @@ textarea::placeholder {
             </tr>
             <tr class="quarter-summary">
               <td><strong>Quarter Total</strong></td>
-              <td class="summary-value"> {{ c.getSymbol() }}{{ q.total | number:2 }} </td>
+              <td class="summary-value"> {{ c.quotaModel.valueType == 'currency' && c.data.currencyPosition != 'after' ? c.data.currencySymbol : '' }}{{ q.total | number:2 }}{{ c.quotaModel.valueType == 'currency' && c.data.currencyPosition == 'after' ? c.data.currencySymbol : '' }} </td>
             </tr>
           </table>
         </div>
@@ -2201,26 +3074,26 @@ textarea::placeholder {
       <div class="distribution-box">
         <div class="header-row">
           <div class="left-title">Distribution Summary</div>
-          <div class="right-total">{{ c.getSymbol() }}{{ c.auto.yearlyTotal | number:0 }}</div>
+          <div class="right-total">{{ c.quotaModel.valueType == 'currency' && c.data.currencyPosition != 'after' ? c.data.currencySymbol : '' }}{{ c.auto.yearlyTotal | number:0 }}{{ c.quotaModel.valueType == 'currency' && c.data.currencyPosition == 'after' ? c.data.currencySymbol : '' }}</div>
         </div>
         <div class="sub-title">Total Yearly Quota:</div>
         <hr class="divider">
         <div class="quarter-grid">
           <div class="quarter-cards">
             <div class="quarter-name">Q1</div>
-            <div class="quarter-value">{{ c.getSymbol() }}{{ c.auto.quarters[0].total | number:2 }}</div>
+            <div class="quarter-value">{{ c.quotaModel.valueType == 'currency' && c.data.currencyPosition != 'after' ? c.data.currencySymbol : '' }}{{ c.auto.quarters[0].total | number:2 }}{{ c.quotaModel.valueType == 'currency' && c.data.currencyPosition == 'after' ? c.data.currencySymbol : '' }}</div>
           </div>
           <div class="quarter-cards">
             <div class="quarter-name">Q2</div>
-            <div class="quarter-value">{{ c.getSymbol() }}{{c.auto.quarters[1].total | number:2}}</div>
+            <div class="quarter-value">{{ c.quotaModel.valueType == 'currency' && c.data.currencyPosition != 'after' ? c.data.currencySymbol : '' }}{{c.auto.quarters[1].total | number:2}}{{ c.quotaModel.valueType == 'currency' && c.data.currencyPosition == 'after' ? c.data.currencySymbol : '' }}</div>
           </div>
           <div class="quarter-cards">
             <div class="quarter-name">Q3</div>
-            <div class="quarter-value">{{ c.getSymbol() }}{{c.auto.quarters[2].total | number:2}}</div>
+            <div class="quarter-value">{{ c.quotaModel.valueType == 'currency' && c.data.currencyPosition != 'after' ? c.data.currencySymbol : '' }}{{c.auto.quarters[2].total | number:2}}{{ c.quotaModel.valueType == 'currency' && c.data.currencyPosition == 'after' ? c.data.currencySymbol : '' }}</div>
           </div>
           <div class="quarter-cards">
             <div class="quarter-name">Q4</div>
-            <div class="quarter-value">{{ c.getSymbol() }}{{c.auto.quarters[3].total | number:2}}</div>
+            <div class="quarter-value">{{ c.quotaModel.valueType == 'currency' && c.data.currencyPosition != 'after' ? c.data.currencySymbol : '' }}{{c.auto.quarters[3].total | number:2}}{{ c.quotaModel.valueType == 'currency' && c.data.currencyPosition == 'after' ? c.data.currencySymbol : '' }}</div>
           </div>
         </div>
       </div>
@@ -2264,7 +3137,7 @@ textarea::placeholder {
         <div class="col-md-3">
           <div class="panel panel-default">
             <div class="panel-body text-center">
-              <h3 class="m-t-none text-success">${{c.getTotalQuota()}}K</h3>
+              <h3 class="m-t-none text-success">{{ c.quotaModel.valueType == 'currency' && c.data.currencyPosition != 'after' ? c.data.currencySymbol : '' }}{{c.getTotalQuota()}}K{{ c.quotaModel.valueType == 'currency' && c.data.currencyPosition == 'after' ? c.data.currencySymbol : '' }}</h3>
               <p class="text-muted small m-b-none">Total Quota</p>
             </div>
           </div>
@@ -2272,7 +3145,7 @@ textarea::placeholder {
         <div class="col-md-3">
           <div class="panel panel-default">
             <div class="panel-body text-center">
-              <h3 class="m-t-none text-info">${{c.getAverageQuota()}}K</h3>
+              <h3 class="m-t-none text-info">{{ c.quotaModel.valueType == 'currency' && c.data.currencyPosition != 'after' ? c.data.currencySymbol : '' }}{{c.getAverageQuota()}}K{{ c.quotaModel.valueType == 'currency' && c.data.currencyPosition == 'after' ? c.data.currencySymbol : '' }}</h3>
               <p class="text-muted small m-b-none">Average Quota</p>
             </div>
           </div>

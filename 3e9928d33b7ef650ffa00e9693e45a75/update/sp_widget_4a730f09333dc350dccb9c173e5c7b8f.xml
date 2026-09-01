@@ -330,6 +330,7 @@
 		data.quotaCount = 0;
 		data.planCount = 0;
 		data.statementCount = 0;
+		data.participantCount = 0;
     data.ids = [];
     data.showApprovals = true;
 
@@ -436,6 +437,13 @@
 													target.getUniqueValue() +
 													"&approval_id=" + approval.getUniqueValue();
 								break;
+						
+						case "x_ctans_incentnow_participant_assignment":
+								row.url = "?id=YOUR_PARTICIPANT_PAGE" +
+										"&table=x_ctans_incentnow_participant_assignment" +
+										"&sys_id=" + target.getUniqueValue() +
+										"&approval_id=" + approval.getUniqueValue();
+								break;
 
 						default:
 								row.url = "";
@@ -464,6 +472,11 @@
 				case "x_ctans_incentnow_incentive_statement":
 						row.type = "statement";
 						data.statementCount++;
+						break;
+					
+				case "x_ctans_incentnow_participant_assignment":
+						row.type = "participant";
+						data.participantCount++;
 						break;
 
 				default:
@@ -554,14 +567,14 @@
         <sys_created_by>shroin.mandal</sys_created_by>
         <sys_created_on>2026-06-29 05:50:08</sys_created_on>
         <sys_id>4a730f09333dc350dccb9c173e5c7b8f</sys_id>
-        <sys_mod_count>42</sys_mod_count>
+        <sys_mod_count>43</sys_mod_count>
         <sys_name>IncentIQ Approvals</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy/>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
         <sys_update_name>sp_widget_4a730f09333dc350dccb9c173e5c7b8f</sys_update_name>
         <sys_updated_by>shroin.mandal</sys_updated_by>
-        <sys_updated_on>2026-07-29 07:17:59</sys_updated_on>
+        <sys_updated_on>2026-08-25 06:27:04</sys_updated_on>
         <template><![CDATA[<div class="panel panel-default" ng-if="data.showApprovals">
 
     <div class="panel-heading">
@@ -616,6 +629,13 @@
               ng-click="setTab('statement')">
 
               Statements ({{data.statementCount}})
+          </button>
+        
+        	<button
+              ng-class="{active:activeTab=='participant'}"
+              ng-click="setTab('participant')">
+
+              Participants ({{data.participantCount}})
           </button>
 
       </div>

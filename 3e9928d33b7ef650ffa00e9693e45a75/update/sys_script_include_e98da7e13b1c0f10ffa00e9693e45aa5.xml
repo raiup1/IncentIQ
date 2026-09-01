@@ -151,12 +151,21 @@ IncentNowUtils.prototype = {
     },
 
     _isTerritoryExtensionActive: function() {
-        // Return cached value if already evaluated for better performance as same script is called multiple times from Widgets, Flow and Client Scripts
 
         if (this._territoryAvailable !== null)
             return this._territoryAvailable;
 
         try {
+
+            // System properties are returned as strings.
+            var useTerritory = this._getProp('x_ctans_incentnow.business_dimension_territory','false') === 'true';
+
+            // If territory functionality is disabled by configuration,
+            // no need to perform additional checks.
+            if (!useTerritory) {
+                this._territoryAvailable = false;
+                return false;
+            }
             var extensionInstalled = this._isApplicationInstalled(
                 this.TERRITORY_EXTENSION_SCOPE
             );
@@ -169,7 +178,7 @@ IncentNowUtils.prototype = {
                 this.SALES_TERRITORY_PLUGIN_ID
             );
 
-            this._territoryAvailable = extensionInstalled && pluginActive;
+            this._territoryAvailable = extensionInstalled && pluginActive && useTerritory;
 
         } catch (e) {
             gs.error(
@@ -179,6 +188,17 @@ IncentNowUtils.prototype = {
             this._territoryAvailable = false;
         }
         return this._territoryAvailable;
+    },
+    //  Property fallback only when empty/null
+    _getProp: function(name, defaultValue) {
+
+        var val = gs.getProperty(name);
+
+        if (val === null || val === undefined || val === '') {
+            return defaultValue;
+        }
+
+        return val;
     },
 
     _isApplicationInstalled: function(applicationScope) {
@@ -230,13 +250,13 @@ IncentNowUtils.prototype = {
         <sys_created_by>upma.rai</sys_created_by>
         <sys_created_on>2026-04-17 08:37:05</sys_created_on>
         <sys_id>e98da7e13b1c0f10ffa00e9693e45aa5</sys_id>
-        <sys_mod_count>64</sys_mod_count>
+        <sys_mod_count>66</sys_mod_count>
         <sys_name>IncentNowUtils</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
         <sys_update_name>sys_script_include_e98da7e13b1c0f10ffa00e9693e45aa5</sys_update_name>
         <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
-        <sys_updated_on>2026-07-22 07:22:34</sys_updated_on>
+        <sys_updated_on>2026-08-26 06:46:45</sys_updated_on>
     </sys_script_include>
 </record_update>

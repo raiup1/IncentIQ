@@ -23,7 +23,7 @@
             <name>x_ctans_incentnow_plan_users</name>
             <parent>x_ctans_incentnow_plan</parent>
             <position/>
-            <relationship display_value="Plan Users">e08bfb213bdc0f10ffa00e9693e45a0e</relationship>
+            <relationship display_value="Plan Assigments">e08bfb213bdc0f10ffa00e9693e45a0e</relationship>
             <sum>false</sum>
             <sys_class_name>sys_ui_list</sys_class_name>
             <sys_created_by>upma.rai</sys_created_by>

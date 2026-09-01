@@ -110,10 +110,20 @@
 		};
 
 	 /* Formatting currency without $scope */
-    this.formatCurrency = function(num) {
-        if (!num) return "$0";
-        return "$" + Number(num).toLocaleString();
-    };
+    c.currencySymbol = c.data.currencySymbol;
+		c.currencyPosition = c.data.currencyPosition || 'before';
+
+		this.formatCurrency = function(num) {
+
+				num = Number(num) || 0;
+				var formatted = num.toLocaleString();
+
+				if (c.currencyPosition == "after") {
+						return formatted + c.currencySymbol;
+				}
+
+				return c.currencySymbol + formatted;
+		};
 	
 		// Approval Flow Pagination
 		c.approvalCurrentPage = 1;
@@ -506,6 +516,509 @@
   font-weight: 600 !important;
 }
 
+}
+/* ============================================================
+   INCENTIVE STATEMENTS
+   MOBILE RESPONSIVE OVERRIDES
+   Existing HTML / Angular / JS untouched
+   ============================================================ */
+
+
+/* ------------------------------------------------------------
+   TABLET
+   ------------------------------------------------------------ */
+@media (max-width: 991px) {
+
+  .incentive-statements {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  /* Header */
+  .incentive-statements .statement-headers {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .incentive-statements .actions {
+    flex-wrap: wrap;
+  }
+
+  /* Stats */
+  .incentive-statements .stats-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .incentive-statements .stat-box {
+    min-width: 0;
+  }
+
+  /* Cards */
+  .incentive-statements .card-box {
+    margin: 8px;
+  }
+
+  /* Tables */
+  .incentive-statements .panel-body {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .incentive-statements .table {
+    min-width: 700px;
+  }
+
+  /* Bootstrap columns */
+  .incentive-statements .col-md-3 {
+    width: 50%;
+  }
+}
+
+
+/* ------------------------------------------------------------
+   MOBILE
+   ------------------------------------------------------------ */
+@media (max-width: 767px) {
+
+  .incentive-statements {
+    width: 100%;
+    max-width: 100%;
+    padding: 0 8px;
+    box-sizing: border-box;
+    overflow-x: hidden;
+  }
+
+
+  /* ==========================================================
+     PAGE / HEADING
+     ========================================================== */
+
+  .incentive-statements .h2 {
+    font-size: 2.1rem;
+    line-height: 1.2;
+  }
+
+  .incentive-statements .heading {
+    margin-left: 0;
+    font-size: 1.25rem;
+  }
+
+  .incentive-statements .statement {
+    margin-left: 0;
+    font-size: 12px;
+  }
+
+  .incentive-statements .btn-generate {
+    width: 100%;
+    justify-content: center;
+    min-height: 40px;
+    padding: 8px 14px;
+    font-size: 12px;
+  }
+
+
+  /* ==========================================================
+     STAT CARDS
+     ========================================================== */
+
+  .incentive-statements .stats-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .incentive-statements .stat-box {
+    width: 100%;
+    min-width: 0;
+    padding: 14px;
+    border-radius: 10px;
+  }
+
+  .incentive-statements .box {
+    font-size: 11px;
+    line-height: 1.35;
+    margin-bottom: 8px;
+  }
+
+  .incentive-statements .set {
+    font-size: 2.1rem !important;
+    line-height: 1.1;
+    margin-bottom: 6px;
+    overflow-wrap: anywhere;
+  }
+
+  .incentive-statements .stat-box h3 {
+    font-size: 2.2rem;
+    line-height: 1.1;
+  }
+
+  .incentive-statements .stat-box span {
+    font-size: 10px;
+    line-height: 1.4;
+  }
+
+
+  /* ==========================================================
+     FILTER / STATEMENT HEADER
+     ========================================================== */
+
+  .incentive-statements .statement-header {
+    padding: 14px;
+    margin-bottom: 14px;
+    border-radius: 9px;
+  }
+
+  .incentive-statements .statement-headers {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding: 10px 0;
+  }
+
+  .incentive-statements .left-info h2 {
+    font-size: 17px;
+    line-height: 1.3;
+  }
+
+  .incentive-statements .status-chip {
+    font-size: 10px;
+    padding: 3px 8px;
+  }
+
+  .incentive-statements .actions {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+
+  /* ==========================================================
+     BUTTONS
+     ========================================================== */
+
+  .incentive-statements .btn-xs {
+    min-height: 36px;
+    height: 36px;
+    padding: 0 10px;
+    font-size: 11px;
+  }
+
+  .incentive-statements .btn-light,
+  .incentive-statements .btn-dark {
+    min-height: 38px;
+    font-size: 12px;
+  }
+
+
+  /* ==========================================================
+     PANEL
+     ========================================================== */
+
+  .incentive-statements .panel {
+    width: 100%;
+    max-width: 100%;
+    border-radius: 10px;
+  }
+
+  .incentive-statements .panel-body {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    padding: 12px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .incentive-statements .panel-head {
+    margin: 14px 0 8px 0 !important;
+    padding: 0;
+  }
+
+  .incentive-statements .panel-tile.ng-binding {
+    margin: 14px 0 8px 0 !important;
+    font-size: 1.3rem !important;
+  }
+
+
+  /* ==========================================================
+     TABLE
+     ========================================================== */
+
+  .incentive-statements .table {
+    min-width: 700px;
+    margin-bottom: 0;
+  }
+
+  .incentive-statements .table th,
+  .incentive-statements .table td {
+    font-size: 11px;
+    padding: 8px 9px;
+    vertical-align: middle;
+    white-space: nowrap;
+  }
+
+  .incentive-statements .table th {
+    font-size: 10px;
+  }
+
+  .incentive-statements .table code {
+    font-size: 10px;
+  }
+
+  .incentive-statements .badge-success {
+    font-size: 10px;
+    padding: 3px 7px;
+  }
+
+
+  /* ==========================================================
+     CARD BOX
+     ========================================================== */
+
+  .incentive-statements .card-box {
+    width: 100%;
+    max-width: 100%;
+    margin: 8px 0;
+    padding: 14px;
+    border-radius: 9px;
+    box-sizing: border-box;
+  }
+
+  .incentive-statements .box-header {
+    font-size: 12px;
+  }
+
+  .incentive-statements .box-amount {
+    font-size: 2rem;
+    margin-top: 1.5rem;
+  }
+
+  .incentive-statements .box-sub {
+    font-size: 11px;
+  }
+
+
+  /* ==========================================================
+     PERIOD COMPARISON
+     ========================================================== */
+
+  .incentive-statements .period-compare-row .row-item {
+    gap: 8px;
+    margin-bottom: 7px;
+  }
+
+  .incentive-statements .label-txt,
+  .incentive-statements .value-txt {
+    font-size: 11px;
+  }
+
+
+  /* ==========================================================
+     PROGRESS
+     ========================================================== */
+
+  .incentive-statements .progress {
+    height: 5px;
+  }
+
+
+  /* ==========================================================
+     DESCRIPTION
+     ========================================================== */
+
+  .incentive-statements .desc {
+    font-size: 11px;
+    line-height: 1.5;
+  }
+
+
+  /* ==========================================================
+     MODAL
+     ========================================================== */
+
+  .incentive-statements .modal {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  .incentive-statements .modal-dialog {
+    width: auto;
+    max-width: 100%;
+    margin: 10px auto;
+  }
+
+  .incentive-statements .modal-content {
+    border-radius: 10px;
+  }
+
+
+  /* ==========================================================
+     BOOTSTRAP COLUMNS
+     ========================================================== */
+
+  .incentive-statements .col-sm-3 {
+    width: 50%;
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  .incentive-statements .col-md-3 {
+    width: 50%;
+  }
+}
+
+
+/* ------------------------------------------------------------
+   SMALL PHONES
+   ------------------------------------------------------------ */
+@media (max-width: 480px) {
+
+  .incentive-statements {
+    padding: 0 6px;
+  }
+
+  .incentive-statements .h2 {
+    font-size: 1.9rem;
+  }
+
+  .incentive-statements .heading {
+    font-size: 1.15rem;
+  }
+
+  .incentive-statements .statement {
+    font-size: 11px;
+  }
+
+
+  /* Stats */
+  .incentive-statements .stats-row {
+    gap: 8px;
+  }
+
+  .incentive-statements .stat-box {
+    padding: 11px;
+  }
+
+  .incentive-statements .box {
+    font-size: 10px;
+  }
+
+  .incentive-statements .set {
+    font-size: 1.8rem !important;
+  }
+
+  .incentive-statements .stat-box h3 {
+    font-size: 1.9rem;
+  }
+
+  .incentive-statements .stat-box span {
+    font-size: 9px;
+  }
+
+
+  /* Buttons */
+  .incentive-statements .actions {
+    gap: 5px;
+  }
+
+  .incentive-statements .btn-xs {
+    font-size: 10px;
+    padding: 0 8px;
+  }
+
+
+  /* Table */
+  .incentive-statements .table {
+    min-width: 620px;
+  }
+
+  .incentive-statements .table th,
+  .incentive-statements .table td {
+    font-size: 10px;
+    padding: 7px 8px;
+  }
+
+
+  /* Card */
+  .incentive-statements .card-box {
+    padding: 12px;
+  }
+
+  .incentive-statements .box-amount {
+    font-size: 1.8rem;
+  }
+}
+
+
+/* ------------------------------------------------------------
+   EXTRA SMALL PHONES
+   ------------------------------------------------------------ */
+@media (max-width: 360px) {
+
+  .incentive-statements {
+    padding: 0 5px;
+  }
+
+  .incentive-statements .stats-row {
+    grid-template-columns: 1fr;
+  }
+
+  .incentive-statements .set {
+    font-size: 1.9rem !important;
+  }
+
+  .incentive-statements .stat-box h3 {
+    font-size: 2rem;
+  }
+
+  .incentive-statements .table {
+    min-width: 580px;
+  }
+
+  .incentive-statements .card-box {
+    padding: 10px;
+  }
+
+  .incentive-statements .box-amount {
+    font-size: 1.7rem;
+  }
+}
+
+
+/* ------------------------------------------------------------
+   MOBILE SAFETY
+   ------------------------------------------------------------ */
+@media (max-width: 767px) {
+
+  .incentive-statements,
+  .incentive-statements .panel,
+  .incentive-statements .panel-body,
+  .incentive-statements .card-box,
+  .incentive-statements .statement-header {
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  /*
+     Prevent the complete ServiceNow page from becoming
+     horizontally scrollable.
+  */
+  .incentive-statements {
+    overflow-x: hidden;
+  }
+
+  /*
+     Tables scroll independently when their columns need
+     more width than the phone.
+  */
+  .incentive-statements .panel-body {
+    overscroll-behavior-x: contain;
+  }
 }</css>
         <data_table>sp_instance</data_table>
         <demo_data/>
@@ -526,18 +1039,19 @@
     /* populate the 'data' object */
     /* e.g., data.table = $sp.getValue('table'); */
     // Check if user is admin
+		data.currencySymbol = gs.getProperty('x_ctans_incentnow.currency_symbol', '$');
+		data.currencyPosition = gs.getProperty('x_ctans_incentnow.currency_position', 'before');
 		data.tableWidget=$sp.getWidget('incentnow-table-widget',{ table: 'x_ctans_incentnow_incentive_statement',view:'portal_view',viewperiod:'false'});
     data.isAdmin =
     gs.hasRole('x_ctans_incentnow.admin') ||
     gs.hasRole('x_ctans_incentnow.manager') ||
 		gs.hasRole('x_ctans_incentnow.business_group_executive') ||
 		gs.hasRole('x_ctans_incentnow.business_group_admin') ||
-		gs.hasRole('x_ctans_incentnow.territory_admin') ||
 		gs.hasRole('x_ctans_incentnow.org_executive');
 		//data.isAdmin = gs.hasRole('snc_internal'); 
 
-		data.isIncentGroupAdmin =
-    gs.hasRole('x_ctans_incentnow.business_group_admin') || gs.hasRole('x_ctans_incentnow.territory_admin');
+		data.isIncentBusinessGroupAdmin =
+    gs.hasRole('x_ctans_incentnow.admin') || gs.hasRole('x_ctans_incentnow.business_group_admin') || gs.hasRole('x_ctans_incentnow.territory_admin');
     // Get statements
 		data.statements = [];
 		var stmtGR = new GlideRecordSecure('x_ctans_incentnow_incentive_statement');
@@ -791,14 +1305,14 @@
         <sys_created_by>karan.kumar</sys_created_by>
         <sys_created_on>2026-03-17 04:33:20</sys_created_on>
         <sys_id>1a3c03ef3baffa50ffa00e9693e45ae4</sys_id>
-        <sys_mod_count>396</sys_mod_count>
+        <sys_mod_count>404</sys_mod_count>
         <sys_name>Incentive Statements</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
         <sys_update_name>sp_widget_1a3c03ef3baffa50ffa00e9693e45ae4</sys_update_name>
         <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
-        <sys_updated_on>2026-07-28 17:35:23</sys_updated_on>
+        <sys_updated_on>2026-08-31 17:20:09</sys_updated_on>
         <template><![CDATA[<div class="incentive-statements">
   <!-- Header -->
   <div class="row m-b-lg">
@@ -807,7 +1321,7 @@
       <p>Commission statements and payment details</p>
     </div>
     <div class="col-sm-4 text-right">
-      <button class="btn btn-generate" ng-click="c.generateStatements()" ng-if="data.isIncentGroupAdmin">
+      <button class="btn btn-generate" ng-click="c.generateStatements()" ng-if="data.isIncentBusinessGroupAdmin || data.isAdmin">
         <i class="fa fa-refresh"></i> Generate Statements
       </button>
     </div>
@@ -825,7 +1339,7 @@
     <div class="stat-box">
       <p class="box">Statements Generated</p>
       <p class="set">{{data.statementStats.generated}}</p>
-      <span>Active Generated Statemets</span>
+      <span>Active Generated Statements</span>
     </div>
     <div class="stat-box">
       <p class="box">Pending Statements</p>
@@ -834,8 +1348,8 @@
     </div>
     <div class="stat-box">
       <p class="box">Total Commission</p>
-      <p class="set">$ {{data.statementStats.totalCommission | number:2}}</p>
-      <span>Across all Published Statemets</span>
+      <p class="set">{{c.formatCurrency(data.statementStats.totalCommission)}}</p>
+      <span>Across all Published Statements</span>
     </div>
   </div>
 

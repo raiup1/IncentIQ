@@ -5,7 +5,7 @@
         <api_name>x_ctans_incentnow.IncentNowStatementHelper</api_name>
         <caller_access/>
         <client_callable>false</client_callable>
-        <description>This helper script is supports Incentive Statement Generation</description>
+        <description>This helper script is supports Incentive Statement Generation.</description>
         <mobile_callable>false</mobile_callable>
         <name>IncentNowStatementHelper</name>
         <sandbox_callable>false</sandbox_callable>
@@ -15,62 +15,158 @@ IncentNowStatementHelper.prototype = {
     initialize: function() {},
 
     // ==========================================
-    // MAIN API
+    // MAIN API - QTD / YTD
     // ==========================================
-    getQTDAndYTD: function(user, plan, periodId) {
+  getQTDAndYTD: function(user, periodId) {
 
-        var result = {
-            qtd_commission: 0,
-            ytd_commission: 0
-        };
+    var result = {
+        qtd_commission: 0,
+        ytd_commission: 0
+    };
 
-        if (!user || !plan || !periodId)
-            return result;
-
-        var periodGR = new GlideRecordSecure('x_ctans_incentnow_fiscal_period');
-        if (!periodGR.get(periodId))
-            return result;
-
-        var periodStart = new GlideDateTime(periodGR.getValue('period_start_date'));
-        var periodEnd = new GlideDateTime(periodGR.getValue('period_end_date'));
-
-        var today = new GlideDateTime();
-
-        // ==========================================
-        // GET QUARTER START
-        // ==========================================
-        var quarterStart = this._getParentStart(periodStart, periodEnd, 'quarter');
-
-        // ==========================================
-        // GET YEAR START
-        // ==========================================
-        var yearStart = this._getParentStart(periodStart, periodEnd, 'year');
-
-        // ==========================================
-        // CALCULATE
-        // ==========================================
-        result.qtd_commission = this._sumMonthlyCommission(user, plan, quarterStart, today);
-        result.ytd_commission = this._sumMonthlyCommission(user, plan, yearStart, today);
-
+    if (!user || !periodId)
         return result;
-    },
 
-	getPeriodChange: function(user, plan, periodId) {
+    var periodGR = new GlideRecordSecure('x_ctans_incentnow_fiscal_period');
+
+    if (!periodGR.get(periodId))
+        return result;
+
+    var fiscalYear = periodGR.getValue('fiscal_year');
+    var periodStart = periodGR.getValue('period_start_date');
+    var periodEnd = periodGR.getValue('period_end_date');
+
+    if (!fiscalYear || !periodStart || !periodEnd)
+        return result;
+
+    // YTD does not need a Year Fiscal Period record.
+    result.ytd_commission = this._sumYTDCommission(
+        user,
+        fiscalYear,
+        periodEnd
+    );
+
+    // Find quarter containing selected month.
+    var quarterStart = this._getParentStart(
+        new GlideDateTime(periodStart),
+        new GlideDateTime(periodEnd),
+        'quarter'
+    );
+
+    if (quarterStart) {
+        result.qtd_commission = this._sumQTDCommission(
+            user,
+            fiscalYear,
+            quarterStart,
+            periodEnd
+        );
+    } else {
+        // Defensive fallback:
+        // at minimum current month's commission should be shown.
+        result.qtd_commission = this._getPeriodCommission(
+            user,
+            periodId
+        );
+    }
+
+    return result;
+},
+
+_sumYTDCommission: function(user, fiscalYear, endDate) {
+
+    if (!user || !fiscalYear || !endDate)
+        return 0;
+
+    var total = 0;
+    var statementGR = new GlideRecordSecure('x_ctans_incentnow_incentive_statement');
+
+    statementGR.addQuery('user', user);
+    statementGR.addQuery('fiscal_year', fiscalYear);
+    statementGR.addQuery('fiscal_period.period_type', 'month');
+    statementGR.addQuery('fiscal_period.period_end_date', '<=', endDate);
+    statementGR.query();
+
+    while (statementGR.next())
+        total += parseFloat(statementGR.getValue('total_commission')) || 0;
+
+    return parseFloat(total.toFixed(2));
+},
+
+_sumQTDCommission: function(user, fiscalYear, quarterStart, endDate) {
+
+    if (!user || !fiscalYear || !quarterStart || !endDate)
+        return 0;
+
+    var total = 0;
+    var statementGR = new GlideRecordSecure('x_ctans_incentnow_incentive_statement');
+
+    statementGR.addQuery('user', user);
+    statementGR.addQuery('fiscal_year', fiscalYear);
+    statementGR.addQuery('fiscal_period.period_type', 'month');
+    statementGR.addQuery('fiscal_period.period_start_date', '>=', quarterStart);
+    statementGR.addQuery('fiscal_period.period_end_date', '<=', endDate);
+    statementGR.query();
+
+    while (statementGR.next())
+        total += parseFloat(statementGR.getValue('total_commission')) || 0;
+
+    return parseFloat(total.toFixed(2));
+},
+
+_getParentStart: function(start, end, type) {
+
+    var fiscalPeriodGR = new GlideRecordSecure('x_ctans_incentnow_fiscal_period');
+
+    fiscalPeriodGR.addQuery('period_type', type);
+    fiscalPeriodGR.addQuery('period_start_date', '<=', end);
+    fiscalPeriodGR.addQuery('period_end_date', '>=', start);
+    fiscalPeriodGR.setLimit(1);
+    fiscalPeriodGR.query();
+
+    if (fiscalPeriodGR.next())
+        return fiscalPeriodGR.getValue('period_start_date');
+
+    return '';
+},
+
+_getPeriodCommission: function(user, periodId) {
+
+    if (!user || !periodId)
+        return 0;
+
+    var total = 0;
+    var statementGR = new GlideRecordSecure('x_ctans_incentnow_incentive_statement');
+
+    statementGR.addQuery('user', user);
+    statementGR.addQuery('fiscal_period', periodId);
+    statementGR.setLimit(1);
+    statementGR.query();
+
+    if (statementGR.next())
+        total = parseFloat(statementGR.getValue('total_commission')) || 0;
+
+    return total;
+},
+getPeriodChange: function(user, periodId) {
 
     var result = {
         change_percentage: 0,
         previous_commission: 0
     };
 
+    if (!user || !periodId)
+        return result;
+
     var periodGR = new GlideRecordSecure('x_ctans_incentnow_fiscal_period');
+
     if (!periodGR.get(periodId))
         return result;
 
-    var currentCommission = this._getPeriodCommission(user, plan, periodId);
+    var currentCommission = this._getPeriodCommission(user, periodId);
 
-    //  Get previous period
     var prevGR = new GlideRecordSecure('x_ctans_incentnow_fiscal_period');
     prevGR.addQuery('period_type', periodGR.getValue('period_type'));
+    prevGR.addQuery('fiscal_year', periodGR.getValue('fiscal_year'));
     prevGR.addQuery('period_end_date', '<', periodGR.getValue('period_start_date'));
     prevGR.orderByDesc('period_end_date');
     prevGR.setLimit(1);
@@ -79,90 +175,25 @@ IncentNowStatementHelper.prototype = {
     if (!prevGR.next())
         return result;
 
-    var prevCommission = this._getPeriodCommission(user, plan, prevGR.getUniqueValue());
+    var previousCommission = this._getPeriodCommission(user, prevGR.getUniqueValue());
 
-    result.previous_commission = prevCommission;
+    result.previous_commission = previousCommission;
 
-    if (prevCommission > 0) {
-        var change = ((currentCommission - prevCommission) / prevCommission) * 100;
+    if (previousCommission > 0) {
+        var change = ((currentCommission - previousCommission) / previousCommission) * 100;
         result.change_percentage = parseFloat(change.toFixed(2));
-    } else {
-        result.change_percentage = 0;
     }
 
     return result;
 },
-
     // ==========================================
-    // GET PARENT PERIOD START (QUARTER/YEAR)
+    // EXISTING SINGLE PLAN HTML
     // ==========================================
-    _getParentStart: function(start, end, type) {
-
-        var fiscalperiodGR = new GlideRecordSecure('x_ctans_incentnow_fiscal_period');
-        fiscalperiodGR.addQuery('period_type', type);
-        fiscalperiodGR.addQuery('period_start_date', '<=', end);
-        fiscalperiodGR.addQuery('period_end_date', '>=', start);
-        fiscalperiodGR.query();
-
-        if (fiscalperiodGR.next()) {
-            return new GlideDateTime(fiscalperiodGR.getValue('period_start_date'));
-        }
-
-        return null;
-    },
-
-    // ==========================================
-    // SUM MONTHLY COMMISSION (CLOSED ONLY)
-    // ==========================================
-    _sumMonthlyCommission: function(user, plan, startDate, today) {
-
-        if (!startDate)
-            return 0;
-
-        var total = 0;
-
-        var metricGR = new GlideRecordSecure('x_ctans_incentnow_metric_report');
-        metricGR.addQuery('user', user);
-        metricGR.addQuery('plan', plan);
-        metricGR.addQuery('period_type', 'month');
-
-        // within range
-        metricGR.addQuery('fiscal_period.period_start_date', '>=', startDate);
-
-        // ONLY CLOSED MONTHS
-        metricGR.addQuery('fiscal_period.period_end_date', '<', today);
-
-        metricGR.query();
-
-        while (metricGR.next()) {
-            total += parseFloat(metricGR.getValue('total_commission')) || 0;
-        }
-
-        return parseFloat(total.toFixed(2));
-    },
-	_getPeriodCommission: function(user, plan, periodId) {
-
-    var total = 0;
-
-    var metricGR = new GlideRecordSecure('x_ctans_incentnow_metric_report');
-    metricGR.addQuery('user', user);
-    metricGR.addQuery('plan', plan);
-    metricGR.addQuery('fiscal_period', periodId);
-    metricGR.query();
-
-    if (metricGR.next()) {
-        total = parseFloat(metricGR.getValue('total_commission')) || 0;
-    }
-
-    return total;
-},
-
     buildStatementHTML: function(steps, meta) {
 
         var html = '';
 
         html += '<div class="statement-wrapper">';
-
         html += '<h2 class="statement-title" style="display:flex; align-items:center; gap:10px;">Incentive Statement</h2>';
 
         html += '<table class="statement-header-table">';
@@ -174,12 +205,10 @@ IncentNowStatementHelper.prototype = {
         html += '<tr class="header-row total-row"><td><b class="b">Total Commission:</b></td><td><b>' + this._safe(meta.total) + '</b></td></tr>';
         html += '</table>';
 
-        if (meta.earningRules && meta.earningRules.length > 0) {
+        if (meta.earningRules && meta.earningRules.length > 0)
             html += this._buildEarningRulesHTML(meta.earningRules);
-        }
 
         html += this._buildPayoutHTML(steps, meta.total);
-
         html += '</div>';
 
         return html;
@@ -190,7 +219,6 @@ IncentNowStatementHelper.prototype = {
         var html = '';
 
         html += '<table class="earning-rules-table">';
-
         html += '<tr class="earning-rules-header" style="padding:2rem;">' +
             '<th class="earning-rule-col">Earning Rule</th>' +
             '<th class="earning-object-col">Object</th>' +
@@ -223,7 +251,6 @@ IncentNowStatementHelper.prototype = {
         var html = '';
 
         html += '<table class="payout-table">';
-
         html += '<tr class="payout-header" style="padding:2rem;">' +
             '<th class="payout-component-col">Payout Component(s)</th>' +
             '<th class="payout-value-col">Commission</th>' +
@@ -238,9 +265,8 @@ IncentNowStatementHelper.prototype = {
                 '<div class="payout-rule-name">' + this._safe(step.ruleName) + '</div>' +
                 '<div class="payout-trace">';
 
-            if (step.trace) {
+            if (step.trace)
                 html += this._buildTraceHTML(step.trace);
-            }
 
             html += '</div></td>' +
                 '<td class="payout-amount">' + this._safe(step.payoutValue) + '</td>' +
@@ -285,6 +311,7 @@ IncentNowStatementHelper.prototype = {
     },
 
     _safe: function(val) {
+
         if (val == null || val == undefined)
             return '';
 
@@ -294,19 +321,95 @@ IncentNowStatementHelper.prototype = {
             .replace(/>/g, '&gt;');
     },
 
+    // ==========================================
+    // CONSOLIDATED STATEMENT HTML
+    // ==========================================
+    buildConsolidatedStatementHTML: function(planResults, meta) {
+
+        var html = '';
+        planResults = planResults || [];
+
+        html += '<div class="statement-wrapper">';
+        html += '<h2 class="statement-title" style="display:flex; align-items:center; gap:10px;">Incentive Statement</h2>';
+
+        html += '<table class="statement-header-table">';
+        html += '<tr class="header-row user-row"><td><b>User:</b></td><td>' + this._safe(meta.user) + '</td></tr>';
+        html += '<tr class="header-row period-row"><td><b>Fiscal Period:</b></td><td>' + this._safe(meta.period) + '</td></tr>';
+        html += '<tr class="header-row plan-row"><td><b>Plans:</b></td><td>' + this._safe(meta.plans) + '</td></tr>';
+        html += '<tr class="header-row generated-row"><td><b>Generated On:</b></td><td>' + this._safe(meta.generatedOn) + '</td></tr>';
+        html += '</table>';
+
+        for (var i = 0; i < planResults.length; i++) {
+
+            var plan = planResults[i];
+
+            html += '<div class="statement-plan-section" style="margin-top:30px;">';
+            html += '<h3 class="statement-plan-title">' + this._safe(plan.planName) + '</h3>';
+
+            if (plan.quotaResults && plan.quotaResults.length > 0)
+                html += this._buildQuotaResultsHTML(plan.quotaResults);
+
+            if (plan.earningRules && plan.earningRules.length > 0)
+                html += this._buildEarningRulesHTML(plan.earningRules);
+
+            html += this._buildPayoutHTML(plan.payoutBreakdown || [], plan.formattedTotal);
+            html += '</div>';
+        }
+
+        html += '<table class="statement-header-table" style="margin-top:30px;">';
+        html += '<tr class="payout-total-row"><td><b>Total Commission</b></td><td><b>' +
+            this._safe(meta.total) + '</b></td></tr>';
+        html += '</table>';
+
+        html += '</div>';
+
+        return html;
+    },
+
+    _buildQuotaResultsHTML: function(quotaResults) {
+
+        var html = '';
+
+        html += '<table class="quota-results-table">';
+        html += '<tr class="quota-results-header">' +
+            '<th>Attainment Lookup Rule</th>' +
+            '<th>Quota</th>' +
+            '<th>Target</th>' +
+            '<th>Achievement</th>' +
+            '<th>Attainment</th>' +
+            '</tr>';
+
+        for (var i = 0; i < quotaResults.length; i++) {
+
+            var quota = quotaResults[i];
+
+            html += '<tr class="quota-result-row">' +
+                '<td>' + this._safe(quota.lookupRule) + '</td>' +
+                '<td>' + this._safe(quota.quota) + '</td>' +
+                '<td>' + this._safe(quota.target) + '</td>' +
+                '<td>' + this._safe(quota.achievement) + '</td>' +
+                '<td>' + this._safe(quota.attainment) + '%</td>' +
+                '</tr>';
+        }
+
+        html += '</table>';
+
+        return html;
+    },
+
     type: 'IncentNowStatementHelper'
 };]]></script>
         <sys_class_name>sys_script_include</sys_class_name>
         <sys_created_by>upma.rai</sys_created_by>
         <sys_created_on>2026-04-21 13:09:01</sys_created_on>
         <sys_id>1c32150b3b1887105493ddb693e45aa4</sys_id>
-        <sys_mod_count>7</sys_mod_count>
+        <sys_mod_count>16</sys_mod_count>
         <sys_name>IncentNowStatementHelper</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
         <sys_update_name>sys_script_include_1c32150b3b1887105493ddb693e45aa4</sys_update_name>
         <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
-        <sys_updated_on>2026-07-05 17:07:39</sys_updated_on>
+        <sys_updated_on>2026-08-31 11:26:44</sys_updated_on>
     </sys_script_include>
 </record_update>

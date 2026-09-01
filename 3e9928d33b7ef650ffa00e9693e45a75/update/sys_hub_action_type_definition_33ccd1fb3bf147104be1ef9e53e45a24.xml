@@ -31,15 +31,15 @@
         <sys_domain>global</sys_domain>
         <sys_domain_path>/</sys_domain_path>
         <sys_id>33ccd1fb3bf147104be1ef9e53e45a24</sys_id>
-        <sys_mod_count>81</sys_mod_count>
+        <sys_mod_count>0</sys_mod_count>
         <sys_name>Territory Manager Approval</sys_name>
         <sys_overrides/>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy/>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
         <sys_update_name>sys_hub_action_type_definition_33ccd1fb3bf147104be1ef9e53e45a24</sys_update_name>
-        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
-        <sys_updated_on>2026-07-10 11:06:06</sys_updated_on>
+        <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
+        <sys_updated_on>2026-08-31 15:14:21</sys_updated_on>
         <system_level>false</system_level>
         <type/>
     </sys_hub_action_type_definition>
@@ -200,30 +200,6 @@ var approvers = new x_ctans_incentnow.IncentNowUtils().getTerritoryManagers(inpu
         <variable display_value="Script">71aa7f6647032200b4fad7527c9a719b</variable>
     </sys_variable_value>
     <sys_element_mapping action="delete_multiple" query="id=162a29ff3b3547104be1ef9e53e45abd"/>
-    <sys_element_mapping action="INSERT_OR_UPDATE">
-        <field>application</field>
-        <id>162a29ff3b3547104be1ef9e53e45abd</id>
-        <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
-        <sys_created_on>2026-07-07 12:23:13</sys_created_on>
-        <sys_id>ea2a29ff3b3547104be1ef9e53e45ad3</sys_id>
-        <sys_mod_count>0</sys_mod_count>
-        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
-        <sys_updated_on>2026-07-07 12:23:13</sys_updated_on>
-        <table>var__m_sys_flow_step_definition_input_106afb6647032200b4fad7527c9a71e7</table>
-        <value/>
-    </sys_element_mapping>
-    <sys_element_mapping action="INSERT_OR_UPDATE">
-        <field>script</field>
-        <id>162a29ff3b3547104be1ef9e53e45abd</id>
-        <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
-        <sys_created_on>2026-07-07 12:23:13</sys_created_on>
-        <sys_id>ee2a29ff3b3547104be1ef9e53e45ad3</sys_id>
-        <sys_mod_count>0</sys_mod_count>
-        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
-        <sys_updated_on>2026-07-07 12:23:13</sys_updated_on>
-        <table>var__m_sys_flow_step_definition_input_106afb6647032200b4fad7527c9a71e7</table>
-        <value/>
-    </sys_element_mapping>
     <sys_element_mapping action="INSERT_OR_UPDATE">
         <field>Territory</field>
         <id>162a29ff3b3547104be1ef9e53e45abd</id>
@@ -504,7 +480,7 @@ var approvers = new x_ctans_incentnow.IncentNowUtils().getTerritoryManagers(inpu
         <sys_created_on>2026-07-08 08:16:47</sys_created_on>
         <sys_id>965bf1c43bce87104be1ef9e53e45a53</sys_id>
         <sys_mod_count>0</sys_mod_count>
-        <sys_name/>
+        <sys_name>Count</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy/>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
@@ -527,7 +503,7 @@ var approvers = new x_ctans_incentnow.IncentNowUtils().getTerritoryManagers(inpu
         <sys_created_on>2026-07-07 14:25:25</sys_created_on>
         <sys_id>ec2606bb3bf547104be1ef9e53e45a8d</sys_id>
         <sys_mod_count>0</sys_mod_count>
-        <sys_name/>
+        <sys_name>Territory Managers</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy/>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
@@ -996,7 +972,7 @@ var approvers = new x_ctans_incentnow.IncentNowUtils().getTerritoryManagers(inpu
         <sys_created_on>2026-07-07 14:09:54</sys_created_on>
         <sys_id>999246373bf547104be1ef9e53e45a9c</sys_id>
         <sys_mod_count>0</sys_mod_count>
-        <sys_name/>
+        <sys_name>Territory</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy/>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
@@ -1020,7 +996,7 @@ var approvers = new x_ctans_incentnow.IncentNowUtils().getTerritoryManagers(inpu
         <sys_created_on>2026-07-08 08:16:47</sys_created_on>
         <sys_id>6e5bf1c43bce87104be1ef9e53e45a7a</sys_id>
         <sys_mod_count>0</sys_mod_count>
-        <sys_name/>
+        <sys_name>Count</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy/>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
@@ -1043,7 +1019,7 @@ var approvers = new x_ctans_incentnow.IncentNowUtils().getTerritoryManagers(inpu
         <sys_created_on>2026-07-07 11:28:26</sys_created_on>
         <sys_id>7f9d953f3bf147104be1ef9e53e45aae</sys_id>
         <sys_mod_count>0</sys_mod_count>
-        <sys_name/>
+        <sys_name>Don't Treat as Error</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy/>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
@@ -1066,7 +1042,7 @@ var approvers = new x_ctans_incentnow.IncentNowUtils().getTerritoryManagers(inpu
         <sys_created_on>2026-07-07 14:30:08</sys_created_on>
         <sys_id>b537023f3bf547104be1ef9e53e45a34</sys_id>
         <sys_mod_count>0</sys_mod_count>
-        <sys_name/>
+        <sys_name>Territory Manager</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy/>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
@@ -1089,7 +1065,7 @@ var approvers = new x_ctans_incentnow.IncentNowUtils().getTerritoryManagers(inpu
         <sys_created_on>2026-07-07 11:28:25</sys_created_on>
         <sys_id>f39d953f3bf147104be1ef9e53e45a8b</sys_id>
         <sys_mod_count>0</sys_mod_count>
-        <sys_name/>
+        <sys_name>Action Status</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy/>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
@@ -1313,30 +1289,6 @@ var approvers = new x_ctans_incentnow.IncentNowUtils().getTerritoryManagers(inpu
         <variable display_value="Script">71aa7f6647032200b4fad7527c9a719b</variable>
     </sys_variable_value>
     <sys_element_mapping action="delete_multiple" query="id=04b1ceb33bf547104be1ef9e53e45a25"/>
-    <sys_element_mapping action="INSERT_OR_UPDATE">
-        <field>application</field>
-        <id>04b1ceb33bf547104be1ef9e53e45a25</id>
-        <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
-        <sys_created_on>2026-07-07 14:06:00</sys_created_on>
-        <sys_id>50b1ceb33bf547104be1ef9e53e45a55</sys_id>
-        <sys_mod_count>0</sys_mod_count>
-        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
-        <sys_updated_on>2026-07-07 14:06:00</sys_updated_on>
-        <table>var__m_sys_flow_step_definition_input_106afb6647032200b4fad7527c9a71e7</table>
-        <value/>
-    </sys_element_mapping>
-    <sys_element_mapping action="INSERT_OR_UPDATE">
-        <field>script</field>
-        <id>04b1ceb33bf547104be1ef9e53e45a25</id>
-        <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
-        <sys_created_on>2026-07-07 14:06:01</sys_created_on>
-        <sys_id>58b1ceb33bf547104be1ef9e53e45a55</sys_id>
-        <sys_mod_count>0</sys_mod_count>
-        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
-        <sys_updated_on>2026-07-07 14:06:01</sys_updated_on>
-        <table>var__m_sys_flow_step_definition_input_106afb6647032200b4fad7527c9a71e7</table>
-        <value/>
-    </sys_element_mapping>
     <sys_element_mapping action="INSERT_OR_UPDATE">
         <field>Territory</field>
         <id>04b1ceb33bf547104be1ef9e53e45a25</id>
@@ -1617,7 +1569,7 @@ var approvers = new x_ctans_incentnow.IncentNowUtils().getTerritoryManagers(inpu
         <sys_created_on>2026-07-08 08:29:01</sys_created_on>
         <sys_id>6d2eb9c83bce87104be1ef9e53e45aa2</sys_id>
         <sys_mod_count>0</sys_mod_count>
-        <sys_name/>
+        <sys_name>Count</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy/>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
@@ -1640,7 +1592,7 @@ var approvers = new x_ctans_incentnow.IncentNowUtils().getTerritoryManagers(inpu
         <sys_created_on>2026-07-07 14:25:33</sys_created_on>
         <sys_id>ea2686bb3bf547104be1ef9e53e45a19</sys_id>
         <sys_mod_count>0</sys_mod_count>
-        <sys_name/>
+        <sys_name>Territory Managers</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy/>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
@@ -2109,7 +2061,7 @@ var approvers = new x_ctans_incentnow.IncentNowUtils().getTerritoryManagers(inpu
         <sys_created_on>2026-07-07 14:13:18</sys_created_on>
         <sys_id>cf53ca773bf547104be1ef9e53e45a84</sys_id>
         <sys_mod_count>0</sys_mod_count>
-        <sys_name/>
+        <sys_name>Territory</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy/>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
@@ -2133,7 +2085,7 @@ var approvers = new x_ctans_incentnow.IncentNowUtils().getTerritoryManagers(inpu
         <sys_created_on>2026-07-08 08:29:02</sys_created_on>
         <sys_id>312eb9c83bce87104be1ef9e53e45ad6</sys_id>
         <sys_mod_count>0</sys_mod_count>
-        <sys_name/>
+        <sys_name>Count</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy/>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
@@ -2156,7 +2108,7 @@ var approvers = new x_ctans_incentnow.IncentNowUtils().getTerritoryManagers(inpu
         <sys_created_on>2026-07-07 14:06:01</sys_created_on>
         <sys_id>58b1ceb33bf547104be1ef9e53e45a6c</sys_id>
         <sys_mod_count>0</sys_mod_count>
-        <sys_name/>
+        <sys_name>Action Status</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy/>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
@@ -2179,7 +2131,7 @@ var approvers = new x_ctans_incentnow.IncentNowUtils().getTerritoryManagers(inpu
         <sys_created_on>2026-07-07 14:36:34</sys_created_on>
         <sys_id>b7a8c6bf3bf547104be1ef9e53e45a11</sys_id>
         <sys_mod_count>0</sys_mod_count>
-        <sys_name/>
+        <sys_name>Territory Manager</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy/>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
@@ -2202,7 +2154,7 @@ var approvers = new x_ctans_incentnow.IncentNowUtils().getTerritoryManagers(inpu
         <sys_created_on>2026-07-07 14:06:01</sys_created_on>
         <sys_id>dcb1ceb33bf547104be1ef9e53e45a74</sys_id>
         <sys_mod_count>0</sys_mod_count>
-        <sys_name/>
+        <sys_name>Don't Treat as Error</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy/>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
@@ -2216,6 +2168,6 @@ var approvers = new x_ctans_incentnow.IncentNowUtils().getTerritoryManagers(inpu
     <sys_hub_action_type_definition action="UPDATE">
         <sys_id>33ccd1fb3bf147104be1ef9e53e45a24</sys_id>
         <latest_snapshot>c4b18eb33bf547104be1ef9e53e45aed</latest_snapshot>
-        <compiler_build>glide-zurich-07-01-2025__patch10-hotfix3-07-01-2026_07-02-2026_1215.zip</compiler_build>
+        <compiler_build>glide-zurich-07-01-2025__patch10-hotfix4aw35-08-22-2026_08-26-2026_0029.zip</compiler_build>
     </sys_hub_action_type_definition>
 </record_update>

@@ -31,15 +31,15 @@
         <sys_domain>global</sys_domain>
         <sys_domain_path>/</sys_domain_path>
         <sys_id>f5b942e83b850f10a4cbaddc73e45af2</sys_id>
-        <sys_mod_count>2</sys_mod_count>
+        <sys_mod_count>0</sys_mod_count>
         <sys_name>Business Group Admin Approvers</sys_name>
         <sys_overrides/>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy/>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
         <sys_update_name>sys_hub_action_type_definition_f5b942e83b850f10a4cbaddc73e45af2</sys_update_name>
-        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
-        <sys_updated_on>2026-07-08 07:52:14</sys_updated_on>
+        <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
+        <sys_updated_on>2026-08-31 15:14:26</sys_updated_on>
         <system_level>false</system_level>
         <type/>
     </sys_hub_action_type_definition>
@@ -193,18 +193,6 @@
         <sys_updated_on>2026-05-21 05:46:48</sys_updated_on>
         <table>var__m_sys_hub_step_ext_input_8dbc4ae03bc50f10a4cbaddc73e45a87</table>
         <value>{{action.record_business_unit}}</value>
-    </sys_element_mapping>
-    <sys_element_mapping action="INSERT_OR_UPDATE">
-        <field>script</field>
-        <id>8dbc4ae03bc50f10a4cbaddc73e45a87</id>
-        <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
-        <sys_created_on>2026-07-08 07:52:14</sys_created_on>
-        <sys_id>7eb53d4c3b8e87104be1ef9e53e45aa6</sys_id>
-        <sys_mod_count>0</sys_mod_count>
-        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
-        <sys_updated_on>2026-07-08 07:52:14</sys_updated_on>
-        <table>var__m_sys_flow_step_definition_input_106afb6647032200b4fad7527c9a71e7</table>
-        <value/>
     </sys_element_mapping>
     <sys_element_mapping action="delete_multiple" query="table=var__m_sys_hub_step_ext_output_8dbc4ae03bc50f10a4cbaddc73e45a87^id=8dbc4ae03bc50f10a4cbaddc73e45a87"/>
     <sys_element_mapping action="delete_multiple" query="table=var__m_sys_flow_step_definition_input_106afb6647032200b4fad7527c9a71e7^id=8dbc4ae03bc50f10a4cbaddc73e45a87"/>
@@ -497,7 +485,7 @@
         <sys_created_on>2026-05-22 04:16:27</sys_created_on>
         <sys_id>2f91c7703b458310a4cbaddc73e45a12</sys_id>
         <sys_mod_count>0</sys_mod_count>
-        <sys_name/>
+        <sys_name>Approvers Count</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy/>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
@@ -520,7 +508,7 @@
         <sys_created_on>2026-05-21 05:50:56</sys_created_on>
         <sys_id>79ad02a43bc50f10a4cbaddc73e45a96</sys_id>
         <sys_mod_count>0</sys_mod_count>
-        <sys_name/>
+        <sys_name>Business Admin Approver</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy/>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
@@ -1012,7 +1000,7 @@
         <sys_created_on>2026-05-21 05:46:47</sys_created_on>
         <sys_id>c1bc4ae03bc50f10a4cbaddc73e45a80</sys_id>
         <sys_mod_count>0</sys_mod_count>
-        <sys_name/>
+        <sys_name>Record Business Unit</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy/>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
@@ -1036,7 +1024,7 @@
         <sys_created_on>2026-05-21 05:46:48</sys_created_on>
         <sys_id>09bc4ae03bc50f10a4cbaddc73e45afb</sys_id>
         <sys_mod_count>0</sys_mod_count>
-        <sys_name/>
+        <sys_name>Action Status</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy/>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
@@ -1059,7 +1047,7 @@
         <sys_created_on>2026-05-22 04:16:27</sys_created_on>
         <sys_id>2391c7703b458310a4cbaddc73e45a36</sys_id>
         <sys_mod_count>0</sys_mod_count>
-        <sys_name/>
+        <sys_name>Count</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy/>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
@@ -1082,7 +1070,7 @@
         <sys_created_on>2026-05-21 05:46:48</sys_created_on>
         <sys_id>9dbc8ae03bc50f10a4cbaddc73e45a0e</sys_id>
         <sys_mod_count>0</sys_mod_count>
-        <sys_name/>
+        <sys_name>Business Admin Approver</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy/>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
@@ -1105,7 +1093,7 @@
         <sys_created_on>2026-05-21 05:46:48</sys_created_on>
         <sys_id>d5bc8ae03bc50f10a4cbaddc73e45a19</sys_id>
         <sys_mod_count>0</sys_mod_count>
-        <sys_name/>
+        <sys_name>Don't Treat as Error</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy/>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>

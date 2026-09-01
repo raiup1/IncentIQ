@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
     <sys_script_include action="INSERT_OR_UPDATE">
-        <access>package_private</access>
+        <access>public</access>
         <active>true</active>
         <api_name>x_ctans_incentnow.IncentNowSystemConfigUtil</api_name>
         <caller_access/>
         <client_callable>false</client_callable>
-        <description>This script manages all System Settings and System Properties for IncentIQ</description>
+        <description>This script manages all System Settings and System Properties for IncentIQ.</description>
         <mobile_callable>false</mobile_callable>
         <name>IncentNowSystemConfigUtil</name>
         <sandbox_callable>false</sandbox_callable>
@@ -128,19 +128,30 @@ IncentNowSystemConfigUtil.prototype = {
     return currencyCode;
 },
 
+setScopedProperty: function(propertyName, propertyValue) {
+    
+    try {
+        gs.setProperty(propertyName, String(propertyValue));
+        return true;
+    } catch(e) {
+        gs.error("[IncentIQ] Failed to set property " + propertyName + ". Error: " + e.message);
+        return false;
+    }
+},
+
     type: 'IncentNowSystemConfigUtil'
 };]]></script>
         <sys_class_name>sys_script_include</sys_class_name>
         <sys_created_by>upma.rai</sys_created_by>
         <sys_created_on>2026-04-13 17:23:46</sys_created_on>
         <sys_id>e13cf8a83bd803105493ddb693e45a6a</sys_id>
-        <sys_mod_count>12</sys_mod_count>
+        <sys_mod_count>15</sys_mod_count>
         <sys_name>IncentNowSystemConfigUtil</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
         <sys_update_name>sys_script_include_e13cf8a83bd803105493ddb693e45a6a</sys_update_name>
         <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
-        <sys_updated_on>2026-06-24 12:47:18</sys_updated_on>
+        <sys_updated_on>2026-08-31 08:25:12</sys_updated_on>
     </sys_script_include>
 </record_update>

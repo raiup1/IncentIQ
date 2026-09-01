@@ -31,7 +31,7 @@ IncentNowEarningRuleEngine.prototype = {
             gs.info('Skipping earning calculation for non-month period');
             return [];
         }
-        var quotaObj = this.getQuotaTarget(userGR, fiscalPeriodGR);
+        // var quotaObj = this.getQuotaTarget(userGR, fiscalPeriodGR);
 
         var startDate = fiscalPeriodGR.period_start_date;
         var endDate = fiscalPeriodGR.period_end_date;
@@ -87,7 +87,7 @@ IncentNowEarningRuleEngine.prototype = {
             while (sourceGR.next()) {
 
                 var amount = parseFloat(sourceGR.getValue(sourceConfig.amountField)) || 0;
-                //	gs.info(this.LOG + 'Amount: ' + amount);
+                gs.info(this.LOG + 'Amount: ' + amount);
 
                 var credit = amount;
 
@@ -165,7 +165,7 @@ IncentNowEarningRuleEngine.prototype = {
                 creditRec.source_object = ruleGR.source_object;
                 creditRec.aggregation_type = ruleGR.aggregation;
                 creditRec.count = count;
-                creditRec.target_quota = quotaObj.value;
+                // creditRec.target_quota = quotaObj.value;     // Quota is now resolved at quota-attainment Lookup Rule level
                 creditRec.statement_id = statementId;
                 creditRec.update();
 
@@ -181,7 +181,7 @@ IncentNowEarningRuleEngine.prototype = {
                 creditRec.source_object = ruleGR.source_object;
                 creditRec.aggregation_type = ruleGR.aggregation;
                 creditRec.count = count;
-                creditRec.target_quota = quotaObj.value;
+                //  creditRec.target_quota = quotaObj.value; //     Quota is now resolved at quota-attainment Lookup Rule level
                 creditRec.statement_id = statementId;
                 creditRec.insert();
             }
@@ -211,8 +211,8 @@ IncentNowEarningRuleEngine.prototype = {
                 aggregation_type: ruleGR.aggregation.getDisplayValue(),
                 credit: creditvalue,
                 unit: unit,
-                quota: quotaObj.value,
-                quota_display: quotaObj.display_value,
+                quota: null, // quotaObj.value,
+                quota_display: '', // quotaObj.display_value,
                 object: ruleGR.getDisplayValue('source_object'),
                 object_value: ruleGR.getValue('source_object'),
                 field: ruleGR.getDisplayValue('field'),
@@ -296,7 +296,7 @@ IncentNowEarningRuleEngine.prototype = {
 
             if (ruleGR.earning_level == 'manager_rollup') {
                 config.userOperator = 'IN';
-				config.userValue = this.getInternalUsersUnderManager(userGR.getValue('user'));
+                config.userValue = this.getInternalUsersUnderManager(userGR.getValue('user'));
             } else {
                 config.userValue = userGR.user.toString();
                 gs.info(this.LOG + 'config.userValue:  ' + config.userValue);
@@ -381,49 +381,49 @@ IncentNowEarningRuleEngine.prototype = {
             display_value: this.formatter.formatCurrency(quotaTarget)
         };
     },
-   getUsersUnderManager: function(managerSysUserId) {
+    getUsersUnderManager: function(managerSysUserId) {
 
-    var users = [];
+        var users = [];
 
-    if (!managerSysUserId)
-        return '';
+        if (!managerSysUserId)
+            return '';
 
-    var userProfile = new GlideRecordSecure('x_ctans_incentnow_user_profile');
-    userProfile.addQuery('user.manager', managerSysUserId);
-    userProfile.addQuery('active', true);
-    userProfile.query();
+        var userProfile = new GlideRecordSecure('x_ctans_incentnow_user_profile');
+        userProfile.addQuery('user.manager', managerSysUserId);
+        userProfile.addQuery('active', true);
+        userProfile.query();
 
-    while (userProfile.next()) {
-        var externalId = userProfile.getValue('external_user_id');
-        if (externalId)
-            users.push(externalId);
-    }
+        while (userProfile.next()) {
+            var externalId = userProfile.getValue('external_user_id');
+            if (externalId)
+                users.push(externalId);
+        }
 
-    gs.info(this.LOG + 'External Reportees: ' + users.join(','));
-    return users.join(',');
-},
+        gs.info(this.LOG + 'External Reportees: ' + users.join(','));
+        return users.join(',');
+    },
 
-  getInternalUsersUnderManager: function(managerSysUserId) {
+    getInternalUsersUnderManager: function(managerSysUserId) {
 
-    var users = [];
+        var users = [];
 
-    if (!managerSysUserId)
-        return '';
+        if (!managerSysUserId)
+            return '';
 
-    var userProf = new GlideRecordSecure('x_ctans_incentnow_user_profile');
-    userProf.addQuery('user.manager', managerSysUserId);
-    userProf.addQuery('active', true);
-    userProf.query();
+        var userProf = new GlideRecordSecure('x_ctans_incentnow_user_profile');
+        userProf.addQuery('user.manager', managerSysUserId);
+        userProf.addQuery('active', true);
+        userProf.query();
 
-    while (userProf.next()) {
-        var sysUserId = userProf.getValue('user');
-        if (sysUserId)
-            users.push(sysUserId);
-    }
+        while (userProf.next()) {
+            var sysUserId = userProf.getValue('user');
+            if (sysUserId)
+                users.push(sysUserId);
+        }
 
-    gs.info(this.LOG + 'Internal Reportees: ' + users.join(','));
-    return users.join(',');
-},
+        gs.info(this.LOG + 'Internal Reportees: ' + users.join(','));
+        return users.join(',');
+    },
 
     formatWithUnit: function(value, unit) {
         return this.formatter.format(value, unit);
@@ -435,13 +435,13 @@ IncentNowEarningRuleEngine.prototype = {
         <sys_created_by>upma.rai</sys_created_by>
         <sys_created_on>2026-03-06 19:21:05</sys_created_on>
         <sys_id>be4ce9d03bef7e105493ddb693e45aea</sys_id>
-        <sys_mod_count>106</sys_mod_count>
+        <sys_mod_count>108</sys_mod_count>
         <sys_name>IncentNowEarningRuleEngine</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
         <sys_update_name>sys_script_include_be4ce9d03bef7e105493ddb693e45aea</sys_update_name>
-        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
-        <sys_updated_on>2026-06-24 12:35:27</sys_updated_on>
+        <sys_updated_by>upma.rai</sys_updated_by>
+        <sys_updated_on>2026-08-16 08:31:11</sys_updated_on>
     </sys_script_include>
 </record_update>

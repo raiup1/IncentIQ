@@ -5,45 +5,52 @@
         <api_name>x_ctans_incentnow.IncentIQMetricReportUtil</api_name>
         <caller_access/>
         <client_callable>false</client_callable>
-        <description/>
+        <description>This script is used for generating metric reports used in IncentIQ application.</description>
         <mobile_callable>false</mobile_callable>
         <name>IncentIQMetricReportUtil</name>
         <sandbox_callable>false</sandbox_callable>
         <script><![CDATA[var IncentIQMetricReportUtil = Class.create();
 IncentIQMetricReportUtil.prototype = {
-    initialize: function() {},
+
+    initialize: function() {
+        this.LOG = 'IncentIQMetricReportUtil | ';
+    },
 
     insertMetricRecord: function(statementGR) {
 
-        if (!statementGR || !statementGR.isValidRecord()) {
+        if (!statementGR || !statementGR.isValidRecord())
             return;
-        }
 
         var user = statementGR.getValue('user');
-        var plan = statementGR.getValue('plan');
+        var plans = statementGR.getValue('plan');
         var period = statementGR.getValue('fiscal_period');
+
+        if (!user || !period)
+            return;
 
         var userGR = statementGR.user.getRefRecord();
         var periodGR = statementGR.fiscal_period.getRefRecord();
 
+        if (!userGR || !userGR.isValidRecord() || !periodGR || !periodGR.isValidRecord())
+            return;
+
         // ----------------------------------
-        // 1. UPSERT CHECK (optional improvement)
+        // 1. UPSERT BY STATEMENT
         // ----------------------------------
         var metricGR = new GlideRecordSecure('x_ctans_incentnow_metric_report');
-
-        metricGR.addQuery('user', user);
-        metricGR.addQuery('plan', plan);
-        metricGR.addQuery('fiscal_period', period);
+        metricGR.addQuery('statement_id', statementGR.getUniqueValue());
+        metricGR.setLimit(1);
         metricGR.query();
 
-        if (metricGR.next()) {
-            // update existing
-        } else {
+        if (!metricGR.next()) {
             metricGR.initialize();
             metricGR.user = user;
-            metricGR.plan = plan;
             metricGR.fiscal_period = period;
+            metricGR.statement_id = statementGR.getUniqueValue();
         }
+
+        // Plan is now a List field
+        metricGR.plan = plans;
 
         // ----------------------------------
         // 2. DIMENSIONS
@@ -57,80 +64,59 @@ IncentIQMetricReportUtil.prototype = {
         if (dimension == 'business_unit') {
             metricGR.business_unit = userGR.getValue('business_unit');
         } else if (dimension == 'territory') {
-
             var util = new IncentNowUtils();
 
-            if (util.isTerritoryExtensionActive()) {
+            if (util.isTerritoryExtensionActive())
                 metricGR.x_ctans_territory_territory = userGR.getValue('x_ctans_territory_territory');
-            } else {
+            else
                 gs.warn(this.LOG + 'Territory selected on user profile but Territory extension/plugin is not active.');
-            }
         }
 
         // ----------------------------------
-        // 3. METRICS (from statement only)
+        // 3. STATEMENT METRICS
         // ----------------------------------
         metricGR.total_commission = statementGR.getValue('total_commission');
-
-        if (statementGR.getValue('target_quota'))
-            metricGR.target_quota = statementGR.getValue('target_quota');
-
-        if (statementGR.getValue('quota_attainment'))
-            metricGR.quota_attainment = statementGR.getValue('quota_attainment');
+        metricGR.target_quota = statementGR.getValue('target_quota');
+        metricGR.quota_attainment = statementGR.getValue('quota_attainment');
 
         // ----------------------------------
         // 4. CREDIT AGGREGATION
         // ----------------------------------
-        var creditGR = new GlideRecordSecure('x_ctans_incentnow_credit_results');
-        creditGR.addQuery('user', user);
-        creditGR.addQuery('plan', plan);
-        creditGR.addQuery('fiscal_period', period);
-        creditGR.query();
-
         var totalCreditAmount = 0;
         var totalTransactions = 0;
+
+        var creditGR = new GlideRecordSecure('x_ctans_incentnow_credit_results');
+        creditGR.addQuery('user', user);
+
+        // IMPORTANT: plans contains comma-separated Plan sys_ids
+        if (plans)
+            creditGR.addQuery('plan', 'IN', plans);
+
+        creditGR.addQuery('fiscal_period', period);
+        creditGR.query();
 
         while (creditGR.next()) {
             var aggType = creditGR.getValue('aggregation_type');
             var value = parseFloat(creditGR.getValue('credit_value')) || 0;
             var count = parseFloat(creditGR.getValue('count')) || 0;
 
-            if (aggType == 'sum') {
                 totalCreditAmount += value;
-            } else {
                 totalTransactions += count;
-            }
         }
 
         var periodType = (periodGR.getValue('period_type') || '').toLowerCase();
 
-        if (periodType != 'month') {
-
-            var aggregate =
-                new IncentNowStatementProcessor()
-                ._aggregateFromMonthly(statementGR, periodGR);
-
-            metricGR.total_credits = aggregate.total_credit || 0;
-            metricGR.transaction_count = aggregate.total_transaction || 0;
-
-        } else {
             metricGR.total_credits = totalCreditAmount;
             metricGR.transaction_count = totalTransactions;
-        }
-
-        metricGR.statement_id = statementGR.getUniqueValue();
+        
 
         // ----------------------------------
         // 5. SAVE
         // ----------------------------------
-
-        var result;
-
         if (metricGR.isNewRecord())
-            result = metricGR.insert();
-        else
-            result = metricGR.update();
-        return result;
+            return metricGR.insert();
+
+        return metricGR.update();
     },
 
     type: 'IncentIQMetricReportUtil'
@@ -139,13 +125,13 @@ IncentIQMetricReportUtil.prototype = {
         <sys_created_by>shroin.mandal</sys_created_by>
         <sys_created_on>2026-07-02 08:36:06</sys_created_on>
         <sys_id>1b258f063331cb50dccb9c173e5c7b33</sys_id>
-        <sys_mod_count>5</sys_mod_count>
+        <sys_mod_count>11</sys_mod_count>
         <sys_name>IncentIQMetricReportUtil</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
         <sys_update_name>sys_script_include_1b258f063331cb50dccb9c173e5c7b33</sys_update_name>
-        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
-        <sys_updated_on>2026-07-06 11:57:14</sys_updated_on>
+        <sys_updated_by>upma.rai</sys_updated_by>
+        <sys_updated_on>2026-08-31 12:29:05</sys_updated_on>
     </sys_script_include>
 </record_update>

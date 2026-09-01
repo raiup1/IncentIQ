@@ -493,6 +493,472 @@ body {
   background: white;
   border-radius: 1rem;
   cursor: pointer;
+}
+
+/* ============================================================
+   QUOTA SETUP WIDGET
+   MOBILE RESPONSIVE OVERRIDES
+   Existing HTML / classes / Angular / JS untouched
+   ============================================================ */
+
+
+/* ------------------------------------------------------------
+   TABLET
+   ------------------------------------------------------------ */
+@media (max-width: 991px) {
+
+  .quota-page {
+    width: 100%;
+    max-width: 100%;
+    padding: 0 14px;
+    box-sizing: border-box;
+    overflow-x: hidden;
+  }
+
+  /* Header */
+  .header-row {
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .admin-page-topbar {
+    min-width: 0;
+  }
+
+  .headd {
+    font-size: 2.3rem;
+  }
+
+  .header-actions {
+    flex-shrink: 0;
+  }
+
+  .btn-create {
+    white-space: nowrap;
+  }
+
+  /* Stats */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .stat-box {
+    min-width: 0;
+  }
+
+  /* Approval table */
+  #approvalFlowSection {
+    width: 100%;
+  }
+
+  #approvalFlowSection .panel-body {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  #approvalFlowSection table {
+    min-width: 650px;
+  }
+}
+
+
+/* ------------------------------------------------------------
+   MOBILE
+   ------------------------------------------------------------ */
+@media (max-width: 767px) {
+
+  .quota-page {
+    width: 100%;
+    max-width: 100%;
+    padding: 0 10px;
+    margin: 0 auto;
+    overflow-x: hidden;
+  }
+
+
+  /* ==========================================================
+     HEADER
+     ========================================================== */
+
+  .header-row {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .admin-page-topbar {
+    width: 100%;
+    min-width: 0;
+    padding-bottom: 10px;
+  }
+
+  .headd {
+    font-size: 2.2rem;
+    line-height: 1.2;
+  }
+
+  .header-actions {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .header-actions button {
+    margin-left: 0;
+  }
+
+  .btn-create {
+    width: 100%;
+    justify-content: center;
+    min-height: 42px;
+    padding: 9px 14px;
+    font-size: 13px;
+  }
+
+  .subtitle {
+    margin-top: 0;
+    margin-bottom: 18px;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+
+  /* ==========================================================
+     STATS
+     ========================================================== */
+
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .stat-box {
+    width: 100%;
+    min-width: 0;
+    padding: 15px;
+    border-radius: 10px;
+  }
+
+  .stat-box .box {
+    font-size: 11px;
+    line-height: 1.35;
+    margin-bottom: 9px;
+  }
+
+  .stat-box .set {
+    font-size: 2.3rem;
+    line-height: 1.1;
+    margin-bottom: 6px;
+    overflow-wrap: anywhere;
+  }
+
+  .stat-box span {
+    display: block;
+    font-size: 10px;
+    line-height: 1.4;
+  }
+
+
+  /* ==========================================================
+     QUOTA TABLE WIDGET
+     ========================================================== */
+
+  .quota-page &gt; div &gt; sp-widget,
+  .quota-page sp-widget {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+  }
+
+
+  /* ==========================================================
+     APPROVAL FLOW
+     ========================================================== */
+
+  #approvalFlowSection {
+    width: 100%;
+    margin-top: 18px;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  #approvalFlowSection .panel-heading {
+    padding: 12px 14px;
+  }
+
+  #approvalFlowSection .panel-heading h4 {
+    margin: 0;
+    font-size: 14px;
+  }
+
+  #approvalFlowSection .panel-body {
+    padding: 12px;
+    overflow-x: auto;
+    overflow-y: visible;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+  }
+
+  #approvalFlowSection table {
+    min-width: 620px;
+    margin-bottom: 0;
+  }
+
+  #approvalFlowSection th,
+  #approvalFlowSection td {
+    white-space: nowrap;
+    font-size: 11px;
+    padding: 9px 10px;
+    vertical-align: middle;
+  }
+
+
+  /* ==========================================================
+     PAGINATION
+     ========================================================== */
+
+  .pagination-wrapper {
+    margin-top: 16px;
+    padding: 0;
+  }
+
+  .pagination-container {
+    width: 100%;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .pagination-container .pg-btn {
+    min-height: 36px;
+    padding: 7px 11px;
+    font-size: 11px;
+  }
+
+  .pg-info {
+    min-width: 85px;
+    font-size: 11px;
+  }
+
+
+  /* ==========================================================
+     GENERAL TABLE SAFETY
+     ========================================================== */
+
+  .quota-page .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .quota-page table {
+    max-width: none;
+  }
+}
+
+
+/* ------------------------------------------------------------
+   SMALL PHONES
+   ------------------------------------------------------------ */
+@media (max-width: 480px) {
+
+  .quota-page {
+    padding: 0 7px;
+  }
+
+  .headd {
+    font-size: 2rem;
+  }
+
+  .subtitle {
+    font-size: 11px;
+  }
+
+
+  /* Stats */
+  .stats-row {
+    gap: 8px;
+  }
+
+  .stat-box {
+    padding: 12px;
+    border-radius: 9px;
+  }
+
+  .stat-box .box {
+    font-size: 10px;
+  }
+
+  .stat-box .set {
+    font-size: 2rem;
+  }
+
+  .stat-box span {
+    font-size: 9px;
+  }
+
+
+  /* Create button */
+  .btn-create {
+    min-height: 40px;
+    font-size: 12px;
+  }
+
+
+  /* Approval section */
+  #approvalFlowSection .panel-heading {
+    padding: 11px 12px;
+  }
+
+  #approvalFlowSection .panel-body {
+    padding: 10px;
+  }
+
+  #approvalFlowSection table {
+    min-width: 570px;
+  }
+
+  #approvalFlowSection th,
+  #approvalFlowSection td {
+    font-size: 10px;
+    padding: 8px;
+  }
+
+
+  /* Pagination */
+  .pagination-container {
+    gap: 5px;
+  }
+
+  .pagination-container .pg-btn {
+    padding: 6px 9px;
+    font-size: 10px;
+  }
+
+  .pg-info {
+    min-width: 75px;
+    font-size: 10px;
+  }
+}
+
+
+/* ------------------------------------------------------------
+   EXTRA SMALL PHONES
+   ------------------------------------------------------------ */
+@media (max-width: 360px) {
+
+  .quota-page {
+    padding: 0 5px;
+  }
+
+  .headd {
+    font-size: 1.85rem;
+  }
+
+  .stats-row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .stat-box {
+    padding: 13px;
+  }
+
+  .stat-box .set {
+    font-size: 2.1rem;
+  }
+
+  #approvalFlowSection table {
+    min-width: 540px;
+  }
+
+  .pagination-container {
+    gap: 4px;
+  }
+
+  .pagination-container .pg-btn {
+    padding: 6px 8px;
+  }
+}
+
+
+/* ------------------------------------------------------------
+   MOBILE HORIZONTAL SCROLL SAFETY
+   ------------------------------------------------------------ */
+
+@media (max-width: 767px) {
+
+  .quota-page,
+  .header-row,
+  .stats-row {
+    box-sizing: border-box;
+    max-width: 100%;
+  }
+
+  .quota-page input,
+  .quota-page select,
+  .quota-page textarea,
+  .quota-page button {
+    max-width: 100%;
+  }
+
+  /*
+     Prevent long content from creating page-level
+     horizontal scrolling.
+  */
+  .quota-page {
+    overflow-x: hidden;
+  }
+
+  /*
+     Tables can scroll independently when necessary.
+  */
+  #approvalFlowSection .panel-body {
+    overscroll-behavior-x: contain;
+  }
+}
+
+/* ============================================================
+   STAT CARD NUMBER SIZING
+   ============================================================ */
+
+/* Desktop */
+.stat-box .set {
+  font-size: 2.8rem;
+  line-height: 1.1;
+  font-weight: 700;
+}
+
+/* Tablet */
+@media (max-width: 991px) {
+  .stat-box .set {
+    font-size: 2.5rem;
+  }
+}
+
+/* Mobile */
+@media (max-width: 767px) {
+  .stat-box .set {
+    font-size: 1.9rem;
+    line-height: 1.15;
+  }
+}
+
+/* Small phones */
+@media (max-width: 480px) {
+  .stat-box .set {
+    font-size: 1.7rem;
+  }
+}
+
+/* Very small phones */
+@media (max-width: 360px) {
+  .stat-box .set {
+    font-size: 1.8rem;
+  }
 }</css>
         <data_table>sp_instance</data_table>
         <demo_data/>
@@ -511,6 +977,8 @@ body {
         <roles>x_ctans_incentnow.user</roles>
         <script><![CDATA[(function() {
 
+	data.currencySymbol = gs.getProperty('x_ctans_incentnow.currency_symbol','$');
+	data.currencyPosition = gs.getProperty('x_ctans_incentnow.currency_position','before');
   data.isEdit    = !!options.quota_batch_id;
   data.quotaModel = {};
 	data.isTerritoryEnabled =
@@ -523,7 +991,7 @@ body {
 		{
 			data.tableWidget=$sp.getWidget('incentnow-table-widget',{ table: 'x_ctans_incentnow_quota',view:'portal_view',viewperiod:'false'});
 		}
-	data.isIncentNowGroupAdmin= gs.hasRole('x_ctans_incentnow.business_group_admin') || gs.hasRole('x_ctans_incentnow.admin') || gs.hasRole('x_ctans_incentnow.territory_admin');
+	data.isIncentNowGroupAdmin= gs.hasRole('x_ctans_incentnow.business_group_admin') || gs.hasRole('x_ctans_incentnow.admin') || gs.hasRole('x_ctans_incentnow.territory_admin') ;
 
 
   /* ================= FISCAL CALENDAR ================= */
@@ -756,14 +1224,14 @@ body {
         <sys_created_by>shroin.mandal</sys_created_by>
         <sys_created_on>2026-04-06 11:07:55</sys_created_on>
         <sys_id>8676efc63bc007105493ddb693e45a43</sys_id>
-        <sys_mod_count>132</sys_mod_count>
+        <sys_mod_count>138</sys_mod_count>
         <sys_name>Quota Setup</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
         <sys_update_name>sp_widget_8676efc63bc007105493ddb693e45a43</sys_update_name>
-        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
-        <sys_updated_on>2026-07-28 15:50:49</sys_updated_on>
+        <sys_updated_by>shroin.mandal</sys_updated_by>
+        <sys_updated_on>2026-08-17 10:13:48</sys_updated_on>
         <template><![CDATA[<div class="quota-page">
   <!-- Header Section  -->
   <div class="header-row">
@@ -823,7 +1291,12 @@ body {
     </div>
     <div class="stat-box">
       <p class="box">Total Active Quota Value</p>
-      <p class="set">$ {{c.getQuotaSummary().totalValue | number}}</p>
+      <p class="set" ng-if="c.data.currencyPosition == 'before'">
+          {{c.data.currencySymbol}}{{c.getQuotaSummary().totalValue | number}}
+      </p>
+      <p class="set" ng-if="c.data.currencyPosition == 'after'">
+          {{c.getQuotaSummary().totalValue | number}}{{c.data.currencySymbol}}
+      </p>
       <span>Across all Active Quotas</span>
     </div>
   </div>

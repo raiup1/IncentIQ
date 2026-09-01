@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_atf_step">
+    <sys_atf_step action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <callable_outputs/>
+        <copied_from/>
+        <description>Click the component: 'Input label &lt;label&gt;: Name', Page area: 'default'</description>
+        <display_name>Click Component (Custom UI)</display_name>
+        <inputs/>
+        <mugshots_cache_json>{"e21f3f41095a8ee2c2175f0a8f26395e":"{\"area\":\"IncentNow Admin Dashboard\",\"sn_atf_mugshot_short_description\":\"Input label &lt;label&gt;: Name\",\"inner_text\":\"Name\",\"sn_atf_mugshot_long_description\":\"Input label &lt;label&gt;: Name in page area IncentNow Admin Dashboard\",\"methods\":[\"click\"],\"sn_atf_mugshot_label\":\"Name\",\"version\":\"26.0\",\"sn_atf_mugshot_label_for_label_path\":\"\",\"interesting_element_path\":[\"body\",\"div\",\"div\",\"sp-page-row\",\"span\",\"div\",\"label\"],\"get_value_result\":\"Name\",\"sn_atf_mugshot_tag_display_name\":\"Input label &lt;label&gt;\",\"sn_atf_mugshot_value\":\"\",\"tag\":\"label\",\"isDisabled\":false,\"label_path\":[\"default\"],\"hash\":\"e21f3f41095a8ee2c2175f0a8f26395e\"}"}</mugshots_cache_json>
+        <notes/>
+        <order>5</order>
+        <step_config display_value="Click Component (Custom UI)">def25c4b73730300c79260bdfaf6a700</step_config>
+        <sys_class_name>sys_atf_step</sys_class_name>
+        <sys_created_by>shiva.erla</sys_created_by>
+        <sys_created_on>2026-08-24 07:04:26</sys_created_on>
+        <sys_id>ac7d6f473332c310dccb9c173e5c7b7f</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>Click Component (Custom UI)</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_atf_step_ac7d6f473332c310dccb9c173e5c7b7f</sys_update_name>
+        <sys_updated_by>shiva.erla</sys_updated_by>
+        <sys_updated_on>2026-08-24 07:04:26</sys_updated_on>
+        <table/>
+        <test display_value="IncentIQ_LookUpTables_ATF">a6a477a13b2e83144be1ef9e53e45ab2</test>
+        <timeout/>
+        <warning_message/>
+    </sys_atf_step>
+    <sys_variable_value action="delete_multiple" query="document_key=ac7d6f473332c310dccb9c173e5c7b7f"/>
+    <sys_variable_value action="INSERT_OR_UPDATE">
+        <document>sys_atf_step</document>
+        <document_key>ac7d6f473332c310dccb9c173e5c7b7f</document_key>
+        <order>100</order>
+        <sys_class_name>sys_variable_value</sys_class_name>
+        <sys_created_by>shiva.erla</sys_created_by>
+        <sys_created_on>2026-08-24 07:04:26</sys_created_on>
+        <sys_id>6c8da3873332c310dccb9c173e5c7b7f</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>shiva.erla</sys_updated_by>
+        <sys_updated_on>2026-08-24 07:04:26</sys_updated_on>
+        <value>e21f3f41095a8ee2c2175f0a8f26395e</value>
+        <variable display_value="Component">ee05588b73730300c79260bdfaf6a749</variable>
+    </sys_variable_value>
+</record_update>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_atf_step">
+    <sys_atf_step action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <callable_outputs/>
+        <copied_from display_value="">2927b2c733de4bd0dccb9c173e5c7b03</copied_from>
+        <description>Set the components on the page as follows:
+'Text &lt;select2&gt;: Lookup using list' = Abel Tuter
+'Text &lt;select2&gt;: Lookup using list' = ATF Parent Org
+'Text &lt;input&gt;: Mobile phone' = 8989896756
+</description>
+        <display_name>Set Component Values (Custom UI)</display_name>
+        <inputs/>
+        <mugshots_cache_json>{"d7f2b5ad59eb373aada28b2028746429":"{\"area\":\"Organization Management &gt; IncentNow Form Advanced\",\"sn_atf_mugshot_short_description\":\"Text &lt;input&gt;: Mobile phone\",\"sn_atf_mugshot_long_description\":\"Text &lt;input&gt; [sp_formfield_user.mobile_phone]: Mobile phone in page area Organization Management &gt; IncentNow Form Advanced\",\"methods\":[\"setValue\"],\"sn_atf_mugshot_label\":\"Mobile phone\",\"type\":\"text\",\"version\":\"26.0\",\"label_for_input\":{\"inner_text\":\"Mobile phone\"},\"sn_atf_mugshot_label_for_label_path\":\"Mobile phone\",\"interesting_element_path\":[\"body\",\"div\",\"div\",\"sp-page-row\",\"span\",\"div\",\"div\",\"form\",\"sp-variable-layout\",\"div\",\"div\",\"input\"],\"get_value_result\":\"\",\"sn_atf_mugshot_tag_display_name\":\"Text &lt;input&gt;\",\"name\":\"user.mobile_phone\",\"sn_atf_mugshot_value\":\"\",\"tag\":\"input\",\"isDisabled\":false,\"id\":\"sp_formfield_user.mobile_phone\",\"label_path\":[\"Mobile phone\"],\"aria-label\":\"Mobile phone\",\"hash\":\"d7f2b5ad59eb373aada28b2028746429\",\"html_value\":\"\",\"duplicate-mugshot-index\":1}","82994a8b3a8afbce0c6ea774acf0aab3":"{\"area\":\"Organization Management &gt; IncentNow Form Advanced\",\"sn_atf_mugshot_short_description\":\"Text &lt;select2&gt;: Lookup using list\",\"inner_text\":\"Lookup using list\",\"role\":\"textbox\",\"sn_atf_mugshot_long_description\":\"Text &lt;select2&gt; [s2id_sp_formfield_user.manager]: Lookup using list in page area Organization Management &gt; IncentNow Form Advanced\",\"methods\":[\"setValue\"],\"sn_atf_mugshot_label\":\"Lookup using list\",\"index\":2,\"type\":\"text\",\"title\":\"ManagerManager\",\"version\":\"26.0\",\"sn_atf_mugshot_label_for_label_path\":\"ManagerManager\",\"get_value_result\":\"\",\"sn_atf_mugshot_tag_display_name\":\"Text &lt;select2&gt;\",\"sn_atf_mugshot_value\":\"\",\"name\":\"user.manager\",\"tag\":\"select2\",\"isDisabled\":false,\"id\":\"s2id_sp_formfield_user.manager\",\"hash\":\"82994a8b3a8afbce0c6ea774acf0aab3\",\"html_value\":\"\",\"duplicate-mugshot-index\":1}","37d7c1b3c64d10699d7f250bdd589ba1":"{\"area\":\"Organization Management &gt; IncentNow Form Advanced\",\"sn_atf_mugshot_short_description\":\"Text &lt;select2&gt;: Lookup using list\",\"inner_text\":\"Lookup using list\",\"role\":\"textbox\",\"sn_atf_mugshot_long_description\":\"Text &lt;select2&gt; [s2id_sp_formfield_business_unit]: Lookup using list in page area Organization Management &gt; IncentNow Form Advanced\",\"methods\":[\"setValue\"],\"sn_atf_mugshot_label\":\"Lookup using list\",\"index\":2,\"type\":\"text\",\"title\":\"Business UnitBusiness Unit\",\"version\":\"26.0\",\"sn_atf_mugshot_label_for_label_path\":\"Business UnitBusiness Unit\",\"get_value_result\":\"\",\"sn_atf_mugshot_tag_display_name\":\"Text &lt;select2&gt;\",\"sn_atf_mugshot_value\":\"\",\"name\":\"business_unit\",\"tag\":\"select2\",\"isDisabled\":false,\"id\":\"s2id_sp_formfield_business_unit\",\"hash\":\"37d7c1b3c64d10699d7f250bdd589ba1\",\"html_value\":\"\"}"}</mugshots_cache_json>
+        <notes/>
+        <order>18</order>
+        <step_config display_value="Set Component Values (Custom UI)">e5dd168473330300c79260bdfaf6a794</step_config>
+        <sys_class_name>sys_atf_step</sys_class_name>
+        <sys_created_by>shiva.erla</sys_created_by>
+        <sys_created_on>2026-08-05 04:57:38</sys_created_on>
+        <sys_id>794a51c933a2c714dccb9c173e5c7b05</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>Set Component Values (Custom UI)</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_atf_step_794a51c933a2c714dccb9c173e5c7b05</sys_update_name>
+        <sys_updated_by>shiva.erla</sys_updated_by>
+        <sys_updated_on>2026-08-05 04:57:38</sys_updated_on>
+        <table/>
+        <test display_value="IncentIQ_AddTeamMember">114a11c933a2c714dccb9c173e5c7b07</test>
+        <timeout/>
+        <warning_message/>
+    </sys_atf_step>
+    <sys_variable_value action="delete_multiple" query="document_key=794a51c933a2c714dccb9c173e5c7b05"/>
+    <sys_variable_value action="INSERT_OR_UPDATE">
+        <document>sys_atf_step</document>
+        <document_key>794a51c933a2c714dccb9c173e5c7b05</document_key>
+        <order>100</order>
+        <sys_class_name>sys_variable_value</sys_class_name>
+        <sys_created_by>shiva.erla</sys_created_by>
+        <sys_created_on>2026-08-05 04:57:38</sys_created_on>
+        <sys_id>fd4a51c933a2c714dccb9c173e5c7b06</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>shiva.erla</sys_updated_by>
+        <sys_updated_on>2026-08-05 04:57:38</sys_updated_on>
+        <value>82994a8b3a8afbce0c6ea774acf0aab3=Abel Tuter^37d7c1b3c64d10699d7f250bdd589ba1=ATF Parent Org^d7f2b5ad59eb373aada28b2028746429=8989896756^EQ</value>
+        <variable display_value="Component values">d12fde8473330300c79260bdfaf6a7b5</variable>
+    </sys_variable_value>
+    <sys_element_mapping action="delete_multiple" query="table=var__m_atf_input_variable_e5dd168473330300c79260bdfaf6a794^id=794a51c933a2c714dccb9c173e5c7b05"/>
+</record_update>

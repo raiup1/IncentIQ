@@ -1,0 +1,4855 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <client_script><![CDATA[api.controller = function ($scope, $timeout, spUtil) {
+
+	var c = this;
+
+	// =========================================================
+	// STATE
+	// =========================================================
+
+	c.steps = [
+		'Select Users & Fiscal Year',
+		'Assign Plans',
+		'Assign Quotas',
+		'Review & Confirm'
+	];
+
+	c.currentStep = 1;
+	
+	// =========================================================
+	// CANCEL BUTTON LABEL
+	// =========================================================
+
+	c.getCancelLabel = function() {
+
+		if (c.currentStep === 1) {
+			return 'Cancel Assignment';
+		}
+
+		if (c.currentStep === 2) {
+			return 'Cancel Plan';
+		}
+
+		if (c.currentStep === 3) {
+			return 'Cancel Quota';
+		}
+
+		if (c.currentStep === 4) {
+			return 'Cancel Review';
+		}
+
+		return 'Cancel';
+	};
+
+	// =========================================================
+	// STEP 1
+	// =========================================================
+
+	c.businessUnits = [];
+	c.territories = [];
+
+	c.dimensionType = '';
+	c.dimension = null;
+
+	c.fiscalYears = [];
+	c.fiscalYear = '';
+
+	c.availableUsers = [];
+	c.selectedUsers = [];
+
+	c.isLoadingUsers = false;
+
+	c.userTab = 'add';
+	c.userSearchSelected = '';
+	c.userSearchAdd = '';
+
+	c.userPage = 1;
+	c.pageSize = 5;
+
+	// =========================================================
+	// STEP 2
+	// =========================================================
+
+	c.availablePlans = [];
+	c.selectedPlans = [];
+
+	c.planTab = 'add';
+	c.planSearchAdd = '';
+
+	c.isLoadingPlans = false;
+
+	// Actual Participant Assignment records
+	c.participantAssignments = [];
+
+	// Actual Plan User records
+	c.planAssignments = [];
+
+	// =========================================================
+	// STEP 3
+	// =========================================================
+
+	/*
+	 * Every object here represents ONE:
+	 *
+	 * User
+	 * +
+	 * Plan
+	 * +
+	 * Lookup Rule
+	 *
+	 * The user only selects:
+	 *
+	 * Quota
+	 * Target
+	 */
+
+	c.step3Rows = [];
+	c.requiredMetrics = [];
+	c.availableQuotas = [];
+	c.selectedQuotas = [];
+	c.isLoadingQuotas = false;
+
+	c.isLoadingStep3 = false;
+
+	c.quotaSearchAdd = '';
+	c.quotaTab = 'selected';
+
+	// =========================================================
+	// STEP 4
+	// =========================================================
+
+	c.showReviewNote = true;
+
+	// =========================================================
+	// INIT
+	// =========================================================
+
+	c.$onInit = function() {
+		c.businessUnits = c.data.businessUnits || [];
+		c.territories = c.data.territories || [];
+		c.fiscalYears = c.data.fiscalYears || [];
+		c.fiscalYear = c.data.defaultFY || '';
+	};
+
+	// =========================================================
+	// DIMENSION TYPE
+	// =========================================================
+
+	c.onDimensionTypeChange = function() {
+		c.dimension = null;
+		c.clearAllAssignmentData();
+		c.userTab = 'add';
+		c.planTab = 'add';
+		c.userPage = 1;
+	};
+
+	// =========================================================
+	// DIMENSION CHANGE
+	// =========================================================
+
+	c.onDimensionChange = function() {
+		c.selectedUsers = [];
+		c.selectedPlans = [];
+
+		c.participantAssignments = [];
+		c.planAssignments = [];
+		c.step3Rows = [];
+
+		c.userPage = 1;
+
+		c.userTab = 'add';
+		c.planTab = 'add';
+
+		c.planSearchAdd = '';
+
+		c.availableUsers = [];
+		c.availablePlans = [];
+
+		if (!c.dimension) {
+			return;
+		}
+
+		c.isLoadingUsers = true;
+		c.isLoadingPlans = true;
+
+		c.server.get({
+			action: 'getDimensionData',
+			dimension: c.dimension.id,
+			dimensionType: c.dimensionType,
+			fiscalYear: c.fiscalYear
+		}).then(function(response) {
+			var data = response.data || {};
+
+			c.availableUsers = data.users || [];
+			c.availablePlans = data.plans || [];
+		}).catch(function(error) {
+			console.error(
+				'[IncentIQ] getDimensionData error:',
+				error
+			);
+
+			spUtil.addErroroMessage(
+				'Unable to load users and plans.'
+			);
+		}).finally(function() {
+			c.isLoadingUsers = false;
+			c.isLoadingPlans = false;
+		});
+	};
+
+	// =========================================================
+	// FISCAL YEAR CHANGE
+	// =========================================================
+
+	c.onFiscalYearChange = function() {
+		if (c.dimension) {
+			c.onDimensionChange();
+		}
+	};
+
+	// =========================================================
+	// FISCAL YEAR HELPERS
+	// =========================================================
+
+	c.getFiscalYearLabel = function() {
+		if (!c.fiscalYear) {
+			return '—';
+		}
+
+		var fy = (c.fiscalYears || []).find(function(f) {
+			return f.id === c.fiscalYear;
+		});
+
+		return fy ? fy.label : '—';
+	};
+
+	c.getFYDates = function() {
+		var fy = (c.fiscalYears || []).find(function(f) {
+			return f.id === c.fiscalYear;
+		});
+
+		return fy ? fy.start + ' – ' + fy.end : '';
+	};
+
+	c.getFiscalYearDates = c.getFYDates;
+
+	// =========================================================
+	// DIMENSION LABEL
+	// =========================================================
+
+	c.getDimensionLabel = function() {
+		return c.dimension ? c.dimension.label : '—';
+	};
+
+	// =========================================================
+	// USER HELPERS
+	// =========================================================
+
+	c.isSelected = function(user) {
+		return c.selectedUsers.some(function(u) {
+			return u.id === user.id;
+		});
+	};
+
+	c.toggleUser = function(user) {
+		if (c.isSelected(user)) {
+			c.removeUser(user);
+		} else {
+			c.selectedUsers.push(user);
+		}
+	};
+
+	c.removeUser = function(user) {
+		c.selectedUsers = c.selectedUsers.filter(function(u) {
+			return u.id !== user.id;
+		});
+
+		if (c.userPage > c.getTotalPages()) {
+			c.userPage = Math.max(1, c.getTotalPages());
+		}
+	};
+
+	c.selectAllUsers = function() {
+		c.getFilteredAvailable().forEach(function(user) {
+			if (!c.isSelected(user)) {
+				c.selectedUsers.push(user);
+			}
+		});
+	};
+
+	c.clearUsers = function() {
+		c.selectedUsers = [];
+		c.userPage = 1;
+	};
+
+	c.getFilteredAvailable = function() {
+		var q = (c.userSearchAdd || '').toLowerCase();
+
+		return (c.availableUsers || []).filter(function(user) {
+			return !q ||
+				(user.name || '')
+				.toLowerCase()
+				.indexOf(q) > -1 ||
+
+				(user.title || '')
+				.toLowerCase()
+				.indexOf(q) > -1 ||
+
+				(user.email || '')
+				.toLowerCase()
+				.indexOf(q) > -1;
+		});
+	};
+
+	c.getFilteredSelected = function() {
+		var q = (c.userSearchSelected || '').toLowerCase();
+
+		var list = c.selectedUsers.filter(function(user) {
+			return !q ||
+				(user.name || '')
+				.toLowerCase()
+				.indexOf(q) > -1 ||
+
+				(user.email || '')
+				.toLowerCase()
+				.indexOf(q) > -1;
+		});
+
+		var start = (c.userPage - 1) * c.pageSize;
+
+		return list.slice(start, start + c.pageSize);
+	};
+
+	c.getTotalPages = function() {
+		return Math.max(
+			1,
+			Math.ceil(
+				c.selectedUsers.length /
+				c.pageSize
+			)
+		);
+	};
+
+	c.getPageEnd = function() {
+		return Math.min(
+			c.userPage * c.pageSize,
+			c.selectedUsers.length
+		);
+	};
+
+	c.getPageRange = function() {
+		var total = c.getTotalPages();
+		var pages = [];
+
+		for (var i = 1; i <= Math.min(total, 5); i++) {
+			pages.push(i);
+		}
+
+		return pages;
+	};
+
+	c.getUniqueDimensions = function() {
+		var values = {};
+
+		c.selectedUsers.forEach(function(user) {
+			var value = '';
+
+			if (c.dimensionType === 'Business Unit') {
+				value = user.businessUnit;
+			}
+
+			if (c.dimensionType === 'Territory') {
+				value = user.territory;
+			}
+
+			if (value) {
+				values[value] = true;
+			}
+		});
+
+		return Object.keys(values).length ||
+			(c.selectedUsers.length > 0 ? 1 : 0);
+	};
+
+	// =========================================================
+	// PLAN HELPERS
+	// =========================================================
+
+	c.getFilteredAvailablePlans = function() {
+		var q = (c.planSearchAdd || '').toLowerCase();
+
+		return (c.availablePlans || []).filter(function(plan) {
+			return !q ||
+				(plan.name || '')
+				.toLowerCase()
+				.indexOf(q) > -1 ||
+
+				(plan.code || '')
+				.toLowerCase()
+				.indexOf(q) > -1 ||
+
+				(plan.type || '')
+				.toLowerCase()
+				.indexOf(q) > -1;
+		});
+	};
+
+	c.isPlanSelected = function(plan) {
+		return c.selectedPlans.some(function(p) {
+			return p.id === plan.id;
+		});
+	};
+
+	c.togglePlan = function(plan) {
+
+    // ---------------------------------------------------------
+    // REMOVE PLAN
+    // ---------------------------------------------------------
+
+    if (c.isPlanSelected(plan)) {
+
+        c.selectedPlans = c.selectedPlans.filter(function(p) {
+            return p.id !== plan.id;
+        });
+
+        return;
+    }
+
+
+    // ---------------------------------------------------------
+    // INDIVIDUAL PLAN TYPE VALIDATION
+    // Only ONE Individual plan can be selected
+    // ---------------------------------------------------------
+
+    if (
+        plan.type &&
+        plan.type.toLowerCase() === 'individual'
+    ) {
+
+        var individualAlreadySelected =
+            c.selectedPlans.some(function(selectedPlan) {
+
+                return (
+                    selectedPlan.type &&
+                    selectedPlan.type.toLowerCase() === 'individual'
+                );
+
+            });
+
+        if (individualAlreadySelected) {
+
+            spUtil.addErrorMessage(
+                'You can select only one plan of type Individual.'
+            );
+
+            return;
+        }
+    }
+
+
+    // ---------------------------------------------------------
+    // ADD PLAN
+    // ---------------------------------------------------------
+
+    c.selectedPlans.push(plan);
+};
+
+	c.removePlan = function(plan) {
+		c.selectedPlans = c.selectedPlans.filter(function(p) {
+			return p.id !== plan.id;
+		});
+	};
+
+	c.clearPlans = function() {
+		c.selectedPlans = [];
+	};
+
+	c.selectAllPlans = function() {
+		c.getFilteredAvailablePlans().forEach(function(plan) {
+			if (!c.isPlanSelected(plan)) {
+				c.selectedPlans.push(plan);
+			}
+		});
+	};
+
+	c.areAllPlansSelected = function() {
+		var plans = c.getFilteredAvailablePlans();
+
+		if (plans.length === 0) {
+			return false;
+		}
+
+		return plans.every(function(plan) {
+			return c.isPlanSelected(plan);
+		});
+	};
+
+	c.toggleAllPlans = function() {
+		var plans = c.getFilteredAvailablePlans();
+
+		if (c.areAllPlansSelected()) {
+			c.selectedPlans = c.selectedPlans.filter(function(selectedPlan) {
+				return !plans.some(function(plan) {
+					return plan.id === selectedPlan.id;
+				});
+			});
+		} else {
+			plans.forEach(function(plan) {
+				if (!c.isPlanSelected(plan)) {
+					c.selectedPlans.push(plan);
+				}
+			});
+		}
+	};
+
+	c.getSelectedPlanCount = function() {
+		return c.selectedPlans.length;
+	};
+
+	// =========================================================
+	// STEP 3
+	// LOAD DATA
+	// =========================================================
+
+	c.loadStep3Data = function() {
+		c.step3Rows = [];
+		c.requiredMetrics = [];
+		c.availableQuotas = [];
+
+		if (!c.planAssignments || c.planAssignments.length === 0) {
+			return;
+		}
+
+		c.isLoadingStep3 = true;
+		c.isLoadingQuotas = true;
+
+		var requests = [];
+
+		// =====================================================
+		// LOAD STEP 3 DATA FOR EVERY USER + PLAN ASSIGNMENT
+		// =====================================================
+
+		c.planAssignments.forEach(function(assignment) {
+			requests.push(
+				c.server.get({
+					action: 'getStep3QuotaData',
+					participantAssignmentId: assignment.participantAssignmentId,
+					planAssignmentId: assignment.planAssignmentId,
+					planId: assignment.planId,
+					userId: assignment.userId,
+					dimension: c.dimension ? c.dimension.id : '',
+					dimensionType: c.dimensionType,
+					fiscalYear: c.fiscalYear
+				}).then(function(response) {
+					var data = response.data || {};
+					var rows = data.step3Rows || [];
+
+					rows.forEach(function(row) {
+						c.step3Rows.push(row);
+					});
+				})
+			);
+		});
+
+		// =====================================================
+		// AFTER ALL USERS ARE LOADED
+		// =====================================================
+
+		return Promise.all(requests)
+			.then(function() {
+				/*
+				 * IMPORTANT
+				 *
+				 * c.step3Rows still contains the ORIGINAL
+				 * user-level rows.
+				 *
+				 * We keep those rows because they contain:
+				 *
+				 * userId
+				 * participantAssignmentId
+				 * planAssignmentId
+				 *
+				 * which are required when saving.
+				 *
+				 * c.requiredMetrics will now be the UNIQUE
+				 * rows displayed in the UI.
+				 *
+				 * UNIQUE KEY:
+				 *
+				 *      Plan + Lookup Rule
+				 *
+				 * Therefore multiple users will see only
+				 * one quota row.
+				 */
+
+				var grouped = {};
+				var orderedKeys = [];
+
+				c.step3Rows.forEach(function(row) {
+					var key =
+						String(row.planId || '') +
+						'|' +
+						String(row.lookupRuleId || '');
+
+					// -----------------------------------------
+					// CREATE GROUP
+					// -----------------------------------------
+
+					if (!grouped[key]) {
+						grouped[key] = {
+							planId: row.planId,
+							planName: row.planName,
+							planColor: row.planColor || '#337ab7',
+							metric: row.metric,
+							scope: row.scope,
+							lookupRuleId: row.lookupRuleId,
+							quotas: row.quotas || [],
+							quotaId: '',
+							target: '',
+							// ---------------------------------
+							// ALL USER ASSIGNMENTS BELONGING
+							// TO THIS PLAN + LOOKUP RULE
+							// ---------------------------------
+							assignments: []
+						};
+
+						orderedKeys.push(key);
+					}
+
+					// -----------------------------------------
+					// ADD THIS USER'S ASSIGNMENT
+					// -----------------------------------------
+
+					grouped[key].assignments.push({
+						userId: row.userId,
+						userName: row.userName,
+						participantAssignmentId: row.participantAssignmentId,
+						planAssignmentId: row.planAssignmentId,
+						planId: row.planId,
+						lookupRuleId: row.lookupRuleId,
+						existingQuotaId: row.quotaId || '',
+						existingTarget: row.target !== undefined &&
+							row.target !== null ?
+							row.target :
+							''
+					});
+
+					// -----------------------------------------
+					// EXISTING DATA
+					//
+					// If every user already has the SAME
+					// quota/target, display that value.
+					// Otherwise leave it blank so the user
+					// can make one common selection.
+					// -----------------------------------------
+
+					var group = grouped[key];
+
+					if (group.assignments.length === 1) {
+						group.quotaId = row.quotaId || '';
+						group.target = row.target !== undefined &&
+							row.target !== null ?
+							row.target :
+							'';
+					} else {
+						var firstAssignment = group.assignments[0];
+
+						var sameQuota = group.assignments.every(
+							function(a) {
+								return String(
+									a.existingQuotaId || ''
+								) === String(
+									firstAssignment.existingQuotaId || ''
+								);
+							}
+						);
+
+						var sameTarget = group.assignments.every(
+							function(a) {
+								return String(
+									a.existingTarget || ''
+								) === String(
+									firstAssignment.existingTarget || ''
+								);
+							}
+						);
+
+						if (
+							sameQuota &&
+							firstAssignment.existingQuotaId
+						) {
+							group.quotaId =
+								firstAssignment.existingQuotaId;
+						} else {
+							group.quotaId = '';
+						}
+
+						if (
+							sameTarget &&
+							firstAssignment.existingTarget !== ''
+						) {
+							group.target =
+								firstAssignment.existingTarget;
+						} else {
+							group.target = '';
+						}
+					}
+				});
+
+				// =================================================
+				// BUILD UNIQUE UI ROWS
+				// =================================================
+
+				c.requiredMetrics =
+					orderedKeys.map(function(key) {
+						var group = grouped[key];
+
+						return {
+							// -------------------------------------
+							// UNIQUE PLAN / METRIC INFORMATION
+							// -------------------------------------
+
+							planId: group.planId,
+							planName: group.planName,
+							planColor: group.planColor,
+							metric: group.metric,
+							scope: group.scope,
+							lookupRuleId: group.lookupRuleId,
+							quotas: group.quotas,
+
+							// -------------------------------------
+							// COMMON SELECTION
+							// -------------------------------------
+
+							quotaId: group.quotaId,
+							target: group.target,
+
+							// -------------------------------------
+							// ALL USERS
+							// -------------------------------------
+
+							assignments: group.assignments
+						};
+					});
+			
+			// =================================================
+			// BUILD ALL AVAILABLE QUOTAS
+			// =================================================
+
+			var quotaMap = {};
+
+			c.step3Rows.forEach(function(row) {
+
+					(row.quotas || []).forEach(function(quota) {
+
+							if (!quotaMap[quota.id]) {
+
+									quotaMap[quota.id] = {
+											id: quota.id,
+											name: quota.name || '',
+											uom: quota.uom || '',
+											targetValue: quota.targetValue || '',
+											attainmentMetric: quota.attainmentMetric || ''
+									};
+
+							}
+
+					});
+
+			});
+
+			c.availableQuotas = Object.keys(quotaMap).map(function(key) {
+					return quotaMap[key];
+			});
+
+				console.log(
+					'[IncentIQ] Original Step 3 rows:',
+					c.step3Rows
+				);
+
+				console.log(
+					'[IncentIQ] Unique Step 3 rows:',
+					c.requiredMetrics
+				);
+			})
+			.catch(function(error) {
+				console.error(
+					'[IncentIQ] Step 3 load error:',
+					error
+				);
+			})
+			.finally(function() {
+				c.isLoadingStep3 = false;
+				c.isLoadingQuotas = false;
+			});
+	};
+
+	c.getQuotasForMetric = function(metric) {
+		if (!metric) {
+			return [];
+		}
+
+		var result = [];
+
+		(c.step3Rows || []).forEach(function(row) {
+			if (row.metric === metric) {
+				(row.quotas || []).forEach(function(quota) {
+					var exists = result.some(function(q) {
+						return q.id === quota.id;
+					});
+
+					if (!exists) {
+						result.push(quota);
+					}
+				});
+			}
+		});
+
+		return result;
+	};
+
+	// =========================================================
+	// STEP 3 HELPERS
+	// =========================================================
+
+	c.getStep3RowsForAssignment = function(assignment) {
+		return (c.step3Rows || [])
+			.filter(function(row) {
+				return row.planAssignmentId ===
+					assignment.planAssignmentId;
+			});
+	};
+
+	c.getStep3Assignments = function() {
+		var result = [];
+		var seen = {};
+
+		(c.step3Rows || [])
+			.forEach(function(row) {
+				var key = row.planAssignmentId;
+
+				if (!seen[key]) {
+					seen[key] = true;
+
+					result.push({
+						userId: row.userId,
+						userName: row.userName,
+						planId: row.planId,
+						planName: row.planName,
+						planAssignmentId: row.planAssignmentId,
+						participantAssignmentId: row.participantAssignmentId
+					});
+				}
+			});
+
+		return result;
+	};
+
+	c.getQuotaLabel = function(quota) {
+		if (!quota) {
+			return '';
+		}
+
+		var label = quota.name || '';
+
+		if (quota.uom) {
+			label += ' (' + quota.uom + ')';
+		}
+
+		return label;
+	};
+
+	c.getSelectedQuota = function(row) {
+		if (!row || !row.quotaId) {
+			return null;
+		}
+
+		var selectedId = String(row.quotaId);
+
+		return (row.quotas || []).find(function(quota) {
+			return String(quota.id) === selectedId;
+		}) || null;
+	};
+
+	/*
+	 * When quota is selected:
+	 *
+	 * - populate target from quota.target_value
+	 * - user can still edit target afterwards
+	 */
+	c.onQuotaChange = function(row) {
+		if (!row) {
+			return;
+		}
+
+		var quota = c.getSelectedQuota(row);
+
+		console.log(
+			'[IncentIQ] Selected Quota:',
+			quota
+		);
+
+		if (!quota) {
+			row.target = '';
+			return;
+		}
+
+		var target = quota.targetValue;
+
+		console.log(
+			'[IncentIQ] Target Value:',
+			target
+		);
+
+		$scope.$evalAsync(function() {
+			row.target =
+				target !== undefined &&
+				target !== null &&
+				target !== '' ?
+				Number(target) :
+				'';
+
+			// =================================================
+			// SYNC THE COMMON SELECTION BACK TO ALL ORIGINAL
+			// USER-LEVEL STEP 3 ROWS
+			// =================================================
+
+			(row.assignments || [])
+				.forEach(function(assignment) {
+					var sourceRow =
+						(c.step3Rows || []).find(
+							function(source) {
+								return (
+									source.userId ===
+									assignment.userId &&
+
+									source.planAssignmentId ===
+									assignment.planAssignmentId &&
+
+									source.lookupRuleId ===
+									assignment.lookupRuleId
+								);
+							}
+						);
+
+					if (sourceRow) {
+						sourceRow.quotaId =
+							row.quotaId;
+
+						sourceRow.target =
+							row.target;
+					}
+				});
+
+			console.log(
+				'[IncentIQ] Common quota synced to users:',
+				row.assignments
+			);
+		});
+	};
+
+	c.isStep3Complete = function() {
+		if (c.selectedPlans.length === 0) {
+			return false;
+		}
+
+		if (c.step3Rows.length === 0) {
+			return false;
+		}
+
+		return c.step3Rows.every(
+			function(row) {
+				return !!row.lookupRuleId &&
+					!!row.quotaId &&
+					row.target !== '' &&
+					row.target !== null &&
+					row.target !== undefined;
+			}
+		);
+	};
+
+	c.getIncompleteStep3Count = function() {
+		return c.requiredMetrics.filter(
+			function(row) {
+				return !row.lookupRuleId ||
+					!row.quotaId ||
+					row.target === '' ||
+					row.target === null ||
+					row.target === undefined;
+			}
+		).length;
+	};
+
+	// =========================================================
+	// NAVIGATION VALIDATION
+	// =========================================================
+
+	c.canProceed = function() {
+		if (c.currentStep === 1) {
+			return (
+				c.selectedUsers.length > 0 &&
+				!!c.dimension &&
+				!!c.fiscalYear
+			);
+		}
+
+		if (c.currentStep === 2) {
+			return (
+				c.selectedPlans.length > 0
+			);
+		}
+
+		if (c.currentStep === 3) {
+			return c.isStep3Complete();
+		}
+
+		return true;
+	};
+
+	// =========================================================
+	// NEXT
+	// =========================================================
+
+	c.nextStep = function() {
+		if (!c.canProceed()) {
+			if (c.currentStep === 3) {
+				alert(
+					'Please select a quota and enter a target for every required metric.'
+				);
+			}
+
+			return;
+		}
+
+		// =====================================================
+		// STEP 1 -> STEP 2
+		// =====================================================
+
+		if (c.currentStep === 1) {
+			var userIds =
+				c.selectedUsers.map(
+					function(user) {
+						return user.id;
+					}
+				);
+
+			c.server.get({
+				action: 'createParticipantAssignments',
+				userIds: userIds,
+				dimension: c.dimension ?
+					c.dimension.id : '',
+				dimensionType: c.dimensionType,
+				fiscalYear: c.fiscalYear
+			}).then(function(response) {
+				var data = response.data || {};
+
+				if (data.success) {
+					c.participantAssignments =
+						data.assignments || [];
+
+					c.currentStep = 2;
+				} else {
+					alert(
+						data.message ||
+						'Unable to create participant assignments.'
+					);
+				}
+			}, function(error) {
+				console.error(
+					'[IncentIQ] Participant assignment error:',
+					error
+				);
+
+				alert(
+					'Error while creating participant assignments.'
+				);
+			});
+
+			return;
+		}
+
+		// =====================================================
+		// STEP 2 -> STEP 3
+		// =====================================================
+
+		if (c.currentStep === 2) {
+
+			var userIds = c.selectedUsers.map(function(user) {
+				return user.id;
+			});
+
+			var planIds = c.selectedPlans.map(function(plan) {
+				return plan.id;
+			});
+
+			// Reset Step 3 before loading
+			c.step3Rows = [];
+			c.requiredMetrics = [];
+			c.availableQuotas = [];
+
+			c.isLoadingStep3 = true;
+			c.isLoadingQuotas = true;
+
+			c.server.get({
+				action: 'createPlanUserAssignments',
+				userIds: userIds,
+				planIds: planIds,
+				dimension: c.dimension ? c.dimension.id : '',
+				dimensionType: c.dimensionType,
+				fiscalYear: c.fiscalYear
+			}).then(function(response) {
+
+				var data = response.data || {};
+
+				if (
+					data.success &&
+					data.planAssignments &&
+					data.planAssignments.length > 0
+				) {
+
+					c.planAssignments = data.planAssignments;
+
+					// ---------------------------------------------
+					// OPEN STEP 3 FIRST
+					// ---------------------------------------------
+
+					c.currentStep = 3;
+
+					// Required Quotas is the default tab
+					c.quotaTab = 'selected';
+
+					// ---------------------------------------------
+					// LOAD QUOTA DATA
+					// ---------------------------------------------
+
+					return c.loadStep3Data();
+
+				} else {
+
+					c.isLoadingStep3 = false;
+					c.isLoadingQuotas = false;
+
+					alert(
+						data.message ||
+						'Unable to create plan assignments.'
+					);
+
+					return null;
+				}
+
+			}).then(function() {
+
+				// Force Angular to refresh the Step 3 UI
+				$scope.$evalAsync(function() {
+					c.quotaTab = 'selected';
+				});
+
+			}).catch(function(error) {
+
+				console.error(
+					'[IncentIQ] Plan assignment / Step 3 error:',
+					error
+				);
+
+				c.isLoadingStep3 = false;
+				c.isLoadingQuotas = false;
+
+				alert(
+					'Error while loading quota assignments.'
+				);
+			});
+
+			return;
+		}
+
+		// =====================================================
+		// STEP 3 -> STEP 4
+		// SAVE QUOTA ASSIGNMENTS
+		// =====================================================
+
+		if (c.currentStep === 3) {
+			if (!c.isStep3Complete()) {
+				alert(
+					'Please complete every required quota row.'
+				);
+
+				return;
+			}
+
+			// -----------------------------------------------------
+			// BUILD FINAL QUOTA ASSIGNMENT PAYLOAD
+			// -----------------------------------------------------
+
+			var rows = [];
+
+			// =====================================================
+			// EXPAND EACH UNIQUE UI ROW BACK INTO EVERY USER
+			// =====================================================
+
+			c.requiredMetrics.forEach(function(row) {
+				(row.assignments || [])
+					.forEach(function(assignment) {
+						rows.push({
+							userId: assignment.userId,
+							participantAssignmentId: assignment.participantAssignmentId,
+							planAssignmentId: assignment.planAssignmentId,
+							planId: assignment.planId,
+							lookupRuleId: assignment.lookupRuleId,
+							quotaId: row.quotaId,
+							target: row.target
+						});
+					});
+			});
+
+			console.log(
+				'[IncentIQ] Expanded quota assignment payload:',
+				rows
+			);
+
+			console.log(
+				'[IncentIQ] Saving quota assignments before Review:',
+				rows
+			);
+
+			// -----------------------------------------------------
+			// SAVE TO USER QUOTA ASSIGNMENT
+			// -----------------------------------------------------
+
+			c.server.get({
+				action: 'createUserQuotaAssignments',
+				rows: rows
+			}).then(function(response) {
+				var data = response.data || {};
+
+				console.log(
+					'[IncentIQ] Quota save response:',
+					data
+				);
+
+				if (data.success) {
+					// ---------------------------------------------
+					// SAVE SUCCESSFULLY COMPLETED
+					// MOVE TO REVIEW
+					// ---------------------------------------------
+
+					c.currentStep = 4;
+				} else {
+					alert(
+						data.message ||
+						'Unable to save quota assignments.'
+					);
+				}
+			}, function(error) {
+				console.error(
+					'[IncentIQ] Quota assignment save error:',
+					error
+				);
+
+				alert(
+					'Error while saving quota assignments.'
+				);
+			});
+
+			return;
+		}
+	};
+
+	// =========================================================
+	// PREVIOUS
+	// =========================================================
+
+	c.prevStep = function() {
+		if (c.currentStep > 1) {
+			c.currentStep--;
+		}
+	};
+
+	// =========================================================
+	// CONFIRM
+	// =========================================================
+
+	c.confirmAssignment = function() {
+		if (!c.isStep3Complete()) {
+			alert(
+				'Please complete all required quota rows before confirming.'
+			);
+
+			c.currentStep = 3;
+
+			return;
+		}
+
+		var rows = [];
+
+		// =====================================================
+		// EXPAND UNIQUE UI ROWS INTO USER-LEVEL RECORDS
+		// =====================================================
+
+		c.requiredMetrics.forEach(function(row) {
+			(row.assignments || [])
+				.forEach(function(assignment) {
+					rows.push({
+						userId: assignment.userId,
+						participantAssignmentId: assignment.participantAssignmentId,
+						planAssignmentId: assignment.planAssignmentId,
+						planId: assignment.planId,
+						lookupRuleId: assignment.lookupRuleId,
+						quotaId: row.quotaId,
+						target: row.target
+					});
+				});
+		});
+
+		console.log(
+			'[IncentIQ] Final expanded quota assignment payload:',
+			rows
+		);
+
+		c.server.get({
+			action: 'createUserQuotaAssignments',
+			rows: rows,
+			finalConfirm: true
+		}).then(function(response) {
+			var data = response.data || {};
+
+			if (data.success) {
+				spUtil.addInfoMessage(
+					'Assignment successfully created and submitted for approval for ' +
+					c.selectedUsers.length +
+					' user(s)!'
+				);
+
+				// Refresh the entire Service Portal page
+				$timeout(function() {
+					window.location.reload();
+				}, 1500);
+			} else {
+				spUtil.addErrorMessage(
+					data.message ||
+					'Unable to create quota assignments.'
+				);
+			}
+		}, function(error) {
+			console.error(
+				'[IncentIQ] Final assignment error:',
+				error
+			);
+
+			spUtil.addErrorMessage(
+				'Error while creating quota assignments.'
+			);
+		});
+	};
+
+	// =========================================================
+	// RESET
+	// =========================================================
+
+	c.clearAllAssignmentData = function() {
+		c.selectedUsers = [];
+		c.selectedPlans = [];
+
+		c.participantAssignments = [];
+		c.planAssignments = [];
+
+		c.step3Rows = [];
+
+		c.availableUsers = [];
+		c.availablePlans = [];
+
+		c.userSearchSelected = '';
+		c.userSearchAdd = '';
+
+		c.planSearchAdd = '';
+
+		c.userPage = 1;
+	};
+
+	c.resetAssignment = function() {
+		c.currentStep = 1;
+
+		c.clearAllAssignmentData();
+
+		c.dimension = null;
+
+		c.dimensionType = '';
+
+		c.userTab = 'add';
+		c.planTab = 'add';
+
+		c.showReviewNote = true;
+	};
+
+	// =========================================================
+	// REVIEW HELPERS
+	// =========================================================
+
+	c.getReviewUsers = function() {
+		return c.selectedUsers || [];
+	};
+
+	c.getReviewPlans = function() {
+		return c.selectedPlans || [];
+	};
+
+	c.getReviewQuotaRows = function() {
+		return c.requiredMetrics || [];
+	};
+	
+	
+	// Approval Flow Pagination
+		c.approvalCurrentPage = 1;
+		c.approvalPageSize = 5;
+
+		c.getPaginatedApprovalFlow = function () {
+
+				if (!c.approvalFlow)
+						return [];
+
+				var start = (c.approvalCurrentPage - 1) * c.approvalPageSize;
+				var end = start + c.approvalPageSize;
+
+				return c.approvalFlow.slice(start, end);
+		};
+
+		c.approvalTotalPages = function () {
+
+				if (!c.approvalFlow || c.approvalFlow.length === 0)
+						return 1;
+
+				return Math.ceil(c.approvalFlow.length / c.approvalPageSize);
+		};
+
+		c.nextApprovalPage = function () {
+
+				if (c.approvalCurrentPage < c.approvalTotalPages()) {
+						c.approvalCurrentPage++;
+				}
+		};
+
+		c.prevApprovalPage = function () {
+
+				if (c.approvalCurrentPage > 1) {
+						c.approvalCurrentPage--;
+				}
+		};
+	
+	
+	//approval flow
+
+		c.showApprovalFlow = false;
+		c.approvalFlow = [];
+
+		c.openApprovalFlow = function(participantAssignmentId) {
+
+			c.server.get({
+					action: "getApprovalFlow",
+					participantAssignmentId: participantAssignmentId
+			}).then(function(response) {
+
+					c.approvalFlow = response.data.approvalFlow;
+					c.approvalCurrentPage = 1;
+					c.showApprovalFlow = true;
+
+					$timeout(function () {
+
+							var el = document.getElementById("approvalFlowSection");
+
+							if (el) {
+									el.scrollIntoView({
+											behavior: "smooth",
+											block: "start"
+									});
+							}
+
+					}, 100);
+			});
+	};
+	
+		$scope.$on('showParticipantAssignmentApprovalFlow', function(event, data) {
+
+			c.server.get({
+					action: 'getApprovalFlow',
+					participantAssignmentId: data.participantAssignmentId
+			}).then(function(response){
+
+					c.approvalFlow = response.data.approvalFlow;
+					c.approvalCurrentPage = 1;
+					c.showApprovalFlow = true;
+
+					$timeout(function () {
+
+							var el = document.getElementById("approvalFlowSection");
+
+							if (el) {
+									el.scrollIntoView({
+											behavior: "smooth",
+											block: "start"
+									});
+							}
+
+					}, 100);
+
+			});
+
+	});
+
+
+}]]></client_script>
+        <controller_as>c</controller_as>
+        <css>/* IncentIQ Assignment Widget — ServiceNow SCSS */
+
+.incentiq-assignment-widget {
+  font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+  max-width: 130rem;
+  margin: 0 auto;
+  padding-bottom: 24px;
+  color: #0f172a;
+}
+
+/* Header */
+.iiq-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+.iiq-header-left { display: flex; align-items: center; gap: 12px; }
+.iiq-logo {
+  width: 36px; height: 36px; border-radius: 8px;
+  background: linear-gradient(135deg, #2563eb, #7c3aed);
+  color: white; font-weight: 700; font-size: 13px;
+  display: flex; align-items: center; justify-content: center;
+}
+.iiq-title  { 
+		font-size: 2.6rem;
+    font-weight: 700;
+    color: #0f172a;
+}
+.iiq-subtitle { font-size: 13px; color: #64748b; margin: 2px 0 0; }
+
+/* Steps */
+.iiq-steps {
+  display: flex; align-items: center;
+  background: white; border: 1px solid #e2e8f0;
+  border-radius: 12px; padding: 16px 24px;
+  margin-bottom: 16px;
+}
+.iiq-step { display: flex; align-items: center; gap: 8px; }
+.iiq-step-circle {
+  width: 28px; height: 28px; border-radius: 50%;
+  border: 2px solid #cbd5e1; color: #94a3b8;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700;
+}
+.iiq-step.active .iiq-step-circle { background: #2563eb; border-color: #2563eb; color: white; box-shadow: 0 0 0 4px #dbeafe; }
+.iiq-step.done   .iiq-step-circle { background: #2563eb; border-color: #2563eb; color: white; }
+.iiq-step-label { font-size: 13px; font-weight: 500; color: #94a3b8; }
+.iiq-step.active .iiq-step-label,
+.iiq-step.done   .iiq-step-label { color: #2563eb; }
+.iiq-step-line { flex: 1; height: 1px; background: #e2e8f0; margin: 0 12px; min-width: 32px; }
+.iiq-step.done .iiq-step-line { background: #2563eb; }
+
+/* Cards */
+.iiq-card {
+  background: white; border: 1px solid #e2e8f0;
+  border-radius: 16px; padding: 24px;
+  margin-bottom: 16px;
+}
+.iiq-card-header {
+  display: flex; align-items: flex-start;
+  justify-content: space-between; margin-bottom: 16px;
+}
+.iiq-section-title { font-size: 14px; font-weight: 600; color: #0f172a; margin: 0 0 4px; }
+.iiq-section-sub   { font-size: 12px; color: #64748b; margin: 0; }
+.iiq-label         { font-size: 11px; font-weight: 600; color: #475569; margin-bottom: 6px; }
+
+.iiq-select, .iiq-select.form-control {
+  border: 1px solid #cbd5e1; border-radius: 8px; height: 36px;
+  font-size: 13px; color: #0f172a;
+}
+.iiq-select:focus { border-color: #2563eb; box-shadow: 0 0 0 3px #dbeafe; outline: none; }
+
+.iiq-period-display {
+  height: 36px; background: #f8fafc; border: 1px solid #e2e8f0;
+  border-radius: 8px; padding: 8px 12px; font-size: 12px; color: #475569;
+  display: flex; align-items: center; gap: 8px;
+}
+
+/* User Selector */
+.iiq-user-selector {
+  border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; margin-top: 8px;
+}
+.iiq-user-tabs.nav-tabs { background: #f8fafc; border-bottom: 1px solid #e2e8f0; }
+.iiq-user-tabs.nav-tabs &gt; li &gt; a {
+  font-size: 13px; font-weight: 500; color: #64748b;
+  border-radius: 0; border: none; padding: 12px 20px;
+}
+.iiq-user-tabs.nav-tabs &gt; li.active &gt; a {
+  color: #2563eb; background: white;
+  border-bottom: 2px solid #2563eb;
+}
+.iiq-badge-blue { background: #dbeafe; color: #1d4ed8; }
+.badge{
+	color: #625d5d;
+}
+/* Stats row */
+.iiq-stats-row {
+  display: flex; align-items: center; gap: 0;
+  padding: 10px 20px; border-bottom: 1px solid #f1f5f9;
+  background: white;
+}
+.iiq-stat {
+  display: flex; align-items: center; gap: 10px;
+  padding-right: 20px; margin-right: 20px;
+  border-right: 1px solid #e2e8f0;
+}
+.iiq-stat .glyphicon { color: #94a3b8; font-size: 16px; }
+.iiq-stat-label { font-size: 10px; color: #64748b; }
+.iiq-stat-value { font-size: 15px; font-weight: 700; color: #0f172a; }
+.iiq-stat-actions { margin-left: auto; display: flex; gap: 8px; }
+.iiq-btn-xs    { font-size: 11px; padding: 3px 10px; border-radius: 6px; }
+.iiq-btn-danger { color: #dc2626 !important; }
+.iiq-btn-danger:hover { border-color: #fca5a5 !important; }
+
+/* Search bar */
+.iiq-search-bar { position: relative; padding: 10px 16px; border-bottom: 1px solid #f1f5f9; }
+.iiq-search-icon { position: absolute; left: 28px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 12px; }
+.iiq-search-input { padding-left: 28px !important; border-radius: 8px !important; font-size: 13px; }
+
+/* Tables */
+.iiq-table { margin-bottom: 0; font-size: 13px; }
+.iiq-table thead th { font-size: 11px; font-weight: 600; color: #64748b; background: #f8fafc; text-transform: uppercase; letter-spacing: 0.04em; border-bottom: 1px solid #e2e8f0; padding: 10px 12px; }
+.iiq-table tbody td { padding: 12px; vertical-align: middle; border-top: 1px solid #f1f5f9; }
+.iiq-table tbody tr:hover td { background: #f8fafc; }
+.iiq-table-add .iiq-row-selected td { background: #eff6ff; }
+.iiq-col-check { width: 48px; }
+.iiq-clickable { cursor: pointer; }
+
+/* User cell */
+.iiq-user-cell { display: flex; align-items: center; gap: 10px; }
+.iiq-user-name { font-weight: 500; color: #0f172a; font-size: 13px; line-height: 1.3; }
+.iiq-user-title { font-size: 11px; color: #64748b; line-height: 1.3; }
+.iiq-mono { font-family: 'JetBrains Mono', Consolas, monospace; font-size: 12px; }
+
+/* Avatar */
+.iiq-avatar {
+  width: 28px; height: 28px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  color: white; font-size: 10px; font-weight: 700; flex-shrink: 0;
+}
+.iiq-avatar-sm { width: 24px; height: 24px; font-size: 9px; }
+
+/* Checkbox */
+.iiq-checkbox {
+  width: 16px; height: 16px; border-radius: 3px;
+  border: 2px solid #cbd5e1; background: white;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .15s;
+}
+.iiq-checkbox.checked { background: #2563eb; border-color: #2563eb; }
+.iiq-checkbox .glyphicon { color: white; font-size: 9px; }
+
+/* Pagination */
+.iiq-pagination {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 20px; border-top: 1px solid #f1f5f9; background: #f8fafc;
+}
+.iiq-page-info { font-size: 12px; color: #64748b; }
+.iiq-pager { margin: 0; }
+
+/* Plan elements */
+.iiq-plan-icon {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 24px; height: 24px; border-radius: 5px; border: 1px solid;
+  margin-right: 8px;
+}
+.iiq-plan-icon-sm { display: inline-flex; align-items: center; margin-right: 6px; }
+.iiq-plan-option {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 12px; border: 1px solid #e2e8f0; border-radius: 12px;
+  cursor: pointer; margin-bottom: 8px; font-weight: normal;
+  transition: border-color .15s, background .15s;
+}
+.iiq-plan-option.selected { border-color: #93c5fd; background: #eff6ff; }
+.iiq-plan-option:hover { border-color: #93c5fd; }
+.iiq-plan-option-name { font-size: 13px; font-weight: 500; }
+.iiq-plan-metrics { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.iiq-metric-chip {
+  font-size: 11px; padding: 2px 8px; border-radius: 4px;
+  background: #fffbeb; border: 1px solid #fcd34d; color: #92400e; font-weight: 500;
+}
+.iiq-label-active {
+  background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7;
+  padding: 2px 8px; border-radius: 4px; font-size: 11px;
+}
+
+/* Scope chips */
+.iiq-scope-chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 11px; font-weight: 500;
+}
+.iiq-scope-team       { color: #6d28d9; }
+.iiq-scope-individual { color: #1d4ed8; }
+
+/* Quota inputs */
+.iiq-quota-select { min-width: 180px; font-size: 12px; }
+.iiq-target-input { width: 100px; text-align: right; }
+.iiq-period-cell  { font-size: 12px; color: #475569; white-space: nowrap; }
+
+/* Review */
+.iiq-review-block { padding: 12px; background: #f8fafc; border-radius: 10px; margin-bottom: 12px; }
+.iiq-review-label { font-size: 11px; font-weight: 600; color: #64748b; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em; }
+.iiq-review-value { font-size: 14px; font-weight: 600; color: #0f172a; }
+.iiq-review-users { display: flex; flex-direction: column; gap: 6px; max-height: 120px; overflow-y: auto; }
+.iiq-review-user  { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+.iiq-review-section { margin-top: 12px; }
+.iiq-plan-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 12px; background: #f8fafc; border: 1px solid #e2e8f0;
+  border-radius: 8px; font-size: 13px; margin: 4px 4px 0 0;
+}
+.iiq-review-note { font-size: 13px; margin-top: 16px; border-radius: 2.8rem; }
+
+/* Empty states */
+.iiq-empty-state { text-align: center; padding: 40px 20px; color: #94a3b8; }
+.iiq-empty-icon  { font-size: 32px; display: block; margin-bottom: 12px; }
+.iiq-dimension-placeholder {
+  border: 1px dashed #e2e8f0; border-radius: 12px;
+  padding: 32px; text-align: center; color: #94a3b8; margin-top: 8px;
+}
+
+/* Footer */
+.iiq-footer {
+  display: flex; align-items: center; justify-content: flex-end;
+  gap: 10px; padding: 16px 0; border-top: 1px solid #e2e8f0; margin-top: 8px;
+}
+.iiq-btn-next    { background: #2563eb; border-color: #2563eb; color: white; font-weight: 600; }
+.iiq-btn-confirm { background: #000000; border-color: #059669; color: white; font-weight: 600; }
+.iiq-btn-sn { font-size: 13px; }
+
+/* Modals */
+.iiq-modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,.35);
+  display: flex; align-items: center; justify-content: center; z-index: 9999;
+}
+.iiq-modal {
+  background: white; border-radius: 16px; width: 520px;
+  max-height: 80vh; display: flex; flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0,0,0,.2);
+}
+.iiq-modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 20px; border-bottom: 1px solid #f1f5f9;
+  font-size: 15px; font-weight: 600;
+}
+.iiq-modal-close { background: none; border: none; font-size: 20px; cursor: pointer; color: #94a3b8; }
+.iiq-modal-body  { overflow-y: auto; padding: 16px; flex: 1; }
+.iiq-modal-footer {
+  padding: 12px 20px; border-top: 1px solid #f1f5f9;
+  display: flex; justify-content: flex-end; gap: 8px;
+}
+
+/* =========================================================
+   INCENTIQ ASSIGNMENT WIDGET - MOBILE RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 767px) {
+
+  /* ---------------------------------------------------------
+     MAIN WIDGET
+     --------------------------------------------------------- */
+
+  .incentiq-assignment-widget {
+    width: 100%;
+    max-width: 100%;
+    padding: 0 10px 20px;
+    overflow-x: hidden;
+  }
+
+
+  /* ---------------------------------------------------------
+     HEADER
+     --------------------------------------------------------- */
+
+  .iiq-header {
+    margin-bottom: 16px;
+    gap: 10px;
+  }
+
+  .iiq-header-left {
+    gap: 9px;
+    min-width: 0;
+  }
+
+  .iiq-logo {
+    width: 32px;
+    height: 32px;
+    font-size: 11px;
+    flex-shrink: 0;
+  }
+
+  .iiq-title {
+    font-size: 2rem;
+    line-height: 1.2;
+  }
+
+  .iiq-subtitle {
+    font-size: 11px;
+  }
+
+
+  /* ---------------------------------------------------------
+     STEPS
+     --------------------------------------------------------- */
+
+  .iiq-steps {
+    padding: 12px 10px;
+    margin-bottom: 12px;
+    border-radius: 10px;
+    overflow-x: auto;
+    justify-content: flex-start;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .iiq-steps::-webkit-scrollbar {
+    display: none;
+  }
+
+  .iiq-step {
+    flex-shrink: 0;
+    gap: 6px;
+  }
+
+  .iiq-step-circle {
+    width: 26px;
+    height: 26px;
+    font-size: 11px;
+    flex-shrink: 0;
+  }
+
+  .iiq-step-label {
+    font-size: 11px;
+    white-space: nowrap;
+  }
+
+  .iiq-step-line {
+    min-width: 20px;
+    margin: 0 7px;
+  }
+
+
+  /* ---------------------------------------------------------
+     CARDS
+     --------------------------------------------------------- */
+
+  .iiq-card {
+    padding: 14px;
+    border-radius: 12px;
+    margin-bottom: 12px;
+  }
+
+  .iiq-card-header {
+    margin-bottom: 12px;
+    gap: 10px;
+  }
+
+  .iiq-section-title {
+    font-size: 13px;
+  }
+
+  .iiq-section-sub {
+    font-size: 11px;
+  }
+
+  .iiq-label {
+    font-size: 10px;
+  }
+
+
+  /* ---------------------------------------------------------
+     FORM CONTROLS
+     --------------------------------------------------------- */
+
+  .iiq-select,
+  .iiq-select.form-control {
+    height: 38px;
+    font-size: 12px;
+    width: 100%;
+  }
+
+  .iiq-period-display {
+    height: 38px;
+    padding: 8px 10px;
+    font-size: 11px;
+  }
+
+
+  /* ---------------------------------------------------------
+     USER SELECTOR
+     --------------------------------------------------------- */
+
+  .iiq-user-selector {
+    border-radius: 10px;
+    margin-top: 6px;
+  }
+
+  .iiq-user-tabs.nav-tabs {
+    display: flex;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    scrollbar-width: none;
+  }
+
+  .iiq-user-tabs.nav-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .iiq-user-tabs.nav-tabs &gt; li {
+    float: none;
+    flex-shrink: 0;
+  }
+
+  .iiq-user-tabs.nav-tabs &gt; li &gt; a {
+    padding: 10px 14px;
+    font-size: 11px;
+    white-space: nowrap;
+  }
+
+
+  /* ---------------------------------------------------------
+     STATS
+     --------------------------------------------------------- */
+
+  .iiq-stats-row {
+    padding: 10px 12px;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .iiq-stat {
+    padding-right: 10px;
+    margin-right: 2px;
+    gap: 6px;
+  }
+
+  .iiq-stat .glyphicon {
+    font-size: 13px;
+  }
+
+  .iiq-stat-label {
+    font-size: 9px;
+  }
+
+  .iiq-stat-value {
+    font-size: 13px;
+  }
+
+  .iiq-stat-actions {
+    width: 100%;
+    margin-left: 0;
+    justify-content: flex-start;
+    padding-top: 4px;
+  }
+
+  .iiq-btn-xs {
+    font-size: 10px;
+    padding: 4px 8px;
+  }
+
+
+  /* ---------------------------------------------------------
+     SEARCH
+     --------------------------------------------------------- */
+
+  .iiq-search-bar {
+    padding: 8px 10px;
+  }
+
+  .iiq-search-icon {
+    left: 20px;
+  }
+
+  .iiq-search-input {
+    width: 100%;
+    font-size: 12px;
+  }
+
+
+  /* ---------------------------------------------------------
+     TABLE CONTAINER
+     --------------------------------------------------------- */
+
+  .iiq-user-selector {
+    overflow-x: auto;
+  }
+
+  .iiq-table {
+    font-size: 11px;
+    min-width: 650px;
+  }
+
+  .iiq-table thead th {
+    font-size: 9px;
+    padding: 8px 9px;
+  }
+
+  .iiq-table tbody td {
+    padding: 9px;
+  }
+
+  .iiq-col-check {
+    width: 38px;
+  }
+
+
+  /* ---------------------------------------------------------
+     USER CELL
+     --------------------------------------------------------- */
+
+  .iiq-user-cell {
+    gap: 7px;
+  }
+
+  .iiq-user-name {
+    font-size: 11px;
+  }
+
+  .iiq-user-title {
+    font-size: 9px;
+  }
+
+  .iiq-mono {
+    font-size: 10px;
+  }
+
+
+  /* ---------------------------------------------------------
+     AVATAR
+     --------------------------------------------------------- */
+
+  .iiq-avatar {
+    width: 26px;
+    height: 26px;
+    font-size: 9px;
+  }
+
+  .iiq-avatar-sm {
+    width: 22px;
+    height: 22px;
+    font-size: 8px;
+  }
+
+
+  /* ---------------------------------------------------------
+     PAGINATION
+     --------------------------------------------------------- */
+
+  .iiq-pagination {
+    padding: 9px 10px;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .iiq-page-info {
+    font-size: 10px;
+  }
+
+  .iiq-pager {
+    margin-left: auto;
+  }
+
+
+  /* ---------------------------------------------------------
+     PLAN OPTIONS
+     --------------------------------------------------------- */
+
+  .iiq-plan-option {
+    padding: 10px;
+    gap: 8px;
+    border-radius: 10px;
+  }
+
+  .iiq-plan-option-name {
+    font-size: 12px;
+  }
+
+  .iiq-plan-metrics {
+    gap: 4px;
+  }
+
+  .iiq-metric-chip {
+    font-size: 9px;
+    padding: 2px 6px;
+  }
+
+  .iiq-plan-icon {
+    width: 22px;
+    height: 22px;
+    margin-right: 5px;
+    flex-shrink: 0;
+  }
+
+
+  /* ---------------------------------------------------------
+     QUOTA
+     --------------------------------------------------------- */
+
+  .iiq-quota-select {
+    min-width: 130px;
+    max-width: 100%;
+    font-size: 11px;
+  }
+
+  .iiq-target-input {
+    width: 80px;
+    font-size: 11px;
+  }
+
+  .iiq-period-cell {
+    font-size: 10px;
+  }
+
+
+  /* ---------------------------------------------------------
+     REVIEW
+     --------------------------------------------------------- */
+
+  .iiq-review-block {
+    padding: 10px;
+    margin-bottom: 10px;
+  }
+
+  .iiq-review-label {
+    font-size: 9px;
+    margin-bottom: 6px;
+  }
+
+  .iiq-review-value {
+    font-size: 12px;
+  }
+
+  .iiq-review-users {
+    max-height: 150px;
+  }
+
+  .iiq-review-user {
+    font-size: 11px;
+  }
+
+  .iiq-plan-chip {
+    padding: 5px 8px;
+    font-size: 11px;
+    margin: 3px 3px 0 0;
+  }
+
+  .iiq-review-note {
+    font-size: 11px;
+    margin-top: 12px;
+  }
+
+
+  /* ---------------------------------------------------------
+     EMPTY STATE
+     --------------------------------------------------------- */
+
+  .iiq-empty-state {
+    padding: 30px 15px;
+  }
+
+  .iiq-empty-icon {
+    font-size: 28px;
+  }
+
+  .iiq-dimension-placeholder {
+    padding: 24px 14px;
+  }
+
+
+  /* ---------------------------------------------------------
+     FOOTER
+     --------------------------------------------------------- */
+
+  .iiq-footer {
+    padding: 12px 0;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .iiq-footer .btn {
+    font-size: 12px;
+    padding: 7px 12px;
+  }
+
+  .iiq-btn-sn {
+    font-size: 12px;
+  }
+
+
+  /* ---------------------------------------------------------
+     MODAL
+     --------------------------------------------------------- */
+
+  .iiq-modal-overlay {
+    padding: 12px;
+    align-items: center;
+  }
+
+  .iiq-modal {
+    width: 100%;
+    max-width: 100%;
+    max-height: 90vh;
+    border-radius: 12px;
+  }
+
+  .iiq-modal-header {
+    padding: 12px 14px;
+    font-size: 14px;
+  }
+
+  .iiq-modal-body {
+    padding: 12px;
+  }
+
+  .iiq-modal-footer {
+    padding: 10px 12px;
+    flex-wrap: wrap;
+  }
+
+  .iiq-modal-footer .btn {
+    font-size: 11px;
+  }
+
+  .iiq-modal-close {
+    font-size: 18px;
+  }
+}
+
+
+/* =========================================================
+   SMALL PHONES
+   320px - 480px
+   ========================================================= */
+
+@media (max-width: 480px) {
+
+  .incentiq-assignment-widget {
+    padding-left: 7px;
+    padding-right: 7px;
+  }
+
+  .iiq-title {
+    font-size: 1.8rem;
+  }
+
+  .iiq-subtitle {
+    display: none;
+  }
+
+  .iiq-card {
+    padding: 12px;
+  }
+
+  .iiq-steps {
+    padding: 10px 8px;
+  }
+
+  .iiq-step-label {
+    font-size: 10px;
+  }
+
+  .iiq-step-circle {
+    width: 24px;
+    height: 24px;
+    font-size: 10px;
+  }
+
+  .iiq-step-line {
+    min-width: 14px;
+    margin: 0 5px;
+  }
+
+  .iiq-stats-row {
+    padding: 8px;
+  }
+
+  .iiq-stat {
+    padding-right: 7px;
+  }
+
+  .iiq-stat-value {
+    font-size: 12px;
+  }
+
+  .iiq-footer {
+    justify-content: stretch;
+  }
+
+  .iiq-footer .btn {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+
+/* =========================================================
+   EXTRA SMALL PHONES
+   ========================================================= */
+
+@media (max-width: 360px) {
+
+  .iiq-title {
+    font-size: 1.6rem;
+  }
+
+  .iiq-logo {
+    width: 30px;
+    height: 30px;
+  }
+
+  .iiq-card {
+    padding: 10px;
+  }
+
+  .iiq-step-label {
+    display: none;
+  }
+
+  .iiq-step {
+    justify-content: center;
+  }
+
+  .iiq-step-line {
+    min-width: 18px;
+  }
+
+  .iiq-table {
+    min-width: 600px;
+  }
+
+  .iiq-footer {
+    flex-direction: column;
+  }
+
+  .iiq-footer .btn {
+    width: 100%;
+  }
+}</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description/>
+        <docs/>
+        <field_list/>
+        <has_preview>false</has_preview>
+        <id>incentiq_assignment</id>
+        <internal>false</internal>
+        <link><![CDATA[function link(scope, element, attrs, controller) {
+  
+}]]></link>
+        <name>IncentIQ Assignment</name>
+        <option_schema/>
+        <public>false</public>
+        <roles>x_ctans_incentnow.user</roles>
+        <script><![CDATA[(function() {
+	
+		// =========================================================
+    // ASSIGNMENT WIDGET ACCESS
+    // =========================================================
+
+    data.canViewAssignmentWidget =
+        gs.hasRole('x_ctans_incentnow.business_group_admin') ||
+        gs.hasRole('x_ctans_incentnow.admin') ||
+        gs.hasRole('x_ctans_incentnow.territory_admin') ||
+        gs.getUser().hasRole('admin');
+	
+	data.isTerritoryEnabled =
+    new x_ctans_incentnow.IncentNowUtils().isTerritoryExtensionActive() === true;
+
+	if (data.isTerritoryEnabled) {
+	data.tableWidget=$sp.getWidget('incentnow-table-widget',{ table: 'x_ctans_incentnow_participant_assignment',view:'territory',viewperiod:'false'});
+	}
+	else
+		{
+			data.tableWidget=$sp.getWidget('incentnow-table-widget',{ table: 'x_ctans_incentnow_participant_assignment',view:'portal_view',viewperiod:'false'});
+		}
+
+	// =========================================================
+	// BOOTSTRAP
+	// =========================================================
+
+	data.businessUnits = getBusinessUnits();
+	data.territories = getTerritories();
+	data.fiscalYears = getFiscalYears();
+
+
+	// =========================================================
+	// ACTION ROUTER
+	// =========================================================
+
+	if (input) {
+
+		// -----------------------------------------------------
+		// GET DIMENSION DATA
+		// -----------------------------------------------------
+
+		if (input.action === 'getDimensionData') {
+			data.users = getUsersByDimension(
+				input.dimension,
+				input.fiscalYear,
+				input.dimensionType
+			);
+
+			data.plans = getPlansByDimension(
+				input.dimension,
+				input.fiscalYear,
+				input.dimensionType
+			);
+		}
+
+
+		// -----------------------------------------------------
+		// CREATE PARTICIPANT ASSIGNMENTS
+		// -----------------------------------------------------
+
+		if (input.action === 'createParticipantAssignments') {
+			var participantResult = createParticipantAssignments(input);
+
+			data.success = participantResult.success;
+			data.assignments = participantResult.assignments || [];
+			data.created = participantResult.created || 0;
+			data.skipped = participantResult.skipped || 0;
+			data.message = participantResult.message || '';
+		}
+
+
+		// -----------------------------------------------------
+		// CREATE PLAN USER ASSIGNMENTS
+		// -----------------------------------------------------
+
+		if (input.action === 'createPlanUserAssignments') {
+			var planResult = createPlanUserAssignments(input);
+
+			data.success = planResult.success;
+			data.created = planResult.created || 0;
+			data.skipped = planResult.skipped || 0;
+			data.planAssignments = planResult.planAssignments || [];
+			data.message = planResult.message || '';
+		}
+
+		// -----------------------------------------------------
+		// STEP 3 DATA
+		// -----------------------------------------------------
+
+		if (input.action === 'getStep3QuotaData') {
+			var step3Result = getStep3QuotaData(input);
+			data.step3Rows = step3Result.rows || [];
+		}
+	
+		// -----------------------------------------------------
+		// FINAL SAVE
+		// -----------------------------------------------------
+
+		if (input.action === 'createUserQuotaAssignments') {
+			data.quotaResult = createUserQuotaAssignments(input);
+			data.success = data.quotaResult.success;
+			data.message = data.quotaResult.message;
+		}
+
+	}
+
+
+	// =========================================================
+	// BUSINESS UNITS
+	// =========================================================
+
+	function getBusinessUnits() {
+		var list = [];
+		var gr = new GlideRecordSecure('business_unit');
+
+		gr.addActiveQuery();
+		gr.orderBy('name');
+		gr.query();
+
+		while (gr.next()) {
+			list.push({
+				id: gr.getUniqueValue(),
+				label: gr.getDisplayValue('name'),
+				type: 'Business Unit'
+			});
+		}
+
+		return list;
+	}
+
+	// =========================================================
+	// TERRITORIES
+	// =========================================================
+
+	function getTerritories() {
+		var list = [];
+		var gr = new GlideRecordSecure('sn_tp_territory');
+
+		gr.addActiveQuery();
+		gr.orderBy('name');
+		gr.query();
+
+		while (gr.next()) {
+			list.push({
+				id: gr.getUniqueValue(),
+				label: gr.getDisplayValue('name'),
+				type: 'Territory'
+			});
+		}
+
+		return list;
+	}
+	
+	// =========================================================
+	// FISCAL YEARS
+	// =========================================================
+
+	function getFiscalYears() {
+		var list = [];
+		var gr = new GlideRecordSecure('x_ctans_incentnow_fiscal_calendar');
+
+		gr.addActiveQuery();
+		gr.orderByDesc('start_date');
+		gr.query();
+
+		while (gr.next()) {
+			list.push({
+				id: gr.getUniqueValue(),
+				label: gr.getDisplayValue('fiscal_year_name'),
+				fiscalYear: gr.getValue('fiscal_year'),
+				fiscalStart: gr.getValue('fiscal_start'),
+				fiscalEnd: gr.getValue('fiscal_end'),
+				start: gr.getValue('start_date'),
+				end: gr.getValue('end_date')
+			});
+		}
+
+		return list;
+	}
+
+
+	// =========================================================
+	// USERS BY DIMENSION
+	// =========================================================
+
+	function getUsersByDimension(
+		dimensionId,
+		fiscalYearId,
+		dimensionType
+	) {
+		var users = [];
+
+		if (!dimensionId) {
+			return users;
+		}
+
+		try {
+			var gr = new GlideRecordSecure('x_ctans_incentnow_user_profile');
+
+
+			// =================================================
+			// BUSINESS UNIT
+			// =================================================
+
+			if (dimensionType === 'Business Unit') {
+				var current = new GlideRecordSecure(
+					'x_ctans_incentnow_participant_assignment'
+				);
+
+				current.initialize();
+
+				current.setValue(
+					'business_dimension',
+					'business_unit'
+				);
+
+				current.setValue(
+					'business_unit',
+					dimensionId
+				);
+
+				if (fiscalYearId) {
+					current.setValue(
+						'fiscal_year',
+						fiscalYearId
+					);
+				}
+
+				var resolver =
+					new IncentIQAssignmentReferenceResolver();
+
+				var qualifier =
+					resolver.getEligibleParticipantUserQualifier(
+						current
+					);
+
+				if (qualifier) {
+					gr.addEncodedQuery(
+						qualifier
+					);
+				}
+			}
+
+
+			// =================================================
+			// TERRITORY
+			// =================================================
+			else if (dimensionType === 'Territory') {
+
+					// ---------------------------------------------
+					// USER PROFILE MUST BELONG TO TERRITORY
+					// ---------------------------------------------
+
+					gr.addQuery(
+							'business_dimension',
+							'territory'
+					);
+
+					gr.addQuery(
+							'x_ctans_territory_territory',
+							dimensionId
+					);
+
+					gr.addQuery(
+							'active',
+							true
+					);
+
+
+					// ---------------------------------------------
+					// EXCLUDE USERS WHO ALREADY HAVE
+					// PARTICIPANT ASSIGNMENT FOR:
+					//
+					// Same Territory
+					// Same Fiscal Year
+					// ---------------------------------------------
+
+					if (fiscalYearId) {
+
+							var existingParticipants =
+									new GlideRecordSecure(
+											'x_ctans_incentnow_participant_assignment'
+									);
+
+							existingParticipants.addQuery(
+									'business_dimension',
+									'territory'
+							);
+
+							existingParticipants.addQuery(
+									'x_ctans_territory_territory',
+									dimensionId
+							);
+
+							existingParticipants.addQuery(
+									'fiscal_year',
+									fiscalYearId
+							);
+
+							existingParticipants.query();
+
+							var assignedProfileIds = [];
+
+							while (existingParticipants.next()) {
+
+									var profileId =
+											existingParticipants.getValue('user');
+
+									if (profileId) {
+											assignedProfileIds.push(profileId);
+									}
+							}
+
+							// -----------------------------------------
+							// Exclude those profiles from User Profile
+							// -----------------------------------------
+
+							if (assignedProfileIds.length > 0) {
+
+									gr.addQuery(
+											'sys_id',
+											'NOT IN',
+											assignedProfileIds.join(',')
+									);
+
+							}
+					}
+			}
+
+
+			// =================================================
+			// GET USERS
+			// =================================================
+
+			gr.query();
+
+			while (gr.next()) {
+				var user = gr.user.getRefRecord();
+
+				if (!user || !user.isValidRecord()) {
+					continue;
+				}
+
+				var managerName = '';
+
+				if (user.manager) {
+					var manager = user.manager.getRefRecord();
+
+					if (manager && manager.isValidRecord()) {
+						managerName =
+							manager.getDisplayValue('name');
+					}
+				}
+
+				users.push({
+					id: user.getUniqueValue(),
+					profileId: gr.getUniqueValue(),
+					name: user.getDisplayValue('name'),
+					title: user.getValue('title') || '',
+					initials: getInitials(
+						user.getDisplayValue('name')
+					),
+					color: '#' +
+						getAvatarColor(
+							user.getUniqueValue()
+						),
+					email: user.getValue('email') || '',
+					manager: managerName,
+					businessUnit: gr.getDisplayValue(
+						'business_unit'
+					) || '',
+					territory: gr.getDisplayValue(
+						'x_ctans_territory_territory'
+					) || ''
+				});
+			}
+
+		} catch (e) {
+		}
+
+		return users;
+	}
+
+
+	function getPlansByDimension(
+		dimensionId,
+		fiscalYearId,
+		dimensionType
+	) {
+		var plans = [];
+
+		if (!dimensionId || !fiscalYearId) {
+			return plans;
+		}
+
+		try {
+			var grPlan = new GlideRecordSecure(
+				'x_ctans_incentnow_plan'
+			);
+
+			grPlan.addQuery('status', 'active');
+
+			grPlan.addQuery(
+				'fiscal_year',
+				fiscalYearId
+			);
+
+			if (dimensionType === 'Business Unit') {
+				grPlan.addQuery(
+					'business_unit',
+					dimensionId
+				);
+			} else if (dimensionType === 'Territory') {
+				grPlan.addQuery(
+					'x_ctans_territory_territory',
+					dimensionId
+				);
+			}
+
+			grPlan.orderBy('plan_name');
+			
+			grPlan.query();
+
+			while (grPlan.next()) {
+				
+				plans.push({
+					id: grPlan.getUniqueValue(),
+					name: grPlan.getDisplayValue('plan_name') || '',
+					code: grPlan.getValue('plan_code') || '',
+					type: grPlan.getDisplayValue('plan_type') || '',
+					status: grPlan.getValue('active') === 'true' ?
+						'Active' :
+						'Inactive',
+					color: '#2563eb',
+					quotaMetrics: getQuotaMetrics(
+						grPlan.getUniqueValue()
+					)
+				});
+			}
+
+		} catch (e) {
+		}
+
+		return plans;
+	}
+
+	function getQuotaMetrics(planId) {
+		var metrics = [];
+		var seen = {};
+
+		if (!planId) {
+			return metrics;
+		}
+
+		try {
+			var gr = new GlideRecordSecure(
+				'x_ctans_incentnow_lookup_rule'
+			);
+
+			gr.addQuery(
+				'plan',
+				planId
+			);
+
+			gr.addQuery(
+				'rule_type',
+				'quota_attainment'
+			);
+
+			gr.query();
+
+			while (gr.next()) {
+				var lookupRuleId = gr.getUniqueValue();
+				var metric = gr.getValue('display_name') || '';
+				var displayName = gr.getDisplayValue(
+					'display_name'
+				) || '';
+
+				if (!displayName) {
+					displayName = gr.getDisplayValue(
+						'step_name'
+					) || '';
+				}
+
+				if (!displayName) {
+					displayName = gr.getDisplayValue(
+						'name'
+					) || '';
+				}
+
+				if (lookupRuleId && !seen[lookupRuleId]) {
+					seen[lookupRuleId] = true;
+
+					metrics.push({
+						lookupRuleId: lookupRuleId,
+						lookupRuleDisplayName: displayName,
+						metric: metric
+					});
+				}
+			}
+
+		} catch (e) {
+		}
+
+		return metrics;
+	}
+
+
+
+	// =========================================================
+	// STEP 3
+	//
+	// Plan Assignment
+	//      ↓
+	// Plan
+	//      ↓
+	// Quota Attainment Lookup Rules
+	//      ↓
+	// Eligible Quotas
+	//      ↓
+	// One row per Lookup Rule
+	// =========================================================
+
+	function getStep3QuotaData(input) {
+		var result = {
+			rows: []
+		};
+
+		try {
+			var participantAssignmentId =
+				input.participantAssignmentId || '';
+
+			var planAssignmentId =
+				input.planAssignmentId || '';
+
+			var planId = input.planId || '';
+			var userId = input.userId || '';
+			var dimensionId = input.dimension || '';
+			var dimensionType = input.dimensionType || '';
+			var fiscalYearId = input.fiscalYear || '';
+
+			if (
+				!participantAssignmentId ||
+				!planAssignmentId ||
+				!planId ||
+				!userId
+			) {
+				return result;
+			}
+
+
+			// =================================================
+			// PLAN
+			// =================================================
+
+			var plan = new GlideRecordSecure(
+				'x_ctans_incentnow_plan'
+			);
+
+			if (!plan.get(planId)) {
+				return result;
+			}
+
+			var planName = plan.getDisplayValue(
+				'plan_name'
+			) || '';
+
+
+			// =================================================
+			// USER
+			// =================================================
+
+			var user = new GlideRecordSecure(
+				'sys_user'
+			);
+
+			var userName = '';
+
+			if (user.get(userId)) {
+				userName = user.getDisplayValue(
+					'name'
+				);
+			}
+
+
+			// =================================================
+			// GET QUOTA ATTAINMENT LOOKUP RULES
+			// =================================================
+
+			var lookupRules = getQuotaMetrics(planId);
+
+			if (lookupRules.length === 0) {
+				return result;
+			}
+
+
+			// =================================================
+			// EXISTING USER QUOTA ASSIGNMENTS
+			// =================================================
+
+			var existingAssignments = {};
+
+			var uq = new GlideRecordSecure(
+				'x_ctans_incentnow_user_quota_assignment'
+			);
+
+			uq.addQuery(
+				'plan_assignment',
+				planAssignmentId
+			);
+
+			uq.addQuery(
+				'participant_assignment',
+				participantAssignmentId
+			);
+
+			uq.addQuery(
+				'user',
+				userId
+			);
+
+			uq.query();
+
+			while (uq.next()) {
+				var existingLookupRule = uq.getValue(
+					'lookup_rule'
+				);
+
+				if (
+					existingLookupRule &&
+					!existingAssignments[existingLookupRule]
+				) {
+					existingAssignments[
+						existingLookupRule
+					] = {
+						id: uq.getUniqueValue(),
+						quotaId: uq.getValue('quota') || '',
+						target: uq.getValue('target_value') || ''
+					};
+				}
+			}
+
+
+			// =================================================
+			// ONE ROW PER LOOKUP RULE
+			// =================================================
+
+			lookupRules.forEach(function(rule) {
+
+				// ---------------------------------------------
+				// GET QUOTAS FOR THIS LOOKUP RULE
+				// ---------------------------------------------
+
+				var quotas = getQuotasForLookupRule(
+					rule,
+					dimensionId,
+					dimensionType,
+					fiscalYearId
+				);
+
+				var existing =
+					existingAssignments[
+						rule.lookupRuleId
+					] || null;
+
+				result.rows.push({
+					userId: userId,
+					userName: userName,
+					profileId: getProfileIdForUser(userId),
+					participantAssignmentId: participantAssignmentId,
+					planAssignmentId: planAssignmentId,
+					planId: planId,
+					planName: planName,
+
+					// -----------------------------------------
+					// LOOKUP RULE
+					// -----------------------------------------
+
+					lookupRuleId: rule.lookupRuleId,
+					lookupRuleDisplayName: rule.lookupRuleDisplayName,
+
+					// -----------------------------------------
+					// INTERNAL METRIC
+					// -----------------------------------------
+
+					metric: rule.metric,
+
+					// -----------------------------------------
+					// QUOTA OPTIONS
+					// -----------------------------------------
+
+					quotas: quotas,
+
+					// -----------------------------------------
+					// EXISTING ASSIGNMENT
+					// -----------------------------------------
+
+					quotaId: existing ?
+						existing.quotaId : '',
+
+					target: existing ?
+						existing.target : '',
+
+					userQuotaAssignmentId: existing ?
+						existing.id : ''
+				});
+
+			});
+
+		} catch (e) {
+		}
+
+		return result;
+	}
+
+
+	// =========================================================
+	// GET QUOTAS FOR LOOKUP RULE
+	// =========================================================
+
+	function getQuotasForLookupRule(
+		rule,
+		dimensionId,
+		dimensionType,
+		fiscalYearId
+	) {
+		var quotas = [];
+
+		try {
+			var gr = new GlideRecordSecure(
+				'x_ctans_incentnow_quota'
+			);
+
+			// =====================================================
+			// ACTIVE
+			// =====================================================
+
+			gr.addQuery('status', 'active');
+
+
+			// =====================================================
+			// BUSINESS DIMENSION
+			// =====================================================
+
+			if (dimensionType === 'Business Unit') {
+				gr.addQuery(
+					'business_dimension',
+					'business_unit'
+				);
+
+				gr.addQuery(
+					'business_unit',
+					dimensionId
+				);
+
+			} else if (dimensionType === 'Territory') {
+				gr.addQuery(
+					'business_dimension',
+					'territory'
+				);
+
+				gr.addQuery(
+					'x_ctans_territory_territory',
+					dimensionId
+				);
+			}
+
+
+			// =====================================================
+			// FISCAL YEAR
+			// =====================================================
+
+			if (fiscalYearId) {
+				gr.addQuery(
+					'fiscal_year',
+					fiscalYearId
+				);
+			}
+
+
+			// =====================================================
+			// ORDER
+			// =====================================================
+
+			gr.orderBy('name');
+			gr.query();
+
+
+			// =====================================================
+			// BUILD DROPDOWN DATA
+			// =====================================================
+
+			while (gr.next()) {
+				quotas.push({
+					id: gr.getUniqueValue(),
+					name: gr.getDisplayValue('name') || '',
+					uom: gr.getDisplayValue('uom') || '',
+					targetValue: gr.getValue('target_value') || '',
+					attainmentMetric: gr.getDisplayValue(
+						'attainment_metric'
+					) || ''
+				});
+			}
+
+		} catch (e) {
+		}
+
+		return quotas;
+	}
+
+
+
+	// =========================================================
+	// CREATE PARTICIPANT ASSIGNMENTS
+	// =========================================================
+
+	function createParticipantAssignments(input) {
+		try {
+			var userIds = input.userIds || [];
+			var dimensionId = input.dimension || '';
+			var dimensionType = input.dimensionType || '';
+			var fiscalYearId = input.fiscalYear || '';
+
+			if (userIds.length === 0) {
+				return {
+					success: false,
+					assignments: [],
+					message: 'No users selected.'
+				};
+			}
+
+			if (!dimensionId) {
+				return {
+					success: false,
+					assignments: [],
+					message: 'No business dimension selected.'
+				};
+			}
+
+			if (!fiscalYearId) {
+				return {
+					success: false,
+					assignments: [],
+					message: 'No fiscal year selected.'
+				};
+			}
+
+			var created = 0;
+			var skipped = 0;
+			var assignments = [];
+
+			userIds.forEach(
+				function(userId) {
+
+					// -----------------------------------------
+					// USER PROFILE
+					// -----------------------------------------
+
+					var profile = new GlideRecordSecure(
+						'x_ctans_incentnow_user_profile'
+					);
+
+					profile.addQuery(
+						'user',
+						userId
+					);
+
+					profile.setLimit(1);
+					profile.query();
+
+					if (!profile.next()) {
+						return;
+					}
+
+					var profileId = profile.getUniqueValue();
+
+
+					// -----------------------------------------
+					// EXISTING PARTICIPANT
+					// -----------------------------------------
+
+					var participant = new GlideRecordSecure(
+						'x_ctans_incentnow_participant_assignment'
+					);
+
+					participant.addQuery(
+						'user',
+						profileId
+					);
+
+					participant.addQuery(
+						'fiscal_year',
+						fiscalYearId
+					);
+
+					if (dimensionType === 'Business Unit') {
+						participant.addQuery(
+							'business_dimension',
+							'business_unit'
+						);
+
+						participant.addQuery(
+							'business_unit',
+							dimensionId
+						);
+
+					} else if (dimensionType === 'Territory') {
+						participant.addQuery(
+							'business_dimension',
+							'territory'
+						);
+
+						participant.addQuery(
+							'x_ctans_territory_territory',
+							dimensionId
+						);
+					}
+
+					participant.setLimit(1);
+					participant.query();
+
+					if (participant.next()) {
+						skipped++;
+
+						assignments.push({
+							userId: userId,
+							profileId: profileId,
+							participantId: participant
+								.getUniqueValue(),
+							number: participant
+								.getDisplayValue('number'),
+							created: false
+						});
+
+						return;
+					}
+
+
+					// -----------------------------------------
+					// CREATE PARTICIPANT
+					// -----------------------------------------
+
+					participant = new GlideRecordSecure(
+						'x_ctans_incentnow_participant_assignment'
+					);
+
+					participant.initialize();
+
+					participant.setValue(
+						'user',
+						profileId
+					);
+
+					participant.setValue(
+						'fiscal_year',
+						fiscalYearId
+					);
+
+					if (dimensionType === 'Business Unit') {
+						participant.setValue(
+							'business_dimension',
+							'business_unit'
+						);
+
+						participant.setValue(
+							'business_unit',
+							dimensionId
+						);
+
+					} else if (dimensionType === 'Territory') {
+						participant.setValue(
+							'business_dimension',
+							'territory'
+						);
+
+						participant.setValue(
+							'x_ctans_territory_territory',
+							dimensionId
+						);
+					}
+
+					var participantId = participant.insert();
+
+					if (!participantId) {
+						return;
+					}
+
+					created++;
+
+					assignments.push({
+						userId: userId,
+						profileId: profileId,
+						participantId: participantId,
+						number: participant.getDisplayValue(
+							'number'
+						),
+						created: true
+					});
+
+				}
+			);
+
+			return {
+				success: created > 0 || skipped > 0,
+				created: created,
+				skipped: skipped,
+				assignments: assignments,
+				message: 'Participant assignments processed. ' +
+					'Created=' + created +
+					', Skipped=' + skipped
+			};
+
+		} catch (e) {
+			return {
+				success: false,
+				assignments: [],
+				created: 0,
+				skipped: 0,
+				message: 'Server error: ' +
+					(e.message || e)
+			};
+		}
+	}
+
+
+	// =========================================================
+	// CREATE PLAN USER ASSIGNMENTS
+	// =========================================================
+
+	function createPlanUserAssignments(input) {
+		try {
+			var userIds = input.userIds || [];
+			var planIds = input.planIds || [];
+
+			if (userIds.length === 0) {
+				return {
+					success: false,
+					message: 'No users selected.'
+				};
+			}
+
+			if (planIds.length === 0) {
+				return {
+					success: false,
+					message: 'No plans selected.'
+				};
+			}
+
+			var created = 0;
+			var skipped = 0;
+			var planAssignments = [];
+
+			userIds.forEach(
+				function(userId) {
+
+					// -----------------------------------------
+					// PROFILE
+					// -----------------------------------------
+
+					var profile = new GlideRecordSecure(
+						'x_ctans_incentnow_user_profile'
+					);
+
+					profile.addQuery(
+						'user',
+						userId
+					);
+
+					profile.setLimit(1);
+					profile.query();
+
+					if (!profile.next()) {
+						return;
+					}
+
+					var profileId = profile.getUniqueValue();
+
+
+					// -----------------------------------------
+					// PARTICIPANT
+					// -----------------------------------------
+
+					var participant = new GlideRecordSecure(
+						'x_ctans_incentnow_participant_assignment'
+					);
+
+					participant.addQuery(
+						'user',
+						profileId
+					);
+
+					participant.addQuery(
+						'fiscal_year',
+						input.fiscalYear
+					);
+
+					if (input.dimensionType === 'Business Unit') {
+						participant.addQuery(
+							'business_dimension',
+							'business_unit'
+						);
+
+						participant.addQuery(
+							'business_unit',
+							input.dimension
+						);
+
+					} else if (input.dimensionType === 'Territory') {
+						participant.addQuery(
+							'business_dimension',
+							'territory'
+						);
+
+						participant.addQuery(
+							'x_ctans_territory_territory',
+							input.dimension
+						);
+					}
+
+					participant.setLimit(1);
+					participant.query();
+
+					if (!participant.next()) {
+						return;
+					}
+
+					var participantId =
+						participant.getUniqueValue();
+
+
+					// -----------------------------------------
+					// PLANS
+					// -----------------------------------------
+
+					planIds.forEach(
+						function(planId) {
+
+							var plan = new GlideRecordSecure(
+								'x_ctans_incentnow_plan'
+							);
+
+							if (!plan.get(planId)) {
+								return;
+							}
+
+							var existing = new GlideRecordSecure(
+								'x_ctans_incentnow_plan_users'
+							);
+
+							existing.addQuery(
+								'x_ctans_incentnow_plan',
+								planId
+							);
+
+							existing.addQuery(
+								'participant_assignment',
+								participantId
+							);
+
+							existing.addQuery(
+								'x_ctans_incentnow_sales_user',
+								profileId
+							);
+
+							existing.setLimit(1);
+							existing.query();
+
+							var planAssignmentId = '';
+
+							if (existing.next()) {
+								skipped++;
+
+								planAssignmentId =
+									existing.getUniqueValue();
+
+							} else {
+								var planUser = new GlideRecordSecure(
+									'x_ctans_incentnow_plan_users'
+								);
+
+								planUser.initialize();
+
+								planUser.setValue(
+									'x_ctans_incentnow_plan',
+									planId
+								);
+
+								planUser.setValue(
+									'x_ctans_incentnow_sales_user',
+									profileId
+								);
+
+								planUser.setValue(
+									'participant_assignment',
+									participantId
+								);
+
+								/*
+								 * If your Plan User table has
+								 * a fiscal_year field and it
+								 * is mandatory, uncomment:
+								 *
+								 * planUser.setValue(
+								 *     'fiscal_year',
+								 *     input.fiscalYear
+								 * );
+								 */
+
+								planAssignmentId =
+									planUser.insert();
+
+								if (!planAssignmentId) {
+									return;
+								}
+
+								created++;
+							}
+
+							planAssignments.push({
+								userId: userId,
+								profileId: profileId,
+								participantAssignmentId: participantId,
+								planId: planId,
+								planName: plan.getDisplayValue(
+									'plan_name'
+								),
+								planAssignmentId: planAssignmentId
+							});
+
+						}
+					);
+
+				}
+			);
+
+			return {
+				success: created > 0 || skipped > 0,
+				created: created,
+				skipped: skipped,
+				planAssignments: planAssignments,
+				message: 'Plan assignments processed. ' +
+					'Created=' + created +
+					', Skipped=' + skipped
+			};
+
+		} catch (e) {
+			return {
+				success: false,
+				created: 0,
+				skipped: 0,
+				planAssignments: [],
+				message: 'Server error: ' +
+					(e.message || e)
+			};
+		}
+	}
+
+
+	// =========================================================
+	// FINAL CREATE / UPDATE
+	// =========================================================
+
+	function createUserQuotaAssignments(input) {
+		var created = 0;
+		var updated = 0;
+		var skipped = 0;
+		var assignments = [];
+
+		try {
+			var rows = input.rows || [];
+
+			if (rows.length === 0) {
+				return {
+					success: false,
+					message: 'No quota rows submitted.'
+				};
+			}
+			
+			var finalConfirm = input.finalConfirm === true ||
+				input.finalConfirm === 'true';
+
+			rows.forEach(
+				function(row) {
+					var planAssignmentId =
+						row.planAssignmentId || '';
+
+					var participantAssignmentId =
+						row.participantAssignmentId || '';
+
+					var userId = row.userId || '';
+					var profileId = row.profileId || '';
+					var lookupRuleId = row.lookupRuleId || '';
+					var quotaId = row.quotaId || '';
+					var target = row.target;
+					
+					// -----------------------------------------
+					// RESOLVE PROFILE FROM USER
+					// -----------------------------------------
+
+					if (!profileId && userId) {
+
+							profileId = getProfileIdForUser(userId);
+					}
+
+					if (!profileId) {
+
+							return;
+					}
+
+
+					// -----------------------------------------
+					// VALIDATION
+					// -----------------------------------------
+
+					if (!planAssignmentId) {
+							return;
+					}
+
+					if (!participantAssignmentId) {
+							return;
+					}
+
+					if (!userId) {
+							return;
+					}
+
+					if (!profileId) {
+							return;
+					}
+
+					if (!lookupRuleId) {
+							return;
+					}
+
+					if (!quotaId) {
+							return;
+					}
+
+					if (
+						target === undefined ||
+						target === null ||
+						target === ''
+					) {
+						return;
+					}
+
+
+					// -----------------------------------------
+					// VERIFY LOOKUP RULE
+					// -----------------------------------------
+
+					var lookupRule = new GlideRecordSecure(
+						'x_ctans_incentnow_lookup_rule'
+					);
+
+					if (!lookupRule.get(lookupRuleId)) {
+						return;
+					}
+
+
+					// -----------------------------------------
+					// VERIFY QUOTA
+					// -----------------------------------------
+
+					var quota = new GlideRecordSecure(
+						'x_ctans_incentnow_quota'
+					);
+
+					if (!quota.get(quotaId)) {
+						return;
+					}
+
+
+					// -----------------------------------------
+					// CHECK EXISTING UQA
+					// -----------------------------------------
+
+					var existing = new GlideRecordSecure(
+						'x_ctans_incentnow_user_quota_assignment'
+					);
+
+					existing.addQuery(
+						'plan_assignment',
+						planAssignmentId
+					);
+
+					existing.addQuery(
+						'participant_assignment',
+						participantAssignmentId
+					);
+
+					existing.addQuery(
+						'user',
+						profileId
+					);
+
+					existing.addQuery(
+						'lookup_rule',
+						lookupRuleId
+					);
+
+					existing.setLimit(1);
+					existing.query();
+
+
+					// -----------------------------------------
+					// UPDATE EXISTING
+					// -----------------------------------------
+
+					if (existing.next()) {
+						existing.setValue(
+							'quota',
+							quotaId
+						);
+
+						existing.setValue(
+							'target_value',
+							target
+						);
+
+						var updateId = existing.update();
+
+						if (updateId) {
+							updated++;
+
+							assignments.push({
+								id: existing.getUniqueValue(),
+								action: 'updated',
+								lookupRuleId: lookupRuleId,
+								quotaId: quotaId,
+								target: target
+							});
+						}
+
+						return;
+					}
+
+
+					// -----------------------------------------
+					// CREATE NEW
+					// -----------------------------------------
+
+					var userQuota = new GlideRecordSecure(
+						'x_ctans_incentnow_user_quota_assignment'
+					);
+
+					userQuota.initialize();
+
+					userQuota.setValue(
+						'plan_assignment',
+						planAssignmentId
+					);
+
+					userQuota.setValue(
+						'participant_assignment',
+						participantAssignmentId
+					);
+
+					userQuota.setValue(
+						'user',
+						profileId
+					);
+
+					userQuota.setValue(
+						'lookup_rule',
+						lookupRuleId
+					);
+
+					userQuota.setValue(
+						'quota',
+						quotaId
+					);
+
+					userQuota.setValue(
+						'target_value',
+						target
+					);
+
+					var userQuotaId = userQuota.insert();
+
+					if (userQuotaId) {
+						created++;
+
+						assignments.push({
+							id: userQuotaId,
+							action: 'created',
+							lookupRuleId: lookupRuleId,
+							quotaId: quotaId,
+							target: target
+						});
+					}
+
+				}
+			);
+			
+			// =========================================================
+			// FINAL CONFIRMATION
+			// Update Participant Assignment status to Pending Approval
+			// ONLY when Confirm Assignment is clicked
+			// =========================================================
+
+			if (finalConfirm && (created > 0 || updated > 0)) {
+
+				var participantIds = {};
+
+				rows.forEach(function(row) {
+
+					if (row.participantAssignmentId) {
+
+						participantIds[
+							row.participantAssignmentId
+						] = true;
+
+					}
+
+				});
+
+				Object.keys(participantIds).forEach(function(participantId) {
+
+					var participant = new GlideRecordSecure(
+						'x_ctans_incentnow_participant_assignment'
+					);
+
+					if (participant.get(participantId)) {
+
+						// ---------------------------------------------
+						// Participant Assignment Status
+						// ---------------------------------------------
+
+						participant.setValue(
+							'status',
+							'pending_approval'
+						);
+
+						var updatedParticipant =
+							participant.update();
+
+					}
+
+				});
+			}
+
+			return {
+				success: created > 0 || updated > 0,
+				created: created,
+				updated: updated,
+				skipped: skipped,
+				assignments: assignments,
+				message: 'Quota assignments processed. ' +
+					'Created=' + created +
+					', Updated=' + updated
+			};
+
+		} catch (e) {
+			return {
+				success: false,
+				created: 0,
+				updated: 0,
+				skipped: 0,
+				assignments: [],
+				message: 'Server error: ' +
+					(e.message || e)
+			};
+		}
+	}
+
+
+	// =========================================================
+	// HELPERS
+	// =========================================================
+
+	function getQuotaMetricDisplay(metric) {
+		if (!metric) {
+			return '';
+		}
+
+		var metricGR = new GlideRecordSecure(
+			'x_ctans_incentnow_quota'
+		);
+
+		metricGR.addQuery(
+			'attainment_metric',
+			metric
+		);
+
+		metricGR.setLimit(1);
+		metricGR.query();
+
+		if (metricGR.next()) {
+			return metricGR.getDisplayValue(
+				'attainment_metric'
+			);
+		}
+
+		return metric;
+	}
+
+	function getProfileIdForUser(userId) {
+		if (!userId) {
+			return '';
+		}
+
+		var profile = new GlideRecordSecure(
+			'x_ctans_incentnow_user_profile'
+		);
+
+		profile.addQuery(
+			'user',
+			userId
+		);
+
+		profile.setLimit(1);
+		profile.query();
+
+		if (profile.next()) {
+			return profile.getUniqueValue();
+		}
+
+		return '';
+	}
+
+	function getInitials(name) {
+		return (name || '')
+			.split(' ')
+			.slice(0, 2)
+			.map(function(n) {
+				return n
+					.charAt(0)
+					.toUpperCase();
+			})
+			.join('');
+	}
+
+	function getAvatarColor(sysId) {
+		var colors = [
+			'2563eb',
+			'7c3aed',
+			'059669',
+			'dc2626',
+			'd97706'
+		];
+
+		var idx =
+			parseInt(
+				sysId.charAt(0),
+				16
+			) %
+			colors.length;
+
+		return colors[idx];
+	}
+	
+	//approval flow
+
+		if (input && input.action == "getApprovalFlow") {
+
+				data.approvalFlow = [];
+
+				var apprGR = new GlideRecordSecure('sysapproval_approver');
+				apprGR.addQuery('document_id', input.participantAssignmentId);
+				apprGR.orderByDesc('sys_created_on');
+				apprGR.query();
+
+				while (apprGR.next()) {
+						data.approvalFlow.push({
+								approver: apprGR.getDisplayValue('approver'),
+								state: apprGR.getDisplayValue('state'),
+								updated: apprGR.getDisplayValue('sys_updated_on'),
+								comments: apprGR.getDisplayValue('comments')
+						});
+				}
+		}
+
+})();
+]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>shroin.mandal</sys_created_by>
+        <sys_created_on>2026-08-07 10:57:18</sys_created_on>
+        <sys_id>f10fb0b993228390ddb7f2d89803d61b</sys_id>
+        <sys_mod_count>226</sys_mod_count>
+        <sys_name>IncentIQ Assignment</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sp_widget_f10fb0b993228390ddb7f2d89803d61b</sys_update_name>
+        <sys_updated_by>shroin.mandal</sys_updated_by>
+        <sys_updated_on>2026-08-31 06:26:01</sys_updated_on>
+        <template><![CDATA[<div class="incentiq-assignment-widget" ng-if="data.canViewAssignmentWidget">
+	<!-- Header -->
+	<div class="iiq-header">
+		<div class="iiq-header-left">
+			<div>
+				<h1 class="iiq-title">New Assignment</h1>
+				<p class="iiq-subtitle">Assign plans and quotas to users for the selected fiscal year</p>
+			</div>
+    </div>
+	</div>
+	<!-- Step Indicator -->
+	<div class="iiq-steps">
+		<div class="iiq-step" ng-repeat="step in c.steps" ng-class="{'active': c.currentStep === $index + 1, 'done': c.currentStep > $index + 1}">
+			<div class="iiq-step-circle"> <span ng-if="c.currentStep > $index + 1" class="glyphicon glyphicon-ok"></span> <span ng-if="c.currentStep <= $index + 1">{{$index + 1}}
+        </span> </div> <span class="iiq-step-label">{{step}}</span>
+			<div class="iiq-step-line" ng-if="!$last"></div>
+		</div>
+	</div>
+	<!-- ── STEP 1: Select Users & Context ── -->
+	<div class="iiq-card" ng-show="c.currentStep === 1">
+		<h4 class="iiq-section-title">Select Users &amp; Fiscal Year</h4>
+		<div class="row">
+			<!-- Fiscal Year -->
+			<div class="col-sm-3">
+				<div class="form-group">
+					<label class="iiq-label"> Fiscal Year <span class="text-danger">*</span> </label>
+					<select class="form-control iiq-select" ng-model="c.fiscalYear" ng-change="c.onFiscalYearChange()" ng-options="fy.id as fy.label for fy in c.fiscalYears">
+						<option value=""> -- Select Fiscal -- </option>
+					</select>
+				</div>
+			</div>
+			<!-- Business Dimension -->
+			<div class="col-sm-3">
+				<div class="form-group">
+					<label class="iiq-label"> Business Dimension <span class="text-danger">*</span> </label>
+					<select class="form-control iiq-select" ng-model="c.dimensionType" ng-change="c.onDimensionTypeChange()">
+						<option value="">-- Select Type --</option>
+						<option value="Business Unit">Business Unit</option>
+						<option value="Territory">Territory</option>
+					</select>
+				</div>
+			</div>
+			<!-- Business Unit -->
+			<div class="col-sm-3" ng-if="c.dimensionType === 'Business Unit'">
+				<div class="form-group">
+					<label class="iiq-label"> Business Unit <span class="text-danger">*</span> </label>
+					<select class="form-control iiq-select" ng-model="c.dimension" ng-change="c.onDimensionChange()" ng-options="bu as bu.label for bu in c.businessUnits">
+						<option value=""> -- Select Business Unit -- </option>
+					</select>
+				</div>
+			</div>
+			<!-- Territory -->
+			<div class="col-sm-3" ng-if="c.dimensionType === 'Territory'">
+				<div class="form-group">
+					<label class="iiq-label"> Territory <span class="text-danger">*</span> </label>
+					<select class="form-control iiq-select" ng-model="c.dimension" ng-change="c.onDimensionChange()" ng-options="territory as territory.label for territory in c.territories">
+						<option value=""> -- Select Territory -- </option>
+					</select>
+				</div>
+			</div>
+		</div>
+		<!-- Multi-User Selector -->
+		<div class="iiq-user-selector" ng-if="c.dimension">
+			<!-- Tabs -->
+			<ul class="nav nav-tabs iiq-user-tabs">
+        <li ng-class="{active: c.userTab === 'add'}">
+					<a href="" ng-click="c.userTab = 'add'"> <span class="glyphicon glyphicon-plus"></span> Add / Search Users <span class="badge" ng-if="c.availableUsers.length - c.selectedUsers.length > 0">
+              {{c.availableUsers.length - c.selectedUsers.length}} available </span> </a>
+				</li>
+				<li ng-class="{active: c.userTab === 'selected'}">
+					<a href="" ng-click="c.userTab = 'selected'"> <span class="glyphicon glyphicon-user"></span> Selected Users <span class="badge iiq-badge-blue">{{c.selectedUsers.length}}</span> </a>
+				</li>
+			</ul>
+			<!-- Stats row -->
+			<div class="iiq-stats-row">
+				<div class="iiq-stat"> <span class="glyphicon glyphicon-user"></span>
+					<div>
+						<div class="iiq-stat-label">Total Selected</div>
+						<div class="iiq-stat-value">{{c.selectedUsers.length}}</div>
+					</div>
+				</div>
+				<div class="iiq-stat"> <span class="glyphicon glyphicon-globe"></span>
+					<div>
+						<div class="iiq-stat-label"> {{c.dimensionType === 'Business Unit' ? 'Business Units' : 'Territories'}} </div>
+						<div class="iiq-stat-value"> {{c.getUniqueDimensions()}} </div>
+					</div>
+				</div>
+				<div class="iiq-stat-actions">
+					<button class="btn btn-xs btn-default iiq-btn-xs" ng-click="c.selectAllUsers()" ng-if="c.userTab === 'add'"> Select All </button>
+					<button class="btn btn-xs btn-default iiq-btn-xs iiq-btn-danger" ng-click="c.clearUsers()" ng-disabled="c.selectedUsers.length === 0"> <span class="glyphicon glyphicon-trash"></span> Clear All </button>
+				</div>
+			</div>
+			<!-- Selected Users Tab -->
+			<div ng-if="c.userTab === 'selected'">
+				<div class="iiq-search-bar"> <span class="glyphicon glyphicon-search iiq-search-icon"></span>
+					<input type="text" class="form-control iiq-search-input" placeholder="Search selected users..." ng-model="c.userSearchSelected"> </div>
+				<div ng-if="c.selectedUsers.length === 0" class="iiq-empty-state"> <span class="glyphicon glyphicon-user iiq-empty-icon"></span>
+					<p>No users selected yet.</p> <a href="" ng-click="c.userTab = 'add'">Add users →</a> </div>
+				<table class="table table-hover iiq-table" ng-if="c.selectedUsers.length > 0">
+					<thead>
+						<tr>
+							<th>User</th>
+							<th> {{c.dimensionType === 'Business Unit' ? 'Business Unit' : 'Territory'}} </th>
+							<th>Manager</th>
+							<th>Email</th>
+							<th>Actions</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr ng-repeat="u in c.getFilteredSelected()">
+							<td>
+								<div class="iiq-user-cell"> <span class="iiq-avatar" ng-style="{'background-color': u.color}">{{u.initials}}</span>
+									<div>
+										<div class="iiq-user-name">{{u.name}}</div>
+										<div class="iiq-user-title">{{u.title}}</div>
+									</div>
+								</div>
+							</td>
+							<td> {{c.dimensionType === 'Business Unit' ? u.businessUnit : u.territory}} </td>
+							<td>{{u.manager}}</td>
+							<td class="iiq-mono">{{u.email}}</td>
+							<td>
+								<button class="btn btn-circle btn-xs btn-default" ng-click="c.removeUser(u)"> <span class="glyphicon glyphicon-minus"></span> </button>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+				<!-- Pagination -->
+				<div class="iiq-pagination" ng-if="c.selectedUsers.length > c.pageSize"> <span class="iiq-page-info"> Showing {{(c.userPage - 1) * c.pageSize + 1}}–{{c.getPageEnd()}} of {{c.selectedUsers.length}}
+          </span>
+					<ul class="pagination pagination-sm iiq-pager">
+						<li ng-class="{disabled: c.userPage === 1}"> <a href="" ng-click="c.userPage = c.userPage - 1">&laquo;</a> </li>
+						<li ng-repeat="p in c.getPageRange()" ng-class="{active: c.userPage === p}"> <a href="" ng-click="c.userPage = p">{{p}}</a> </li>
+						<li ng-class="{disabled: c.userPage === c.getTotalPages()}"> <a href="" ng-click="c.userPage = c.userPage + 1">&raquo;</a> </li>
+					</ul>
+				</div>
+			</div>
+			<!-- Add Users Tab -->
+			<div ng-if="c.userTab === 'add'">
+				<div class="text-center" ng-if="c.isLoadingUsers" style="padding:20px;"> <span class="glyphicon glyphicon-refresh glyphicon-spin"></span> Loading eligible users... </div>
+				<div class="iiq-search-bar"> <span class="glyphicon glyphicon-search iiq-search-icon"></span>
+					<input type="text" class="form-control iiq-search-input" placeholder="Search by name, title or email..." ng-model="c.userSearchAdd"> </div>
+				<table class="table table-hover iiq-table iiq-table-add" ng-if="!c.isLoadingUsers">
+					<thead>
+						<tr>
+							<th class="iiq-col-check"></th>
+							<th>User</th>
+							<th> {{c.dimensionType === 'Business Unit' ? 'Business Unit' : 'Territory'}} </th>
+							<th>Manager</th>
+							<th>Email</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr ng-repeat="u in c.getFilteredAvailable()" ng-click="c.toggleUser(u)" ng-class="{'iiq-row-selected': c.isSelected(u)}" class="iiq-clickable">
+							<td class="iiq-col-check">
+								<div class="iiq-checkbox" ng-class="{'checked': c.isSelected(u)}"> <span class="glyphicon glyphicon-ok" ng-if="c.isSelected(u)"></span> </div>
+							</td>
+							<td>
+								<div class="iiq-user-cell"> <span class="iiq-avatar" ng-style="{'background-color': u.color}">{{u.initials}}</span>
+									<div>
+										<div class="iiq-user-name" ng-class="{'text-primary': c.isSelected(u)}">{{u.name}}</div>
+										<div class="iiq-user-title">{{u.title}}</div>
+									</div>
+								</div>
+							</td>
+							<td> {{c.dimensionType === 'Business Unit' ? u.businessUnit : u.territory}} </td>
+							<td>{{u.manager}}</td>
+							<td class="iiq-mono">{{u.email}}</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<!-- Placeholder when no dimension -->
+		<div class="iiq-dimension-placeholder" ng-if="!c.dimension"> <span class="glyphicon glyphicon-user iiq-empty-icon"></span>
+			<p>Select a Business Dimension above to load users</p>
+		</div>
+	</div>
+	<!-- ── STEP 2: Assign Plans ── -->
+	<div class="iiq-card" ng-show="c.currentStep === 2">
+		<div class="iiq-card-header">
+			<div>
+				<h4 class="iiq-section-title">Assigned Plans</h4>
+				<p class="iiq-section-sub"> Select one or more plans to assign to the selected users </p>
+			</div>
+			<div class="iiq-stat-actions">
+				<button class="btn btn-xs btn-default iiq-btn-xs" ng-click="c.selectAllPlans()" ng-if="c.planTab === 'add'" ng-disabled="c.isLoadingPlans || c.getFilteredAvailablePlans().length === 0"> Select All </button>
+				<button class="btn btn-xs btn-default iiq-btn-xs iiq-btn-danger" ng-click="c.clearPlans()" ng-disabled="c.selectedPlans.length === 0"> <span class="glyphicon glyphicon-trash"></span> Clear All </button>
+			</div>
+		</div>
+		<!-- Plan Tabs -->
+		<ul class="nav nav-tabs iiq-user-tabs">
+      <li ng-class="{active: c.planTab === 'add'}">
+				<a href="" ng-click="c.planTab = 'add'"> <span class="glyphicon glyphicon-plus"></span> Add / Search Plans <span class="badge" ng-if="c.availablePlans.length - c.selectedPlans.length > 0">
+            {{c.availablePlans.length - c.selectedPlans.length}} available </span> </a>
+			</li>
+			<li ng-class="{active: c.planTab === 'selected'}">
+				<a href="" ng-click="c.planTab = 'selected'"> <span class="glyphicon glyphicon-file"></span> Selected Plans <span class="badge iiq-badge-blue">
+            {{c.selectedPlans.length}}
+          </span> </a>
+			</li>
+		</ul>
+		<!-- ═══════════════════════════════════════════════════════
+       SELECTED PLANS
+       ═══════════════════════════════════════════════════════ -->
+		<div ng-if="c.planTab === 'selected'">
+			<div class="iiq-empty-state" ng-if="c.selectedPlans.length === 0"> <span class="glyphicon glyphicon-file iiq-empty-icon"></span>
+				<p>No plans selected yet.</p> <a href="" ng-click="c.planTab = 'add'"> Add plans → </a> </div>
+			<table class="table table-hover iiq-table" ng-if="c.selectedPlans.length > 0">
+				<thead>
+					<tr>
+						<th>Plan</th>
+						<th>Plan Type</th>
+						<th>Actions</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr ng-repeat="plan in c.selectedPlans">
+						<td>
+							<div class="iiq-user-cell"> <span class="iiq-plan-icon" ng-style="{
+                      'background-color': plan.color + '22',
+                      'border-color': plan.color + '55'
+                    }">
+                  <span class="glyphicon glyphicon-file" ng-style="{'color': plan.color}"></span> </span>
+								<div>
+									<div class="iiq-user-name"> {{plan.name}} </div>
+									
+								</div>
+							</div>
+						</td>
+						
+						<td> {{plan.type}} </td>
+						<td>
+							<button class="btn btn-circle btn-xs btn-default" ng-click="c.removePlan(plan)"> <span class="glyphicon glyphicon-minus"></span> </button>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<!-- ═══════════════════════════════════════════════════════
+     ADD / SEARCH PLANS
+     ═══════════════════════════════════════════════════════ -->
+		<div ng-if="c.planTab === 'add'">
+			<!-- Search -->
+			<div class="iiq-search-bar"> <span class="glyphicon glyphicon-search iiq-search-icon"></span>
+				<input type="text" class="form-control iiq-search-input" placeholder="Search Plan Name..." ng-model="c.planSearchAdd"> </div>
+			<!-- Plans Table -->
+			<div class="table-responsive" ng-if="!c.isLoadingPlans && c.getFilteredAvailablePlans().length > 0">
+				<table class="table table-hover iiq-table iiq-plan-table">
+					<thead>
+						<tr>
+							<th class="iiq-col-check"></th>
+							<th>Plan</th>
+              <th>Plan Type</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr ng-repeat="plan in c.getFilteredAvailablePlans()" ng-click="c.togglePlan(plan)" ng-class="{'iiq-row-selected': c.isPlanSelected(plan)}" class="iiq-clickable">
+							<!-- Checkbox -->
+							<td class="iiq-col-check">
+								<div class="iiq-checkbox" ng-class="{'checked': c.isPlanSelected(plan)}"> <span class="glyphicon glyphicon-ok" ng-if="c.isPlanSelected(plan)"></span> </div>
+							</td>
+							<!-- Plan -->
+							<td>
+								<div class="iiq-user-cell"> <span class="iiq-plan-icon" ng-style="{
+                      'background-color': plan.color + '22',
+                      'border-color': plan.color + '55'
+                    }">
+                    <span class="glyphicon glyphicon-file" ng-style="{'color': plan.color}"></span> </span>
+									<div>
+										<div class="iiq-user-name"> {{plan.name}} </div>
+									</div>
+								</div>
+							</td>
+              <td> {{plan.type}} </td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<!-- Loading -->
+			<div class="iiq-empty-state" ng-if="c.isLoadingPlans"> <span class="glyphicon glyphicon-refresh glyphicon-spin iiq-empty-icon"></span>
+				<p>Loading plans...</p>
+			</div>
+			<!-- No Plans -->
+			<div class="iiq-empty-state" ng-if="!c.isLoadingPlans &&
+              c.getFilteredAvailablePlans().length === 0"> <span class="glyphicon glyphicon-file iiq-empty-icon"></span>
+				<p>No plans found.</p>
+			</div>
+		</div>
+	</div>
+	<!-- =========================================================
+     STEP 3: ASSIGN QUOTAS
+     ========================================================= -->
+	<div class="iiq-card" ng-show="c.currentStep === 3">
+		<!-- Header -->
+		<div class="iiq-card-header">
+			<div>
+				<h4 class="iiq-section-title">
+        Assign Quotas
+      </h4>
+				<p class="iiq-section-sub"> Assign a quota and target to each required attainment metric. </p>
+			</div>
+			<div class="iiq-stat-actions">
+				<button class="btn btn-xs btn-default iiq-btn-xs" ng-click="c.selectAllQuotas()" ng-if="c.quotaTab === 'add'" ng-disabled="
+          c.isLoadingQuotas ||
+          c.getFilteredAvailableQuotas().length === 0
+        "> Select All </button>
+				<button class="btn btn-xs btn-default iiq-btn-xs iiq-btn-danger" ng-click="c.clearQuotas()" ng-disabled="c.selectedQuotas.length === 0"> <span class="glyphicon glyphicon-trash"></span> Clear All </button>
+			</div>
+		</div>
+		<!-- =======================================================
+       TABS
+       ======================================================= -->
+		<ul class="nav nav-tabs iiq-user-tabs">
+			<!-- Required Metrics -->
+			<li ng-class="{active: c.quotaTab === 'selected'}">
+				<a href="" ng-click="c.quotaTab = 'selected'"> <span class="glyphicon glyphicon-stats"></span> Required Quotas <span class="badge iiq-badge-blue">
+          {{c.requiredMetrics.length}}
+        </span> </a>
+			</li>
+			<!-- Available Quotas >
+			<li ng-class="{active: c.quotaTab === 'add'}">
+				<a href="" ng-click="c.quotaTab = 'add'"> <span class="glyphicon glyphicon-plus"></span> Available Quotas <span class="badge" ng-if="c.getFilteredAvailableQuotas().length > 0">
+
+          {{c.getFilteredAvailableQuotas().length}}
+
+        </span> </a>
+			</li-->
+		</ul>
+		<!-- =======================================================
+       REQUIRED QUOTA ASSIGNMENTS
+       ======================================================= -->
+		<div ng-show="c.quotaTab === 'selected'">
+			<!-- Loading -->
+			<div class="iiq-empty-state" ng-if="c.isLoadingQuotas"> <span class="glyphicon glyphicon-refresh glyphicon-spin iiq-empty-icon">
+      </span>
+				<p> Loading quotas... </p>
+			</div>
+			<!-- No Metrics -->
+			<div class="iiq-empty-state" ng-if="
+        !c.isLoadingQuotas &&
+        c.requiredMetrics.length === 0
+      "> <span class="glyphicon glyphicon-stats iiq-empty-icon">
+      </span>
+				<p> No quota attainment metrics are required for the selected plans. </p>
+			</div>
+			<!-- Required Metrics Table -->
+			<div class="table-responsive" ng-if="
+        !c.isLoadingQuotas &&
+        c.requiredMetrics.length > 0
+      ">
+				<table class="table table-hover iiq-table">
+					<thead>
+						<tr>
+							<th> Plan </th>
+							<th> Attainment Metric </th>
+							<th> Quota <span class="text-danger">*</span> </th>
+							<th> Target</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr ng-repeat="row in c.requiredMetrics track by ($index + '-' + row.planId + '-' + row.lookupRuleId)">
+							<!-- =================================================
+                 PLAN
+                 ================================================= -->
+							<td>
+								<div class="iiq-user-cell"> <span class="iiq-plan-icon" ng-style="{
+                    'background-color':
+                      (row.planColor || '#337ab7') + '22',
+                    'border-color':
+                      (row.planColor || '#337ab7') + '55'
+                  }">
+
+                  <span
+                    class="glyphicon glyphicon-file"
+                    ng-style="{
+                      'color':
+                        row.planColor || '#337ab7'
+                    }">
+                  </span> </span>
+									<div>
+										<div class="iiq-user-name"> {{row.planName}} </div>
+									</div>
+								</div>
+							</td>
+							<!-- =================================================
+                 METRIC
+                 ================================================= -->
+							<td> <strong>
+                {{row.metric}}
+              </strong> </td>
+							<!-- =================================================
+                 QUOTA
+                 ================================================= -->
+							<td>
+								<div style="display:flex;gap:6px;align-items:flex-start;">
+									<select class="form-control iiq-select" ng-model="row.quotaId" ng-change="c.onQuotaChange(row)" ng-options="quota.id as c.getQuotaLabel(quota) for quota in row.quotas">
+										<option value="">-- Select Quota --</option>
+									</select>
+									<!-- NEW QUOTA BUTTON -->
+									<button type="button" class="btn btn-default" title="Create New Quota Assignment" ng-click="c.createNewQuotaAssignment(row)" ng-if="!row.quotas || row.quotas.length === 0"> <span class="glyphicon glyphicon-plus"></span> New </button>
+								</div>
+							</td>
+							<!-- =================================================
+                 TARGET
+                 ================================================= -->
+							<td>
+								<input type="number" class="form-control" ng-model="row.target" readonly tabindex="-1" placeholder="Select quota"> </td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<!-- =======================================================
+       AVAILABLE QUOTAS
+       ======================================================= -->
+		<div ng-if="c.quotaTab === 'add'">
+			<!-- Search -->
+			<div class="iiq-search-bar"> <span class="glyphicon glyphicon-search iiq-search-icon">
+      </span>
+				<input type="text" class="form-control iiq-search-input" placeholder="Search quota or attainment metric..." ng-model="c.quotaSearchAdd"> </div>
+			<!-- Loading -->
+			<div class="iiq-empty-state" ng-if="c.isLoadingQuotas"> <span class="glyphicon glyphicon-refresh glyphicon-spin iiq-empty-icon">
+      </span>
+				<p> Loading quotas... </p>
+			</div>
+			<!-- Available Quotas -->
+			<div class="table-responsive" ng-if="
+        !c.isLoadingQuotas &&
+        c.getFilteredAvailableQuotas().length > 0
+      ">
+				<table class="table table-hover iiq-table">
+					<thead>
+						<tr>
+							<th class="iiq-col-check"></th>
+							<th> Quota </th>
+							<th> Attainment Metric </th>
+							<th> Target </th>
+							<th> UOM </th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr ng-repeat="quota in c.getFilteredAvailableQuotas()" ng-click="c.toggleQuota(quota)" ng-class="{
+              'iiq-row-selected':
+                c.isQuotaSelected(quota)
+            }" class="iiq-clickable">
+							<!-- Checkbox -->
+							<td class="iiq-col-check">
+								<div class="iiq-checkbox" ng-class="{
+                  'checked':
+                    c.isQuotaSelected(quota)
+                }"> <span class="glyphicon glyphicon-ok" ng-if="c.isQuotaSelected(quota)">
+                </span> </div>
+							</td>
+							<!-- Quota -->
+							<td> <strong>
+                {{quota.name}}
+              </strong> </td>
+							<!-- Metric -->
+							<td> {{quota.metric || '—'}} </td>
+							<!-- Target -->
+							<td class="iiq-mono"> {{quota.target || '—'}} </td>
+							<!-- UOM -->
+							<td> {{quota.uom || '—'}} </td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<!-- No Quotas -->
+			<div class="iiq-empty-state" ng-if="
+  !c.isLoadingQuotas &&
+  c.getFilteredAvailableQuotas().length === 0
+"> <span class="glyphicon glyphicon-stats iiq-empty-icon"></span>
+				<p style="margin-bottom:8px;"> No quotas found for the selected attainment metric. </p>
+				<p style="font-size:12px;color:#777;margin-bottom:15px;"> You can create a new User Quota Assignment. </p>
+				<button type="button" class="btn btn-primary" ng-click="c.createNewQuotaAssignment()"> <span class="glyphicon glyphicon-plus"></span> New Quota Assignment </button>
+			</div>
+		</div>
+	</div>
+	<!-- ── STEP 4: Review & Confirm ── -->
+	<div class="iiq-card" ng-show="c.currentStep === 4">
+
+	<h4 class="iiq-section-title">
+		Review &amp; Confirm Assignment
+	</h4>
+
+	<!-- =====================================================
+	     USERS / DIMENSION / FISCAL YEAR
+	     ===================================================== -->
+
+	<div class="row">
+
+		<div class="col-sm-6 iiq-review-block">
+
+			<div class="iiq-review-label">
+				Users ({{c.selectedUsers.length}})
+			</div>
+
+			<div class="iiq-review-users">
+
+				<div class="iiq-review-user"
+					 ng-repeat="u in c.selectedUsers">
+
+					<span class="iiq-avatar iiq-avatar-sm"
+						  ng-style="{'background-color': u.color}">
+						{{u.initials}}
+					</span>
+
+					<span>{{u.name}}</span>
+
+				</div>
+
+			</div>
+
+		</div>
+
+		<div class="col-sm-3 iiq-review-block">
+
+			<div class="iiq-review-label">
+				Business Dimension
+			</div>
+
+			<div class="iiq-review-value">
+				{{c.getDimensionLabel()}}
+			</div>
+
+		</div>
+
+		<div class="col-sm-3 iiq-review-block">
+
+			<div class="iiq-review-label">
+				Fiscal Year
+			</div>
+
+			<div class="iiq-review-value">
+				{{c.getFiscalYearLabel()}}
+			</div>
+
+		</div>
+
+	</div>
+
+
+	<!-- =====================================================
+	     PLANS
+	     ===================================================== -->
+
+	<div class="iiq-review-section">
+
+		<div class="iiq-review-label">
+			Plans ({{c.selectedPlans.length}})
+		</div>
+
+		<div class="iiq-plan-chip"
+			 ng-repeat="p in c.selectedPlans">
+
+			<span class="glyphicon glyphicon-file"
+				  ng-style="{'color': p.color}">
+			</span>
+
+			{{p.name}}
+
+		</div>
+
+	</div>
+
+
+	<!-- =====================================================
+	     QUOTAS
+	     ===================================================== -->
+
+	<div class="iiq-review-section"
+		 ng-if="c.requiredMetrics.length > 0">
+
+		<div class="iiq-review-label">
+			Quotas ({{c.requiredMetrics.length}})
+		</div>
+
+		<div class="table-responsive">
+
+			<table class="table table-hover iiq-table">
+
+				<thead>
+					<tr>
+
+						<th>
+							Plan
+						</th>
+
+						<th>
+							Attainment Metric
+						</th>
+
+						<th>
+							Quota
+						</th>
+
+						<th>
+							Target
+						</th>
+
+					</tr>
+				</thead>
+
+				<tbody>
+
+					<tr ng-repeat="row in c.requiredMetrics track by ($index + '-' + row.planId + '-' + row.lookupRuleId)">
+
+						<!-- PLAN -->
+
+						<td>
+
+							<div class="iiq-user-cell">
+
+								<span class="iiq-plan-icon"
+									  ng-style="{
+											'background-color':
+												(row.planColor || '#337ab7') + '22',
+											'border-color':
+												(row.planColor || '#337ab7') + '55'
+									  }">
+
+									<span class="glyphicon glyphicon-file"
+										  ng-style="{
+												'color':
+													row.planColor || '#337ab7'
+										  }">
+									</span>
+
+								</span>
+
+								<div>
+
+									<div class="iiq-user-name">
+										{{row.planName}}
+									</div>
+
+								</div>
+
+							</div>
+
+						</td>
+
+
+						<!-- ATTAINMENT METRIC -->
+
+						<td>
+
+							<strong>
+								{{row.metric || row.lookupRuleDisplayName || '—'}}
+							</strong>
+
+						</td>
+
+
+						<!-- QUOTA -->
+
+						<td>
+
+							<span ng-if="row.quotaId">
+
+								{{c.getQuotaLabel(c.getSelectedQuota(row))}}
+
+							</span>
+
+							<span ng-if="!row.quotaId"
+								  class="text-muted">
+
+								—
+
+							</span>
+
+						</td>
+
+
+						<!-- TARGET -->
+
+						<td>
+
+							<span ng-if="row.target !== '' &&
+										 row.target !== null &&
+										 row.target !== undefined">
+
+								{{row.target}}
+
+							</span>
+
+							<span ng-if="row.target === '' ||
+										 row.target === null ||
+										 row.target === undefined"
+								  class="text-muted">
+
+								—
+
+							</span>
+
+						</td>
+
+					</tr>
+
+				</tbody>
+
+			</table>
+
+		</div>
+
+	</div>
+
+
+	<!-- =====================================================
+	     NO QUOTAS
+	     ===================================================== -->
+
+	<div class="iiq-empty-state"
+		 ng-if="c.requiredMetrics.length === 0">
+
+		<span class="glyphicon glyphicon-stats iiq-empty-icon"></span>
+
+		<p>
+			No quota assignments found.
+		</p>
+
+	</div>
+
+
+	<!-- =====================================================
+	     REVIEW NOTE
+	     ===================================================== -->
+
+	<div class="alert alert-info iiq-review-note"
+		 ng-if="c.showReviewNote">
+
+		These plans and quotas will be assigned to all
+		{{c.selectedUsers.length}} selected users.
+
+		<button type="button"
+				class="close"
+				aria-label="Close"
+				ng-click="c.showReviewNote = false">
+
+			<span aria-hidden="true">&times;</span>
+
+		</button>
+
+	</div>
+
+</div>
+	<!-- Footer -->
+	<div class="iiq-footer">
+		<button class="btn btn-default" ng-click="c.prevStep()" ng-disabled="c.currentStep === 1">{{c.getCancelLabel()}}</button>
+		<button class="btn btn-primary iiq-btn-next" ng-click="c.nextStep()" ng-if="c.currentStep < 4" ng-disabled="!c.canProceed()"> Next: {{c.steps[c.currentStep]}} <span class="glyphicon glyphicon-chevron-right"></span> </button>
+		<button class="btn btn-success iiq-btn-confirm" ng-click="c.confirmAssignment()" ng-if="c.currentStep === 4"> Confirm Assignment ({{c.selectedUsers.length}} users) </button>
+	</div>
+</div>
+
+<!-- Participant table -->
+      <div>
+        <sp-widget widget="data.tableWidget"></sp-widget>
+      </div>
+
+	<div id="approvalFlowSection"
+       class="panel panel-default m-t-lg"
+       ng-if="c.showApprovalFlow">
+      <div class="panel-heading">
+          <h4>Approval Flow</h4>
+      </div>
+      <div class="panel-body">
+          <table class="table table-striped">
+              <thead>
+                  <tr>
+                      <th>Approver</th>
+                      <th>Status</th>
+                      <th>Updated</th>
+                      <th>Comments</th>
+                  </tr>
+              </thead>
+              <tbody>
+                  <tr ng-repeat="item in c.getPaginatedApprovalFlow()">
+                      <td>{{item.approver}}</td>
+                      <td>{{item.state}}</td>
+                      <td>{{item.updated}}</td>
+                      <td>{{item.comments}}</td>
+                  </tr>
+              </tbody>
+          </table>
+        <div class="pagination-wrapper" ng-if="c.approvalFlow.length">
+            <div class="pagination-container">
+
+                <button class="pg-btn"
+                        ng-click="c.prevApprovalPage()"
+                        ng-disabled="c.approvalCurrentPage === 1">
+                    ← Prev
+                </button>
+
+                <span class="pg-info">
+                    Page {{c.approvalCurrentPage}} / {{c.approvalTotalPages()}}
+                </span>
+
+                <button class="pg-btn"
+                        ng-click="c.nextApprovalPage()"
+                        ng-disabled="c.approvalCurrentPage === c.approvalTotalPages()">
+                    Next →
+                </button>
+
+            </div>
+        </div>
+      </div>
+  </div>
+]]></template>
+    </sp_widget>
+</record_update>

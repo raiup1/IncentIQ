@@ -1,0 +1,950 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>public</access>
+        <active>true</active>
+        <api_name>x_ctans_incentnow.IncentIQAssignmentReferenceResolver</api_name>
+        <caller_access/>
+        <client_callable>false</client_callable>
+        <description/>
+        <mobile_callable>false</mobile_callable>
+        <name>IncentIQAssignmentReferenceResolver</name>
+        <sandbox_callable>false</sandbox_callable>
+        <script><![CDATA[var IncentIQAssignmentReferenceResolver = Class.create();
+IncentIQAssignmentReferenceResolver.prototype = {
+
+    initialize: function() {
+
+        this.TABLE = {
+            PARTICIPANT_ASSIGNMENT: 'x_ctans_incentnow_participant_assignment',
+            PLAN: 'x_ctans_incentnow_plan',
+            PLAN_ASSIGNMENT: 'x_ctans_incentnow_plan_users',
+
+            // Quota
+            QUOTA: 'x_ctans_incentnow_quota',
+            QUOTA_ASSIGNMENT: 'x_ctans_incentnow_user_quota_assignment'
+        };
+
+        this.FIELD = {
+
+            // Participant Assignment — core fields only
+            PA_BUSINESS_DIMENSION: 'business_dimension',
+            PA_BUSINESS_UNIT: 'business_unit',
+            PA_FISCAL_YEAR: 'fiscal_year',
+            PA_USER: 'user',
+
+            // Plan — core fields only
+            PLAN_BUSINESS_DIMENSION: 'business_dimension',
+            PLAN_BUSINESS_UNIT: 'business_unit',
+            PLAN_FISCAL_YEAR: 'fiscal_year',
+            PLAN_STATUS: 'status',
+            //PLAN_ACTIVE: 'active',
+
+            // Plan Assignment
+            PLAN_ASSIGNMENT_PARENT: 'participant_assignment',
+            PLAN_ASSIGNMENT_PLAN: 'x_ctans_incentnow_plan',
+            PLAN_ASSIGNMENT_USER: 'x_ctans_incentnow_sales_user',
+
+            // Quota — core fields only
+            QUOTA_BUSINESS_DIMENSION: 'business_dimension',
+            QUOTA_BUSINESS_UNIT: 'business_unit',
+            QUOTA_FISCAL_YEAR: 'fiscal_year',
+            QUOTA_STATUS: 'status',
+            //QUOTA_ACTIVE: 'active',
+
+            // Quota Assignment
+            QUOTA_ASSIGNMENT_PARENT: 'participant_assignment',
+            QUOTA_ASSIGNMENT_QUOTA: 'quota'
+        };
+
+        this.VALUE = {
+            BUSINESS_UNIT: 'business_unit',
+            TERRITORY: 'territory',
+            ACTIVE: 'active'
+        };
+
+        this.TERRITORY_EXTENSION_SCOPE = 'x_ctans_territory';
+        this.SALES_TERRITORY_PLUGIN_ID = 'sn_sales_territory';
+
+        this._territoryAvailable = null;
+    },
+
+
+    // ============================================================
+    // PLAN REFERENCE QUALIFIER
+    // ============================================================
+
+    getEligiblePlanQualifier: function(participantAssignmentSysId, currentPlanAssignmentSysId) {
+
+        var context = this._getParticipantAssignmentContext(participantAssignmentSysId);
+
+        if (!context.valid)
+            return 'sys_idISEMPTY';
+
+        var query = this._buildEligiblePlanQuery(context);
+
+        if (!query || query.indexOf('sys_idISEMPTY') > -1)
+            return query || 'sys_idISEMPTY';
+
+        var assignedPlanIds = this._getAlreadyAssignedPlanIds(
+            participantAssignmentSysId,
+            currentPlanAssignmentSysId
+        );
+
+        if (assignedPlanIds.length)
+            query += '^sys_idNOT IN' + assignedPlanIds.join(',');
+
+        return query;
+    },
+
+
+    // ============================================================
+    // QUOTA REFERENCE QUALIFIER
+    // ============================================================
+
+    getEligibleQuotaQualifier: function(participantAssignmentSysId, currentQuotaAssignmentSysId) {
+
+        var context = this._getParticipantAssignmentContext(participantAssignmentSysId);
+
+        if (!context.valid)
+            return 'sys_idISEMPTY';
+
+        var query = this._buildEligibleQuotaQuery(context);
+
+        if (!query || query.indexOf('sys_idISEMPTY') > -1)
+            return query || 'sys_idISEMPTY';
+
+        var assignedQuotaIds = this._getAlreadyAssignedQuotaIds(
+            participantAssignmentSysId,
+            currentQuotaAssignmentSysId
+        );
+
+        if (assignedQuotaIds.length)
+            query += '^sys_idIN' + assignedQuotaIds.join(',');
+
+        return query;
+    },
+
+
+    // ============================================================
+    // PORTAL: ELIGIBLE REUSABLE PLANS
+    // ============================================================
+
+    getEligiblePlans: function(participantAssignmentSysId, currentPlanAssignmentSysId) {
+
+        var result = {
+            success: false,
+            message: '',
+            context: {},
+            plans: []
+        };
+
+        var context = this._getParticipantAssignmentContext(participantAssignmentSysId);
+
+        if (!context.valid) {
+            result.message = context.message;
+            return result;
+        }
+
+        result.context = {
+            participantAssignment: participantAssignmentSysId,
+            businessDimension: context.businessDimension,
+            businessDimensionDisplay: context.businessDimensionDisplay,
+            businessUnit: context.businessUnit,
+            businessUnitDisplay: context.businessUnitDisplay,
+            fiscalYear: context.fiscalYear,
+            fiscalYearDisplay: context.fiscalYearDisplay,
+            user: context.user,
+            userDisplay: context.userDisplay,
+            territoryEnabled: this.isTerritoryExtensionActive()
+        };
+
+        var encodedQuery = this.getEligiblePlanQualifier(
+            participantAssignmentSysId,
+            currentPlanAssignmentSysId
+        );
+
+        if (!encodedQuery || encodedQuery.indexOf('sys_idISEMPTY') > -1) {
+            result.message = 'No Plans are available for the selected Participant Assignment.';
+            return result;
+        }
+
+        var planGR = new GlideRecordSecure(this.TABLE.PLAN);
+        planGR.addEncodedQuery(encodedQuery);
+        planGR.orderBy('name');
+        planGR.query();
+
+        while (planGR.next()) {
+            result.plans.push({
+                sys_id: planGR.getUniqueValue(),
+                display: planGR.getDisplayValue(),
+                name: this._getDisplayValueSafe(planGR, 'name'),
+                code: this._getDisplayValueSafe(planGR, 'code'),
+                planType: this._getValueSafe(planGR, 'plan_type'),
+                planTypeDisplay: this._getDisplayValueSafe(planGR, 'plan_type'),
+                businessDimension: this._getValueSafe(planGR, this.FIELD.PLAN_BUSINESS_DIMENSION),
+                businessDimensionDisplay: this._getDisplayValueSafe(
+                    planGR,
+                    this.FIELD.PLAN_BUSINESS_DIMENSION
+                ),
+                fiscalYear: this._getValueSafe(planGR, this.FIELD.PLAN_FISCAL_YEAR),
+                fiscalYearDisplay: this._getDisplayValueSafe(
+                    planGR,
+                    this.FIELD.PLAN_FISCAL_YEAR
+                )
+            });
+        }
+
+        result.success = true;
+
+        if (!result.plans.length)
+            result.message = 'No active Plans match the selected Business Dimension and Fiscal Year.';
+
+        return result;
+    },
+
+
+    // ============================================================
+    // QUOTA ASSIGNMENT → PLAN ASSIGNMENT QUALIFIER
+    // ============================================================
+
+    getPlanAssignmentQualifier: function(participantAssignmentSysId) {
+
+        if (!participantAssignmentSysId)
+            return 'sys_idISEMPTY';
+
+        var participantGR = new GlideRecordSecure(this.TABLE.PARTICIPANT_ASSIGNMENT);
+
+        if (!participantGR.get(participantAssignmentSysId))
+            return 'sys_idISEMPTY';
+
+        return this.FIELD.PLAN_ASSIGNMENT_PARENT + '=' + participantAssignmentSysId;
+    },
+
+
+    // ============================================================
+    // PORTAL: PLAN ASSIGNMENTS FOR PARTICIPANT ASSIGNMENT
+    // ============================================================
+
+    getPlanAssignments: function(participantAssignmentSysId) {
+
+        var result = {
+            success: false,
+            message: '',
+            planAssignments: []
+        };
+
+        var qualifier = this.getPlanAssignmentQualifier(participantAssignmentSysId);
+
+        if (qualifier == 'sys_idISEMPTY') {
+            result.message = 'A valid Participant Assignment is required.';
+            return result;
+        }
+
+        var assignmentGR = new GlideRecordSecure(this.TABLE.PLAN_ASSIGNMENT);
+        assignmentGR.addEncodedQuery(qualifier);
+        assignmentGR.orderBy(this.FIELD.PLAN_ASSIGNMENT_PLAN);
+        assignmentGR.query();
+
+        while (assignmentGR.next()) {
+            result.planAssignments.push({
+                sys_id: assignmentGR.getUniqueValue(),
+                display: assignmentGR.getDisplayValue(),
+                planSysId: assignmentGR.getValue(this.FIELD.PLAN_ASSIGNMENT_PLAN),
+                planDisplay: assignmentGR.getDisplayValue(this.FIELD.PLAN_ASSIGNMENT_PLAN),
+                userSysId: this._getValueSafe(assignmentGR, this.FIELD.PLAN_ASSIGNMENT_USER),
+                userDisplay: this._getDisplayValueSafe(
+                    assignmentGR,
+                    this.FIELD.PLAN_ASSIGNMENT_USER
+                ),
+                participantAssignment: assignmentGR.getValue(
+                    this.FIELD.PLAN_ASSIGNMENT_PARENT
+                )
+            });
+        }
+
+        result.success = true;
+
+        if (!result.planAssignments.length)
+            result.message = 'No Plan Assignments exist for the selected Participant Assignment.';
+
+        return result;
+    },
+
+
+    // ============================================================
+    // PARTICIPANT ASSIGNMENT CONTEXT
+    // ============================================================
+
+    _getParticipantAssignmentContext: function(participantAssignmentSysId) {
+
+        var result = {
+            valid: false,
+            message: '',
+            participantAssignmentSysId: participantAssignmentSysId || '',
+            businessDimension: '',
+            businessDimensionDisplay: '',
+            businessUnit: '',
+            businessUnitDisplay: '',
+            fiscalYear: '',
+            fiscalYearDisplay: '',
+            user: '',
+            userDisplay: ''
+        };
+
+        if (!participantAssignmentSysId) {
+            result.message = 'Participant Assignment is required.';
+            return result;
+        }
+
+        var participantGR = new GlideRecordSecure(this.TABLE.PARTICIPANT_ASSIGNMENT);
+
+        if (!participantGR.get(participantAssignmentSysId)) {
+            result.message = 'Participant Assignment is invalid or inaccessible.';
+            return result;
+        }
+
+        result.businessDimension = this._getValueSafe(
+            participantGR,
+            this.FIELD.PA_BUSINESS_DIMENSION
+        );
+
+        result.businessDimensionDisplay = this._getDisplayValueSafe(
+            participantGR,
+            this.FIELD.PA_BUSINESS_DIMENSION
+        );
+
+        result.businessUnit = this._getValueSafe(
+            participantGR,
+            this.FIELD.PA_BUSINESS_UNIT
+        );
+
+        result.businessUnitDisplay = this._getDisplayValueSafe(
+            participantGR,
+            this.FIELD.PA_BUSINESS_UNIT
+        );
+
+        result.fiscalYear = this._getValueSafe(
+            participantGR,
+            this.FIELD.PA_FISCAL_YEAR
+        );
+
+        result.fiscalYearDisplay = this._getDisplayValueSafe(
+            participantGR,
+            this.FIELD.PA_FISCAL_YEAR
+        );
+
+        result.user = this._getValueSafe(participantGR, this.FIELD.PA_USER);
+        result.userDisplay = this._getDisplayValueSafe(participantGR, this.FIELD.PA_USER);
+
+        if (!result.businessDimension) {
+            result.message = 'Business Dimension is not populated on the Participant Assignment.';
+            return result;
+        }
+
+        if (!result.fiscalYear) {
+            result.message = 'Fiscal Year is not populated on the Participant Assignment.';
+            return result;
+        }
+
+        if (result.businessDimension == this.VALUE.BUSINESS_UNIT && !result.businessUnit) {
+            result.message = 'Business Unit is required for a Business Unit Participant Assignment.';
+            return result;
+        }
+
+        if (
+            result.businessDimension == this.VALUE.TERRITORY &&
+            !this.isTerritoryExtensionActive()
+        ) {
+            result.message = 'Territory functionality is unavailable.';
+            return result;
+        }
+
+        result.valid = true;
+        return result;
+    },
+
+
+    // ============================================================
+    // BUILD ELIGIBLE PLAN QUERY
+    // ============================================================
+
+    _buildEligiblePlanQuery: function(context) {
+
+        var baseQuery = this._buildBasePlanQuery(context);
+
+        if (!baseQuery)
+            return 'sys_idISEMPTY';
+
+        if (context.businessDimension == this.VALUE.BUSINESS_UNIT)
+            return this._buildBusinessUnitPlanQuery(context, baseQuery);
+
+        if (context.businessDimension == this.VALUE.TERRITORY) {
+            return this._getQueryFromTerritoryExtension({
+                mode: 'target_by_user',
+                sourceTable: this.TABLE.PARTICIPANT_ASSIGNMENT,
+                sourceSysId: context.participantAssignmentSysId,
+                targetTable: this.TABLE.PLAN,
+                baseQuery: baseQuery
+            });
+        }
+
+        return baseQuery + '^sys_idISEMPTY';
+    },
+
+
+    _buildBasePlanQuery: function(context) {
+
+        var query = [];
+        var planGR = new GlideRecordSecure(this.TABLE.PLAN);
+
+        // if (planGR.isValidField(this.FIELD.PLAN_ACTIVE))
+        //     query.push(this.FIELD.PLAN_ACTIVE + '=true');
+
+        if (planGR.isValidField(this.FIELD.PLAN_STATUS))
+            query.push(this.FIELD.PLAN_STATUS + '=' + this.VALUE.ACTIVE);
+
+        if (!planGR.isValidField(this.FIELD.PLAN_FISCAL_YEAR)) {
+            gs.error(
+                '[IncentIQAssignmentReferenceResolver] Fiscal Year field is missing on Plan: ' +
+                this.FIELD.PLAN_FISCAL_YEAR
+            );
+            return '';
+        }
+
+        if (!planGR.isValidField(this.FIELD.PLAN_BUSINESS_DIMENSION)) {
+            gs.error(
+                '[IncentIQAssignmentReferenceResolver] Business Dimension field is missing on Plan: ' +
+                this.FIELD.PLAN_BUSINESS_DIMENSION
+            );
+            return '';
+        }
+
+        query.push(this.FIELD.PLAN_FISCAL_YEAR + '=' + context.fiscalYear);
+        query.push(this.FIELD.PLAN_BUSINESS_DIMENSION + '=' + context.businessDimension);
+
+        return query.join('^');
+    },
+
+
+    _buildBusinessUnitPlanQuery: function(context, baseQuery) {
+
+        var planGR = new GlideRecordSecure(this.TABLE.PLAN);
+
+        if (!planGR.isValidField(this.FIELD.PLAN_BUSINESS_UNIT)) {
+            gs.error(
+                '[IncentIQAssignmentReferenceResolver] Business Unit field is missing on Plan: ' +
+                this.FIELD.PLAN_BUSINESS_UNIT
+            );
+            return baseQuery + '^sys_idISEMPTY';
+        }
+
+        if (!context.businessUnit)
+            return baseQuery + '^sys_idISEMPTY';
+
+        return baseQuery + '^' +
+            this.FIELD.PLAN_BUSINESS_UNIT + '=' +
+            context.businessUnit;
+    },
+
+
+    // ============================================================
+    // BUILD ELIGIBLE QUOTA QUERY
+    // ============================================================
+
+    _buildEligibleQuotaQuery: function(context) {
+
+        var baseQuery = this._buildBaseQuotaQuery(context);
+
+        if (!baseQuery)
+            return 'sys_idISEMPTY';
+
+        if (context.businessDimension == this.VALUE.BUSINESS_UNIT)
+            return this._buildBusinessUnitQuotaQuery(context, baseQuery);
+
+        if (context.businessDimension == this.VALUE.TERRITORY) {
+            return this._getQueryFromTerritoryExtension({
+                mode: 'target_by_user',
+                sourceTable: this.TABLE.PARTICIPANT_ASSIGNMENT,
+                sourceSysId: context.participantAssignmentSysId,
+                targetTable: this.TABLE.QUOTA,
+                baseQuery: baseQuery
+            });
+        }
+
+        return baseQuery + '^sys_idISEMPTY';
+    },
+
+
+    _buildBaseQuotaQuery: function(context) {
+
+        var query = [];
+        var quotaGR = new GlideRecordSecure(this.TABLE.QUOTA);
+
+        // if (quotaGR.isValidField(this.FIELD.QUOTA_ACTIVE))
+        //     query.push(this.FIELD.QUOTA_ACTIVE + '=true');
+
+        if (quotaGR.isValidField(this.FIELD.QUOTA_STATUS))
+            query.push(this.FIELD.QUOTA_STATUS + '=' + this.VALUE.ACTIVE);
+
+        if (!quotaGR.isValidField(this.FIELD.QUOTA_FISCAL_YEAR)) {
+            gs.error(
+                '[IncentIQAssignmentReferenceResolver] Fiscal Year field is missing on Quota: ' +
+                this.FIELD.QUOTA_FISCAL_YEAR
+            );
+            return '';
+        }
+
+        if (!quotaGR.isValidField(this.FIELD.QUOTA_BUSINESS_DIMENSION)) {
+            gs.error(
+                '[IncentIQAssignmentReferenceResolver] Business Dimension field is missing on Quota: ' +
+                this.FIELD.QUOTA_BUSINESS_DIMENSION
+            );
+            return '';
+        }
+
+        query.push(
+            this.FIELD.QUOTA_FISCAL_YEAR +
+            '=' +
+            context.fiscalYear
+        );
+
+        query.push(
+            this.FIELD.QUOTA_BUSINESS_DIMENSION +
+            '=' +
+            context.businessDimension
+        );
+
+        return query.join('^');
+    },
+
+
+    _buildBusinessUnitQuotaQuery: function(context, baseQuery) {
+
+        var quotaGR = new GlideRecordSecure(this.TABLE.QUOTA);
+
+        if (!quotaGR.isValidField(this.FIELD.QUOTA_BUSINESS_UNIT)) {
+            gs.error(
+                '[IncentIQAssignmentReferenceResolver] Business Unit field is missing on Quota: ' +
+                this.FIELD.QUOTA_BUSINESS_UNIT
+            );
+            return baseQuery + '^sys_idISEMPTY';
+        }
+
+        if (!context.businessUnit)
+            return baseQuery + '^sys_idISEMPTY';
+
+        return baseQuery + '^' +
+            this.FIELD.QUOTA_BUSINESS_UNIT + '=' +
+            context.businessUnit;
+    },
+
+    // ============================================================
+    // PARTICIPANT ASSIGNMENT -> USER REFERENCE QUALIFIER
+    // ============================================================
+    getEligibleParticipantUserQualifier: function(current) {
+
+        if (!current)
+            return 'sys_idISEMPTY';
+
+        var businessDimension =
+            current.getValue('business_dimension');
+
+        var fiscalYearSysId =
+            current.getValue('fiscal_year');
+
+        if (!businessDimension || !fiscalYearSysId)
+            return 'sys_idISEMPTY';
+
+        var query = 'active=true';
+
+        // Business Unit
+        if (businessDimension == this.VALUE.BUSINESS_UNIT) {
+
+            var businessUnitSysId =
+                current.getValue('business_unit');
+
+            if (!businessUnitSysId)
+                return 'sys_idISEMPTY';
+
+            query += '^business_unit=' + businessUnitSysId;
+        }
+
+        // Territory
+        else if (businessDimension == this.VALUE.TERRITORY) {
+
+            if (!this.isTerritoryExtensionActive())
+                return 'sys_idISEMPTY';
+
+            if (!current.isValidField('x_ctans_territory_territory'))
+                return 'sys_idISEMPTY';
+
+            var territorySysId =
+                current.getValue('x_ctans_territory_territory');
+
+            if (!territorySysId)
+                return 'sys_idISEMPTY';
+
+            try {
+
+                var territoryResolver =
+                    new x_ctans_territory.IncentNowTerritoryResolver();
+
+                query = territoryResolver.getUsersByTerritory(
+                    territorySysId,
+                    query
+                );
+
+            } catch (e) {
+
+                gs.warn(
+                    '[IncentIQ Assignment] Territory user qualifier failed. ' +
+                    'Territory=' + territorySysId +
+                    ', Error=' + e.message
+                );
+
+                return 'sys_idISEMPTY';
+            }
+        } else {
+            return 'sys_idISEMPTY';
+        }
+
+        var currentSysId =
+            current.getUniqueValue() || '';
+
+        var assignedUserIds =
+            this._getAlreadyAssignedParticipantUsers(
+                fiscalYearSysId,
+                currentSysId
+            );
+
+        if (assignedUserIds.length)
+            query += '^sys_idNOT IN' + assignedUserIds.join(',');
+
+        return query;
+    },
+
+
+    // ============================================================
+    // USERS ALREADY HAVING PARTICIPANT ASSIGNMENT FOR FISCAL YEAR
+    // ============================================================
+
+    _getAlreadyAssignedParticipantUsers: function(fiscalYearSysId, currentParticipantAssignmentSysId) {
+
+        var userIds = [];
+
+        if (!fiscalYearSysId)
+            return userIds;
+
+        var assignmentGR = new GlideRecordSecure(this.TABLE.PARTICIPANT_ASSIGNMENT);
+
+        assignmentGR.addQuery(this.FIELD.PA_FISCAL_YEAR, fiscalYearSysId);
+
+        if (currentParticipantAssignmentSysId && currentParticipantAssignmentSysId != '-1') {
+
+            assignmentGR.addQuery('sys_id', '!=', currentParticipantAssignmentSysId);
+        }
+
+        assignmentGR.addNotNullQuery(this.FIELD.PA_USER);
+
+        assignmentGR.query();
+
+        while (assignmentGR.next()) {
+
+            var userSysId = assignmentGR.getValue(this.FIELD.PA_USER);
+
+            if (userSysId && userIds.indexOf(userSysId) == -1) {
+                userIds.push(userSysId);
+            }
+        }
+
+        return userIds;
+    },
+
+
+    // ============================================================
+    // TERRITORY EXTENSION DELEGATION
+    // ============================================================
+
+    _getQueryFromTerritoryExtension: function(context) {
+
+        if (!this.isTerritoryExtensionActive())
+            return context.baseQuery + '^sys_idISEMPTY';
+
+        try {
+            var resolver = new x_ctans_territory.IncentNowTerritoryResolver();
+            var resolvedQuery = resolver.resolve(context);
+
+            if (!resolvedQuery) {
+                gs.warn(
+                    '[IncentIQ Assignment] Territory resolver returned an empty query. ' +
+                    'Mode=' + context.mode +
+                    ', Source=' + context.sourceTable +
+                    ', Source sys_id=' + context.sourceSysId
+                );
+
+                return context.baseQuery + '^sys_idISEMPTY';
+            }
+
+            return resolvedQuery;
+
+        } catch (e) {
+            gs.warn(
+                '[IncentIQ Assignment] Territory resolver failed. ' +
+                'Source=' + context.sourceTable +
+                ', Source sys_id=' + context.sourceSysId +
+                ', Error=' + e.message
+            );
+
+            return context.baseQuery + '^sys_idISEMPTY';
+        }
+    },
+
+
+    isTerritoryExtensionActive: function() {
+        return this._isTerritoryExtensionActive();
+    },
+
+
+    _isTerritoryExtensionActive: function() {
+
+        if (this._territoryAvailable !== null)
+            return this._territoryAvailable;
+
+        try {
+            var extensionInstalled = this._isApplicationInstalled(
+                this.TERRITORY_EXTENSION_SCOPE
+            );
+
+            if (!extensionInstalled) {
+                this._territoryAvailable = false;
+                return false;
+            }
+
+            var pluginActive = GlidePluginManager.isActive(
+                this.SALES_TERRITORY_PLUGIN_ID
+            );
+
+            this._territoryAvailable = extensionInstalled && pluginActive;
+
+        } catch (e) {
+            gs.error(
+                '[IncentIQ Assignment] Territory availability check failed: ' +
+                e.message
+            );
+
+            this._territoryAvailable = false;
+        }
+
+        return this._territoryAvailable;
+    },
+
+
+    _isApplicationInstalled: function(applicationScope) {
+
+        if (!applicationScope)
+            return false;
+
+        var scopeGR = new GlideRecordSecure('sys_scope');
+        scopeGR.addQuery('scope', applicationScope);
+        scopeGR.setLimit(1);
+        scopeGR.query();
+
+        return scopeGR.hasNext();
+    },
+
+
+    // ============================================================
+    // ALREADY ASSIGNED PLAN IDS
+    // ============================================================
+
+    _getAlreadyAssignedPlanIds: function(
+        participantAssignmentSysId,
+        currentPlanAssignmentSysId
+    ) {
+
+        var planIds = [];
+
+        if (!participantAssignmentSysId)
+            return planIds;
+
+        var assignmentGR = new GlideRecordSecure(this.TABLE.PLAN_ASSIGNMENT);
+
+        assignmentGR.addQuery(
+            this.FIELD.PLAN_ASSIGNMENT_PARENT,
+            participantAssignmentSysId
+        );
+
+        if (currentPlanAssignmentSysId && currentPlanAssignmentSysId != '-1') {
+            assignmentGR.addQuery('sys_id', '!=', currentPlanAssignmentSysId);
+        }
+
+        assignmentGR.query();
+
+        while (assignmentGR.next()) {
+            var planSysId = assignmentGR.getValue(
+                this.FIELD.PLAN_ASSIGNMENT_PLAN
+            );
+
+            if (planSysId && planIds.indexOf(planSysId) == -1)
+                planIds.push(planSysId);
+        }
+
+        return planIds;
+    },
+
+
+    // ============================================================
+    // ALREADY ASSIGNED QUOTA IDS
+    // ============================================================
+
+    _getAlreadyAssignedQuotaIds: function(
+        participantAssignmentSysId,
+        currentQuotaAssignmentSysId
+    ) {
+
+        var quotaIds = [];
+
+        if (!participantAssignmentSysId)
+            return quotaIds;
+
+        var assignmentGR = new GlideRecordSecure(
+            this.TABLE.QUOTA_ASSIGNMENT
+        );
+
+        assignmentGR.addQuery(
+            this.FIELD.QUOTA_ASSIGNMENT_PARENT,
+            participantAssignmentSysId
+        );
+
+        if (
+            currentQuotaAssignmentSysId &&
+            currentQuotaAssignmentSysId != '-1'
+        ) {
+            assignmentGR.addQuery(
+                'sys_id',
+                '!=',
+                currentQuotaAssignmentSysId
+            );
+        }
+
+        assignmentGR.query();
+
+        while (assignmentGR.next()) {
+
+            var quotaSysId = assignmentGR.getValue(
+                this.FIELD.QUOTA_ASSIGNMENT_QUOTA
+            );
+
+            if (quotaSysId && quotaIds.indexOf(quotaSysId) == -1)
+                quotaIds.push(quotaSysId);
+        }
+
+        return quotaIds;
+    },
+
+
+    // ============================================================
+    // SAFE FIELD HELPERS
+    // ============================================================
+
+    _getValueSafe: function(gr, fieldName) {
+
+        if (!gr || !fieldName || !gr.isValidField(fieldName))
+            return '';
+
+        return gr.getValue(fieldName) || '';
+    },
+
+
+    _getDisplayValueSafe: function(gr, fieldName) {
+
+        if (!gr || !fieldName || !gr.isValidField(fieldName))
+            return '';
+
+        return gr.getDisplayValue(fieldName) || '';
+    },
+
+// ============================================================
+// QUOTA ASSIGNMENT -> ELIGIBLE ATTAINMENT LOOKUP RULE
+// ============================================================
+
+getEligibleLookupRuleQualifier: function(planAssignmentSysId, currentQuotaAssignmentSysId) {
+
+    if (!planAssignmentSysId)
+        return 'sys_idISEMPTY';
+
+    var planAssignmentGR = new GlideRecordSecure(this.TABLE.PLAN_ASSIGNMENT);
+
+    if (!planAssignmentGR.get(planAssignmentSysId))
+        return 'sys_idISEMPTY';
+
+    var planSysId = planAssignmentGR.getValue( this.FIELD.PLAN_ASSIGNMENT_PLAN );
+
+    if (!planSysId)
+        return 'sys_idISEMPTY';
+
+    var query ='plan=' + planSysId +'^rule_type=quota_attainment';
+
+    var mappedLookupRuleIds =
+        this._getMappedLookupRuleIds(planAssignmentSysId,currentQuotaAssignmentSysId );
+
+    if (mappedLookupRuleIds.length) {
+        query += '^sys_idNOT IN' + mappedLookupRuleIds.join(',');
+    }
+
+    return query;
+},
+// ============================================================
+// LOOKUP RULES ALREADY MAPPED TO QUOTA ASSIGNMENT
+// ============================================================
+
+_getMappedLookupRuleIds: function(planAssignmentSysId,currentQuotaAssignmentSysId) {
+
+    var lookupRuleIds = [];
+
+    if (!planAssignmentSysId)
+        return lookupRuleIds;
+
+    var quotaAssignmentGR = new GlideRecordSecure( this.TABLE.QUOTA_ASSIGNMENT);
+
+    quotaAssignmentGR.addQuery( 'plan_assignment', planAssignmentSysId);
+
+    quotaAssignmentGR.addNotNullQuery('lookup_rule');
+
+    // Important for editing an existing Quota Assignment:
+    // do not exclude the Lookup Rule currently selected on this record.
+    if (currentQuotaAssignmentSysId && currentQuotaAssignmentSysId != '-1' && currentQuotaAssignmentSysId.length == 32) {
+
+        quotaAssignmentGR.addQuery('sys_id','!=', currentQuotaAssignmentSysId );
+    }
+
+    quotaAssignmentGR.query();
+
+    while (quotaAssignmentGR.next()) {
+
+        var lookupRuleSysId = quotaAssignmentGR.getValue('lookup_rule');
+
+        if ( lookupRuleSysId && lookupRuleIds.indexOf(lookupRuleSysId) == -1) {
+            lookupRuleIds.push(lookupRuleSysId);
+        }
+    }
+
+    return lookupRuleIds;
+},
+
+    type: 'IncentIQAssignmentReferenceResolver'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>upma.rai</sys_created_by>
+        <sys_created_on>2026-08-10 17:17:22</sys_created_on>
+        <sys_id>85a2753693aec710ddb7f2d89803d66e</sys_id>
+        <sys_mod_count>11</sys_mod_count>
+        <sys_name>IncentIQAssignmentReferenceResolver</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_script_include_85a2753693aec710ddb7f2d89803d66e</sys_update_name>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-08-24 13:48:37</sys_updated_on>
+    </sys_script_include>
+</record_update>

@@ -132,12 +132,16 @@
             head: c.newBU.head || '',
             company: c.newBU.company || ''
         }).then(function(r) {
-            if (r.data.success) {
-                c.data = r.data;
-                c.selectedUnit = null;
-                c.view = 'main';
-            }
-        });
+
+						if (!r.data.success) {
+								spUtil.addErrorMessage(r.data.error);
+								return;
+						}
+
+						c.data = r.data;
+						c.selectedUnit = null;
+						c.view = 'main';
+				});
     };
 
     c.onParentBUChange = function() {
@@ -185,12 +189,16 @@
             head: c.editBU.head || '',
             company: c.editBU.company || ''
         }).then(function(r) {
-            if (r.data.success) {
-                c.data = r.data;
-                c.selectedUnit = null;
-                c.view = 'main';
-            }
-        });
+
+						if (!r.data.success) {
+								spUtil.addErrorMessage(r.data.error);
+								return;
+						}
+
+						c.data = r.data;
+						c.selectedUnit = null;
+						c.view = 'main';
+				});
     };
 
 
@@ -958,6 +966,763 @@
 .pt-scorecard-period {
   font-size: 12px;
   color: #9ca3af;
+}
+
+
+/* ============================================================
+   ORGANIZATION WIDGET
+   MOBILE RESPONSIVE OVERRIDES
+   Existing HTML / classes / Angular / JS untouched
+   ============================================================ */
+
+
+/* ------------------------------------------------------------
+   TABLET
+   ------------------------------------------------------------ */
+@media (max-width: 1100px) {
+
+  .org-wrap {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+    padding: 0 14px;
+  }
+
+  /* Header */
+  .org-header {
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .org-header-text {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+
+  .org-header-actions {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+
+  /* Summary cards */
+  .org-cards.three-cards,
+  .org-cards.four-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* Tabs */
+  .org-tabs {
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    flex-wrap: nowrap;
+    padding-bottom: 4px;
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .org-tab {
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+
+  /* Main hierarchy layout */
+  .org-body {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .org-panel-left {
+    width: 100%;
+  }
+
+  .org-panel-right {
+    width: 100%;
+  }
+
+  /* Team directory */
+  .org-team-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* Forms */
+  .org-row2 {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+
+/* ------------------------------------------------------------
+   MOBILE
+   ------------------------------------------------------------ */
+@media (max-width: 767px) {
+
+  .org-wrap {
+    width: 100%;
+    max-width: 100%;
+    min-height: 100vh;
+    padding: 0 10px;
+    overflow-x: hidden;
+  }
+
+  /* ==========================================================
+     HEADER
+     ========================================================== */
+
+  .org-header {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+    margin-bottom: 18px;
+  }
+
+  .org-header-text {
+    width: 100%;
+  }
+
+  .org-header-text h1 {
+    margin-top: 8px;
+    margin-bottom: 6px;
+    font-size: 26px;
+    line-height: 1.2;
+  }
+
+  .org-header-text p {
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.5;
+    color: #64748b;
+  }
+
+  .org-header-actions {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .org-header-actions .org-btn-ghost,
+  .org-header-actions .org-btn-solid {
+    width: 100%;
+    justify-content: center;
+  }
+
+
+  /* ==========================================================
+     BUTTONS
+     ========================================================== */
+
+  .org-btn-ghost,
+  .org-btn-solid {
+    min-height: 40px;
+    padding: 9px 14px;
+    font-size: 13px;
+  }
+
+  .org-edit-btn,
+  .org-delete-btn {
+    min-height: 36px;
+  }
+
+
+  /* ==========================================================
+     SUMMARY CARDS
+     ========================================================== */
+
+  .org-cards {
+    width: 100%;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+
+  .org-cards.three-cards,
+  .org-cards.four-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .org-cards .pt-scorecard {
+    min-width: 0;
+    padding: 16px;
+  }
+
+  .org-cards .pt-scorecard-label {
+    font-size: 11px;
+  }
+
+  .org-cards .pt-scorecard-value {
+    font-size: 24px;
+    line-height: 1.2;
+  }
+
+  .org-cards .pt-scorecard-period {
+    font-size: 10px;
+  }
+
+
+  /* ==========================================================
+     TABS
+     ========================================================== */
+
+  .org-tabs {
+    display: flex;
+    width: calc(100% + 2px);
+    margin-bottom: 16px;
+    gap: 6px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    flex-wrap: nowrap;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .org-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .org-tab {
+    flex: 0 0 auto;
+    min-height: 38px;
+    padding: 8px 12px;
+    font-size: 12px;
+    gap: 5px;
+    white-space: nowrap;
+  }
+
+  .org-tab svg {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+  }
+
+
+  /* ==========================================================
+     BODY / PANELS
+     ========================================================== */
+
+  .org-body {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+  }
+
+  .org-panel-left,
+  .org-panel-right {
+    width: 100%;
+    max-width: 100%;
+    padding: 14px;
+    border-radius: 10px;
+  }
+
+  .org-panel-heading {
+    font-size: 14px;
+  }
+
+  .org-panel-sub {
+    font-size: 11px;
+    margin-bottom: 12px;
+  }
+
+  .org-panel-right {
+    min-height: auto;
+  }
+
+  .org-panel-right--empty {
+    min-height: 190px;
+  }
+
+
+  /* ==========================================================
+     TREE
+     ========================================================== */
+
+  .org-tree-scroll {
+    width: 100%;
+    max-height: 500px;
+    overflow-x: auto;
+    overflow-y: auto;
+    padding-right: 2px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /*
+     Nodes retain enough width for manager/badge information.
+     The tree itself can horizontally scroll without causing
+     the entire page to scroll.
+  */
+  .org-node {
+    min-width: 560px;
+    padding: 10px;
+    border-radius: 8px;
+  }
+
+  .org-node-l {
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+
+  .org-node-r {
+    flex-shrink: 0;
+    margin-left: 8px;
+  }
+
+  .org-node-name {
+    font-size: 13px;
+  }
+
+  .org-node-desc {
+    font-size: 11px;
+  }
+
+  .org-mgr-label {
+    max-width: 95px;
+    font-size: 10px;
+  }
+
+  .org-badge-count {
+    font-size: 10px;
+    padding: 2px 7px;
+  }
+
+  .org-role-pill {
+    font-size: 10px;
+    padding: 2px 7px;
+  }
+
+  .org-children {
+    margin-left: 20px;
+    padding-left: 10px;
+  }
+
+  .org-children--l3 {
+    margin-left: 18px;
+  }
+
+
+  /* ==========================================================
+     DETAIL PANEL
+     ========================================================== */
+
+  .org-detail-header {
+    gap: 10px;
+    flex-wrap: wrap;
+    padding-bottom: 12px;
+    margin-bottom: 14px;
+  }
+
+  .org-detail-title {
+    min-width: 0;
+    flex: 1 1 100%;
+    font-size: 18px;
+    line-height: 1.3;
+    word-break: break-word;
+  }
+
+  .org-detail-actions {
+    width: 100%;
+    justify-content: flex-start;
+    gap: 7px;
+  }
+
+  .org-detail-row {
+    margin-bottom: 15px;
+  }
+
+  .org-detail-label {
+    font-size: 10px;
+  }
+
+  .org-detail-val {
+    font-size: 13px;
+    word-break: break-word;
+  }
+
+  .org-person-row {
+    align-items: flex-start;
+  }
+
+  .org-av--sm {
+    width: 28px;
+    height: 28px;
+    font-size: 10px;
+  }
+
+  .org-count-badge {
+    font-size: 10px;
+    padding: 1px 7px;
+  }
+
+
+  /* ==========================================================
+     TEAM DIRECTORY
+     ========================================================== */
+
+  .org-team-wrap {
+    width: 100%;
+    padding: 14px;
+    border-radius: 10px;
+  }
+
+  .org-team-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .org-search-box {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .org-search-input {
+    font-size: 12px;
+  }
+
+  .org-team-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .org-team-card {
+    padding: 14px;
+    gap: 12px;
+  }
+
+  .org-team-card-top {
+    gap: 10px;
+  }
+
+  .org-av--lg {
+    width: 40px;
+    height: 40px;
+    font-size: 13px;
+  }
+
+  .org-team-name {
+    font-size: 13px;
+  }
+
+  .org-team-title-text {
+    font-size: 12px;
+  }
+
+  .org-team-email {
+    font-size: 11px;
+  }
+
+  .org-team-card-bottom {
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+
+  .org-team-meta-left {
+    width: 100%;
+    flex: 1 1 100%;
+  }
+
+  .org-unit-pill {
+    max-width: 100%;
+  }
+
+
+  /* ==========================================================
+     FORM PAGES
+     ========================================================== */
+
+  .org-page-topbar {
+    gap: 9px;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+  }
+
+  .org-back-btn {
+    width: 34px;
+    height: 34px;
+  }
+
+  .org-page-topbar-title {
+    font-size: 16px;
+  }
+
+  .org-form-page {
+    width: 100%;
+    border-radius: 10px;
+  }
+
+  .org-form-page-heading {
+    font-size: 17px;
+    padding: 18px 16px 4px;
+  }
+
+  .org-form-page-sub {
+    font-size: 12px;
+    line-height: 1.5;
+    padding: 0 16px 16px;
+  }
+
+  .org-form-section {
+    padding: 18px 16px;
+  }
+
+  .org-row2 {
+    grid-template-columns: 1fr;
+    gap: 0;
+    margin-bottom: 0;
+  }
+
+  .org-field {
+    width: 100%;
+    margin-bottom: 16px;
+  }
+
+  .org-field--full {
+    margin-bottom: 16px;
+  }
+
+  .org-input,
+  .org-select,
+  .org-textarea {
+    width: 100%;
+    max-width: 100%;
+    font-size: 13px;
+    padding: 9px 11px;
+  }
+
+  .org-textarea {
+    min-height: 100px;
+  }
+
+  .org-form-page-footer {
+    flex-direction: column-reverse;
+    align-items: stretch;
+    padding: 14px 16px 18px;
+  }
+
+  .org-form-page-footer .org-btn-ghost,
+  .org-form-page-footer .org-btn-solid {
+    width: 100%;
+    justify-content: center;
+  }
+
+
+  /* ==========================================================
+     EMPTY STATES
+     ========================================================== */
+
+  .org-empty {
+    padding: 20px 10px;
+  }
+
+  .org-empty svg {
+    width: 38px;
+    height: 38px;
+  }
+
+  .org-empty p {
+    font-size: 12px;
+  }
+}
+
+
+/* ------------------------------------------------------------
+   SMALL PHONES
+   ------------------------------------------------------------ */
+@media (max-width: 480px) {
+
+  .org-wrap {
+    padding: 0 7px;
+  }
+
+  .org-header-text h1 {
+    font-size: 23px;
+  }
+
+  .org-header-text p {
+    font-size: 11px;
+  }
+
+  /* Cards remain two columns */
+  .org-cards {
+    gap: 8px;
+  }
+
+  .org-cards .pt-scorecard {
+    padding: 13px;
+    border-radius: 10px;
+  }
+
+  .org-cards .pt-scorecard-value {
+    font-size: 21px;
+  }
+
+  .org-cards .pt-scorecard-label {
+    font-size: 10px;
+  }
+
+  .org-cards .pt-scorecard-period {
+    font-size: 9px;
+  }
+
+  /* Tabs */
+  .org-tab {
+    padding: 7px 10px;
+    font-size: 11px;
+  }
+
+  /* Panels */
+  .org-panel-left,
+  .org-panel-right {
+    padding: 12px;
+  }
+
+  /* Tree */
+  .org-node {
+    min-width: 500px;
+  }
+
+  .org-node-name {
+    font-size: 12px;
+  }
+
+  .org-node-desc {
+    font-size: 10px;
+  }
+
+  .org-mgr-label {
+    max-width: 80px;
+  }
+
+  /* Team cards */
+  .org-team-wrap {
+    padding: 12px;
+  }
+
+  .org-team-card {
+    padding: 12px;
+  }
+
+  .org-team-card-top {
+    gap: 8px;
+  }
+
+  .org-team-card-top .org-edit-btn {
+    padding: 5px 10px;
+    font-size: 11px;
+  }
+
+  /* Details */
+  .org-detail-title {
+    font-size: 16px;
+  }
+
+  .org-detail-actions .org-edit-btn,
+  .org-detail-actions .org-delete-btn {
+    flex: 1;
+  }
+}
+
+
+/* ------------------------------------------------------------
+   EXTRA SMALL PHONES
+   ------------------------------------------------------------ */
+@media (max-width: 360px) {
+
+  .org-wrap {
+    padding: 0 5px;
+  }
+
+  .org-header-text h1 {
+    font-size: 21px;
+  }
+
+  .org-cards .pt-scorecard {
+    padding: 11px;
+  }
+
+  .org-cards .pt-scorecard-value {
+    font-size: 19px;
+  }
+
+  .org-panel-left,
+  .org-panel-right {
+    padding: 10px;
+  }
+
+  .org-node {
+    min-width: 460px;
+    padding: 9px;
+  }
+
+  .org-node-name {
+    font-size: 11px;
+  }
+
+  .org-mgr-label {
+    max-width: 65px;
+  }
+
+  .org-badge-count {
+    padding-left: 6px;
+    padding-right: 6px;
+    font-size: 9px;
+  }
+
+  .org-team-card {
+    padding: 10px;
+  }
+
+  .org-form-page-heading {
+    font-size: 16px;
+    padding-left: 13px;
+    padding-right: 13px;
+  }
+
+  .org-form-page-sub,
+  .org-form-section {
+    padding-left: 13px;
+    padding-right: 13px;
+  }
+
+  .org-form-page-footer {
+    padding-left: 13px;
+    padding-right: 13px;
+  }
+}
+
+
+/* ------------------------------------------------------------
+   MOBILE SCROLL SAFETY
+   ------------------------------------------------------------ */
+@media (max-width: 767px) {
+
+  .org-wrap,
+  .org-body,
+  .org-panel-left,
+  .org-panel-right,
+  .org-team-wrap,
+  .org-form-page {
+    max-width: 100%;
+  }
+
+  .org-wrap img,
+  .org-wrap input,
+  .org-wrap textarea,
+  .org-wrap select {
+    max-width: 100%;
+  }
+
+  /*
+     Only the hierarchy container gets horizontal scrolling.
+     The overall Service Portal page stays within the viewport.
+  */
+  .org-tree-scroll {
+    overscroll-behavior-x: contain;
+  }
 }</css>
         <data_table>sp_instance</data_table>
         <demo_data/>
@@ -1047,6 +1812,275 @@
 	
     //data.isIncentNowAdmin = new x_ctans_incentnow.IncentNowPortalUtils().hasExactRole('x_ctans_incentnow.admin');
     //gs.addInfoMessage(data.isIncentNowAdmin);
+	
+		function validateUnitHead(headSysId, currentBusinessUnit, newParentBusinessUnit) {
+
+if (!headSysId) {
+    return {
+        valid: true
+    };
+}
+
+/*
+ * ============================================================
+ * NEW RULE
+ *
+ * If a parent BU is selected AND the selected user's BU Head
+ * is the same as the parent's BU Head, ALLOW.
+ *
+ * Example:
+ *
+ * Parent BU
+ *   Head = John
+ *
+ * New Child BU
+ *   Parent = Parent BU
+ *   Head = John
+ *
+ * Result = ALLOW
+ * ============================================================
+ */
+
+if (newParentBusinessUnit) {
+
+    var parentBU = new GlideRecordSecure("business_unit");
+
+    if (parentBU.get(newParentBusinessUnit)) {
+
+        var parentHead =
+            parentBU.getValue("bu_head");
+
+        if (parentHead == headSysId) {
+            return {
+                valid: true
+            };
+        }
+    }
+}
+
+
+/*
+ * ============================================================
+ * EXISTING VALIDATION
+ *
+ * Everything below keeps the existing behavior:
+ *
+ * - No parent + existing BU head = BLOCK
+ * - Existing head in unrelated BU = BLOCK
+ * - Existing head in ancestor/descendant hierarchy = ALLOW
+ * ============================================================
+ */
+
+var referenceBU =
+    currentBusinessUnit ||
+    newParentBusinessUnit;
+
+
+var existingBU =
+    new GlideRecordSecure("business_unit");
+
+existingBU.addQuery(
+    "bu_head",
+    headSysId
+);
+
+
+/*
+ * When editing, ignore the BU itself.
+ */
+if (currentBusinessUnit) {
+
+    existingBU.addQuery(
+        "sys_id",
+        "!=",
+        currentBusinessUnit
+    );
+}
+
+
+existingBU.query();
+
+
+while (existingBU.next()) {
+
+    var existingBUId =
+        existingBU.getUniqueValue();
+
+    var existingBUName =
+        existingBU.getDisplayValue("name");
+
+
+    /*
+     * ========================================================
+     * NO PARENT
+     *
+     * New BU is a root BU.
+     *
+     * Existing behavior:
+     * same head is NOT allowed.
+     * ========================================================
+     */
+
+    if (!referenceBU) {
+
+        return {
+            valid: false,
+
+            message:
+                "User is already the Head of Business Unit '" +
+                existingBUName +
+                "'. Please select another Unit Head."
+        };
+    }
+
+
+    /*
+     * ========================================================
+     * CHECK 1
+     *
+     * Is the existing BU an ancestor of the selected
+     * parent/current BU?
+     *
+     * Example:
+     *
+     * BU A (John)
+     *   |
+     *   BU B
+     *      |
+     *      New BU
+     *
+     * ALLOW
+     * ========================================================
+     */
+
+    var isAncestor = false;
+
+    var childCheck =
+        new GlideRecordSecure("business_unit");
+
+
+    if (childCheck.get(referenceBU)) {
+
+        var parentId =
+            childCheck.getValue("parent");
+
+
+        while (parentId) {
+
+            if (parentId == existingBUId) {
+
+                isAncestor = true;
+                break;
+            }
+
+
+            var parentCheck =
+                new GlideRecordSecure("business_unit");
+
+
+            if (!parentCheck.get(parentId)) {
+                break;
+            }
+
+
+            parentId =
+                parentCheck.getValue("parent");
+        }
+    }
+
+
+    if (isAncestor) {
+        continue;
+    }
+
+
+    /*
+     * ========================================================
+     * CHECK 2
+     *
+     * Is the existing BU a descendant of the selected
+     * parent/current BU?
+     *
+     * Example:
+     *
+     * New BU
+     *   |
+     *   BU B
+     *      |
+     *      BU C (John)
+     *
+     * ALLOW
+     * ========================================================
+     */
+
+    var isDescendant = false;
+
+    var existingCheck =
+        new GlideRecordSecure("business_unit");
+
+
+    if (existingCheck.get(existingBUId)) {
+
+        var existingParentId =
+            existingCheck.getValue("parent");
+
+
+        while (existingParentId) {
+
+            if (existingParentId == referenceBU) {
+
+                isDescendant = true;
+                break;
+            }
+
+
+            var ancestorCheck =
+                new GlideRecordSecure("business_unit");
+
+
+            if (!ancestorCheck.get(existingParentId)) {
+                break;
+            }
+
+
+            existingParentId =
+                ancestorCheck.getValue("parent");
+        }
+    }
+
+
+    if (isDescendant) {
+        continue;
+    }
+
+
+    /*
+     * ========================================================
+     * UNRELATED BU
+     *
+     * Same BU Head is not allowed.
+     * ========================================================
+     */
+
+    return {
+        valid: false,
+
+        message:
+            "User is already the Head of Business Unit '" +
+            existingBUName +
+            "'. Please select another Unit Head."
+    };
+}
+
+
+return {
+    valid: true
+};
+}
+
+
+
+	
     function buildData(data) {
         data.units = [];
         data.members = [];
@@ -1202,6 +2236,21 @@
                 name: compGR.getDisplayValue('name')
             });
         }
+			
+				/* -------- UNIT HEAD USERS (sys_user) -------- */
+				data.unitHeadUsers = [];
+
+				var unitHeadGR = new GlideRecordSecure("sys_user");
+				unitHeadGR.addActiveQuery(); // Optional
+				unitHeadGR.orderBy("name");
+				unitHeadGR.query();
+
+				while (unitHeadGR.next()) {
+						data.unitHeadUsers.push({
+								sys_id: unitHeadGR.getUniqueValue(),
+								name: unitHeadGR.getDisplayValue("name")
+						});
+				}
 
         /* -------- SALES USERS -------- */
 				// Load all sys_users once
@@ -1444,6 +2493,13 @@
     }
 
     if (action === 'updateBU') {
+				var validation = validateUnitHead(input.head, input.sys_id, input.parent);
+
+				if (!validation.valid) {
+						data.success = false;
+						data.error = validation.message;
+						return;
+				}
         var updBU = new GlideRecordSecure('business_unit');
         if (updBU.get(input.sys_id)) {
             updBU.setValue('name', input.name);
@@ -1464,6 +2520,12 @@
         buildData(data);
 
     } else if (action === 'createBU') {
+				var validation = validateUnitHead(input.head, null, input.parent);
+				if (!validation.valid) {
+						data.success = false;
+						data.error = validation.message;
+						return;
+				}
         var newBU = new GlideRecordSecure('business_unit');
         newBU.initialize();
         newBU.setValue('name', input.name);
@@ -1502,14 +2564,14 @@
         <sys_created_by>karan.kumar</sys_created_by>
         <sys_created_on>2026-03-17 03:45:36</sys_created_on>
         <sys_id>715187273b6ffa50ffa00e9693e45a62</sys_id>
-        <sys_mod_count>356</sys_mod_count>
+        <sys_mod_count>362</sys_mod_count>
         <sys_name>Organization Management</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
         <sys_update_name>sp_widget_715187273b6ffa50ffa00e9693e45a62</sys_update_name>
         <sys_updated_by>shroin.mandal</sys_updated_by>
-        <sys_updated_on>2026-07-29 10:13:18</sys_updated_on>
+        <sys_updated_on>2026-08-16 17:37:50</sys_updated_on>
         <template><![CDATA[<div class="org-wrap">
   <div ng-show="c.view === 'main'">
     <!-- HEADERS -->
@@ -2128,7 +3190,7 @@
             <label>Unit Head</label>
             <select ng-model="c.newBU.head" class="org-select">
               <option value="">Select a team member</option>
-              <option ng-repeat="u in c.data.sysUsers" value="{{u.sys_id}}">{{u.name}}</option>
+              <option ng-repeat="u in c.data.unitHeadUsers track by u.sys_id" value="{{u.sys_id}}">{{u.name}}</option>
             </select>
           </div>
         </div>
@@ -2252,7 +3314,7 @@
             <label>Unit Head</label>
             <select ng-model="c.editBU.head" class="org-select">
               <option value="">Select a team member</option>
-              <option ng-repeat="u in c.data.sysUsers track by u.sys_id" value="{{u.sys_id}}">{{u.name}}</option>
+              <option ng-repeat="u in c.data.unitHeadUsers track by u.sys_id" value="{{u.sys_id}}">{{u.name}}</option>
             </select>
           </div>
         </div>

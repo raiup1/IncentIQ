@@ -32,7 +32,7 @@ IncentNowPayoutEngine.prototype = {
        MAIN EXECUTION
     ===================================================== */
 
-    executePlan: function(userGR, periodGR, planGR, statementId) {
+    /*executePlan: function(userGR, periodGR, planGR, statementId) {
 
         try {
             if (periodGR.getValue('period_type') != 'month') {
@@ -75,6 +75,75 @@ IncentNowPayoutEngine.prototype = {
 
             this.logError("EXECUTION FAILED", ex, context);
 
+
+            return {
+                status: 'error',
+                message: ex.message || ex,
+                ruleName: ex.ruleName || '',
+                ruleSysId: ex.ruleSysId || ''
+            };
+        }
+    },*/
+    executePlan: function(userGR, periodGR, planGR, planAssignmentGR, statementId) {
+
+        var context = {};
+        try {
+
+            if (periodGR.getValue('period_type') != 'month') {
+                gs.info(
+                    'Skipping payout execution for non-month period'
+                );
+
+                return {
+                    status: 'skipped',
+                    total_payout: 0,
+                    breakdown: [],
+                    quota_attainment: null,
+                    quota_results: []
+                };
+            }
+
+            if (!planAssignmentGR || !planAssignmentGR.isValidRecord()) {
+
+                throw new Error(
+                    'Valid Plan Assignment is required for payout execution.'
+                );
+            }
+
+            context = {
+                user: userGR.sys_id,
+                plan: planGR.sys_id,
+                period: periodGR.sys_id,
+                userGR: userGR,
+                periodGR: periodGR,
+                planGR: planGR,
+                planAssignment: planAssignmentGR.getUniqueValue(),
+                participantAssignment: planAssignmentGR.getValue('participant_assignment'),
+                // Kept for backward compatibility only
+                quotaAttainment: 0,
+                // NEW: supports multiple Quota Attainment rules
+                quotaResults: [],
+                statementId: statementId
+            };
+
+            this.clearPreviousResults(context);
+            this.executeSteps(context);
+
+            var summary = this.calculateSummary(context);
+            this.logDebug('| executePlan| ' + summary.total);
+
+            return {
+                status: 'success',
+                total_payout: summary.total,
+                breakdown: summary.breakdown,
+                // Legacy
+                quota_attainment: context.quotaAttainment,
+                // NEW
+                quota_results: context.quotaResults
+            };
+
+        } catch (ex) {
+            this.logError('EXECUTION FAILED', ex, context);
 
             return {
                 status: 'error',
@@ -191,8 +260,10 @@ IncentNowPayoutEngine.prototype = {
 
         switch (type) {
 
+            //   case 'quota_attainment':
+            //     return this.calculateQuotaAttainment(context, inputValue);
             case 'quota_attainment':
-                return this.calculateQuotaAttainment(context, inputValue);
+                return this.calculateQuotaAttainment(ruleGR,context,inputValue);
             case 'flat_commission_rate':
                 return parseFloat(ruleGR.getValue('rate_value')) || 0;
 
@@ -217,7 +288,7 @@ IncentNowPayoutEngine.prototype = {
        QUOTA Attainment
     ===================================================== */
 
-    calculateQuotaAttainment: function(context, achievement) {
+   /* calculateQuotaAttainment: function(context, achievement) {
 
         var earningEngine = new IncentNowEarningRuleEngine();
 
@@ -244,7 +315,115 @@ IncentNowPayoutEngine.prototype = {
         this.logDebug('Quota attainment ' + quotaAttainment);
 
         return quotaAttainment;
-    },
+    },*/
+
+	calculateQuotaAttainment: function(ruleGR,context,achievement) {
+
+    var quotaObj =this._getQuotaTargetForLookupRule(context, ruleGR);
+    if (!quotaObj || !quotaObj.valid) {
+
+        throw new Error(quotaObj && quotaObj.message ? quotaObj.message :  'Quota target could not be determined.');
+    }
+    var quotaTarget =parseFloat( quotaObj.value ) || 0;
+
+    if (quotaTarget <= 0) {
+
+        throw new Error('Quota target is zero or missing for Quota "' +  quotaObj.quotaDisplay +  '".' );
+    }
+
+    var numericAchievement =  parseFloat(achievement ) || 0;
+
+    var quotaAttainment =(numericAchievement /quotaTarget) * 100;
+
+    quotaAttainment = parseFloat(quotaAttainment.toFixed(2) ) || 0;
+    // Backward compatibility only.
+    // With multiple quota rules this represents the last processed rule.
+    context.quotaAttainment = quotaAttainment;
+    context.quotaResults.push({
+
+        lookupRuleSysId:ruleGR.getUniqueValue(),
+        lookupRule: ruleGR.getDisplayValue(),
+        quotaAssignmentSysId: quotaObj.quotaAssignmentSysId,
+        quotaSysId: quotaObj.quotaSysId,
+        quota:quotaObj.quotaDisplay,
+        target: quotaTarget,
+        achievement: numericAchievement,
+        attainment: quotaAttainment
+    });
+
+    this.logDebug( 'Quota attainment | Rule=' + ruleGR.getDisplayValue() +  ' | Quota=' + quotaObj.quotaDisplay + ' | Achievement=' + numericAchievement + ' | Target=' + quotaTarget +' | Attainment=' +  quotaAttainment);
+
+    return quotaAttainment;
+},
+_getQuotaTargetForLookupRule: function(context,ruleGR) {
+
+    var result = {
+        valid: false,
+        message: '',
+        quotaAssignmentSysId: '',
+        quotaSysId: '',
+        quotaDisplay: '',
+        value: 0
+    };
+    if (!context.planAssignment) {
+        result.message ='Plan Assignment is missing from payout context.';
+        return result;
+    }
+
+
+    if (!ruleGR ||
+        !ruleGR.isValidRecord()) {
+
+        result.message = 'Quota Attainment Lookup Rule is invalid.';
+        return result;
+    }
+
+    var quotaAssignmentGR = new GlideRecordSecure( 'x_ctans_incentnow_user_quota_assignment');
+
+    quotaAssignmentGR.addQuery('participant_assignment', context.participantAssignment);
+    quotaAssignmentGR.addQuery('plan_assignment', context.planAssignment);
+    quotaAssignmentGR.addQuery('lookup_rule', ruleGR.getUniqueValue());
+    quotaAssignmentGR.addQuery('user',context.user);
+    quotaAssignmentGR.addNotNullQuery('quota');
+    quotaAssignmentGR.addQuery('quota.status','active');
+    quotaAssignmentGR.setLimit(2);
+    quotaAssignmentGR.query();
+
+    if (!quotaAssignmentGR.next()) {
+        result.message ='No active Quota mapping exists for Quota Attainment Lookup Rule "' + ruleGR.getDisplayValue() + '".';
+        return result;
+    }
+
+    result.quotaAssignmentSysId = quotaAssignmentGR.getUniqueValue();
+    result.quotaSysId = quotaAssignmentGR.getValue('quota');
+    result.quotaDisplay = quotaAssignmentGR.getDisplayValue('quota');
+
+
+    // Defensive protection even though BR already prevents this
+    if (quotaAssignmentGR.next()) {
+
+        result.message ='Multiple Quota mappings exist for Quota Attainment Lookup Rule "' + ruleGR.getDisplayValue() + '".';
+        return result;
+    }
+
+    var quotaPeriodGR = new GlideRecordSecure( 'x_ctans_incentnow_quota_period');
+    quotaPeriodGR.addQuery('quota',result.quotaSysId);
+    quotaPeriodGR.addQuery('fiscal_period',context.period);
+    quotaPeriodGR.setLimit(1);
+    quotaPeriodGR.query();
+
+
+    if (!quotaPeriodGR.next()) {
+
+        result.message = 'No Quota Period target exists for Quota "' + result.quotaDisplay + '" and Fiscal Period "' + context.periodGR.getDisplayValue() + '".';
+        return result;
+    }
+
+
+    result.value = parseFloat(quotaPeriodGR.getValue('target_value')) || 0;
+    result.valid = true;
+    return result;
+},
     /* =====================================================
        LOOKUP ENGINE
     ===================================================== */
@@ -404,7 +583,7 @@ IncentNowPayoutEngine.prototype = {
 
             case 'user_information':
                 DecisionTablefieldName = this.getInputsForDecisionTable(ruleGR);
-                var userGR = new GlideRecordSecure('x_ctans_incentnow_user_profile'); 
+                var userGR = new GlideRecordSecure('x_ctans_incentnow_user_profile');
                 if (userGR.get(context.user)) {
                     inputs[DecisionTablefieldName] = userGR.getValue(fieldName) || '';
                 }
@@ -856,13 +1035,13 @@ IncentNowPayoutEngine.prototype = {
         <sys_created_by>upma.rai</sys_created_by>
         <sys_created_on>2026-03-30 09:09:23</sys_created_on>
         <sys_id>90d50f333b3bf214ffa00e9693e45a64</sys_id>
-        <sys_mod_count>89</sys_mod_count>
+        <sys_mod_count>92</sys_mod_count>
         <sys_name>IncentNowPayoutEngine</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
         <sys_update_name>sys_script_include_90d50f333b3bf214ffa00e9693e45a64</sys_update_name>
-        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
-        <sys_updated_on>2026-06-24 12:38:44</sys_updated_on>
+        <sys_updated_by>upma.rai</sys_updated_by>
+        <sys_updated_on>2026-08-13 13:03:14</sys_updated_on>
     </sys_script_include>
 </record_update>

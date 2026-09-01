@@ -4,13 +4,13 @@
             <element>plan</element>
             <position>0</position>
             <sys_created_by>upma.rai</sys_created_by>
-            <sys_created_on>2026-04-27 13:18:04</sys_created_on>
-            <sys_id>f9dd88c93be0c3905493ddb693e45ae2</sys_id>
+            <sys_created_on>2026-08-18 11:48:18</sys_created_on>
+            <sys_id>68f475dd3bba4b10a4cbaddc73e45ad6</sys_id>
             <sys_mod_count>0</sys_mod_count>
             <sys_ui_formatter/>
             <sys_ui_section caption="NULL" display_value="" name="x_ctans_incentnow_lookup_rule" sys_domain="global" view="Default view">652506773b7736145493ddb693e45a94</sys_ui_section>
             <sys_updated_by>upma.rai</sys_updated_by>
-            <sys_updated_on>2026-04-27 13:18:04</sys_updated_on>
+            <sys_updated_on>2026-08-18 11:48:18</sys_updated_on>
             <sys_user/>
             <type/>
         </sys_ui_element>
@@ -18,13 +18,13 @@
             <element>step_name</element>
             <position>1</position>
             <sys_created_by>upma.rai</sys_created_by>
-            <sys_created_on>2026-04-27 13:18:04</sys_created_on>
-            <sys_id>79dd88c93be0c3905493ddb693e45ae3</sys_id>
+            <sys_created_on>2026-08-18 11:48:18</sys_created_on>
+            <sys_id>e4f475dd3bba4b10a4cbaddc73e45ad7</sys_id>
             <sys_mod_count>0</sys_mod_count>
             <sys_ui_formatter/>
             <sys_ui_section caption="NULL" display_value="" name="x_ctans_incentnow_lookup_rule" sys_domain="global" view="Default view">652506773b7736145493ddb693e45a94</sys_ui_section>
             <sys_updated_by>upma.rai</sys_updated_by>
-            <sys_updated_on>2026-04-27 13:18:04</sys_updated_on>
+            <sys_updated_on>2026-08-18 11:48:18</sys_updated_on>
             <sys_user/>
             <type/>
         </sys_ui_element>
@@ -32,13 +32,13 @@
             <element>rule_type</element>
             <position>2</position>
             <sys_created_by>upma.rai</sys_created_by>
-            <sys_created_on>2026-04-27 13:18:04</sys_created_on>
-            <sys_id>f5dd88c93be0c3905493ddb693e45ae4</sys_id>
+            <sys_created_on>2026-08-18 11:48:18</sys_created_on>
+            <sys_id>64f475dd3bba4b10a4cbaddc73e45ad8</sys_id>
             <sys_mod_count>0</sys_mod_count>
             <sys_ui_formatter/>
             <sys_ui_section caption="NULL" display_value="" name="x_ctans_incentnow_lookup_rule" sys_domain="global" view="Default view">652506773b7736145493ddb693e45a94</sys_ui_section>
             <sys_updated_by>upma.rai</sys_updated_by>
-            <sys_updated_on>2026-04-27 13:18:04</sys_updated_on>
+            <sys_updated_on>2026-08-18 11:48:18</sys_updated_on>
             <sys_user/>
             <type/>
         </sys_ui_element>
@@ -46,13 +46,13 @@
             <element>input_type</element>
             <position>3</position>
             <sys_created_by>upma.rai</sys_created_by>
-            <sys_created_on>2026-04-27 13:18:04</sys_created_on>
-            <sys_id>75dd88c93be0c3905493ddb693e45ae5</sys_id>
+            <sys_created_on>2026-08-18 11:48:18</sys_created_on>
+            <sys_id>e0f475dd3bba4b10a4cbaddc73e45ad9</sys_id>
             <sys_mod_count>0</sys_mod_count>
             <sys_ui_formatter/>
             <sys_ui_section caption="NULL" display_value="" name="x_ctans_incentnow_lookup_rule" sys_domain="global" view="Default view">652506773b7736145493ddb693e45a94</sys_ui_section>
             <sys_updated_by>upma.rai</sys_updated_by>
-            <sys_updated_on>2026-04-27 13:18:04</sys_updated_on>
+            <sys_updated_on>2026-08-18 11:48:18</sys_updated_on>
             <sys_user/>
             <type/>
         </sys_ui_element>
@@ -60,13 +60,13 @@
             <element>select_previous_step</element>
             <position>4</position>
             <sys_created_by>upma.rai</sys_created_by>
-            <sys_created_on>2026-04-27 13:18:04</sys_created_on>
-            <sys_id>f1dd88c93be0c3905493ddb693e45ae6</sys_id>
+            <sys_created_on>2026-08-18 11:48:18</sys_created_on>
+            <sys_id>60f475dd3bba4b10a4cbaddc73e45ada</sys_id>
             <sys_mod_count>0</sys_mod_count>
             <sys_ui_formatter/>
             <sys_ui_section caption="NULL" display_value="" name="x_ctans_incentnow_lookup_rule" sys_domain="global" view="Default view">652506773b7736145493ddb693e45a94</sys_ui_section>
             <sys_updated_by>upma.rai</sys_updated_by>
-            <sys_updated_on>2026-04-27 13:18:04</sys_updated_on>
+            <sys_updated_on>2026-08-18 11:48:18</sys_updated_on>
             <sys_user/>
             <type/>
         </sys_ui_element>
@@ -74,13 +74,13 @@
             <element>select_earning_rule</element>
             <position>5</position>
             <sys_created_by>upma.rai</sys_created_by>
-            <sys_created_on>2026-04-27 13:18:04</sys_created_on>
-            <sys_id>71dd88c93be0c3905493ddb693e45ae7</sys_id>
+            <sys_created_on>2026-08-18 11:48:18</sys_created_on>
+            <sys_id>ecf475dd3bba4b10a4cbaddc73e45ada</sys_id>
             <sys_mod_count>0</sys_mod_count>
             <sys_ui_formatter/>
             <sys_ui_section caption="NULL" display_value="" name="x_ctans_incentnow_lookup_rule" sys_domain="global" view="Default view">652506773b7736145493ddb693e45a94</sys_ui_section>
             <sys_updated_by>upma.rai</sys_updated_by>
-            <sys_updated_on>2026-04-27 13:18:04</sys_updated_on>
+            <sys_updated_on>2026-08-18 11:48:18</sys_updated_on>
             <sys_user/>
             <type/>
         </sys_ui_element>
@@ -88,13 +88,13 @@
             <element>lookup_table</element>
             <position>6</position>
             <sys_created_by>upma.rai</sys_created_by>
-            <sys_created_on>2026-04-27 13:18:04</sys_created_on>
-            <sys_id>fddd88c93be0c3905493ddb693e45ae7</sys_id>
+            <sys_created_on>2026-08-18 11:48:18</sys_created_on>
+            <sys_id>6cf475dd3bba4b10a4cbaddc73e45adb</sys_id>
             <sys_mod_count>0</sys_mod_count>
             <sys_ui_formatter/>
             <sys_ui_section caption="NULL" display_value="" name="x_ctans_incentnow_lookup_rule" sys_domain="global" view="Default view">652506773b7736145493ddb693e45a94</sys_ui_section>
             <sys_updated_by>upma.rai</sys_updated_by>
-            <sys_updated_on>2026-04-27 13:18:04</sys_updated_on>
+            <sys_updated_on>2026-08-18 11:48:18</sys_updated_on>
             <sys_user/>
             <type/>
         </sys_ui_element>
@@ -102,13 +102,13 @@
             <element>lookup_input</element>
             <position>7</position>
             <sys_created_by>upma.rai</sys_created_by>
-            <sys_created_on>2026-04-27 13:18:04</sys_created_on>
-            <sys_id>7ddd88c93be0c3905493ddb693e45ae8</sys_id>
+            <sys_created_on>2026-08-18 11:48:18</sys_created_on>
+            <sys_id>e8f475dd3bba4b10a4cbaddc73e45adc</sys_id>
             <sys_mod_count>0</sys_mod_count>
             <sys_ui_formatter/>
             <sys_ui_section caption="NULL" display_value="" name="x_ctans_incentnow_lookup_rule" sys_domain="global" view="Default view">652506773b7736145493ddb693e45a94</sys_ui_section>
             <sys_updated_by>upma.rai</sys_updated_by>
-            <sys_updated_on>2026-04-27 13:18:04</sys_updated_on>
+            <sys_updated_on>2026-08-18 11:48:18</sys_updated_on>
             <sys_user/>
             <type/>
         </sys_ui_element>
@@ -116,13 +116,13 @@
             <element>user_attribute</element>
             <position>8</position>
             <sys_created_by>upma.rai</sys_created_by>
-            <sys_created_on>2026-04-27 13:18:04</sys_created_on>
-            <sys_id>f9dd88c93be0c3905493ddb693e45ae9</sys_id>
+            <sys_created_on>2026-08-18 11:48:18</sys_created_on>
+            <sys_id>68f475dd3bba4b10a4cbaddc73e45add</sys_id>
             <sys_mod_count>0</sys_mod_count>
             <sys_ui_formatter/>
             <sys_ui_section caption="NULL" display_value="" name="x_ctans_incentnow_lookup_rule" sys_domain="global" view="Default view">652506773b7736145493ddb693e45a94</sys_ui_section>
             <sys_updated_by>upma.rai</sys_updated_by>
-            <sys_updated_on>2026-04-27 13:18:04</sys_updated_on>
+            <sys_updated_on>2026-08-18 11:48:18</sys_updated_on>
             <sys_user/>
             <type/>
         </sys_ui_element>
@@ -130,13 +130,13 @@
             <element>lookup_output</element>
             <position>9</position>
             <sys_created_by>upma.rai</sys_created_by>
-            <sys_created_on>2026-04-27 13:18:04</sys_created_on>
-            <sys_id>79dd88c93be0c3905493ddb693e45aea</sys_id>
+            <sys_created_on>2026-08-18 11:48:18</sys_created_on>
+            <sys_id>e4f475dd3bba4b10a4cbaddc73e45ade</sys_id>
             <sys_mod_count>0</sys_mod_count>
             <sys_ui_formatter/>
             <sys_ui_section caption="NULL" display_value="" name="x_ctans_incentnow_lookup_rule" sys_domain="global" view="Default view">652506773b7736145493ddb693e45a94</sys_ui_section>
             <sys_updated_by>upma.rai</sys_updated_by>
-            <sys_updated_on>2026-04-27 13:18:04</sys_updated_on>
+            <sys_updated_on>2026-08-18 11:48:18</sys_updated_on>
             <sys_user/>
             <type/>
         </sys_ui_element>
@@ -144,13 +144,13 @@
             <element>rate_value</element>
             <position>10</position>
             <sys_created_by>upma.rai</sys_created_by>
-            <sys_created_on>2026-04-27 13:18:04</sys_created_on>
-            <sys_id>f5dd88c93be0c3905493ddb693e45aeb</sys_id>
+            <sys_created_on>2026-08-18 11:48:18</sys_created_on>
+            <sys_id>64f475dd3bba4b10a4cbaddc73e45adf</sys_id>
             <sys_mod_count>0</sys_mod_count>
             <sys_ui_formatter/>
             <sys_ui_section caption="NULL" display_value="" name="x_ctans_incentnow_lookup_rule" sys_domain="global" view="Default view">652506773b7736145493ddb693e45a94</sys_ui_section>
             <sys_updated_by>upma.rai</sys_updated_by>
-            <sys_updated_on>2026-04-27 13:18:04</sys_updated_on>
+            <sys_updated_on>2026-08-18 11:48:18</sys_updated_on>
             <sys_user/>
             <type/>
         </sys_ui_element>
@@ -158,13 +158,13 @@
             <element>rate_unit</element>
             <position>11</position>
             <sys_created_by>upma.rai</sys_created_by>
-            <sys_created_on>2026-04-27 13:18:04</sys_created_on>
-            <sys_id>75dd88c93be0c3905493ddb693e45aec</sys_id>
+            <sys_created_on>2026-08-18 11:48:18</sys_created_on>
+            <sys_id>e0f475dd3bba4b10a4cbaddc73e45ae0</sys_id>
             <sys_mod_count>0</sys_mod_count>
             <sys_ui_formatter/>
             <sys_ui_section caption="NULL" display_value="" name="x_ctans_incentnow_lookup_rule" sys_domain="global" view="Default view">652506773b7736145493ddb693e45a94</sys_ui_section>
             <sys_updated_by>upma.rai</sys_updated_by>
-            <sys_updated_on>2026-04-27 13:18:04</sys_updated_on>
+            <sys_updated_on>2026-08-18 11:48:18</sys_updated_on>
             <sys_user/>
             <type/>
         </sys_ui_element>
@@ -172,15 +172,29 @@
             <element>description</element>
             <position>12</position>
             <sys_created_by>upma.rai</sys_created_by>
-            <sys_created_on>2026-04-27 13:18:04</sys_created_on>
-            <sys_id>f1dd88c93be0c3905493ddb693e45aed</sys_id>
+            <sys_created_on>2026-08-18 11:48:18</sys_created_on>
+            <sys_id>60f475dd3bba4b10a4cbaddc73e45ae1</sys_id>
             <sys_mod_count>0</sys_mod_count>
             <sys_ui_formatter/>
             <sys_ui_section caption="NULL" display_value="" name="x_ctans_incentnow_lookup_rule" sys_domain="global" view="Default view">652506773b7736145493ddb693e45a94</sys_ui_section>
             <sys_updated_by>upma.rai</sys_updated_by>
-            <sys_updated_on>2026-04-27 13:18:04</sys_updated_on>
+            <sys_updated_on>2026-08-18 11:48:18</sys_updated_on>
             <sys_user/>
             <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>activity.xml</element>
+            <position>13</position>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-08-18 11:48:19</sys_created_on>
+            <sys_id>ecf475dd3bba4b10a4cbaddc73e45ae1</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter display_value="Activities (filtered)">444ea5c6bf310100e628555b3f0739d6</sys_ui_formatter>
+            <sys_ui_section caption="NULL" display_value="" name="x_ctans_incentnow_lookup_rule" sys_domain="global" view="Default view">652506773b7736145493ddb693e45a94</sys_ui_section>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-08-18 11:48:19</sys_updated_on>
+            <sys_user/>
+            <type>formatter</type>
         </sys_ui_element>
         <sys_ui_section action="INSERT_OR_UPDATE">
             <caption/>

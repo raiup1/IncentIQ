@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?><database>
-    <element db_object_id="adebd4fb3beb3e50ffa00e9693e45ad9" label="Payout Summary" max_length="40" name="x_ctans_incentnow_payout_summary" type="collection">
+    <element audit="true" db_object_id="adebd4fb3beb3e50ffa00e9693e45ad9" label="Payout Summary" max_length="40" name="x_ctans_incentnow_payout_summary" type="collection">
         <element label="Domain" max_length="32" name="sys_domain" type="domain_id"/>
         <element attributes="encode_utf8=false,ref_qual_elements=plan" default="909890ce93850f10ddb7f2d89803d6a1" label="Input 1 Earning Rule" max_length="32" name="input1_earning_rule" reference="x_ctans_incentnow_earning_rule" reference_qual="javascript:'active=true^plan=' + current.plan;" type="reference" use_reference_qualifier="advanced"/>
         <element attributes="edge_encryption_enabled=true" display="true" label="Rule Name" mandatory="true" max_length="100" name="rule_name" type="string"/>

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_module">
+    <sys_module action="INSERT_OR_UPDATE">
+        <content><![CDATA[{
+  "$schema": "http://cyclonedx.org/schema/bom-1.6.schema.json",
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.6",
+  "version": 1,
+  "serialNumber": "urn:uuid:2edb9486-ebc4-4da3-b75a-7a1fc14ec49a",
+  "metadata": {
+    "timestamp": "2026-08-31T15:09:04.528Z",
+    "tools": {
+      "components": [
+        {
+          "type": "library",
+          "name": "sdk-build-plugins",
+          "group": "@servicenow",
+          "version": "4.11.2",
+          "author": "ServiceNow"
+        }
+      ]
+    },
+    "component": {
+      "type": "application",
+      "name": "x-ctans-incent-iq",
+      "version": "1.0.11",
+      "bom-ref": "pkg:servicenow/x-ctans-incent-iq@1.0.11?sys_scope_id=3e9928d33b7ef650ffa00e9693e45a75",
+      "description": "IncentIQ application is one stop shop for Sales comission calculation and Incentive payout",
+      "licenses": [
+        {
+          "license": {
+            "name": "UNLICENSED"
+          }
+        }
+      ],
+      "purl": "pkg:servicenow/x-ctans-incent-iq@1.0.11?sys_scope_id=3e9928d33b7ef650ffa00e9693e45a75"
+    }
+  },
+  "components": [],
+  "dependencies": [
+    {
+      "ref": "pkg:servicenow/x-ctans-incent-iq@1.0.11?sys_scope_id=3e9928d33b7ef650ffa00e9693e45a75"
+    }
+  ]
+}]]></content>
+        <external_source>false</external_source>
+        <path>x_ctans_incentnow/x-ctans-incent-iq/1.0.11/bom.json</path>
+        <sys_class_name>sys_module</sys_class_name>
+        <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+        <sys_created_on>2026-08-31 15:14:38</sys_created_on>
+        <sys_id>1dcd37844e1645fead5c583d06ce2847</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>x_ctans_incentnow/x-ctans-incent-iq/1.0.11/bom.json</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_module_1dcd37844e1645fead5c583d06ce2847</sys_update_name>
+        <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
+        <sys_updated_on>2026-08-31 15:14:38</sys_updated_on>
+    </sys_module>
+</record_update>

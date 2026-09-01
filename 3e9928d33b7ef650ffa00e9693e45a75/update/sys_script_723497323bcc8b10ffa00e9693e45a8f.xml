@@ -57,37 +57,117 @@
             return;
         }
 
-        // ================================
-        // 3. CHECK EXISTING QUOTA FOR USER
-        // ================================
-        var existing = new GlideRecord('x_ctans_incentnow_user_quota_assignment');
-        existing.addQuery('user', current.user);
-        existing.addQuery('sys_id', '!=', current.sys_id); // avoid self
-        existing.query();
+        // ============================================================
+        // 1. BASIC VALIDATION
+        // ============================================================
 
-        if (existing.next()) {
+        var planAssignmentSysId = current.getValue('plan_assignment');
 
-            var existingQuotaGR = new GlideRecord('x_ctans_incentnow_quota');
+        var lookupRuleSysId = current.getValue('lookup_rule');
 
-            if (existingQuotaGR.get(existing.quota)) {
-                if (existingQuotaGR.getValue('status') == 'active') {
-                    gs.addErrorMessage(
-                        "User already has an active quota assigned: " +
-                        existingQuotaGR.getDisplayValue() +
-                        ". Only one active quota per user is allowed."
-                    );
+        var quotaSysId = current.getValue('quota');
 
-                    current.setAbortAction(true);
-                    return;
-                }
-            }
+        if (!planAssignmentSysId || !lookupRuleSysId || !quotaSysId) {
+            return;
         }
 
-    } catch (ex) {
 
-        gs.addErrorMessage("Validation failed: " + ex.message);
+        // ============================================================
+        // 2. VALIDATE LOOKUP RULE BELONGS TO SELECTED PLAN
+        // ============================================================
+
+        var planAssignmentGR = new GlideRecordSecure( 'x_ctans_incentnow_plan_users' );
+
+        if (!planAssignmentGR.get(planAssignmentSysId)) {
+
+            gs.addErrorMessage('The selected Plan Assignment is invalid.' );
+
+            current.setAbortAction(true);
+            return;
+        }
+
+
+        var planSysId =  planAssignmentGR.getValue('x_ctans_incentnow_plan');
+
+        if (!planSysId) {
+
+            gs.addErrorMessage('The selected Plan Assignment does not have a Plan.');
+
+            current.setAbortAction(true);
+            return;
+        }
+
+
+        var lookupRuleGR = new GlideRecordSecure( 'x_ctans_incentnow_lookup_rule');
+
+        if (!lookupRuleGR.get(lookupRuleSysId)) {
+
+            gs.addErrorMessage('The selected Attainment Lookup Rule is invalid.' );
+            current.setAbortAction(true);
+            return;
+        }
+
+
+        // Lookup Rule must belong to selected Plan
+        if ( lookupRuleGR.getValue('plan') != planSysId) {
+
+            gs.addErrorMessage('The selected Attainment Lookup Rule does not belong ' + 'to the Plan associated with this Plan Assignment.');
+
+            current.setAbortAction(true);
+            return;
+        }
+
+
+        // Lookup Rule must be quota attainment type
+        if (lookupRuleGR.getValue('rule_type') !='quota_attainment') {
+
+            gs.addErrorMessage('Only Quota Attainment Lookup Rules can be mapped ' +'to a Quota Assignment.'
+            );
+
+            current.setAbortAction(true);
+            return;
+        }
+
+
+        // ============================================================
+        // 3. PREVENT DUPLICATE LOOKUP RULE MAPPING
+        // ============================================================
+
+        var duplicateGR =
+            new GlideRecordSecure( 'x_ctans_incentnow_user_quota_assignment');
+
+        duplicateGR.addQuery( 'plan_assignment', planAssignmentSysId);
+        duplicateGR.addQuery('lookup_rule',lookupRuleSysId);
+
+
+        // Exclude current record during update
+        if (!current.isNewRecord()) {
+
+            duplicateGR.addQuery('sys_id','!=',current.getUniqueValue());
+        }
+        duplicateGR.setLimit(1);
+        duplicateGR.query();
+
+
+        if (duplicateGR.next()) {
+
+            var existingQuota = duplicateGR.getDisplayValue('quota');
+
+            var lookupRule = lookupRuleGR.getDisplayValue();
+
+            gs.addErrorMessage('The Attainment Lookup Rule "' +lookupRule +'" is already mapped to Quota "' + existingQuota +'" for the selected Plan Assignment. ' + 'The same Lookup Rule cannot be mapped more than once.');
+            current.setAbortAction(true);
+            return;
+        }
+	}
+
+     catch (e) {
+
+        gs.error( '[IncentIQ Quota Assignment] ' + 'Lookup Rule mapping validation failed. ' + 'Record=' + current.getUniqueValue() + ', Error=' + e.message);
+        gs.addErrorMessage('Quota Assignment could not be saved because ' +'the Lookup Rule mapping could not be validated.');
         current.setAbortAction(true);
     }
+
 
 })(current, previous);]]></script>
         <sys_class_name>sys_script</sys_class_name>
@@ -96,7 +176,7 @@
         <sys_domain>global</sys_domain>
         <sys_domain_path>/</sys_domain_path>
         <sys_id>723497323bcc8b10ffa00e9693e45a8f</sys_id>
-        <sys_mod_count>4</sys_mod_count>
+        <sys_mod_count>7</sys_mod_count>
         <sys_name>Prevent Duplicate Quota Assignment</sys_name>
         <sys_overrides/>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
@@ -104,7 +184,7 @@
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
         <sys_update_name>sys_script_723497323bcc8b10ffa00e9693e45a8f</sys_update_name>
         <sys_updated_by>upma.rai</sys_updated_by>
-        <sys_updated_on>2026-05-18 11:14:06</sys_updated_on>
+        <sys_updated_on>2026-08-12 13:46:28</sys_updated_on>
         <template/>
         <when>before</when>
     </sys_script>

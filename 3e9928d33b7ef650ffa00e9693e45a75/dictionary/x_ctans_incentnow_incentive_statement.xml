@@ -19,7 +19,7 @@
         <element attributes="ref_ac_order_by=period_number" dependent="fiscal_year" dependent_on_field="fiscal_year" label="Fiscal Period" mandatory="true" max_length="32" name="fiscal_period" reference="x_ctans_incentnow_fiscal_period" reference_qual="period_type=month^EQ" reference_qual_condition="period_type=month^EQ" type="reference" use_dependent_field="true"/>
         <element label="Domain" max_length="32" name="sys_domain" type="domain_id"/>
         <element attributes="ignore_filter_on_new=true" default="javascript:global.getNextObjNumberPadded();" label="Number" max_length="40" name="number" type="string"/>
-        <element attributes="encode_utf8=false, readonly_clickthrough=true" label="Plan" mandatory="true" max_length="32" name="plan" reference="x_ctans_incentnow_plan" reference_qual="javascript: new IncentNowClientUtils().getPlansForUser(current.user, current.fiscal_year)" type="reference" use_reference_qualifier="advanced"/>
+        <element attributes="edge_encryption_enabled=true,encode_utf8=false,no_sort=true,readonly_clickthrough=true,slushbucket_ref_no_expand=true" label="Plan" mandatory="true" max_length="1024" name="plan" reference="x_ctans_incentnow_plan" reference_qual="javascript: new IncentNowClientUtils().getPlansForUser(current.user, current.fiscal_year, current.fiscal_period)" type="glide_list" use_reference_qualifier="advanced"/>
         <element attributes="encode_utf8=false" label="Fiscal Year" mandatory="true" max_length="32" name="fiscal_year" reference="x_ctans_incentnow_fiscal_calendar" reference_qual="active=true^EQ" reference_qual_condition="active=true^EQ" type="reference"/>
         <index name="index">
             <element name="fiscal_period"/>

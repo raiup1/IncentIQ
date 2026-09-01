@@ -1394,6 +1394,821 @@ c.showAll = function() {
   color: #15803d;
 }
 
+/* ============================================================
+   MOBILE RESPONSIVE OVERRIDES
+   Existing HTML / classes / Angular / JS untouched
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   TABLET
+   ------------------------------------------------------------ */
+@media (max-width: 991px) {
+
+  .header-modern,
+  .payout-header-modern,
+  .data-header-modern,
+  .examples-header-modern {
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .header-actions {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .architecture-modern,
+  .rule-card-modern,
+  .rule-card,
+  .rule-chain-card,
+  .payout-formula-card,
+  .payout-card-modern,
+  .grand-summary-card,
+  .example-plan-card,
+  .table-card-modern,
+  .table-modern {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .formula-container {
+    gap: 12px;
+  }
+
+  .quarter-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .tabs-modern {
+    overflow-x: auto;
+    justify-content: flex-start;
+    scrollbar-width: thin;
+  }
+
+  .tabs-modern li {
+    flex: 0 0 auto;
+    min-width: 150px;
+  }
+
+  .table-modern,
+  .table-card-modern {
+    overflow-x: auto;
+  }
+
+  .table-modern-inner,
+  .table-modern-clean {
+    min-width: 700px;
+  }
+}
+
+
+/* ------------------------------------------------------------
+   MOBILE
+   ------------------------------------------------------------ */
+@media (max-width: 767px) {
+
+  /* ==========================================================
+     HEADER
+     ========================================================== */
+
+  .header-modern {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .header-title {
+    font-size: 23px;
+    line-height: 1.25;
+  }
+
+  .header-subtitle {
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  .header-actions {
+    width: 100%;
+    justify-content: flex-start;
+    gap: 7px;
+    flex-wrap: wrap;
+    margin-right: 0;
+  }
+
+  .view-toggle-btns {
+    display: flex;
+    width: 100%;
+    gap: 6px;
+    margin-right: 0;
+  }
+
+  .view-toggle-btns .btn-modern-toggle {
+    flex: 1;
+    text-align: center;
+  }
+
+  .btn-modern,
+  .btn-modern-toggle {
+    min-height: 38px;
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+
+
+  /* ==========================================================
+     TABS
+     ========================================================== */
+
+  .tabs-modern {
+    width: 100%;
+    max-width: 100%;
+    display: flex;
+    justify-content: flex-start;
+    overflow-x: auto;
+    overflow-y: hidden;
+    gap: 5px;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .tabs-modern::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tabs-modern li {
+    flex: 0 0 auto;
+    min-width: 130px;
+  }
+
+  .tabs-modern li a {
+    padding: 8px 12px;
+    font-size: 11px;
+    white-space: nowrap;
+  }
+
+
+  /* ==========================================================
+     STAT CARDS
+     ========================================================== */
+
+  .stat-card-modern {
+    padding: 14px;
+    border-radius: 10px;
+  }
+
+  .stat-title {
+    font-size: 11px;
+    line-height: 1.35;
+  }
+
+  .stat-value {
+    font-size: 21px;
+    line-height: 1.15;
+  }
+
+  .stat-sub {
+    font-size: 10px;
+    line-height: 1.4;
+  }
+
+
+  /* ==========================================================
+     ARCHITECTURE / PHASE SECTION
+     ========================================================== */
+
+  .architecture-modern {
+    border-radius: 10px;
+  }
+
+  .phase-title-row {
+    gap: 8px;
+    align-items: center;
+  }
+
+  .phase-circle {
+    width: 34px;
+    height: 34px;
+    margin-right: 0;
+    flex-shrink: 0;
+    font-size: 12px;
+  }
+
+  .phase-title {
+    font-size: 14px;
+  }
+
+  .phase-subtitle {
+    font-size: 10px;
+  }
+
+  .phase-box {
+    padding: 10px;
+  }
+
+  .phase-box-header {
+    font-size: 12px;
+  }
+
+  .phase-list {
+    font-size: 11px;
+    line-height: 1.45;
+  }
+
+  .arrow-modern {
+    padding-top: 10px;
+    text-align: center;
+    transform: rotate(90deg);
+  }
+
+  .arrow-modern i {
+    font-size: 20px;
+  }
+
+
+  /* ==========================================================
+     SUMMARY
+     ========================================================== */
+
+  .grand-summary-modern {
+    padding: 12px;
+    margin-top: 14px;
+  }
+
+  .summary-left {
+    gap: 8px;
+  }
+
+  .summary-icon {
+    width: 34px;
+    height: 34px;
+    margin-right: 0;
+    flex-shrink: 0;
+  }
+
+  .summary-title {
+    font-size: 13px;
+  }
+
+  .summary-subtitle,
+  .summary-value-label {
+    font-size: 10px;
+  }
+
+  .summary-value {
+    font-size: 21px;
+  }
+
+  .summary-right {
+    margin-top: 12px;
+    text-align: left;
+  }
+
+
+  /* ==========================================================
+     RULE CARDS
+     ========================================================== */
+
+  .rule-card-modern,
+  .rule-card {
+    padding: 13px;
+    margin-bottom: 14px;
+    border-radius: 10px;
+  }
+
+  .rule-icon,
+  .rule-icon-box {
+    width: 42px;
+    height: 42px;
+    border-radius: 9px;
+  }
+
+  .rule-icon i,
+  .rule-icon-box i {
+    font-size: 18px;
+  }
+
+  .rule-title {
+    font-size: 14px;
+  }
+
+  .rule-desc {
+    font-size: 11px;
+    line-height: 1.5;
+  }
+
+  .rule-box,
+  .rule-section {
+    padding: 9px;
+  }
+
+  .rule-label {
+    font-size: 10px;
+  }
+
+  .rule-value {
+    font-size: 12px;
+    overflow-wrap: anywhere;
+  }
+
+  .rule-output {
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+
+  /* ==========================================================
+     RULE CHAIN
+     ========================================================== */
+
+  .rule-chain-card {
+    padding: 12px;
+    border-radius: 10px;
+  }
+
+  .rule-chain-title {
+    font-size: 13px;
+  }
+
+  .rule-chain-desc {
+    font-size: 11px;
+    line-height: 1.5;
+  }
+
+  .rule-chain-example {
+    padding: 10px;
+  }
+
+  .example-title {
+    font-size: 13px;
+  }
+
+  .example-step {
+    font-size: 11px;
+    flex-wrap: wrap;
+  }
+
+  .example-arrow {
+    margin-left: 12px;
+  }
+
+
+  /* ==========================================================
+     PAYOUT FORMULA
+     ========================================================== */
+
+  .payout-header-modern {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .payout-title {
+    font-size: 17px;
+  }
+
+  .payout-icon {
+    font-size: 16px;
+  }
+
+  .payout-subtitle {
+    font-size: 11px;
+  }
+
+  .payout-formula-card {
+    padding: 11px;
+    border-radius: 10px;
+  }
+
+  .payout-formula-body {
+    padding: 13px;
+    border-radius: 8px;
+  }
+
+  .formula-container {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .formula-block {
+    width: 100%;
+  }
+
+  .formula-label {
+    font-size: 10px;
+  }
+
+  .formula-badge {
+    width: auto;
+    max-width: 100%;
+    padding: 7px 11px;
+    font-size: 11px;
+    overflow-wrap: anywhere;
+  }
+
+  .formula-symbol {
+    font-size: 21px;
+    line-height: 1;
+  }
+
+  .badge-result {
+    font-size: 14px;
+    padding: 8px 12px;
+  }
+
+
+  /* ==========================================================
+     PAYOUT EXAMPLE CARD
+     ========================================================== */
+
+  .payout-card-modern {
+    border-radius: 10px;
+    margin-bottom: 14px;
+  }
+
+  .payout-card-header {
+    padding: 9px 12px;
+  }
+
+  .example-badge,
+  .payout-badge {
+    font-size: 10px;
+    padding: 3px 7px;
+  }
+
+  .payout-card-body {
+    padding: 12px;
+  }
+
+  .formula-row {
+    flex-wrap: wrap;
+    gap: 7px;
+  }
+
+  .formula-chip {
+    font-size: 11px;
+    padding: 4px 8px;
+  }
+
+  .payout-result {
+    text-align: left;
+    margin-top: 8px;
+  }
+
+  .payout-result h3 {
+    font-size: 20px;
+  }
+
+
+  /* ==========================================================
+     GRAND SUMMARY CARD
+     ========================================================== */
+
+  .grand-summary-card {
+    padding: 12px;
+    border-radius: 10px;
+  }
+
+  .grand-summary-title {
+    font-size: 13px;
+  }
+
+  .grand-summary-desc {
+    font-size: 11px;
+    line-height: 1.5;
+  }
+
+  .grand-summary-example {
+    padding: 10px;
+  }
+
+  .example-list div {
+    font-size: 11px;
+    line-height: 1.5;
+  }
+
+  .example-total {
+    padding-top: 7px;
+  }
+
+  .total-value {
+    font-size: 19px;
+  }
+
+
+  /* ==========================================================
+     EXAMPLES
+     ========================================================== */
+
+  .examples-header-modern {
+    margin-bottom: 12px;
+  }
+
+  .examples-title {
+    font-size: 17px;
+  }
+
+  .examples-subtitle {
+    font-size: 11px;
+  }
+
+  .example-plan-card {
+    border-radius: 10px;
+  }
+
+  .example-header,
+  .example-body {
+    padding: 12px;
+  }
+
+  .example-subtitle {
+    font-size: 11px;
+    line-height: 1.4;
+  }
+
+  .phase-title {
+    font-size: 13px;
+  }
+
+  .step-card {
+    padding: 10px;
+    border-radius: 8px;
+  }
+
+  .step-title {
+    font-size: 12px;
+  }
+
+  .step-sub {
+    font-size: 10px;
+    line-height: 1.4;
+  }
+
+  .step-value {
+    font-size: 16px;
+  }
+
+  .payout-box {
+    padding: 10px;
+    border-radius: 8px;
+  }
+
+  .payout-header {
+    gap: 7px;
+    flex-wrap: wrap;
+  }
+
+  .payout-value {
+    font-size: 13px;
+  }
+
+  .example-total-box {
+    padding: 12px;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .total-label {
+    font-size: 10px;
+  }
+
+  .total-value {
+    font-size: 22px;
+  }
+
+
+  /* ==========================================================
+     DATA / TABLE HEADER
+     ========================================================== */
+
+  .data-header-modern {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .data-title {
+    font-size: 17px;
+  }
+
+  .data-icon {
+    font-size: 16px;
+  }
+
+  .data-subtitle {
+    font-size: 11px;
+  }
+
+
+  /* ==========================================================
+     TABLES
+     ========================================================== */
+
+  .table-modern,
+  .table-card-modern {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+  }
+
+  .table-modern-inner,
+  .table-modern-clean {
+    min-width: 700px;
+  }
+
+  .table-modern-inner th,
+  .table-modern-inner td,
+  .table-modern-clean th,
+  .table-modern-clean td {
+    white-space: nowrap;
+    font-size: 11px;
+    padding: 8px 9px;
+  }
+
+  .table-modern-inner thead th,
+  .table-modern-clean thead th {
+    font-size: 10px;
+  }
+
+  .badge,
+  .badge-modern {
+    font-size: 10px;
+    padding: 3px 8px;
+  }
+
+  .btn-modern-action,
+  .btn-link-modern {
+    font-size: 11px;
+    white-space: nowrap;
+  }
+}
+
+
+/* ------------------------------------------------------------
+   SMALL PHONES
+   ------------------------------------------------------------ */
+@media (max-width: 480px) {
+
+  .header-title {
+    font-size: 21px;
+  }
+
+  .header-subtitle {
+    font-size: 11px;
+  }
+
+  .stat-card-modern {
+    padding: 12px;
+  }
+
+  .stat-value {
+    font-size: 19px;
+  }
+
+  .phase-box {
+    padding: 9px;
+  }
+
+  .phase-list {
+    font-size: 10px;
+  }
+
+  .summary-value {
+    font-size: 19px;
+  }
+
+  .rule-title {
+    font-size: 13px;
+  }
+
+  .rule-desc {
+    font-size: 10px;
+  }
+
+  .payout-title,
+  .data-title,
+  .examples-title {
+    font-size: 16px;
+  }
+
+  .formula-badge {
+    font-size: 10px;
+  }
+
+  .formula-symbol {
+    font-size: 19px;
+  }
+
+  .total-value {
+    font-size: 20px;
+  }
+
+  .example-total-box {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .table-modern-inner,
+  .table-modern-clean {
+    min-width: 620px;
+  }
+}
+
+
+/* ------------------------------------------------------------
+   EXTRA SMALL PHONES
+   ------------------------------------------------------------ */
+@media (max-width: 360px) {
+
+  .header-title {
+    font-size: 19px;
+  }
+
+  .header-actions {
+    gap: 5px;
+  }
+
+  .btn-modern,
+  .btn-modern-toggle {
+    padding: 7px 9px;
+    font-size: 11px;
+  }
+
+  .stat-value {
+    font-size: 18px;
+  }
+
+  .phase-circle {
+    width: 30px;
+    height: 30px;
+    font-size: 11px;
+  }
+
+  .summary-icon {
+    width: 30px;
+    height: 30px;
+  }
+
+  .summary-value {
+    font-size: 18px;
+  }
+
+  .rule-card-modern,
+  .rule-card,
+  .payout-formula-card,
+  .grand-summary-card {
+    padding: 10px;
+  }
+
+  .quarter-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .table-modern-inner,
+  .table-modern-clean {
+    min-width: 580px;
+  }
+}
+
+
+/* ------------------------------------------------------------
+   GLOBAL MOBILE SAFETY
+   ------------------------------------------------------------ */
+@media (max-width: 767px) {
+
+  /*
+     Prevent the widget itself from creating page-level
+     horizontal scrolling.
+  */
+  .view-toggle-btns,
+  .header-modern,
+  .data-header-modern,
+  .payout-header-modern,
+  .formula-container,
+  .rule-output,
+  .example-total-box {
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  input,
+  textarea,
+  select,
+  button {
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  /*
+     Only tables/tabs that genuinely need horizontal
+     scrolling are allowed to scroll.
+  */
+  .table-modern,
+  .table-card-modern,
+  .tabs-modern {
+    overscroll-behavior-x: contain;
+  }
+}
 </css>
         <data_table>sp_instance</data_table>
         <demo_data/>
@@ -1636,14 +2451,14 @@ data.isTerritoryEnabled =new x_ctans_incentnow.IncentNowUtils().isTerritoryExten
         <sys_created_by>karan.kumar</sys_created_by>
         <sys_created_on>2026-04-03 11:51:17</sys_created_on>
         <sys_id>aab314d53bc00354ffa00e9693e45a1e</sys_id>
-        <sys_mod_count>163</sys_mod_count>
+        <sys_mod_count>164</sys_mod_count>
         <sys_name>Incentive Plans</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
         <sys_update_name>sp_widget_aab314d53bc00354ffa00e9693e45a1e</sys_update_name>
-        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
-        <sys_updated_on>2026-07-28 15:51:46</sys_updated_on>
+        <sys_updated_by>shroin.mandal</sys_updated_by>
+        <sys_updated_on>2026-08-16 17:45:28</sys_updated_on>
         <template><![CDATA[<div ng-if="c.pageView=='main'">
   
 <div class="incentive-plans-home">

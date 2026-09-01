@@ -12,61 +12,65 @@
         <script><![CDATA[var IncentNowClientUtils = Class.create();
 IncentNowClientUtils.prototype = Object.extendsObject(global.AbstractAjaxProcessor, {
 
-    getPlan: function() {
-    var userSysId = this.getParameter('sysparm_user');
-    var fiscalYear = this.getParameter('sysparm_fiscal_year');
+    
+    getPlansForUser: function(userSysId, fiscalYearSysId, fiscalPeriodSysId) {
+        if (!userSysId || !fiscalYearSysId || !fiscalPeriodSysId)
+            return 'sys_idISEMPTY';
 
-    if (!userSysId || !fiscalYear)
-        return '';
+        var participantGR = new GlideRecordSecure('x_ctans_incentnow_participant_assignment');
+        participantGR.addQuery('user', userSysId);
+        participantGR.addQuery('fiscal_year', fiscalYearSysId);
+        participantGR.addQuery('status', 'active');
+        participantGR.setLimit(2);
+        participantGR.query();
 
-    var planGR = new GlideRecordSecure('x_ctans_incentnow_plan_users');
-    planGR.addQuery('x_ctans_incentnow_sales_user', userSysId);
-    planGR.addQuery('x_ctans_incentnow_plan.fiscal_year', fiscalYear);
-    planGR.addQuery('x_ctans_incentnow_plan.status', 'active');
-    planGR.query();
+        if (!participantGR.next())
+            return 'sys_idISEMPTY';
 
-    if (planGR.next()) {
-        return planGR.getValue('x_ctans_incentnow_plan');
-    }
+        var participantAssignmentSysId = participantGR.getUniqueValue();
 
-    // fallback inactive
-    var plans = [];
-    var inactiveGR = new GlideRecordSecure('x_ctans_incentnow_plan_users');
-    inactiveGR.addQuery('x_ctans_incentnow_sales_user', userSysId);
-    inactiveGR.addQuery('x_ctans_incentnow_plan.fiscal_year', fiscalYear);
-    inactiveGR.addQuery('x_ctans_incentnow_plan.status', 'inactive');
-    inactiveGR.query();
-
-    while (inactiveGR.next()) {
-        plans.push(inactiveGR.getValue('x_ctans_incentnow_plan'));
-    }
-
-    if (plans.length === 1)
-        return plans[0];
-
-    return '';
-},
-
-    getPlansForUser: function(userSysId, fiscalYear) {
-
-        if (!userSysId || !fiscalYear)
+        if (participantGR.next())
             return 'sys_idISEMPTY';
 
         var planIds = [];
+        var assignmentGR = new GlideRecordSecure('x_ctans_incentnow_plan_users');
+        assignmentGR.addQuery('participant_assignment', participantAssignmentSysId);
 
-        var planUser = new GlideRecordSecure('x_ctans_incentnow_plan_users');
-        planUser.addQuery('x_ctans_incentnow_sales_user', userSysId);
-        planUser.addQuery('x_ctans_incentnow_plan.fiscal_year', fiscalYear);
-        planUser.query();
+        var periodCondition = assignmentGR.addNullQuery('fiscal_period');
+        periodCondition.addOrCondition('fiscal_period', fiscalPeriodSysId);
 
-        while (planUser.next()) {
-            planIds.push(planUser.getValue('x_ctans_incentnow_plan'));
+        assignmentGR.addQuery('x_ctans_incentnow_plan.fiscal_year', fiscalYearSysId);
+        assignmentGR.addQuery('x_ctans_incentnow_plan.status', 'active');
+        assignmentGR.query();
+
+        while (assignmentGR.next()) {
+            var planSysId = assignmentGR.getValue('x_ctans_incentnow_plan');
+            if (planSysId && planIds.indexOf(planSysId) == -1)
+                planIds.push(planSysId);
         }
 
-        if (planIds.length === 0)
-            return 'sys_idISEMPTY';
+        return planIds.length ? 'sys_idIN' + planIds.join(',') : 'sys_idISEMPTY';
+    },
 
-        return 'sys_idIN' + planIds.join(',');
+    getPlan: function() {
+        var userSysId = this.getParameter('sysparm_user');
+        var fiscalYearSysId = this.getParameter('sysparm_fiscal_year');
+        var fiscalPeriodSysId = this.getParameter('sysparm_fiscal_period');
+
+        var qualifier = this.getPlansForUser(userSysId, fiscalYearSysId, fiscalPeriodSysId);
+
+        if (!qualifier || qualifier == 'sys_idISEMPTY')
+            return '';
+
+        var planIds = [];
+        var planGR = new GlideRecordSecure('x_ctans_incentnow_plan');
+        planGR.addEncodedQuery(qualifier);
+        planGR.query();
+
+        while (planGR.next())
+            planIds.push(planGR.getUniqueValue());
+
+        return planIds.join(',');
     },
 
     getFiscalDates: function() {
@@ -167,7 +171,7 @@ IncentNowClientUtils.prototype = Object.extendsObject(global.AbstractAjaxProcess
 
         var outputs = [];
         var di = new GlideRecordSecure('sys_decision_multi_result_element');
-        di.addEncodedQuery('nameLIKE' + GlideStringUtil.escapeQueryTermSeparator(decisionTableId),true);
+        di.addEncodedQuery('nameLIKE' + GlideStringUtil.escapeQueryTermSeparator(decisionTableId), true);
         di.query();
 
         while (di.next()) {
@@ -245,7 +249,7 @@ IncentNowClientUtils.prototype = Object.extendsObject(global.AbstractAjaxProcess
         return JSON.stringify(data);
     },
 
-	getUserID: function() {
+    getUserID: function() {
 
         var userSysId = this.getParameter('sysparm_user_sys_id');
 
@@ -260,36 +264,62 @@ IncentNowClientUtils.prototype = Object.extendsObject(global.AbstractAjaxProcess
 
     },
 
-	isSalesTerritoryExtensionActive: function() {
+    isSalesTerritoryExtensionActive: function() {
         return new IncentNowUtils().isTerritoryExtensionActive() ? 'true' : 'false';
     },
 
-validateBusinessUnitCompany: function() {
+    validateBusinessUnitCompany: function() {
 
-    var companyId = this.getParameter('sysparm_company_id');
-    var businessUnitId = this.getParameter('sysparm_business_unit_id');
+        var companyId = this.getParameter('sysparm_company_id');
+        var businessUnitId = this.getParameter('sysparm_business_unit_id');
 
-    var response = {
-        valid: true,
-        message: '',
-        business_unit_company: ''
-    };
+        var response = {
+            valid: true,
+            message: '',
+            business_unit_company: ''
+        };
 
-    if (!businessUnitId)
+        if (!businessUnitId)
+            return JSON.stringify(response);
+
+        var buGR = new GlideRecordSecure('business_unit');
+        if (buGR.get(businessUnitId))
+            response.business_unit_company = buGR.getValue('company');
+
+        if (companyId && response.business_unit_company &&
+            companyId != response.business_unit_company) {
+            response.valid = false;
+            response.message = 'Selected Company does not match with Business Unit company.';
+        }
+
         return JSON.stringify(response);
+    },
 
-    var buGR = new GlideRecordSecure('business_unit');
-    if (buGR.get(businessUnitId))
-        response.business_unit_company = buGR.getValue('company');
+    getPlanAssignmentDetails: function() {
+        var planAssignmentId = this.getParameter('sysparm_plan_assignment');
+        var result = {
+            success: false,
+            participant_assignment: '',
+            user: ''
+        };
 
-   if (companyId && response.business_unit_company &&
-        companyId != response.business_unit_company) {
-        response.valid = false;
-        response.message = 'Selected Company does not match with Business Unit company.';
-    }
+        if (!planAssignmentId) {
+            return JSON.stringify(result);
+        }
 
-    return JSON.stringify(response);
-},
+        var planGR = new GlideRecordSecure('x_ctans_incentnow_plan_users');
+        if (!planGR.get(planAssignmentId)) {
+            return JSON.stringify(result);
+        }
+
+        result.success = true;
+        result.participant_assignment = planGR.getValue('participant_assignment') || '';
+        result.user = planGR.getValue('x_ctans_incentnow_sales_user') || '';
+
+        return JSON.stringify(result);
+    },
+
+
 
     type: 'IncentNowClientUtils'
 });]]></script>
@@ -297,13 +327,13 @@ validateBusinessUnitCompany: function() {
         <sys_created_by>karan.kumar</sys_created_by>
         <sys_created_on>2026-02-25 19:24:45</sys_created_on>
         <sys_id>0178db153b53f6d0ffa00e9693e45ac8</sys_id>
-        <sys_mod_count>26</sys_mod_count>
+        <sys_mod_count>32</sys_mod_count>
         <sys_name>IncentNowClientUtils</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
         <sys_update_name>sys_script_include_0178db153b53f6d0ffa00e9693e45ac8</sys_update_name>
-        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
-        <sys_updated_on>2026-07-23 12:12:21</sys_updated_on>
+        <sys_updated_by>upma.rai</sys_updated_by>
+        <sys_updated_on>2026-08-17 14:30:43</sys_updated_on>
     </sys_script_include>
 </record_update>

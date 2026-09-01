@@ -136,7 +136,11 @@ c.charts.totalCommissionChart = new Chart(ctx, {
         beginAtZero: true,
         ticks: {
           callback: function(value) {
-            return "$" + (value / 1000) + "K";
+            if (c.data.currencyPosition == "after") {
+								return (value / 1000) + "K" + c.data.currencySymbol;
+						}
+
+						return c.data.currencySymbol + (value / 1000) + "K";
           }
         }
       }
@@ -176,7 +180,13 @@ c.charts.businessChart = new Chart(businessCtx, {
     scales: {
       y: {
         ticks: {
-          callback: function(value) { return "$" + value / 1000 + "K"; }
+          callback: function(value) { 
+						if (c.data.currencyPosition == "after") {
+								return (value / 1000) + "K" + c.data.currencySymbol;
+						}
+
+						return c.data.currencySymbol + (value / 1000) + "K";
+					}
         }
       }
     }
@@ -264,7 +274,11 @@ c.charts.repAvgChart = new Chart(ctx, {
       x: {
         ticks: {
           callback: function(value) {
-            return "$" + (value / 1000) + "K";
+            if (c.data.currencyPosition == "after") {
+								return (value / 1000) + "K" + c.data.currencySymbol;
+						}
+
+						return c.data.currencySymbol + (value / 1000) + "K";
           }
         }
       }
@@ -365,6 +379,403 @@ c.charts.repAvgChart = new Chart(ctx, {
 .label-warning {
 	background-color: #ECEEF2;
   color: black;
+}
+
+/* =========================================================
+   INCENTNOW DASHBOARD - MOBILE RESPONSIVE OVERRIDES
+   Existing HTML / classes / Angular / JS untouched
+   ========================================================= */
+
+/* ---------------------------------------------------------
+   TABLET
+   --------------------------------------------------------- */
+@media (max-width: 991px) {
+
+  .incentnow-dashboard {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  /* Filters */
+  .incentnow-dashboard .row.m-b-lg {
+    margin-left: -8px;
+    margin-right: -8px;
+  }
+
+  .incentnow-dashboard .row.m-b-lg &gt; [class*="col-"] {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  /* Stats */
+  .incentnow-dashboard .pt-scorecard {
+    margin-bottom: 16px;
+  }
+
+  /* Panels */
+  .incentnow-dashboard .panel {
+    width: 100%;
+    margin-bottom: 20px;
+  }
+
+  .incentnow-dashboard .panel-heading {
+    padding-left: 1.2rem !important;
+    padding-right: 1.2rem !important;
+  }
+
+  .incentnow-dashboard .panel-title {
+    font-size: 1.5rem;
+  }
+
+  /* Charts */
+  .incentnow-dashboard .panel-body[style*="height: 330px"] {
+    height: 300px !important;
+    min-height: 300px;
+  }
+
+  .incentnow-dashboard canvas {
+    max-width: 100%;
+    height: auto !important;
+  }
+
+  /* Table */
+  .incentnow-dashboard .table {
+    min-width: 950px;
+  }
+
+  .incentnow-dashboard .panel-body {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+
+/* ---------------------------------------------------------
+   MOBILE
+   --------------------------------------------------------- */
+@media (max-width: 767px) {
+
+  .incentnow-dashboard {
+    width: 100%;
+    max-width: 100%;
+    padding: 0 10px;
+    box-sizing: border-box;
+    overflow-x: hidden;
+  }
+
+  /* Dashboard heading */
+  .incentnow-dashboard h1 {
+    font-size: 26px;
+    line-height: 1.2;
+    margin-top: 10px;
+    margin-bottom: 6px;
+  }
+
+  .incentnow-dashboard &gt; .m-b-md p {
+    font-size: 13px;
+    line-height: 1.5;
+    margin-bottom: 8px;
+  }
+
+  /* Filters */
+  .incentnow-dashboard .row.m-b-lg {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .incentnow-dashboard .row.m-b-lg &gt; .col-sm-4 {
+    width: 100%;
+    padding-left: 0;
+    padding-right: 0;
+    margin-bottom: 14px;
+  }
+
+  .incentnow-dashboard label {
+    font-size: 13px;
+    margin-bottom: 6px;
+  }
+
+  .incentnow-dashboard .form-control {
+    width: 100%;
+    height: 40px;
+    font-size: 13px;
+  }
+
+  /* -------------------------------------------------------
+     STATS
+     ------------------------------------------------------- */
+
+  .incentnow-dashboard .row.m-b-lg &gt; .col-sm-3 {
+    width: 50%;
+    float: left;
+    padding-left: 6px;
+    padding-right: 6px;
+  }
+
+  .incentnow-dashboard .pt-scorecard {
+    width: 100%;
+    min-height: 90px;
+    margin-bottom: 12px;
+  }
+
+  .incentnow-dashboard .pt-scorecard-label {
+    font-size: 11px;
+  }
+
+  .incentnow-dashboard .pt-scorecard-value {
+    font-size: 20px;
+  }
+
+
+  /* -------------------------------------------------------
+     CHART PANELS
+     ------------------------------------------------------- */
+
+  .incentnow-dashboard .col-md-6 {
+    width: 100%;
+    float: none;
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .incentnow-dashboard .panel {
+    width: 100%;
+    margin-bottom: 18px;
+    border-radius: 12px;
+  }
+
+  .incentnow-dashboard .panel-heading {
+    padding: 0 14px !important;
+  }
+
+  .incentnow-dashboard .panel-title {
+    margin-top: 1.3rem;
+    margin-bottom: -0.2rem;
+    margin-left: 0;
+    font-size: 15px;
+    line-height: 1.4;
+  }
+
+  .incentnow-dashboard .panel-body {
+    padding: 14px;
+  }
+
+  /*
+     Override the inline 330px chart height
+     so charts fit smaller screens.
+  */
+  .incentnow-dashboard .panel-body[style*="height: 330px"] {
+    height: 250px !important;
+    min-height: 250px;
+  }
+
+  .incentnow-dashboard canvas {
+    display: block;
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: 225px !important;
+  }
+
+
+  /* -------------------------------------------------------
+     TOP PERFORMERS
+     ------------------------------------------------------- */
+
+  /*
+     Keep all columns available but allow the user
+     to swipe horizontally instead of breaking the table.
+  */
+  .incentnow-dashboard .panel-body {
+    overflow-x: auto;
+    overflow-y: visible;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+  }
+
+  .incentnow-dashboard table.table {
+    min-width: 950px;
+    margin-bottom: 0;
+  }
+
+  .incentnow-dashboard table.table th,
+  .incentnow-dashboard table.table td {
+    white-space: nowrap;
+    vertical-align: middle;
+    font-size: 12px;
+    padding: 9px 10px;
+  }
+
+  .incentnow-dashboard table.table th {
+    font-size: 11px;
+  }
+
+  .incentnow-dashboard table.table .label.label-default {
+    font-size: 11px;
+    padding: 3px 7px;
+  }
+
+
+  /* -------------------------------------------------------
+     QUOTA PROGRESS
+     ------------------------------------------------------- */
+
+  .incentnow-dashboard .progress-wrapper {
+    white-space: nowrap;
+  }
+
+  .incentnow-dashboard .progress {
+    width: 110px;
+    flex: 0 0 110px;
+  }
+
+  .incentnow-dashboard .progress-text {
+    font-size: 11px;
+  }
+
+
+  /* Currency */
+  .incentnow-dashboard .currency {
+    white-space: nowrap;
+  }
+}
+
+
+/* ---------------------------------------------------------
+   SMALL PHONES
+   --------------------------------------------------------- */
+@media (max-width: 480px) {
+
+  .incentnow-dashboard {
+    padding: 0 8px;
+  }
+
+  .incentnow-dashboard h1 {
+    font-size: 23px;
+  }
+
+  .incentnow-dashboard &gt; .m-b-md p {
+    font-size: 12px;
+  }
+
+
+  /* Stats become full width on very small phones */
+  .incentnow-dashboard .row.m-b-lg &gt; .col-sm-3 {
+    width: 100%;
+    float: none;
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .incentnow-dashboard .pt-scorecard {
+    min-height: 82px;
+    margin-bottom: 10px;
+  }
+
+  .incentnow-dashboard .pt-scorecard-label {
+    font-size: 12px;
+  }
+
+  .incentnow-dashboard .pt-scorecard-value {
+    font-size: 21px;
+  }
+
+
+  /* Filters */
+  .incentnow-dashboard .form-control {
+    height: 38px;
+    font-size: 12px;
+  }
+
+
+  /* Chart panels */
+  .incentnow-dashboard .panel-title {
+    font-size: 14px;
+  }
+
+  .incentnow-dashboard .panel-body[style*="height: 330px"] {
+    height: 220px !important;
+    min-height: 220px;
+    padding: 10px;
+  }
+
+  .incentnow-dashboard canvas {
+    max-height: 200px !important;
+  }
+
+
+  /* Top performers */
+  .incentnow-dashboard table.table {
+    min-width: 900px;
+  }
+
+  .incentnow-dashboard table.table th,
+  .incentnow-dashboard table.table td {
+    padding: 8px;
+    font-size: 11px;
+  }
+
+  .incentnow-dashboard table.table th {
+    font-size: 10px;
+  }
+
+  .incentnow-dashboard .progress {
+    width: 100px;
+    flex: 0 0 100px;
+  }
+}
+
+
+/* ---------------------------------------------------------
+   EXTRA SMALL PHONES
+   --------------------------------------------------------- */
+@media (max-width: 360px) {
+
+  .incentnow-dashboard {
+    padding: 0 6px;
+  }
+
+  .incentnow-dashboard h1 {
+    font-size: 21px;
+  }
+
+  .incentnow-dashboard .panel-title {
+    font-size: 13px;
+  }
+
+  .incentnow-dashboard .panel-body[style*="height: 330px"] {
+    height: 200px !important;
+    min-height: 200px;
+  }
+
+  .incentnow-dashboard canvas {
+    max-height: 180px !important;
+  }
+
+  .incentnow-dashboard table.table {
+    min-width: 880px;
+  }
+}
+
+
+/* ---------------------------------------------------------
+   REMOVE UNWANTED PAGE-LEVEL HORIZONTAL SCROLL
+   --------------------------------------------------------- */
+@media (max-width: 767px) {
+
+  .incentnow-dashboard .row {
+    max-width: 100%;
+  }
+
+  .incentnow-dashboard .panel {
+    box-sizing: border-box;
+  }
+
+  .incentnow-dashboard img,
+  .incentnow-dashboard canvas,
+  .incentnow-dashboard select {
+    max-width: 100%;
+  }
 }</css>
         <data_table>sp_instance</data_table>
         <demo_data/>
@@ -382,6 +793,9 @@ c.charts.repAvgChart = new Chart(ctx, {
         <public>false</public>
         <roles>x_ctans_incentnow.user,x_ctans_incentnow.admin</roles>
         <script><![CDATA[(function() {
+
+	data.currencySymbol = gs.getProperty('x_ctans_incentnow.currency_symbol','$');
+	data.currencyPosition = gs.getProperty('x_ctans_incentnow.currency_position', 'before');
 
     data.isTerritoryEnabled =
         new x_ctans_incentnow.IncentNowUtils().isTerritoryExtensionActive() === true;
@@ -436,6 +850,15 @@ c.charts.repAvgChart = new Chart(ctx, {
     function formatNumber(num) {
         return num.toFixed(1).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     }
+	
+		function formatCurrency(value) {
+
+				if (data.currencyPosition == "after") {
+						return value + data.currencySymbol;
+				}
+
+				return data.currencySymbol + value;
+		}
 
     /* ===================== FILTER OPTIONS ===================== */
 
@@ -546,35 +969,29 @@ c.charts.repAvgChart = new Chart(ctx, {
 
     /* ===================== STATS ===================== */
 
-    data.stats = [{
-            title: 'Total Incentives',
-            value: '$' + (data.totalIncentives / 1000).toFixed(1) + 'K',
-            change: '+12.5%',
-            trend: 'up',
-            icon: 'fa-dollar'
-        },
-        {
-            title: 'Total Quota Amount',
-            value: '$' + (data.totalQuota / 1000).toFixed(1) + 'K',
-            change: '+8.2%',
-            trend: 'up',
-            icon: 'fa-dollar'
-        },
-        {
-            title: 'Average Quota Attainment',
-            value: (data.avgAchievement || 0).toFixed(1) + '%',
-            change: '+2',
-            trend: 'up',
-            icon: 'fa-percent'
-        },
-        {
-            title: 'Average Incentive per Rep',
-            value: '$' + (data.avgIncentive || 0).toFixed(2),
-            change: '+5.3%',
-            trend: 'up',
-            icon: 'fa-users'
-        }
-    ];
+    data.stats = [
+    {
+        title: 'Total Incentives',
+        value: formatCurrency((data.totalIncentives / 1000).toFixed(1) + 'K'),
+        trend: 'up'
+    },
+    {
+        title: 'Total Quota Amount',
+        value: formatCurrency((data.totalQuota / 1000).toFixed(1) + 'K'),
+        trend: 'up'
+    },
+    {
+        title: 'Average Quota Attainment',
+        value: (data.avgAchievement || 0).toFixed(1) + '%',
+        trend: 'up'
+       
+    },
+    {
+        title: 'Average Incentive per Rep',
+        value: formatCurrency((data.avgIncentive || 0).toFixed(2)),
+        trend: 'up',
+    }
+];
 
     /* ===================== TOTAL COMMISSION BY MONTH ===================== */
 
@@ -836,14 +1253,14 @@ c.charts.repAvgChart = new Chart(ctx, {
         <sys_created_by>karan.kumar</sys_created_by>
         <sys_created_on>2026-03-16 19:40:53</sys_created_on>
         <sys_id>d382d1273b6ffa505493ddb693e45a29</sys_id>
-        <sys_mod_count>333</sys_mod_count>
+        <sys_mod_count>345</sys_mod_count>
         <sys_name>IncentNow Dashboard</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
         <sys_update_name>sp_widget_d382d1273b6ffa505493ddb693e45a29</sys_update_name>
-        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
-        <sys_updated_on>2026-07-14 11:22:07</sys_updated_on>
+        <sys_updated_by>shroin.mandal</sys_updated_by>
+        <sys_updated_on>2026-08-16 17:35:35</sys_updated_on>
         <template><![CDATA[<div class="incentnow-dashboard">
   <div class="m-b-md">
     <h1>Dashboard</h1>
@@ -963,8 +1380,23 @@ c.charts.repAvgChart = new Chart(ctx, {
                 <span class="label label-default">{{rep.territory}}</span>
             </td>
             <td><span class="label label-default">{{rep.team}}</span></td>
-            <td class="currency"><p><span>$</span>{{rep.commission}}</p></td>
-            <td class="currency"><p><span>$</span>{{rep.targetQuota}}</p></td>
+						<td class="currency">
+                <p ng-if="c.data.currencyPosition == 'before'">
+                    <span>{{c.data.currencySymbol}}</span>{{rep.commission}}
+                </p>
+                <p ng-if="c.data.currencyPosition == 'after'">
+                    {{rep.commission}}<span>{{c.data.currencySymbol}}</span>
+                </p>
+            </td>
+            
+            <td class="currency">
+                <p ng-if="c.data.currencyPosition == 'before'">
+                    <span>{{c.data.currencySymbol}}</span>{{rep.targetQuota}}
+                </p>
+                <p ng-if="c.data.currencyPosition == 'after'">
+                    {{rep.targetQuota}}<span>{{c.data.currencySymbol}}</span>
+                </p>
+            </td>
             <td>
               <div class="progress-wrapper">
 
@@ -988,7 +1420,14 @@ c.charts.repAvgChart = new Chart(ctx, {
 
               </div>
             </td>
-            <td class="currency"><p><span>$</span>{{rep.totalCredits}}</p></td>
+						<td class="currency">
+                <p ng-if="c.data.currencyPosition == 'before'">
+                    <span>{{c.data.currencySymbol}}</span>{{rep.totalCredits}}
+                </p>
+                <p ng-if="c.data.currencyPosition == 'after'">
+                    {{rep.totalCredits}}<span>{{c.data.currencySymbol}}</span>
+                </p>
+            </td>
           </tr>
         </tbody>
       </table>

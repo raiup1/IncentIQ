@@ -261,98 +261,253 @@ IncentNowPayoutValidator.prototype = {
             message: message
         };
     },
-    validateStatement: function(current) {
+    /*  validateStatement: function(current) {
+
+          try {
+
+              var user = current.user;
+              var plan = current.plan;
+              var fiscalPeriod = current.fiscal_period;
+              var fiscalYear = current.fiscal_year;
+
+              // -----------------------------------------
+              // 1. User must have ACTIVE PLAN
+              // -----------------------------------------
+              // var planGR = new GlideRecordSecure('x_ctans_incentnow_plan_users');
+              // planGR.addQuery('x_ctans_incentnow_sales_user', user);
+              // planGR.addQuery('x_ctans_incentnow_plan.status', 'active');
+              // planGR.setLimit(1);
+              // planGR.query();
+
+              // if (!planGR.hasNext()) {
+              //     //  return this.fail('Selected user does not have any active plan.');
+              // }
+
+              // -----------------------------------------
+              // 2. Check if plan has Quota Attainment rule
+              // -----------------------------------------
+              var hasQuotaRule = false;
+
+              var ruleGR = new GlideRecordSecure('x_ctans_incentnow_lookup_rule');
+              ruleGR.addQuery('plan', plan);
+              ruleGR.addQuery('active', true);
+              ruleGR.addQuery('rule_type', 'quota_attainment');
+              ruleGR.setLimit(1);
+              ruleGR.query();
+
+              if (ruleGR.hasNext()) {
+                  hasQuotaRule = true;
+              }
+
+              // -----------------------------------------
+              // 3. Conditional quota validation
+              // -----------------------------------------
+              if (hasQuotaRule) {
+
+                  var quotaGR = new GlideRecordSecure('x_ctans_incentnow_user_quota_assignment');
+                  quotaGR.addQuery('user', user);
+                  quotaGR.addQuery('quota.fiscal_year', fiscalYear);
+                  quotaGR.addQuery('quota.status', 'active');
+                  quotaGR.setLimit(1);
+                  quotaGR.query();
+
+                  if (!quotaGR.hasNext()) {
+                      return this.fail(
+                          'Quota required: No active Quota for this Fiscal Year while Plan uses Quota Attainment rule.'
+                      );
+                  }
+                  if (quotaGR.next()) {
+                      var quotaSysId = quotaGR.getValue('quota');
+                      var quotaPeriodGR = new GlideRecordSecure('x_ctans_incentnow_quota_period');
+                      quotaPeriodGR.addQuery('quota', quotaSysId);
+                      quotaPeriodGR.addQuery('fiscal_period', fiscalPeriod);
+                      quotaPeriodGR.query();
+
+                      if (!quotaPeriodGR.next()) {
+                          return this.fail(
+                              'Quota configuration error: The Fiscal Year of the assigned Quota does not match the Fiscal Year of the associated Quota Period.'
+                          );
+                      }
+                  }
+
+              }
+              return {
+                  valid: true
+              };
+
+          } catch (ex) {
+              return this.fail('Statement validation failed: ' + (ex.message || ex));
+          }
+      },*/
+    // ============================================================
+    // STATEMENT PLAN VALIDATION
+    // ============================================================
+
+    validateStatementPlan: function(userGR, periodGR, planAssignmentGR) {
 
         try {
 
-            var user = current.user;
-            var plan = current.plan;
-            var fiscalPeriod = current.fiscal_period;
-            var fiscalYear = current.fiscal_year;
+            if (!userGR || !userGR.isValidRecord()) {
+                return this.fail('Invalid User.');
+            }
 
-            // -----------------------------------------
-            // 1. User must have ACTIVE PLAN
-            // -----------------------------------------
-            // var planGR = new GlideRecordSecure('x_ctans_incentnow_plan_users');
-            // planGR.addQuery('x_ctans_incentnow_sales_user', user);
-            // planGR.addQuery('x_ctans_incentnow_plan.status', 'active');
-            // planGR.setLimit(1);
-            // planGR.query();
+            if (!periodGR || !periodGR.isValidRecord()) {
+                return this.fail('Invalid Fiscal Period.');
+            }
 
-            // if (!planGR.hasNext()) {
-            //     //  return this.fail('Selected user does not have any active plan.');
+            if (!planAssignmentGR || !planAssignmentGR.isValidRecord()) {
+                return this.fail('Invalid Plan Assignment.');
+            }
+            var userSysId = userGR.getUniqueValue();
+            var fiscalPeriodSysId = periodGR.getUniqueValue();
+            var fiscalYearSysId = periodGR.getValue('fiscal_year');
+            var planAssignmentSysId = planAssignmentGR.getUniqueValue();
+            var participantAssignmentSysId = planAssignmentGR.getValue('participant_assignment');
+            var planSysId = planAssignmentGR.getValue('x_ctans_incentnow_plan');
+
+            if (!planSysId) {
+
+                return this.fail('Plan is missing on the Plan Assignment.');
+            }
+
+            // ========================================================
+            // VERIFY PLAN ASSIGNMENT USER
+            // ========================================================
+
+            if (planAssignmentGR.getValue('x_ctans_incentnow_sales_user') != userSysId) {
+                return this.fail('Plan Assignment does not belong to the selected User.');
+            }
+
+            // ========================================================
+            // VERIFY PLAN ASSIGNMENT PERIOD
+            // ========================================================
+
+            // if ( planAssignmentGR.getValue('fiscal_period') != fiscalPeriodSysId
+            // ) {
+            //     return this.fail('Plan Assignment is not applicable to the selected Fiscal Period.');
             // }
+            var assignedFiscalPeriod = planAssignmentGR.getValue('fiscal_period');
+            if (assignedFiscalPeriod && assignedFiscalPeriod != fiscalPeriodSysId) {
 
-            // -----------------------------------------
-            // 2. Check if plan has Quota Attainment rule
-            // -----------------------------------------
-            var hasQuotaRule = false;
+                return this.fail( 'Plan Assignment is not applicable to the selected Fiscal Period.');
+            }
+
+
+            // ========================================================
+            // GET ALL ACTIVE QUOTA ATTAINMENT RULES
+            // ========================================================
 
             var ruleGR = new GlideRecordSecure('x_ctans_incentnow_lookup_rule');
-            ruleGR.addQuery('plan', plan);
+            ruleGR.addQuery('plan', planSysId);
             ruleGR.addQuery('active', true);
             ruleGR.addQuery('rule_type', 'quota_attainment');
-            ruleGR.setLimit(1);
             ruleGR.query();
 
-            if (ruleGR.hasNext()) {
-                hasQuotaRule = true;
-            }
 
-            // -----------------------------------------
-            // 3. Conditional quota validation
-            // -----------------------------------------
-            if (hasQuotaRule) {
+            while (ruleGR.next()) {
 
-                var quotaGR = new GlideRecordSecure('x_ctans_incentnow_user_quota_assignment');
-                quotaGR.addQuery('user', user);
-                quotaGR.addQuery('quota.fiscal_year', fiscalYear);
-                quotaGR.addQuery('quota.status', 'active');
-                quotaGR.setLimit(1);
-                quotaGR.query();
+                var lookupRuleSysId = ruleGR.getUniqueValue();
+                var lookupRuleName = ruleGR.getDisplayValue();
 
-                if (!quotaGR.hasNext()) {
-                    return this.fail(
-                        'Quota required: No active Quota for this Fiscal Year while Plan uses Quota Attainment rule.'
+                // ====================================================
+                // FIND EXACT QUOTA MAPPING
+                // ====================================================
+
+                var quotaAssignmentGR = new GlideRecordSecure('x_ctans_incentnow_user_quota_assignment');
+                quotaAssignmentGR.addQuery('participant_assignment', participantAssignmentSysId);
+                quotaAssignmentGR.addQuery('plan_assignment', planAssignmentSysId);
+                quotaAssignmentGR.addQuery('lookup_rule', lookupRuleSysId);
+                quotaAssignmentGR.addQuery('user', userSysId);
+                quotaAssignmentGR.addNotNullQuery('quota');
+                quotaAssignmentGR.addQuery('quota.status', 'active');
+                quotaAssignmentGR.setLimit(2);
+                quotaAssignmentGR.query();
+
+                if (!quotaAssignmentGR.next()) {
+
+                    return this.fail('No active Quota is mapped to Quota Attainment Lookup Rule "' + lookupRuleName + '".');
+                }
+
+                var quotaAssignmentSysId = quotaAssignmentGR.getUniqueValue();
+                var quotaSysId = quotaAssignmentGR.getValue('quota');
+                var quotaDisplay = quotaAssignmentGR.getDisplayValue('quota');
+
+
+                // Defensive duplicate check
+                if (quotaAssignmentGR.next()) {
+
+                    return this.fail('Multiple Quota mappings exist for Quota Attainment Lookup Rule "' +
+                        lookupRuleName + '". Only one mapping is allowed.'
                     );
                 }
-                if (quotaGR.next()) {
-                    var quotaSysId = quotaGR.getValue('quota');
-                    var quotaPeriodGR = new GlideRecordSecure('x_ctans_incentnow_quota_period');
-                    quotaPeriodGR.addQuery('quota', quotaSysId);
-                    quotaPeriodGR.addQuery('fiscal_period', fiscalPeriod);
-                    quotaPeriodGR.query();
 
-                    if (!quotaPeriodGR.next()) {
-                        return this.fail(
-                            'Quota configuration error: The Fiscal Year of the assigned Quota does not match the Fiscal Year of the associated Quota Period.'
-                        );
-                    }
+
+                // ====================================================
+                // VALIDATE QUOTA FISCAL YEAR
+                // ====================================================
+
+                var quotaGR = new GlideRecordSecure('x_ctans_incentnow_quota');
+                if (!quotaGR.get(quotaSysId)) {
+
+                    return this.fail('Mapped Quota "' + quotaDisplay + '" is invalid.');
+                }
+                if (quotaGR.getValue('fiscal_year') != fiscalYearSysId) {
+
+                    return this.fail('Mapped Quota "' + quotaDisplay + '" does not belong to the selected Fiscal Year.');
                 }
 
+                // ====================================================
+                // VALIDATE QUOTA PERIOD
+                // ====================================================
+
+                var quotaPeriodGR = new GlideRecordSecure('x_ctans_incentnow_quota_period');
+                quotaPeriodGR.addQuery('quota', quotaSysId);
+                quotaPeriodGR.addQuery('fiscal_period', fiscalPeriodSysId);
+                quotaPeriodGR.setLimit(1);
+                quotaPeriodGR.query();
+
+
+                if (!quotaPeriodGR.next()) {
+
+                    return this.fail(
+                        'Quota "' + quotaDisplay + '" does not have a target configured for Fiscal Period "' + periodGR.getDisplayValue() + '".');
+                }
+
+                var target = parseFloat(quotaPeriodGR.getValue('target_value')) || 0;
+                if (target <= 0) {
+
+                    return this.fail('Quota "' + quotaDisplay + '" has a zero or missing target for Fiscal Period "' + periodGR.getDisplayValue() + '".');
+                }
             }
+
             return {
                 valid: true
             };
 
+
         } catch (ex) {
-            return this.fail('Statement validation failed: ' + (ex.message || ex));
+
+            return this.fail(
+                'Statement Plan validation failed: ' +
+                (ex.message || ex)
+            );
         }
     },
 
     type: 'IncentNowPayoutValidator'
+
 };]]></script>
         <sys_class_name>sys_script_include</sys_class_name>
         <sys_created_by>upma.rai</sys_created_by>
         <sys_created_on>2026-04-03 15:00:05</sys_created_on>
         <sys_id>fa8d34113b0083545493ddb693e45a78</sys_id>
-        <sys_mod_count>27</sys_mod_count>
+        <sys_mod_count>29</sys_mod_count>
         <sys_name>IncentNowPayoutValidator</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
         <sys_update_name>sys_script_include_fa8d34113b0083545493ddb693e45a78</sys_update_name>
-        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
-        <sys_updated_on>2026-06-24 12:55:45</sys_updated_on>
+        <sys_updated_by>upma.rai</sys_updated_by>
+        <sys_updated_on>2026-08-16 09:05:40</sys_updated_on>
     </sys_script_include>
 </record_update>

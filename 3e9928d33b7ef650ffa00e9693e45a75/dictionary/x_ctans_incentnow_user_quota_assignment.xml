@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?><database>
     <element db_object_id="db616d2d3baff610ffa00e9693e45a2b" label="Quota Assignment" max_length="40" name="x_ctans_incentnow_user_quota_assignment" type="collection">
-        <element attributes="edge_encryption_enabled=true,encode_utf8=false" label="Quota" mandatory="true" max_length="32" name="quota" reference="x_ctans_incentnow_quota" reference_floats="true" reference_qual="javascript:new IncentNowUtils().getQuotaByUserDimension(current.user);" type="reference" use_reference_qualifier="advanced"/>
-        <element attributes="edge_encryption_enabled=true,encode_utf8=false" display="true" label="User" mandatory="true" max_length="32" name="user" reference="x_ctans_incentnow_user_profile" reference_qual="javascript:new IncentNowUtils().getUserByQuotaDimension(current.quota);" type="reference" use_reference_qualifier="advanced"/>
+        <element attributes="edge_encryption_enabled=true,encode_utf8=false" label="Quota" mandatory="true" max_length="32" name="quota" reference="x_ctans_incentnow_quota" reference_floats="true" reference_qual="javascript:new IncentIQAssignmentReferenceResolver().getEligibleQuotaQualifier(current.participant_assignment, current.sys_id);" type="reference" use_reference_qualifier="advanced"/>
+        <element attributes="edge_encryption_enabled=true,encode_utf8=false,readonly_clickthrough=true" label="Participant Assignment" mandatory="true" max_length="32" name="participant_assignment" reference="x_ctans_incentnow_participant_assignment" type="reference"/>
+        <element attributes="edge_encryption_enabled=true,encode_utf8=false, readonly_clickthrough=true" display="true" label="User" mandatory="true" max_length="32" name="user" reference="x_ctans_incentnow_user_profile" reference_qual="javascript:new IncentNowUtils().getUserByQuotaDimension(current.quota);" type="reference" use_reference_qualifier="advanced"/>
         <element label="Domain" max_length="32" name="sys_domain" type="domain_id"/>
+        <element attributes="edge_encryption_enabled=true,encode_utf8=false" label="Attainment Lookup Rule" mandatory="true" max_length="32" name="lookup_rule" reference="x_ctans_incentnow_lookup_rule" reference_qual="javascript:new IncentIQAssignmentReferenceResolver().getEligibleLookupRuleQualifier(current.plan_assignment, current.sys_id);" type="reference" use_reference_qualifier="advanced"/>
+        <element attributes="edge_encryption_enabled=true,encode_utf8=false,readonly_clickthrough=true" label="Plan Assignment" mandatory="true" max_length="32" name="plan_assignment" reference="x_ctans_incentnow_plan_users" reference_qual="javascript:'participant_assignment=' + current.participant_assignment;" type="reference" use_dependent_field="true" use_reference_qualifier="advanced"/>
         <index name="index">
             <element name="quota"/>
         </index>
@@ -11,6 +14,15 @@
         </index>
         <index name="index3">
             <element name="user"/>
+        </index>
+        <index name="index4">
+            <element name="lookup_rule"/>
+        </index>
+        <index name="index5">
+            <element name="plan_assignment"/>
+        </index>
+        <index name="index6">
+            <element name="participant_assignment"/>
         </index>
     </element>
 </database>

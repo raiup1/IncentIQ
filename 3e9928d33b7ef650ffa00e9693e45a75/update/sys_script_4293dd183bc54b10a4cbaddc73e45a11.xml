@@ -32,21 +32,21 @@
     var utils = new IncentNowAccessUtils();
 
     // =========================================
-    // SYSTEM ADMIN / APPLICATION ADMIN
+    //  ADMINs
     // =========================================
     if (
         gs.getUser().hasRole('admin') ||
-        gs.hasRole('x_ctans_incentnow.admin')
+        gs.hasRole('x_ctans_incentnow.admin') ||
+        gs.hasRole('x_ctans_incentnow.org_executive')
     ) {
         return;
     }
-
     // =========================================
     // BUSINESS GROUP ADMIN
     // =========================================
     if (gs.hasRole('x_ctans_incentnow.business_group_admin')) {
 
-        utils.applyBusinessGroupAdminCreditResultsFilter(current);
+        utils.applyBusinessGroupAdminResultsFilter(current);
         return;
     }
 
@@ -86,15 +86,15 @@
         <sys_domain>global</sys_domain>
         <sys_domain_path>/</sys_domain_path>
         <sys_id>4293dd183bc54b10a4cbaddc73e45a11</sys_id>
-        <sys_mod_count>5</sys_mod_count>
+        <sys_mod_count>6</sys_mod_count>
         <sys_name>Earning Credit Filter Incentnow</sys_name>
         <sys_overrides/>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy/>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
         <sys_update_name>sys_script_4293dd183bc54b10a4cbaddc73e45a11</sys_update_name>
-        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
-        <sys_updated_on>2026-07-16 13:06:36</sys_updated_on>
+        <sys_updated_by>upma.rai</sys_updated_by>
+        <sys_updated_on>2026-08-21 20:08:23</sys_updated_on>
         <template/>
         <when>before</when>
     </sys_script>

@@ -5,7 +5,7 @@
         <api_name>x_ctans_incentnow.IncentIQImportTransformer</api_name>
         <caller_access/>
         <client_callable>false</client_callable>
-        <description/>
+        <description>This script is used for transforming transactional data</description>
         <mobile_callable>false</mobile_callable>
         <name>IncentIQImportTransformer</name>
         <sandbox_callable>false</sandbox_callable>
@@ -144,6 +144,7 @@ IncentIQImportTransformer.prototype = {
             gs.info("IncentIQImportTransformer - Creating new Data Lake record");
             targetGR.initialize();
             targetGR.setValue('data_model_object', dataModelId);
+			targetGR.setValue('processing_status', 'processed');
             targetGR.setValue('batch_id', runSysId);
         }
 
@@ -192,13 +193,13 @@ IncentIQImportTransformer.prototype = {
         <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
         <sys_created_on>2026-06-24 14:06:52</sys_created_on>
         <sys_id>70250beb332d4b10dccb9c173e5c7b6f</sys_id>
-        <sys_mod_count>7</sys_mod_count>
+        <sys_mod_count>9</sys_mod_count>
         <sys_name>IncentIQImportTransformer</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
         <sys_update_name>sys_script_include_70250beb332d4b10dccb9c173e5c7b6f</sys_update_name>
         <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
-        <sys_updated_on>2026-07-22 07:19:59</sys_updated_on>
+        <sys_updated_on>2026-08-20 08:47:53</sys_updated_on>
     </sys_script_include>
 </record_update>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_atf_step">
+    <sys_atf_step action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <callable_outputs/>
+        <copied_from display_value="Click Component (Custom UI)">99a56e6b3b6e4b104be1ef9e53e45a24</copied_from>
+        <description>Click the component: 'Button &lt;button&gt;: Assign', Page area: 'Assign'</description>
+        <display_name>Click Component (Custom UI)</display_name>
+        <inputs/>
+        <mugshots_cache_json>{"112a064c9ca6680442cc26e6d230abec":"{\"area\":\"Quota Setup &gt; IncentNow Table Widget\",\"sn_atf_mugshot_short_description\":\"Button &lt;button&gt;: Assign\",\"sn_atf_mugshot_long_description\":\"Button &lt;button&gt;: Assign in page area Quota Setup &gt; IncentNow Table Widget\",\"methods\":[\"click\"],\"sn_atf_mugshot_label\":\"Assign\",\"index\":2,\"type\":\"button\",\"title\":\"Assign\",\"version\":\"26.0\",\"sn_atf_mugshot_label_for_label_path\":\"Assign\",\"interesting_element_path\":[\"body\",\"div\",\"div\",\"sp-page-row\",\"span\",\"div\",\"div\",\"table\",\"tbody\",\"tr\",\"td\",\"button\"],\"get_value_result\":\"\",\"sn_atf_mugshot_tag_display_name\":\"Button &lt;button&gt;\",\"sn_atf_mugshot_value\":\"\",\"tag\":\"button\",\"isDisabled\":false,\"label_path\":[\"Assign\"],\"hash\":\"112a064c9ca6680442cc26e6d230abec\",\"html_value\":\"\"}"}</mugshots_cache_json>
+        <notes/>
+        <order>34</order>
+        <step_config display_value="Click Component (Custom UI)">def25c4b73730300c79260bdfaf6a700</step_config>
+        <sys_class_name>sys_atf_step</sys_class_name>
+        <sys_created_by>shiva.erla</sys_created_by>
+        <sys_created_on>2026-08-14 05:08:58</sys_created_on>
+        <sys_id>7b23f7b73beecb104be1ef9e53e45a9a</sys_id>
+        <sys_mod_count>4</sys_mod_count>
+        <sys_name>Click Component (Custom UI)</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_atf_step_7b23f7b73beecb104be1ef9e53e45a9a</sys_update_name>
+        <sys_updated_by>shiva.erla</sys_updated_by>
+        <sys_updated_on>2026-08-14 05:24:06</sys_updated_on>
+        <table/>
+        <test display_value="IncentIQ_Quota_Territory_ApprovalFlow">4f23b7b73beecb104be1ef9e53e45a18</test>
+        <timeout/>
+        <warning_message/>
+    </sys_atf_step>
+    <sys_variable_value action="delete_multiple" query="document_key=7b23f7b73beecb104be1ef9e53e45a9a"/>
+    <sys_variable_value action="INSERT_OR_UPDATE">
+        <document>sys_atf_step</document>
+        <document_key>7b23f7b73beecb104be1ef9e53e45a9a</document_key>
+        <order>100</order>
+        <sys_class_name>sys_variable_value</sys_class_name>
+        <sys_created_by>shiva.erla</sys_created_by>
+        <sys_created_on>2026-08-14 05:08:59</sys_created_on>
+        <sys_id>bb23f7b73beecb104be1ef9e53e45a9b</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>shiva.erla</sys_updated_by>
+        <sys_updated_on>2026-08-14 05:08:59</sys_updated_on>
+        <value>112a064c9ca6680442cc26e6d230abec</value>
+        <variable display_value="Component">ee05588b73730300c79260bdfaf6a749</variable>
+    </sys_variable_value>
+</record_update>
