@@ -4,7 +4,7 @@
         <client_script><![CDATA[api.controller = function ($scope, $timeout, spUtil) {
 
 	var c = this;
-
+	
 	// =========================================================
 	// STATE
 	// =========================================================
@@ -23,24 +23,7 @@
 	// =========================================================
 
 	c.getCancelLabel = function() {
-
-		if (c.currentStep === 1) {
-			return 'Cancel Assignment';
-		}
-
-		if (c.currentStep === 2) {
-			return 'Cancel Plan';
-		}
-
-		if (c.currentStep === 3) {
-			return 'Cancel Quota';
-		}
-
-		if (c.currentStep === 4) {
-			return 'Cancel Review';
-		}
-
-		return 'Cancel';
+		return 'Cancel Assignment';
 	};
 
 	// =========================================================
@@ -85,6 +68,8 @@
 
 	// Actual Plan User records
 	c.planAssignments = [];
+	
+	c.createdParticipantAssignmentIds = [];
 
 	// =========================================================
 	// STEP 3
@@ -1028,46 +1013,60 @@
 		// =====================================================
 
 		if (c.currentStep === 1) {
-			var userIds =
-				c.selectedUsers.map(
-					function(user) {
-						return user.id;
-					}
-				);
+
+			var userIds = c.selectedUsers.map(function(u) {
+				return u.id;
+			});
 
 			c.server.get({
 				action: 'createParticipantAssignments',
 				userIds: userIds,
-				dimension: c.dimension ?
-					c.dimension.id : '',
+				dimension: c.dimension ? c.dimension.id : '',
 				dimensionType: c.dimensionType,
 				fiscalYear: c.fiscalYear
 			}).then(function(response) {
-				var data = response.data || {};
 
-				if (data.success) {
+				if (response.data.success) {
+
 					c.participantAssignments =
-						data.assignments || [];
+						response.data.assignments || [];
+
+					// =========================================
+					// TRACK ONLY NEWLY CREATED PARTICIPANTS
+					// =========================================
+
+					c.createdParticipantAssignmentIds = [];
+
+					(c.participantAssignments || []).forEach(function(assignment) {
+
+						if (
+							assignment.created === true &&
+							assignment.participantId
+						) {
+							c.createdParticipantAssignmentIds.push(
+								assignment.participantId
+							);
+						}
+
+					});
+
+					console.log(
+						'New participant assignments created:',
+						c.createdParticipantAssignmentIds
+					);
 
 					c.currentStep = 2;
+
 				} else {
-					alert(
-						data.message ||
+
+					spUtil.addErrorMessage(
+						response.data.message ||
 						'Unable to create participant assignments.'
 					);
+
 				}
-			}, function(error) {
-				console.error(
-					'[IncentIQ] Participant assignment error:',
-					error
-				);
 
-				alert(
-					'Error while creating participant assignments.'
-				);
 			});
-
-			return;
 		}
 
 		// =====================================================
@@ -1264,6 +1263,85 @@
 		if (c.currentStep > 1) {
 			c.currentStep--;
 		}
+	};
+	
+	// =========================================================
+	// CANCEL ASSIGNMENT
+	// Delete participant assignments created during this session
+	// and return to the first screen.
+	// =========================================================
+
+	c.cancelAssignment = function() {
+
+		console.log(
+			'Cancel clicked. Participant records to delete:',
+			c.createdParticipantAssignmentIds
+		);
+
+		// -----------------------------------------
+		// Nothing was created yet
+		// -----------------------------------------
+
+		if (
+			!c.createdParticipantAssignmentIds ||
+			c.createdParticipantAssignmentIds.length === 0
+		) {
+
+			c.resetAssignment();
+
+			return;
+		}
+
+		// -----------------------------------------
+		// Delete newly created participant records
+		// -----------------------------------------
+
+		c.server.get({
+			action: 'deleteDraftParticipantAssignments',
+			participantAssignmentIds:
+				c.createdParticipantAssignmentIds
+		}).then(function(response) {
+
+			if (response.data.success) {
+
+				console.log(
+					'Draft participant assignments deleted:',
+					response.data.deleted
+				);
+
+				// Clear local tracking
+				c.createdParticipantAssignmentIds = [];
+
+				// Reset widget
+				c.resetAssignment();
+
+				// Refresh page so table/data is also refreshed
+				$timeout(function() {
+					window.location.reload();
+				}, 300);
+
+			} else {
+
+				spUtil.addErrorMessage(
+					response.data.message ||
+					'Unable to cancel the assignment.'
+				);
+
+			}
+
+		}).catch(function(error) {
+
+			console.error(
+				'Error deleting draft participant assignments:',
+				error
+			);
+
+			spUtil.addErrorMessage(
+				'Unable to cancel the assignment.'
+			);
+
+		});
+
 	};
 
 	// =========================================================
@@ -2457,9 +2535,157 @@
 			data.success = data.quotaResult.success;
 			data.message = data.quotaResult.message;
 		}
+		
+		// -----------------------------------------------------
+		// CANCEL / DELETE DRAFT PARTICIPANT ASSIGNMENTS
+		// -----------------------------------------------------
+
+		if (input.action === 'deleteDraftParticipantAssignments') {
+
+			var deleteResult =
+				deleteDraftParticipantAssignments(input);
+
+			data.success = deleteResult.success;
+			data.deleted = deleteResult.deleted || 0;
+			data.message = deleteResult.message || '';
+
+		}
 
 	}
 
+	// =========================================================
+	// DELETE DRAFT PARTICIPANT ASSIGNMENTS
+	// =========================================================
+	//
+	// Deletes ONLY participant assignments that were created
+	// during the current assignment session.
+	//
+	// Any dependent records should be removed automatically
+	// by the existing backend delete/cascade logic.
+	//
+
+	function deleteDraftParticipantAssignments(input) {
+
+		var deleted = 0;
+		var skipped = 0;
+
+		try {
+
+			var participantIds =
+				input.participantAssignmentIds || [];
+
+			if (
+				!participantIds ||
+				participantIds.length === 0
+			) {
+
+				return {
+					success: true,
+					deleted: 0,
+					skipped: 0,
+					message: 'No draft participant assignments to delete.'
+				};
+
+			}
+
+
+			// =====================================================
+			// DELETE EACH PARTICIPANT ASSIGNMENT
+			// =====================================================
+
+			participantIds.forEach(function(participantId) {
+
+				if (!participantId) {
+					skipped++;
+					return;
+				}
+
+
+				var participant =
+					new GlideRecordSecure(
+						'x_ctans_incentnow_participant_assignment'
+					);
+
+
+				if (!participant.get(participantId)) {
+
+					skipped++;
+					return;
+
+				}
+
+
+				// =================================================
+				// SAFETY CHECK
+				// =================================================
+				//
+				// Do not delete an assignment that has already
+				// moved to approval.
+				//
+				// If your draft status value is different,
+				// change this condition accordingly.
+				//
+
+				var status =
+					participant.getValue('status') || '';
+
+				if (
+					status === 'pending_approval' ||
+					status === 'approved' ||
+					status === 'rejected'
+				) {
+
+					skipped++;
+					return;
+
+				}
+
+
+				// =================================================
+				// DELETE
+				// =================================================
+
+				var deletedId =
+					participant.deleteRecord();
+
+				if (deletedId) {
+
+					deleted++;
+
+				} else {
+
+					skipped++;
+
+				}
+
+			});
+
+
+			return {
+				success: true,
+				deleted: deleted,
+				skipped: skipped,
+				message:
+					'Draft participant assignments deleted. ' +
+					'Deleted=' + deleted +
+					', Skipped=' + skipped
+			};
+
+
+		} catch (e) {
+
+			return {
+				success: false,
+				deleted: deleted,
+				skipped: skipped,
+				message:
+					'Server error while cancelling assignment: ' +
+					(e.message || e)
+			};
+
+		}
+
+	}
 
 	// =========================================================
 	// BUSINESS UNITS
@@ -4034,14 +4260,14 @@
         <sys_created_by>shroin.mandal</sys_created_by>
         <sys_created_on>2026-08-07 10:57:18</sys_created_on>
         <sys_id>f10fb0b993228390ddb7f2d89803d61b</sys_id>
-        <sys_mod_count>226</sys_mod_count>
+        <sys_mod_count>229</sys_mod_count>
         <sys_name>IncentIQ Assignment</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy/>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
         <sys_update_name>sp_widget_f10fb0b993228390ddb7f2d89803d61b</sys_update_name>
         <sys_updated_by>shroin.mandal</sys_updated_by>
-        <sys_updated_on>2026-08-31 06:26:01</sys_updated_on>
+        <sys_updated_on>2026-09-02 13:38:26</sys_updated_on>
         <template><![CDATA[<div class="incentiq-assignment-widget" ng-if="data.canViewAssignmentWidget">
 	<!-- Header -->
 	<div class="iiq-header">
@@ -4791,7 +5017,7 @@
 </div>
 	<!-- Footer -->
 	<div class="iiq-footer">
-		<button class="btn btn-default" ng-click="c.prevStep()" ng-disabled="c.currentStep === 1">{{c.getCancelLabel()}}</button>
+		<button class="btn btn-default" ng-click="c.cancelAssignment()" ng-disabled="c.currentStep === 1">{{c.getCancelLabel()}}</button>
 		<button class="btn btn-primary iiq-btn-next" ng-click="c.nextStep()" ng-if="c.currentStep < 4" ng-disabled="!c.canProceed()"> Next: {{c.steps[c.currentStep]}} <span class="glyphicon glyphicon-chevron-right"></span> </button>
 		<button class="btn btn-success iiq-btn-confirm" ng-click="c.confirmAssignment()" ng-if="c.currentStep === 4"> Confirm Assignment ({{c.selectedUsers.length}} users) </button>
 	</div>

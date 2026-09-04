@@ -9,7 +9,7 @@
         <max_tokens>700</max_tokens>
         <min_word_count>-1</min_word_count>
         <model>llm_generic_large_v2</model>
-        <name/>
+        <name>IncentIQ Now Config</name>
         <parent/>
         <prompt>{{prompt}}</prompt>
         <prompt_template_role>user</prompt_template_role>
@@ -25,15 +25,15 @@
         <sys_domain>global</sys_domain>
         <sys_domain_path>/</sys_domain_path>
         <sys_id>fc4e66e53bc603504be1ef9e53e45ad4</sys_id>
-        <sys_mod_count>10</sys_mod_count>
-        <sys_name>4a3486e953f04210ea08ddeeff7b12d8</sys_name>
+        <sys_mod_count>11</sys_mod_count>
+        <sys_name>IncentIQ Now Config</sys_name>
         <sys_overrides/>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy/>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
         <sys_update_name>sys_generative_ai_config_fc4e66e53bc603504be1ef9e53e45ad4</sys_update_name>
-        <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
-        <sys_updated_on>2026-07-13 05:52:54</sys_updated_on>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-09-04 09:25:54</sys_updated_on>
         <temperature>0</temperature>
         <thinking_tokens>0</thinking_tokens>
         <version>1</version>

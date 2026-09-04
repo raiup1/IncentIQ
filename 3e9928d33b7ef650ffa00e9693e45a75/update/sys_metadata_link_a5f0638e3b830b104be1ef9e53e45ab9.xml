@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_metadata_link">
+    <sys_metadata_link action="INSERT_OR_UPDATE">
+        <directory>update</directory>
+        <documentkey>ff45293c3b0acb104be1ef9e53e45a3e</documentkey>
+        <payload><![CDATA[<?xml version="1.0" encoding="UTF-8"?><record_update sys_domain="global" table="http_connection">
+    <http_connection action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <app_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</app_scope>
+        <application display_value="ALL">35aa573fd7802200bdbaee5b5e610375</application>
+        <base_path/>
+        <capabilities/>
+        <connection_alias display_value="x_ctans_incentnow.IncentIQ_OpenAI_Connection">ed9f5df03b0acb104be1ef9e53e45aa6</connection_alias>
+        <connection_retries>0</connection_retries>
+        <connection_timeout/>
+        <connection_url>https://api.openai.com/v1/chat/completions</connection_url>
+        <credential display_value="IncentIQ OpenAI API Key">142ed9703b0acb104be1ef9e53e45a31</credential>
+        <extended_attributes/>
+        <host>api.openai.com</host>
+        <is_internal>false</is_internal>
+        <mid_cluster/>
+        <mid_protocol_profile/>
+        <mid_selection>auto_select</mid_selection>
+        <mid_server/>
+        <mutual_auth>false</mutual_auth>
+        <name>IncentIQ Open AI Conncetion</name>
+        <order>100</order>
+        <port/>
+        <protocol>https</protocol>
+        <protocol_profile/>
+        <sys_class_name>http_connection</sys_class_name>
+        <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+        <sys_created_on>2026-07-10 14:37:48</sys_created_on>
+        <sys_domain>global</sys_domain>
+        <sys_domain_path>/</sys_domain_path>
+        <sys_id>ff45293c3b0acb104be1ef9e53e45a3e</sys_id>
+        <sys_mod_count>1</sys_mod_count>
+        <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
+        <sys_updated_on>2026-09-02 13:51:08</sys_updated_on>
+        <url_builder>false</url_builder>
+        <use_mid>false</use_mid>
+    </http_connection>
+    <sys_variable_value action="delete_multiple" query="document_key=ff45293c3b0acb104be1ef9e53e45a3e"/>
+</record_update>
+]]></payload>
+        <sys_class_name>sys_metadata_link</sys_class_name>
+        <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+        <sys_created_on>2026-09-02 13:51:23</sys_created_on>
+        <sys_id>a5f0638e3b830b104be1ef9e53e45ab9</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>IncentIQ Open AI Conncetion</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_metadata_link_a5f0638e3b830b104be1ef9e53e45ab9</sys_update_name>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-09-02 13:51:23</sys_updated_on>
+        <tablename>http_connection</tablename>
+    </sys_metadata_link>
+</record_update>

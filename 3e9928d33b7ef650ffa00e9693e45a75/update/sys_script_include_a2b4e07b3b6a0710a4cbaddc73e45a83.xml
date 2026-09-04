@@ -143,6 +143,7 @@ IncentNowStatementProcessor.prototype = {
                 // =================================================
                 // 8B. RUN EARNING ENGINE
                 // =================================================
+               
                 var earningResult =
                     earningEngine.calculateMetrics(
                         userGR,
@@ -150,17 +151,19 @@ IncentNowStatementProcessor.prototype = {
                         planGR,
                         targetGR.sys_id
                     );
-                if (!earningResult || earningResult.length === 0) {
-                    return this._fail('No earnings generated for Plan "' + planDisplay + '" for this period.');
-                }
+
+                // No transactional activity is valid.
+                // Normalize empty result so remaining plan processing can continue.
+                if (!earningResult)
+                    earningResult = [];
+
                 var totalCredit = 0;
+
                 for (var e = 0; e < earningResult.length; e++) {
                     totalCredit += parseFloat(earningResult[e].credit) || 0;
                 }
+
                 consolidatedRevenue += totalCredit;
-                if (totalCredit === 0) {
-                    return this._fail('No orders found for Plan "' + planDisplay + '" for this period.');
-                }
                 // =================================================
                 // 8C. FORMAT EARNING RULES
                 // =================================================
@@ -325,10 +328,7 @@ IncentNowStatementProcessor.prototype = {
              * Therefore these legacy single-value fields should
              * no longer represent the consolidated statement.
              */
-            // if (targetGR.isValidField('target_quota'))
-            //     targetGR.setValue('target_quota', '');
-            // if (targetGR.isValidField('quota_attainment'))
-            //     targetGR.setValue('quota_attainment', '');
+
             if (targetGR.isValidField('target_quota'))
                 targetGR.setValue('target_quota', consolidatedTargetQuota);
 
@@ -608,24 +608,6 @@ IncentNowStatementProcessor.prototype = {
         qaGR.addQuery('plan_assignment', 'IN', planAssignmentIds.join(','));
         qaGR.addQuery('user', userSysId);
         qaGR.query();
-        /*
-        //  * Keep this if Fiscal Year exists directly on Quota Assignment.
-        //  */
-        // if (qaGR.isValidField('fiscal_year')) {
-        //     qaGR.addQuery(
-        //         'fiscal_year',
-        //         fiscalYearSysId
-        //     );
-        // }
-
-        //     if (qaGR.isValidField('user'))
-        //  qaGR.addQuery('user', userSysId);
-        // /*
-        //  * If Quota Assignment has an active/status field,
-        //  * restrict calculation to active assignments.
-        //  */
-        // if (qaGR.isValidField('status'))
-        //     qaGR.addQuery('status', 'active');
 
         while (qaGR.next()) {
 
@@ -635,51 +617,51 @@ IncentNowStatementProcessor.prototype = {
                 continue;
 
             var target =
-                this._getQuotaTargetForPeriod(quotaSysId,fiscalPeriodSysId);
+                this._getQuotaTargetForPeriod(quotaSysId, fiscalPeriodSysId);
             totalTarget += target;
         }
 
         return totalTarget;
     },
-	// ============================================================
-// QUOTA TARGET FOR FISCAL PERIOD
-// ============================================================
-_getQuotaTargetForPeriod: function(
-    quotaSysId,
-    fiscalPeriodSysId
-) {
+    // ============================================================
+    // QUOTA TARGET FOR FISCAL PERIOD
+    // ============================================================
+    _getQuotaTargetForPeriod: function(
+        quotaSysId,
+        fiscalPeriodSysId
+    ) {
 
-    if (!quotaSysId || !fiscalPeriodSysId)
-        return 0;
+        if (!quotaSysId || !fiscalPeriodSysId)
+            return 0;
 
-    var quotaPeriodGR =
-        new GlideRecordSecure('x_ctans_incentnow_quota_period');
-    quotaPeriodGR.addQuery('quota',quotaSysId);
-    quotaPeriodGR.addQuery('fiscal_period',fiscalPeriodSysId);
-    quotaPeriodGR.setLimit(1);
-    quotaPeriodGR.query();
+        var quotaPeriodGR =
+            new GlideRecordSecure('x_ctans_incentnow_quota_period');
+        quotaPeriodGR.addQuery('quota', quotaSysId);
+        quotaPeriodGR.addQuery('fiscal_period', fiscalPeriodSysId);
+        quotaPeriodGR.setLimit(1);
+        quotaPeriodGR.query();
 
-    if (!quotaPeriodGR.next())
-        return 0;
+        if (!quotaPeriodGR.next())
+            return 0;
 
-    var target =
-        parseFloat(quotaPeriodGR.getValue('target_value')) || 0;
+        var target =
+            parseFloat(quotaPeriodGR.getValue('target_value')) || 0;
 
-    return target;
-},
+        return target;
+    },
     type: 'IncentNowStatementProcessor'
 };]]></script>
         <sys_class_name>sys_script_include</sys_class_name>
         <sys_created_by>upma.rai</sys_created_by>
         <sys_created_on>2026-08-13 14:31:10</sys_created_on>
         <sys_id>a2b4e07b3b6a0710a4cbaddc73e45a83</sys_id>
-        <sys_mod_count>10</sys_mod_count>
+        <sys_mod_count>13</sys_mod_count>
         <sys_name>IncentNowStatementProcessor</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
         <sys_update_name>sys_script_include_a2b4e07b3b6a0710a4cbaddc73e45a83</sys_update_name>
-        <sys_updated_by>upma.rai</sys_updated_by>
-        <sys_updated_on>2026-08-31 09:54:14</sys_updated_on>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-09-02 06:39:47</sys_updated_on>
     </sys_script_include>
 </record_update>
