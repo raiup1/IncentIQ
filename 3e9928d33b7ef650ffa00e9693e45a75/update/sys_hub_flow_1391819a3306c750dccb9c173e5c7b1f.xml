@@ -410,7 +410,7 @@
     <sys_hub_flow action="UPDATE">
         <sys_id>1391819a3306c750dccb9c173e5c7b1f</sys_id>
         <latest_snapshot>2db34d5e3306c750dccb9c173e5c7bfb</latest_snapshot>
-        <compiler_build>glide-zurich-07-01-2025__patch10-hotfix4aw35-08-22-2026_08-26-2026_0029.zip</compiler_build>
+        <compiler_build>glide-zurich-07-01-2025__patch10-hotfix4bw36-08-27-2026_09-01-2026_2122.zip</compiler_build>
         <version_record/>
     </sys_hub_flow>
     <sys_flow_trigger_plan action="delete_multiple" query="plan_id=1391819a3306c750dccb9c173e5c7b1f^sys_idNOT IN4ab38d5e3306c750dccb9c173e5c7b6d"/>
@@ -418,7 +418,7 @@
         <binding_strategy>com.snc.process_flow.engine.binding.RunAlways</binding_strategy>
         <plan>{"type":"PlanProxy","persistor":{"@class":".ChunkingPlanPersistor","table":"sys_flow_trigger_plan","id":"4ab38d5e3306c750dccb9c173e5c7b6d","name":"plan","plan_signature":null}}</plan>
         <plan_id>1391819a3306c750dccb9c173e5c7b1f</plan_id>
-        <snapshot>4db6f4f13b4747104be1ef9e53e45a23</snapshot>
+        <snapshot>65a6ae97334f4310dccb9c173e5c7b5c</snapshot>
         <sys_created_by>karan.kumar</sys_created_by>
         <sys_created_on>2026-07-15 04:00:05</sys_created_on>
         <sys_domain>global</sys_domain>

@@ -2065,7 +2065,7 @@
     <sys_hub_flow action="UPDATE">
         <sys_id>bc625f883b0ac7104be1ef9e53e45ab6</sys_id>
         <latest_snapshot>3db98cf03bce8b104be1ef9e53e45aa4</latest_snapshot>
-        <compiler_build>glide-zurich-07-01-2025__patch10-hotfix4aw35-08-22-2026_08-26-2026_0029.zip</compiler_build>
+        <compiler_build>glide-zurich-07-01-2025__patch10-hotfix4bw36-08-27-2026_09-01-2026_2122.zip</compiler_build>
         <version_record/>
     </sys_hub_flow>
     <sys_flow_trigger_plan action="delete_multiple" query="plan_id=bc625f883b0ac7104be1ef9e53e45ab6^sys_idNOT IN52b9ccf03bce8b104be1ef9e53e45a62"/>
@@ -2073,7 +2073,7 @@
         <binding_strategy>com.snc.process_flow.engine.binding.RunAlways</binding_strategy>
         <plan>{"type":"PlanProxy","persistor":{"@class":".ChunkingPlanPersistor","table":"sys_flow_trigger_plan","id":"52b9ccf03bce8b104be1ef9e53e45a62","name":"plan","plan_signature":null}}</plan>
         <plan_id>bc625f883b0ac7104be1ef9e53e45ab6</plan_id>
-        <snapshot>c9a4dc7533cb4710dccb9c173e5c7b3b</snapshot>
+        <snapshot>cc742d5033970b10dccb9c173e5c7bfa</snapshot>
         <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
         <sys_created_on>2026-07-10 07:55:47</sys_created_on>
         <sys_domain>global</sys_domain>
