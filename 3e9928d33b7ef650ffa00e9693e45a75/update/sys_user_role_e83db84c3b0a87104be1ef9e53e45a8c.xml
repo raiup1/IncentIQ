@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_user_role">
+    <sys_user_role action="INSERT_OR_UPDATE">
+        <assignable_by/>
+        <can_delegate>true</can_delegate>
+        <description>This user will be the fulfiller assigned to the dispute.</description>
+        <elevated_privilege>false</elevated_privilege>
+        <encryption_context/>
+        <federated_id>CNGVxDygU0F0YSBENMjjcLLeRMSDVPq2wfDtyZlDNP4=</federated_id>
+        <grantable>true</grantable>
+        <includes_roles/>
+        <name>x_ctans_incentnow.dispute_agent</name>
+        <scoped_admin>false</scoped_admin>
+        <suffix>dispute_agent</suffix>
+        <sys_class_name>sys_user_role</sys_class_name>
+        <sys_created_by>karan.kumar</sys_created_by>
+        <sys_created_on>2026-07-08 03:46:55</sys_created_on>
+        <sys_id>e83db84c3b0a87104be1ef9e53e45a8c</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>x_ctans_incentnow.dispute_agent</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_user_role_e83db84c3b0a87104be1ef9e53e45a8c</sys_update_name>
+        <sys_updated_by>karan.kumar</sys_updated_by>
+        <sys_updated_on>2026-07-08 03:46:55</sys_updated_on>
+    </sys_user_role>
+</record_update>

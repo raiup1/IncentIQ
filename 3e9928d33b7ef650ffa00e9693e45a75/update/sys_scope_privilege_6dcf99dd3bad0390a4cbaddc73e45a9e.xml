@@ -16,7 +16,7 @@
         <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
         <sys_updated_on>2026-06-17 06:57:19</sys_updated_on>
         <target_name>sn_nowassist_diagn_monitor_execution</target_name>
-        <target_scope display_value="Now Assist Troubleshooting">7b67ecf7437042105947644c7ab8f21b</target_scope>
+        <target_scope display_value="AI Troubleshooting">7b67ecf7437042105947644c7ab8f21b</target_scope>
         <target_type>sys_db_object</target_type>
     </sys_scope_privilege>
 </record_update>

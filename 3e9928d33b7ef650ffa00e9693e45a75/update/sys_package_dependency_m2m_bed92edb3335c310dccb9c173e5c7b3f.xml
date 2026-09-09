@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_package_dependency_m2m">
+    <sys_package_dependency_m2m action="INSERT_OR_UPDATE">
+        <dependency display_value="Task table schema" source="com.glide.task">dc81d09c3b1103104be1ef9e53e45a4d</dependency>
+        <min_version>1.0.0</min_version>
+        <sys_created_by>karan.kumar</sys_created_by>
+        <sys_created_on>2026-07-06 03:44:33</sys_created_on>
+        <sys_id>bed92edb3335c310dccb9c173e5c7b3f</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_updated_by>karan.kumar</sys_updated_by>
+        <sys_updated_on>2026-07-06 03:44:33</sys_updated_on>
+    </sys_package_dependency_m2m>
+</record_update>

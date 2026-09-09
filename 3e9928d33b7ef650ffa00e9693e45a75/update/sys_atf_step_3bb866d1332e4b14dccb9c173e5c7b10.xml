@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_atf_step">
+    <sys_atf_step action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <callable_outputs/>
+        <copied_from/>
+        <description>Set the components on the page as follows:
+'Choice list &lt;select&gt;: Select FY FY 2026 Budget Year FY25 ATF Year' = '75a8ee91332e4b14dccb9c173e5c7b3c', Page area = 'default'
+'Choice list &lt;select&gt;: Select Business Unit ATF Business Unit ATF Parent Org CtrlAltNow Finance HR IT Legal Marketing NAM Central Sales Sales A Sales Organization Test BU' = '3078e291332e4b14dccb9c173e5c7b06', Page area = 'default'
+</description>
+        <display_name>Set Component Values (Custom UI)</display_name>
+        <inputs/>
+        <mugshots_cache_json>{"e1fa8c555c908e4d9b789bf45ddccce6":"{\"area\":\"Quota Builder\",\"sn_atf_mugshot_short_description\":\"Choice list &lt;select&gt;: Select FY FY 2026 Budget Year FY25 ATF Year\",\"inner_text\":\"Select FY FY 2026 Budget Year FY25 ATF Year\",\"sn_atf_mugshot_long_description\":\"Choice list &lt;select&gt;: Select FY FY 2026 Budget Year FY25 ATF Year in page area Quota Builder\",\"methods\":[\"setValue\"],\"sn_atf_mugshot_label\":\"Select FY FY 2026 Budget Year FY25 ATF Year\",\"type\":\"select-one\",\"version\":\"26.0\",\"sn_atf_mugshot_label_for_label_path\":\"\",\"interesting_element_path\":[\"body\",\"div\",\"div\",\"sp-page-row\",\"span\",\"div\",\"form\",\"select\"],\"get_value_result\":\"\",\"sn_atf_mugshot_tag_display_name\":\"Choice list &lt;select&gt;\",\"sn_atf_mugshot_value\":\"\",\"options\":[{\"label\":\"Select FY\",\"value\":\"\"},{\"label\":\"FY 2026\",\"value\":\"16ab7a7233610710dccb9c173e5c7b35\"},{\"label\":\"Budget Year FY25\",\"value\":\"4390af9f3bbd83104be1ef9e53e45a4f\"},{\"label\":\"ATF Year\",\"value\":\"75a8ee91332e4b14dccb9c173e5c7b3c\"}],\"tag\":\"select\",\"isDisabled\":false,\"label_path\":[\"default\"],\"hash\":\"e1fa8c555c908e4d9b789bf45ddccce6\",\"html_value\":\"\"}","c67169c77068109e9a365dc2572f3d61":"{\"area\":\"Quota Builder\",\"sn_atf_mugshot_short_description\":\"Choice list &lt;select&gt;: Select Business Unit ATF Business Unit ATF Parent Org CtrlAltNow Finance HR IT Legal Marketing NAM Central Sales Sales A Sales Organization Test BU\",\"inner_text\":\"Select Business Unit ATF Business Unit ATF Parent Org CtrlAltNow Finance HR IT Legal Marketing NAM Central Sales Sales A Sales Organization Test BU\",\"sn_atf_mugshot_long_description\":\"Choice list &lt;select&gt;: Select Business Unit ATF Business Unit ATF Pare... in page area Quota Builder\",\"methods\":[\"setValue\"],\"sn_atf_mugshot_label\":\"Select Business Unit ATF Business Unit ATF Parent Org CtrlAltNow Finance HR IT Legal Marketing NAM Central Sales Sales A Sales Organization Test BU\",\"type\":\"select-one\",\"version\":\"26.0\",\"sn_atf_mugshot_label_for_label_path\":\"\",\"interesting_element_path\":[\"body\",\"div\",\"div\",\"sp-page-row\",\"span\",\"div\",\"form\",\"select\"],\"get_value_result\":\"\",\"sn_atf_mugshot_tag_display_name\":\"Choice list &lt;select&gt;\",\"sn_atf_mugshot_value\":\"\",\"options\":[{\"label\":\"Select Business Unit\",\"value\":\"\"},{\"label\":\"ATF Business Unit\",\"value\":\"3078e291332e4b14dccb9c173e5c7b06\"},{\"label\":\"ATF Parent Org\",\"value\":\"6b58ae51332e4b14dccb9c173e5c7b1e\"},{\"label\":\"CtrlAltNow\",\"value\":\"22460a0e33028750dccb9c173e5c7bae\"},{\"label\":\"Finance\",\"value\":\"bb06c204870221003ff35d88e3e3ec88\"},{\"label\":\"HR\",\"value\":\"9dd58ec0870221003ff35d88e3e3ec16\"},{\"label\":\"IT\",\"value\":\"ac26c204870221003ff35d88e3e3ec61\"},{\"label\":\"Legal\",\"value\":\"2d26c204870221003ff35d88e3e3ec62\"},{\"label\":\"Marketing\",\"value\":\"9406c204870221003ff35d88e3e3ec72\"},{\"label\":\"NAM Central\",\"value\":\"a99f935f3bbd83104be1ef9e53e45aff\"},{\"label\":\"Sales\",\"value\":\"9206c204870221003ff35d88e3e3ec81\"},{\"label\":\"Sales A\",\"value\":\"5d757dce338e4750dccb9c173e5c7b14\"},{\"label\":\"Sales Organization\",\"value\":\"085539ce338e4750dccb9c173e5c7bf3\"},{\"label\":\"Test BU\",\"value\":\"0af3d34b33d28bd0dccb9c173e5c7b62\"}],\"tag\":\"select\",\"isDisabled\":false,\"label_path\":[\"default\"],\"hash\":\"c67169c77068109e9a365dc2572f3d61\",\"html_value\":\"\"}"}</mugshots_cache_json>
+        <notes/>
+        <order>28</order>
+        <step_config display_value="Set Component Values (Custom UI)">e5dd168473330300c79260bdfaf6a794</step_config>
+        <sys_class_name>sys_atf_step</sys_class_name>
+        <sys_created_by>shiva.erla</sys_created_by>
+        <sys_created_on>2026-08-06 05:19:52</sys_created_on>
+        <sys_id>3bb866d1332e4b14dccb9c173e5c7b10</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>Set Component Values (Custom UI)</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_atf_step_3bb866d1332e4b14dccb9c173e5c7b10</sys_update_name>
+        <sys_updated_by>shiva.erla</sys_updated_by>
+        <sys_updated_on>2026-08-06 05:19:52</sys_updated_on>
+        <table/>
+        <test display_value="IncentIQ_Quota_BusinessUnit_ApprovalWorkFlow">9b76d24533eac714dccb9c173e5c7b8e</test>
+        <timeout/>
+        <warning_message/>
+    </sys_atf_step>
+    <sys_variable_value action="delete_multiple" query="document_key=3bb866d1332e4b14dccb9c173e5c7b10"/>
+    <sys_variable_value action="INSERT_OR_UPDATE">
+        <document>sys_atf_step</document>
+        <document_key>3bb866d1332e4b14dccb9c173e5c7b10</document_key>
+        <order>100</order>
+        <sys_class_name>sys_variable_value</sys_class_name>
+        <sys_created_by>shiva.erla</sys_created_by>
+        <sys_created_on>2026-08-06 05:19:53</sys_created_on>
+        <sys_id>e9f8aad1332e4b14dccb9c173e5c7bf2</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>shiva.erla</sys_updated_by>
+        <sys_updated_on>2026-08-06 05:19:53</sys_updated_on>
+        <value>e1fa8c555c908e4d9b789bf45ddccce6=75a8ee91332e4b14dccb9c173e5c7b3c^c67169c77068109e9a365dc2572f3d61=3078e291332e4b14dccb9c173e5c7b06^EQ</value>
+        <variable display_value="Component values">d12fde8473330300c79260bdfaf6a7b5</variable>
+    </sys_variable_value>
+    <sys_element_mapping action="delete_multiple" query="table=var__m_atf_input_variable_e5dd168473330300c79260bdfaf6a794^id=3bb866d1332e4b14dccb9c173e5c7b10"/>
+</record_update>

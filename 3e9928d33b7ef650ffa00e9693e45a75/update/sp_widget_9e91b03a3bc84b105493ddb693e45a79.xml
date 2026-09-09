@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
     <sp_widget action="INSERT_OR_UPDATE">
         <category>custom</category>
-        <client_script><![CDATA[api.controller = function($sce) {
+        <client_script><![CDATA[api.controller = function($sce, spUtil,$location) {
     var c = this;
 
     c.decodeHTML = function(html) {
@@ -19,9 +19,43 @@
         return $sce.trustAsHtml(decoded);
     };
 	
-		c.goBack = function () {
-    window.location = '?id=incentive_statement_view';
-  };
+		c.goBack=function () {
+
+			const prev = sessionStorage.getItem('prevPage');
+					//alert(prev);
+
+			if (prev) {
+				$location.url(prev);
+			} else {
+				// fallback if nothing stored
+				window.history.back();
+			}
+		}
+	
+		c.raiseDispute = function()
+		{
+			 $location.url('?id=create_dispute&table=x_ctans_incentnow_incentiq_dispute&sys_id=-1&statement_id='+c.data.statementId);
+		}
+	
+		c.submitForApproval = function() {
+
+				c.server.get({
+						action: "submit_for_approval",
+						statement_id: c.data.statementId
+				}).then(function(response) {
+
+						if (response.data.success) {
+								spUtil.addInfoMessage(response.data.message);
+								// Refresh data if needed
+								c.server.update();
+						} else {
+								spUtil.addErrorMessage(response.data.message);
+						}
+
+				});
+
+		};
+		
 	
 	  // ✅ initialize from server
     c.selectedUser = c.data.selectedUser;
@@ -54,7 +88,7 @@
     border-radius: 1rem;
 }
 
-.payout-header {
+ .payout-header {
 		font-size: 1.8rem;
 		font-weight: 600;
 }
@@ -92,8 +126,28 @@
   	font-size: 1.8rem;
     font-weight: 600;
 }
-
+.earning-object-col {
+    padding-top: 2rem;
+		font-size: 1.8rem;
+    font-weight: 600;
+}
+.earning-field-col {
+    padding-top: 2rem;
+		font-size: 1.8rem;
+    font-weight: 600;
+}
 .earning-type-col {
+    padding-top: 2rem;
+  	padding-left: 3rem;
+		font-size: 1.8rem;
+    font-weight: 600;
+}
+.earning-level-col {
+    padding-top: 2rem;
+		font-size: 1.8rem;
+    font-weight: 600;
+}
+.earning-condition-col {
     padding-top: 2rem;
 		font-size: 1.8rem;
     font-weight: 600;
@@ -166,15 +220,55 @@ left-info h2 {
     font-weight: 600;
   }
 
-  .status-chip {
-    background: #f5f5f5;
-    padding: 4px 10px;
-    border-radius: 12px;
-    font-size: 12px;
-    display: inline-flex;
-    align-items: center;
-    margin-top: 6px;
-  }
+.status-chip{
+    display:inline-flex;
+    align-items:center;
+    gap:.8rem;
+    padding:.6rem 1.4rem;
+    margin-top:1rem;
+    border-radius:999px;
+    font-size:1.3rem;
+    font-weight:600;
+    border:1px solid transparent;
+    line-height:1;
+}
+
+.status-dot{
+    width:8px;
+    height:8px;
+    border-radius:50%;
+    background:currentColor;
+}
+
+.status-draft{
+    background:#f8fafc;
+    color:#64748b;
+    border-color:#cbd5e1;
+}
+
+.status-error{
+    background:#fef2f2;
+    color:#dc2626;
+    border-color:#fecaca;
+}
+
+.status-generated{
+    background:#ecfdf3;
+    color:#15803d;
+    border-color:#bbf7d0;
+}
+
+.status-published{
+    background:#eff6ff;
+    color:#2563eb;
+    border-color:#bfdbfe;
+}
+
+.status-pending{
+    background:#fffbeb;
+    color:#b45309;
+    border-color:#fde68a;
+}
 
   .actions {
     display: flex;
@@ -298,10 +392,697 @@ left-info h2 {
 
 .value-txt {
   font-weight: 600;
+}
+
+/* ============================================================
+   INSURANCE PLAN SECTION
+   ============================================================ */
+
+/* Plan title - separate white card */
+.commission-statement-container .statement-plan-title {
+    margin: 30px 0 12px 0;
+    padding-left: 0.6rem;
+		font-size: 2rem !important;
+    border-radius: 10px;
+    font-weight: 800 !important;
+    line-height: 1.5;
+
+    color: #0f172a;
+}
+
+
+/* ============================================================
+   QUOTA SECTION - SEPARATE WHITE CARD
+   ============================================================ */
+
+.commission-statement-container .quota-results-table {
+    width: 100%;
+    margin: 0 0 18px 0;
+
+    background: #ffffff;
+    border-radius: 10px;
+
+    border-collapse: separate;
+    border-spacing: 0;
+
+    table-layout: fixed;
+
+    overflow: hidden;
+}
+
+
+/* Quota Header */
+
+.commission-statement-container .quota-results-header th {
+    padding: 16px 16px 10px 16px;
+    border: none;
+    text-align: left;
+    vertical-align: middle;
+    font-weight: 600;
+    line-height: 1.5;
+    color: #0f172a;
+  	font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+    font-size: 1.8rem;
+    line-height: 1.5;
+    color: #0f172a;
+}
+
+
+/* Quota Values */
+
+.commission-statement-container .quota-result-row td {
+    padding: 0 16px 16px 16px;
+
+    border: none;
+
+    text-align: left;
+    vertical-align: middle;
+
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.5;
+
+    color: #0f172a;
+}
+
+
+/* ============================================================
+   QUOTA COLUMN WIDTHS
+   ============================================================ */
+
+.commission-statement-container .quota-results-table th:nth-child(1),
+.commission-statement-container .quota-results-table td:nth-child(1) {
+    width: 30%;
+}
+
+.commission-statement-container .quota-results-table th:nth-child(2),
+.commission-statement-container .quota-results-table td:nth-child(2) {
+    width: 20%;
+}
+
+.commission-statement-container .quota-results-table th:nth-child(3),
+.commission-statement-container .quota-results-table td:nth-child(3) {
+    width: 15%;
+}
+
+.commission-statement-container .quota-results-table th:nth-child(4),
+.commission-statement-container .quota-results-table td:nth-child(4) {
+    width: 15%;
+}
+
+.commission-statement-container .quota-results-table th:nth-child(5),
+.commission-statement-container .quota-results-table td:nth-child(5) {
+    width: 20%;
+}
+
+
+/* ============================================================
+   REMOVE WHITE BACKGROUND FROM WHOLE PLAN SECTION
+   ============================================================ */
+
+.commission-statement-container .statement-plan-section {
+    background: transparent;
+    padding: 0;
+}
+
+/* ============================================================
+   MOBILE RESPONSIVE CSS
+   ============================================================ */
+
+@media (max-width: 767px) {
+
+    /* --------------------------------------------------------
+       GENERAL
+       -------------------------------------------------------- */
+
+    .commission-statement-container {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: hidden;
+        box-sizing: border-box;
+    }
+
+    .commission-statement-container * {
+        box-sizing: border-box;
+    }
+
+
+    /* --------------------------------------------------------
+       STATEMENT HEADER
+       -------------------------------------------------------- */
+
+    .statement-headers {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+        padding: 1rem 0.5rem;
+        width: 100%;
+    }
+
+    .left-info {
+        width: 100%;
+    }
+
+    .left-info h2 {
+        font-size: 1.8rem;
+        margin: 0;
+        line-height: 1.4;
+    }
+
+    .actions {
+        display: flex;
+        flex-wrap: wrap;
+        width: 100%;
+        gap: 0.8rem;
+    }
+
+    .actions button,
+    .btn-light,
+    .btn-dark {
+        min-height: 4rem;
+        font-size: 1.3rem;
+    }
+
+    .btn-light,
+    .btn-dark {
+        padding: 0.9rem 1.4rem;
+    }
+
+
+    /* --------------------------------------------------------
+       STATUS
+       -------------------------------------------------------- */
+
+    .status-chip {
+        font-size: 1.2rem;
+        padding: 0.6rem 1.1rem;
+        margin-top: 0.8rem;
+    }
+
+
+    /* --------------------------------------------------------
+       TABLE WRAPPERS
+       -------------------------------------------------------- */
+
+    .statement-header-table,
+    .earning-rules-table,
+    .payout-table {
+        width: 100%;
+        max-width: 100%;
+        margin-bottom: 1.5rem;
+
+        overflow-x: auto;
+        overflow-y: hidden;
+
+        -webkit-overflow-scrolling: touch;
+    }
+
+
+    /* --------------------------------------------------------
+       TABLES
+       -------------------------------------------------------- */
+
+    .statement-header-table table,
+    .earning-rules-table table,
+    .payout-table table {
+        width: max-content;
+        min-width: 650px;
+    }
+
+    .statement-header-table th,
+    .statement-header-table td,
+    .earning-rules-table th,
+    .earning-rules-table td,
+    .payout-table th,
+    .payout-table td {
+        white-space: nowrap;
+    }
+
+
+    /* --------------------------------------------------------
+       EARNING RULES
+       -------------------------------------------------------- */
+
+    .earning-rule-name {
+        padding: 1rem;
+        font-size: 1.4rem;
+    }
+
+    .earning-rule-type {
+        font-size: 1.4rem;
+    }
+
+    .earning-rule-value {
+        font-size: 1.4rem;
+    }
+
+    .earning-rule-col,
+    .earning-object-col,
+    .earning-field-col,
+    .earning-type-col,
+    .earning-level-col,
+    .earning-condition-col,
+    .earning-value-col {
+        padding-top: 1.2rem;
+        padding-bottom: 1rem;
+        padding-left: 1rem;
+        padding-right: 1rem;
+        font-size: 1.4rem;
+    }
+
+
+    /* --------------------------------------------------------
+       PAYOUT
+       -------------------------------------------------------- */
+
+    .payout-header {
+        font-size: 1.6rem;
+    }
+
+    .payout-component-col {
+        padding-left: 1rem;
+        padding-top: 1rem;
+    }
+
+    .payout-detail {
+        padding: 0.8rem 1rem;
+        font-size: 1.3rem;
+    }
+
+    .payout-amount {
+        font-size: 1.4rem;
+    }
+
+    .payout-total-label {
+        padding-left: 1rem;
+        padding-top: 1.2rem;
+        font-size: 1.8rem;
+    }
+
+    .payout-total-value {
+        padding-top: 1.2rem;
+        font-size: 1.8rem;
+    }
+
+
+    /* --------------------------------------------------------
+       PLAN TITLE
+       -------------------------------------------------------- */
+
+    .commission-statement-container .statement-plan-title {
+        margin: 2rem 0 1rem 0;
+        padding-left: 0.5rem;
+        font-size: 1.7rem !important;
+        line-height: 1.4;
+    }
+
+
+    /* --------------------------------------------------------
+       QUOTA TABLE
+       -------------------------------------------------------- */
+
+    .commission-statement-container .quota-results-table {
+        width: max-content;
+        min-width: 700px;
+        margin-bottom: 1.5rem;
+
+        table-layout: fixed;
+
+        overflow: visible;
+    }
+
+    .commission-statement-container .quota-results-header th {
+        padding: 1.2rem 1rem 0.8rem 1rem;
+        font-size: 1.4rem;
+        white-space: nowrap;
+    }
+
+    .commission-statement-container .quota-result-row td {
+        padding: 0 1rem 1.2rem 1rem;
+        font-size: 1.3rem;
+        white-space: nowrap;
+    }
+
+
+    /* --------------------------------------------------------
+       QUOTA COLUMN WIDTHS
+       -------------------------------------------------------- */
+
+    .commission-statement-container .quota-results-table th:nth-child(1),
+    .commission-statement-container .quota-results-table td:nth-child(1) {
+        width: 210px;
+    }
+
+    .commission-statement-container .quota-results-table th:nth-child(2),
+    .commission-statement-container .quota-results-table td:nth-child(2) {
+        width: 150px;
+    }
+
+    .commission-statement-container .quota-results-table th:nth-child(3),
+    .commission-statement-container .quota-results-table td:nth-child(3) {
+        width: 120px;
+    }
+
+    .commission-statement-container .quota-results-table th:nth-child(4),
+    .commission-statement-container .quota-results-table td:nth-child(4) {
+        width: 120px;
+    }
+
+    .commission-statement-container .quota-results-table th:nth-child(5),
+    .commission-statement-container .quota-results-table td:nth-child(5) {
+        width: 150px;
+    }
+
+
+    /* --------------------------------------------------------
+       QUOTA SCROLL CONTAINER
+       -------------------------------------------------------- */
+
+    .commission-statement-container .quota-results-table {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+
+    /* --------------------------------------------------------
+       PERIOD COMPARISON
+       -------------------------------------------------------- */
+
+    .period-compare-row .row-item {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 0.8rem;
+    }
+
+    .period-heading {
+        font-size: 1.4rem;
+    }
+
+    .label-txt,
+    .value-txt {
+        font-size: 1.3rem;
+    }
+
+    .label-txt {
+        min-width: 0;
+    }
+
+    .value-txt {
+        text-align: right;
+        white-space: nowrap;
+    }
+
+
+    /* --------------------------------------------------------
+       CARDS
+       -------------------------------------------------------- */
+
+    .card-box {
+        width: calc(100% - 2rem);
+        margin: 1rem;
+        padding: 1.5rem;
+        border-radius: 0.8rem;
+    }
+
+    .box-header {
+        font-size: 1.3rem;
+    }
+
+    .box-amount {
+        font-size: 2rem;
+        margin-top: 1.5rem;
+    }
+
+    .box-sub {
+        font-size: 1.3rem;
+    }
+
+
+    /* --------------------------------------------------------
+       BOOTSTRAP COLUMNS
+       -------------------------------------------------------- */
+
+    .col-md-3 {
+        width: 100%;
+    }
+
+
+    /* --------------------------------------------------------
+       BACK BUTTON / EXISTING ELEMENTS
+       -------------------------------------------------------- */
+
+    .back-btn-wrapper {
+        display: none !important;
+    }
+
+    .b {
+        padding-left: 1rem !important;
+        padding-top: 0.8rem !important;
+        margin-right: 0 !important;
+        font-size: 1.4rem;
+    }
+
+
+    /* --------------------------------------------------------
+       MODAL
+       -------------------------------------------------------- */
+
+    .modal {
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .modal-dialog {
+        width: calc(100% - 2rem);
+        max-width: none;
+        margin: 1rem auto;
+    }
+
+    .modal-content {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+
+
+    /* --------------------------------------------------------
+       LONG FORMS / LONG CONTENT
+       -------------------------------------------------------- */
+
+    /*
+       Any element explicitly marked as a long-form container
+       can scroll horizontally on small screens.
+    */
+
+    .long-form,
+    .form-scroll,
+    .table-responsive {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+    }
+
+
+    /* --------------------------------------------------------
+       FORM CONTROLS
+       -------------------------------------------------------- */
+
+    input,
+    select,
+    textarea {
+        max-width: 100%;
+    }
+
+    textarea {
+        resize: vertical;
+    }
+
+
+    /* --------------------------------------------------------
+       PREVENT TEXT FROM BREAKING THE PAGE
+       -------------------------------------------------------- */
+
+    img,
+    iframe,
+    video {
+        max-width: 100%;
+    }
+
+    .code {
+        display: inline-block;
+        max-width: 100%;
+        overflow-x: auto;
+        vertical-align: middle;
+    }
+}
+
+
+/* ============================================================
+   VERY SMALL MOBILE DEVICES
+   ============================================================ */
+
+@media (max-width: 480px) {
+
+    .statement-headers {
+        padding: 0.8rem 0.3rem;
+    }
+
+    .left-info h2 {
+        font-size: 1.6rem;
+    }
+
+    .actions {
+        width: 100%;
+    }
+
+    .actions .btn-light,
+    .actions .btn-dark {
+        flex: 1;
+        justify-content: center;
+        min-width: 0;
+        font-size: 1.2rem;
+    }
+
+    .status-chip {
+        font-size: 1.1rem;
+    }
+
+    .card-box {
+        margin: 0.7rem;
+        width: calc(100% - 1.4rem);
+        padding: 1.2rem;
+    }
+
+    .box-amount {
+        font-size: 1.8rem;
+    }
+
+    .commission-statement-container .statement-plan-title {
+        font-size: 1.6rem !important;
+    }
+}
+
+@media (max-width: 767px) {
+
+    /* ============================================================
+       EARNING RULE - MOBILE HORIZONTAL SCROLL
+       ============================================================ */
+
+    .earning-rules-table {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: auto !important;
+        overflow-y: hidden;
+
+        -webkit-overflow-scrolling: touch;
+        display: block;
+
+        padding-bottom: 5px;
+    }
+
+    .earning-rules-table table {
+        width: max-content !important;
+        min-width: 750px !important;
+        max-width: none !important;
+        table-layout: auto !important;
+    }
+
+    .earning-rules-table th,
+    .earning-rules-table td {
+        white-space: nowrap;
+    }
+
+    .earning-rule-col,
+    .earning-object-col,
+    .earning-field-col,
+    .earning-type-col,
+    .earning-level-col,
+    .earning-condition-col,
+    .earning-value-col {
+        padding-top: 1.2rem;
+        padding-bottom: 1.2rem;
+        padding-left: 1rem;
+        padding-right: 1rem;
+        font-size: 1.4rem;
+    }
+
+    .earning-rule-name,
+    .earning-rule-type,
+    .earning-rule-value {
+        white-space: nowrap;
+    }
+}
+
+@media (max-width: 767px) {
+
+    /* ============================================================
+       PAYOUT COMPONENT - MOBILE HORIZONTAL SCROLL
+       ============================================================ */
+
+    .payout-table {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: auto !important;
+        overflow-y: hidden;
+
+        -webkit-overflow-scrolling: touch;
+        display: block;
+
+        padding-bottom: 5px;
+    }
+
+    .payout-table table {
+        width: max-content !important;
+        min-width: 750px !important;
+        max-width: none !important;
+        table-layout: auto !important;
+    }
+
+    .payout-table th,
+    .payout-table td {
+        white-space: nowrap;
+    }
+
+    .payout-component-col {
+        padding-left: 1rem;
+        padding-right: 1rem;
+        padding-top: 1.2rem;
+        padding-bottom: 1.2rem;
+        font-size: 1.4rem;
+    }
+
+    .payout-detail {
+        padding: 0.8rem 1rem;
+        font-size: 1.3rem;
+        white-space: nowrap;
+    }
+
+    .payout-amount {
+        white-space: nowrap;
+        font-size: 1.4rem;
+    }
+
+    .payout-total-label {
+        padding-left: 1rem;
+        padding-top: 1.2rem;
+        font-size: 1.8rem;
+        white-space: nowrap;
+    }
+
+    .payout-total-value {
+        padding-top: 1.2rem;
+        font-size: 1.8rem;
+        white-space: nowrap;
+    }
 }</css>
         <data_table>sp_instance</data_table>
         <demo_data/>
-        <description/>
+        <description>This widget is to view statement</description>
         <docs/>
         <field_list/>
         <has_preview>false</has_preview>
@@ -314,6 +1095,10 @@ left-info h2 {
         <roles>x_ctans_incentnow.user</roles>
         <script><![CDATA[(function() {
 
+data.currencySymbol = gs.getProperty(
+'x_ctans_incentnow.currency_symbol',
+    '$'
+);
     data.statementId = $sp.getParameter("statement_id");
 
     if (data.statementId) {
@@ -344,22 +1129,21 @@ left-info h2 {
 
                 var result = helper.getQTDAndYTD(
                     grState.getValue("user"),
-                    grState.getValue("plan"),
                     grState.getValue("fiscal_period")
                 );
-                // ]]>🔹<![CDATA[ QTD Commission
-                data.qtdCommission = {
-                    amount: result.qtd_commission,
-                    transactions: 0
-                };
-                // ]]>🔹<![CDATA[ YTD Commission
-                data.ytdCommission = {
-                    amount: result.ytd_commission,
-                    transactions: 0
-                };
+                // QTD Commission
+								data.qtdCommission = {
+										amount: parseFloat(result.qtd_commission) || 0,
+										transactions: result.qtd_transactions || 0
+								};
+
+								// YTD Commission
+								data.ytdCommission = {
+										amount: parseFloat(result.ytd_commission) || 0,
+										transactions: result.ytd_transactions || 0
+								};
                 var changeResult = helper.getPeriodChange(
                     grState.getValue("user"),
-                    grState.getValue("plan"),
                     grState.getValue("fiscal_period")
                 );
                 // ]]>🔹<![CDATA[ Period Commission
@@ -378,6 +1162,30 @@ left-info h2 {
                 };
 
             }
+					
+						if (input && input.action == "submit_for_approval") {
+								data.success = false;
+
+								var stmtGR = new GlideRecordSecure("x_ctans_incentnow_incentive_statement");
+								if (stmtGR.get(input.statement_id)) {
+
+										if (stmtGR.getValue("status") != "statement_generated") {
+												data.message = "Only Statement Generated records can be submitted for approval.";
+												return;
+										}
+
+										stmtGR.setValue("status", "pending_approval");
+										stmtGR.update();
+
+										data.success = true;
+										data.message = "Statement submitted for approval successfully.";
+								}
+
+								return;
+						}
+					
+						data.status = grState.getValue("status");
+						data.statusDisplay = grState.getDisplayValue("status");
 
             // ✅ IMPORTANT: send selected values
             data.selectedUser = grState.getValue("user");
@@ -395,36 +1203,43 @@ left-info h2 {
         }
     }
 
-
-
-
-
-
 })();]]></script>
         <servicenow>false</servicenow>
         <sys_class_name>sp_widget</sys_class_name>
         <sys_created_by>shroin.mandal</sys_created_by>
         <sys_created_on>2026-04-08 05:52:17</sys_created_on>
         <sys_id>9e91b03a3bc84b105493ddb693e45a79</sys_id>
-        <sys_mod_count>109</sys_mod_count>
+        <sys_mod_count>154</sys_mod_count>
         <sys_name>Incentive Statement View</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
         <sys_update_name>sp_widget_9e91b03a3bc84b105493ddb693e45a79</sys_update_name>
         <sys_updated_by>shroin.mandal</sys_updated_by>
-        <sys_updated_on>2026-06-11 12:17:09</sys_updated_on>
+        <sys_updated_on>2026-08-31 13:07:20</sys_updated_on>
         <template><![CDATA[<div class="statement-headers">
 
   <!-- Left Section -->
   <div class="left-info">
     <h2>{{c.data.selectedUserName}} — {{c.data.selectedPeriodName}}</h2>
-    <span class="status-chip">]]>📄<![CDATA[ Draft</span>
+    <div class="status-chip"
+         ng-class="{
+           'status-draft': c.data.statusDisplay == 'Draft',
+           'status-error': c.data.statusDisplay == 'Error',
+           'status-generated': c.data.statusDisplay == 'Statement Generated',
+           'status-published': c.data.statusDisplay == 'Statement Published',
+           'status-pending': c.data.statusDisplay == 'Pending Approval'
+         }">
+
+        <span class="status-dot"></span>
+        {{c.data.statusDisplay}}
+
+    </div>
   </div>
 
   <!-- Right Buttons -->
   <div class="actions">
-    <button class="btn-light">
+    <button class="btn-light" ng-click="c.raiseDispute()">
       Create Dispute
     </button>
 
@@ -432,7 +1247,7 @@ left-info h2 {
       Download Statement
     </button>
 
-    <button class="btn-dark">
+    <button class="btn-dark" ng-click="c.submitForApproval()">
       Freeze & Submit for Approval
     </button>
   </div>
@@ -444,9 +1259,10 @@ left-info h2 {
 
     <!-- Period Commission -->
     <div class="col-md-3 card-box">
-      <div class="box-header">$ Period Commission</div>
-      <div class="box-amount">${{data.periodCommission.amount | number}}</div>
-      <div class="box-sub">▲ {{data.periodCommission.change}} vs previous</div>
+      <div class="box-header">{{c.data.currencySymbol}}Period Commission</div>
+      <div class="box-amount">{{c.data.currencySymbol}}{{data.periodCommission.amount | number}}</div>
+      <p class="desc">Consolidated Commision</p>
+      <!--div class="box-sub">▲ {{data.periodCommission.change}} vs previous</div-->
       
     </div>
 
@@ -463,14 +1279,14 @@ left-info h2 {
     <!-- QTD Commission -->
     <div class="col-md-3 card-box">
       <div class="box-header">]]>📅<![CDATA[ QTD Commission</div>
-      <div class="box-amount">${{data.qtdCommission.amount | number}}</div>
+      <div class="box-amount">{{c.data.currencySymbol}}{{data.qtdCommission.amount | number}}</div>
       <td><p class="desc">Quarter to Date earnings</p></td>
     </div>
 
     <!-- YTD Commission -->
     <div class="col-md-3 card-box">
       <div class="box-header">]]>📅<![CDATA[ YTD Commission</div>
-      <div class="box-amount">${{data.ytdCommission.amount | number}}</div>
+      <div class="box-amount">{{c.data.currencySymbol}}{{data.ytdCommission.amount | number}}</div>
       <td><p class="desc">Year to Date earnings</p></td>
     </div>
   </div>
@@ -498,7 +1314,7 @@ left-info h2 {
 
         <!--div class="row-item">
           <span class="label-txt">Total Commission:</span>
-          <span class="value-txt">${{data.periodCommission.amount | number}}</span>
+          <span class="value-txt">{{data.periodCommission.amount | number}}</span>
         </div>
 
       </div-->

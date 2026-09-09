@@ -8,6 +8,7 @@
 	return false;
 })(current);]]></condition_script>
         <context_profile/>
+        <provenance>none</provenance>
         <roles>now_assist_panel_user</roles>
         <skill_id display_value="IncentNow Compensation Assistant">6cf4e4c03bec0350ffa00e9693e45ae3</skill_id>
         <sys_class_name>sys_gen_ai_skill_applicability</sys_class_name>

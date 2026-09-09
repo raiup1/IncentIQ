@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?><database>
-    <element db_object_id="082e9bff3bfbf214ffa00e9693e45ac7" label="Earning Rule" max_length="40" name="x_ctans_incentnow_earning_rule" type="collection">
+    <element audit="true" db_object_id="082e9bff3bfbf214ffa00e9693e45ac7" label="Earning Rule" max_length="40" name="x_ctans_incentnow_earning_rule" type="collection">
         <element attributes="edge_encryption_enabled=true" hint="Define conditions in a human-readable format to filter records." label="Condition Query" max_length="1000" name="condition_query_display" type="string"/>
         <element attributes="encode_utf8=false" hint="Choose the field from the source object that will be evaluated or aggregated." label="Field" mandatory="true" max_length="32" name="field" reference="x_ctans_incentnow_metadata_mapping" reference_qual="javascript:'data_model_object_id=' + current.source_object + '^active=true';" type="reference" use_reference_qualifier="advanced"/>
         <element attributes="edge_encryption_enabled=true" hint="System-generated encoded query used internally for filtering records. Modify only if you understand encoded query syntax." label="Encoded Query" max_length="1000" name="rule_condition_query" type="string"/>

@@ -848,7 +848,7 @@ select.cb-input {
         <roles>x_ctans_incentnow.user,x_ctans_incentnow.admin</roles>
         <script><![CDATA[(function () {
 
-	data.table = options.table || 'x_ctans_incentnow_data_lake';
+	data.table = options.table || 'x_ctans_incentnow_data_lake_master';
 	//gs.addInfoMessage(input.data_model+ " ++ ");
 	
 	
@@ -998,14 +998,14 @@ select.cb-input {
         <sys_created_by>karan.kumar</sys_created_by>
         <sys_created_on>2026-04-09 09:03:52</sys_created_on>
         <sys_id>0723664b3b4c0f10ffa00e9693e45ac4</sys_id>
-        <sys_mod_count>162</sys_mod_count>
+        <sys_mod_count>163</sys_mod_count>
         <sys_name>IncentNow QueryBuilder</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
         <sys_update_name>sp_widget_0723664b3b4c0f10ffa00e9693e45ac4</sys_update_name>
-        <sys_updated_by>upma.rai</sys_updated_by>
-        <sys_updated_on>2026-06-12 13:38:37</sys_updated_on>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-06-23 09:12:52</sys_updated_on>
         <template><![CDATA[<div class="panel panel-default cb-card">
 
 	<!-- HEADER 

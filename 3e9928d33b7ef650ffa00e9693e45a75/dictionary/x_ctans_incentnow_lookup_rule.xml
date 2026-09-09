@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?><database>
-    <element db_object_id="d224cab33b7736145493ddb693e45a1e" label="Lookup Rule" max_length="40" name="x_ctans_incentnow_lookup_rule" type="collection">
+    <element audit="true" db_object_id="d224cab33b7736145493ddb693e45a1e" label="Lookup Rule" max_length="40" name="x_ctans_incentnow_lookup_rule" type="collection">
         <element attributes="edge_encryption_enabled=true" hint="Add a brief explanation of this rule (optional)" label="Description" max_length="400" name="description" type="string"/>
         <element attributes="encode_utf8=false" label="Select Previous Step" max_length="32" name="select_previous_step" reference="x_ctans_incentnow_lookup_rule" reference_qual="javascript:'plan=' + current.plan + '^sys_id!=' + current.sys_id + '^active=true';" type="reference" use_reference_qualifier="advanced"/>
         <element default="true" label="Active" max_length="40" name="active" type="boolean"/>

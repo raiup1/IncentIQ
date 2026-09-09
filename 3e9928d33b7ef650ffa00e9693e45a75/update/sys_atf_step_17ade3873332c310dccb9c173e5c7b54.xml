@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_atf_step">
+    <sys_atf_step action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <callable_outputs/>
+        <copied_from/>
+        <description>Set the components on the page as follows:
+'Text &lt;input&gt;: Enter Lookup Name' = 'ATF Lookup', Page area = 'default'
+'Text &lt;textarea&gt;: (empty)' = 'Test Desc', Page area = 'default'
+</description>
+        <display_name>Set Component Values (Custom UI)</display_name>
+        <inputs/>
+        <mugshots_cache_json>{"4b7a5869f92f908dec54b8770d6db98b":"{\"area\":\"IncentNow Admin Dashboard\",\"sn_atf_mugshot_short_description\":\"Text &lt;textarea&gt;: (empty)\",\"role\":\"textbox\",\"sn_atf_mugshot_long_description\":\"Text &lt;textarea&gt;: (empty) in page area IncentNow Admin Dashboard\",\"methods\":[\"setValue\"],\"sn_atf_mugshot_label\":\"\",\"type\":\"textarea\",\"version\":\"26.0\",\"sn_atf_mugshot_label_for_label_path\":\"\",\"interesting_element_path\":[\"body\",\"div\",\"div\",\"sp-page-row\",\"span\",\"div\",\"textarea\"],\"get_value_result\":\"\",\"sn_atf_mugshot_tag_display_name\":\"Text &lt;textarea&gt;\",\"sn_atf_mugshot_value\":\"\",\"tag\":\"textarea\",\"isDisabled\":false,\"label_path\":[\"default\"],\"hash\":\"4b7a5869f92f908dec54b8770d6db98b\",\"html_value\":\"\"}","6c76c45edb09fa1223a99bd513165d37":"{\"area\":\"IncentNow Admin Dashboard\",\"sn_atf_mugshot_short_description\":\"Text &lt;input&gt;: Enter Lookup Name\",\"role\":\"textbox\",\"sn_atf_mugshot_long_description\":\"Text &lt;input&gt;: Enter Lookup Name in page area IncentNow Admin Dashboard\",\"methods\":[\"setValue\"],\"sn_atf_mugshot_label\":\"Enter Lookup Name\",\"type\":\"text\",\"version\":\"26.0\",\"sn_atf_mugshot_label_for_label_path\":\"\",\"interesting_element_path\":[\"body\",\"div\",\"div\",\"sp-page-row\",\"span\",\"div\",\"input\"],\"get_value_result\":\"\",\"sn_atf_mugshot_tag_display_name\":\"Text &lt;input&gt;\",\"sn_atf_mugshot_value\":\"Enter Lookup Name\",\"tag\":\"input\",\"isDisabled\":false,\"placeholder\":\"Enter Lookup Name\",\"label_path\":[\"default\"],\"hash\":\"6c76c45edb09fa1223a99bd513165d37\",\"html_value\":\"\"}"}</mugshots_cache_json>
+        <notes/>
+        <order>6</order>
+        <step_config display_value="Set Component Values (Custom UI)">e5dd168473330300c79260bdfaf6a794</step_config>
+        <sys_class_name>sys_atf_step</sys_class_name>
+        <sys_created_by>shiva.erla</sys_created_by>
+        <sys_created_on>2026-08-24 07:06:16</sys_created_on>
+        <sys_id>17ade3873332c310dccb9c173e5c7b54</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>Set Component Values (Custom UI)</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_atf_step_17ade3873332c310dccb9c173e5c7b54</sys_update_name>
+        <sys_updated_by>shiva.erla</sys_updated_by>
+        <sys_updated_on>2026-08-24 07:06:16</sys_updated_on>
+        <table/>
+        <test display_value="IncentIQ_LookUpTables_ATF">a6a477a13b2e83144be1ef9e53e45ab2</test>
+        <timeout/>
+        <warning_message/>
+    </sys_atf_step>
+    <sys_variable_value action="delete_multiple" query="document_key=17ade3873332c310dccb9c173e5c7b54"/>
+    <sys_variable_value action="INSERT_OR_UPDATE">
+        <document>sys_atf_step</document>
+        <document_key>17ade3873332c310dccb9c173e5c7b54</document_key>
+        <order>100</order>
+        <sys_class_name>sys_variable_value</sys_class_name>
+        <sys_created_by>shiva.erla</sys_created_by>
+        <sys_created_on>2026-08-24 07:06:16</sys_created_on>
+        <sys_id>a3ede7c73332c310dccb9c173e5c7b4d</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>shiva.erla</sys_updated_by>
+        <sys_updated_on>2026-08-24 07:06:16</sys_updated_on>
+        <value>6c76c45edb09fa1223a99bd513165d37=ATF Lookup^4b7a5869f92f908dec54b8770d6db98b=Test Desc^EQ</value>
+        <variable display_value="Component values">d12fde8473330300c79260bdfaf6a7b5</variable>
+    </sys_variable_value>
+    <sys_element_mapping action="delete_multiple" query="table=var__m_atf_input_variable_e5dd168473330300c79260bdfaf6a794^id=17ade3873332c310dccb9c173e5c7b54"/>
+</record_update>

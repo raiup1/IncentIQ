@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update sys_domain="global" table="sys_generative_ai_prompt_config">
+    <sys_generative_ai_prompt_config action="INSERT_OR_UPDATE">
+        <ai_config display_value="OneExtend Capability Definition: Generic Prompt (Custom LLM)">8cbfc23c338e0f10dccb9c173e5c7b58</ai_config>
+        <definition display_value="Generic Prompt (Custom LLM)">77b3f433c3510210b0939bc8a840ddee</definition>
+        <filter_properties/>
+        <filter_type>default</filter_type>
+        <is_default>true</is_default>
+        <order>0</order>
+        <sys_class_name>sys_generative_ai_prompt_config</sys_class_name>
+        <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+        <sys_created_on>2026-07-10 17:45:43</sys_created_on>
+        <sys_domain>global</sys_domain>
+        <sys_domain_path>/</sys_domain_path>
+        <sys_id>3fb01afc33c64f10dccb9c173e5c7b26</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>8cbfc23c338e0f10dccb9c173e5c7b58</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_generative_ai_prompt_config_3fb01afc33c64f10dccb9c173e5c7b26</sys_update_name>
+        <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
+        <sys_updated_on>2026-07-10 17:45:43</sys_updated_on>
+    </sys_generative_ai_prompt_config>
+</record_update>

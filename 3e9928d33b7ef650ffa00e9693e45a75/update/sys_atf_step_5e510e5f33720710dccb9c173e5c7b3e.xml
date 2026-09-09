@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_atf_step">
+    <sys_atf_step action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <callable_outputs/>
+        <copied_from/>
+        <description>Set the components on the page as follows:
+'Text &lt;input&gt;: Step Name' = ATF Lookup Rule 1
+'Custom component &lt;select2&gt;: Rule Type' = Flat - Commission Rate
+'Text &lt;input&gt;: Rate Value' = 4
+'Custom component &lt;select2&gt;: Output Unit' = Percentage
+'Text &lt;textarea&gt;: Description' = ATF Lookup Desc
+</description>
+        <display_name>Set Component Values (Custom UI)</display_name>
+        <inputs/>
+        <mugshots_cache_json>{"56f90eeed733abcab6d11ce248a6b185":"{\"area\":\"IncentNow Create Plan &gt; Incentive Commission Rules\",\"sn_atf_mugshot_short_description\":\"Custom component &lt;select2&gt;: Output Unit\",\"inner_text\":\"-- None --\",\"sn_atf_mugshot_long_description\":\"Custom component &lt;select2&gt; [s2id_sp_formfield_rate_unit]: Output Unit in page area IncentNow Create Plan &gt; Incentive Commission Rules\",\"methods\":[\"setValue\"],\"sn_atf_mugshot_label\":\"Output Unit\",\"type\":\"select-one\",\"version\":\"26.0\",\"sn_atf_mugshot_label_for_label_path\":\"Output Unit\",\"label_for_input\":{\"inner_text\":\"Output Unit\"},\"get_value_result\":\"\",\"sn_atf_mugshot_tag_display_name\":\"Custom component &lt;select2&gt;\",\"sn_atf_mugshot_value\":\"\",\"name\":\"rate_unit\",\"tag\":\"select2\",\"isDisabled\":false,\"id\":\"s2id_sp_formfield_rate_unit\",\"hash\":\"56f90eeed733abcab6d11ce248a6b185\",\"html_value\":\"\"}","81c6d860d385cba1d95b1e657c5f9aef":"{\"area\":\"IncentNow Create Plan &gt; Incentive Commission Rules\",\"sn_atf_mugshot_short_description\":\"Custom component &lt;select2&gt;: Rule Type\",\"inner_text\":\"-- None --\",\"sn_atf_mugshot_long_description\":\"Custom component &lt;select2&gt; [s2id_sp_formfield_rule_type]: Rule Type in page area IncentNow Create Plan &gt; Incentive Commission Rules\",\"methods\":[\"setValue\"],\"sn_atf_mugshot_label\":\"Rule Type\",\"type\":\"select-one\",\"version\":\"26.0\",\"sn_atf_mugshot_label_for_label_path\":\"Rule Type\",\"label_for_input\":{\"inner_text\":\"Rule Type\"},\"get_value_result\":\"\",\"sn_atf_mugshot_tag_display_name\":\"Custom component &lt;select2&gt;\",\"sn_atf_mugshot_value\":\"\",\"name\":\"rule_type\",\"tag\":\"select2\",\"isDisabled\":false,\"id\":\"s2id_sp_formfield_rule_type\",\"hash\":\"81c6d860d385cba1d95b1e657c5f9aef\",\"html_value\":\"\"}","c3a9531076ec4b2fb583d4d385fb56d5":"{\"area\":\"IncentNow Create Plan &gt; Incentive Commission Rules\",\"sn_atf_mugshot_short_description\":\"Text &lt;textarea&gt;: Description\",\"role\":\"textbox\",\"sn_atf_mugshot_long_description\":\"Text &lt;textarea&gt; [sp_formfield_description]: Description in page area IncentNow Create Plan &gt; Incentive Commission Rules\",\"methods\":[\"setValue\"],\"sn_atf_mugshot_label\":\"Description\",\"type\":\"textarea\",\"version\":\"26.0\",\"label_for_input\":{\"inner_text\":\"Description\"},\"sn_atf_mugshot_label_for_label_path\":\"Description\",\"interesting_element_path\":[\"body\",\"div\",\"div\",\"sp-page-row\",\"span\",\"div\",\"div\",\"form\",\"sp-variable-layout\",\"div\",\"div\",\"textarea\"],\"get_value_result\":\"\",\"sn_atf_mugshot_tag_display_name\":\"Text &lt;textarea&gt;\",\"name\":\"description\",\"sn_atf_mugshot_value\":\"\",\"tag\":\"textarea\",\"isDisabled\":false,\"id\":\"sp_formfield_description\",\"label_path\":[\"Description\"],\"aria-label\":\"Description\",\"hash\":\"c3a9531076ec4b2fb583d4d385fb56d5\",\"html_value\":\"\"}","7a2a613cdb56c47859b6c47fc63273bd":"{\"area\":\"IncentNow Create Plan &gt; Incentive Commission Rules\",\"sn_atf_mugshot_short_description\":\"Text &lt;input&gt;: Step Name\",\"sn_atf_mugshot_long_description\":\"Text &lt;input&gt; [sp_formfield_step_name]: Step Name with value Enter a unique step name (e.g., Tier 1 Calculat... in page area IncentNow Create Plan &gt; Incentive Commission Rules\",\"methods\":[\"setValue\"],\"sn_atf_mugshot_label\":\"Step Name\",\"type\":\"text\",\"version\":\"26.0\",\"label_for_input\":{\"inner_text\":\"Step Name\"},\"sn_atf_mugshot_label_for_label_path\":\"Step Name\",\"interesting_element_path\":[\"body\",\"div\",\"div\",\"sp-page-row\",\"span\",\"div\",\"div\",\"form\",\"sp-variable-layout\",\"div\",\"div\",\"input\"],\"get_value_result\":\"\",\"sn_atf_mugshot_tag_display_name\":\"Text &lt;input&gt;\",\"name\":\"step_name\",\"sn_atf_mugshot_value\":\"Enter a unique step name (e.g., Tier 1 Calculation)\",\"tag\":\"input\",\"isDisabled\":false,\"id\":\"sp_formfield_step_name\",\"placeholder\":\"Enter a unique step name (e.g., Tier 1 Calculation)\",\"label_path\":[\"Step Name\"],\"aria-label\":\"Step Name\",\"hash\":\"7a2a613cdb56c47859b6c47fc63273bd\",\"html_value\":\"\"}","af0511eb19209ea5c4f78cef0bef9faa":"{\"area\":\"IncentNow Create Plan &gt; Incentive Commission Rules\",\"sn_atf_mugshot_short_description\":\"Text &lt;input&gt;: Rate Value\",\"sn_atf_mugshot_long_description\":\"Text &lt;input&gt; [sp_formfield_rate_value]: Rate Value in page area IncentNow Create Plan &gt; Incentive Commission Rules\",\"methods\":[\"setValue\"],\"sn_atf_mugshot_label\":\"Rate Value\",\"type\":\"text\",\"version\":\"26.0\",\"label_for_input\":{\"inner_text\":\"Rate Value\"},\"sn_atf_mugshot_label_for_label_path\":\"Rate Value\",\"interesting_element_path\":[\"body\",\"div\",\"div\",\"sp-page-row\",\"span\",\"div\",\"div\",\"form\",\"sp-variable-layout\",\"div\",\"div\",\"input\"],\"get_value_result\":\"\",\"sn_atf_mugshot_tag_display_name\":\"Text &lt;input&gt;\",\"name\":\"rate_value\",\"sn_atf_mugshot_value\":\"\",\"tag\":\"input\",\"isDisabled\":false,\"id\":\"sp_formfield_rate_value\",\"label_path\":[\"Rate Value\"],\"hash\":\"af0511eb19209ea5c4f78cef0bef9faa\",\"html_value\":\"\"}"}</mugshots_cache_json>
+        <notes/>
+        <order>19</order>
+        <step_config display_value="Set Component Values (Custom UI)">e5dd168473330300c79260bdfaf6a794</step_config>
+        <sys_class_name>sys_atf_step</sys_class_name>
+        <sys_created_by>shiva.erla</sys_created_by>
+        <sys_created_on>2026-08-24 17:52:59</sys_created_on>
+        <sys_id>5e510e5f33720710dccb9c173e5c7b3e</sys_id>
+        <sys_mod_count>3</sys_mod_count>
+        <sys_name>Set Component Values (Custom UI)</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_atf_step_5e510e5f33720710dccb9c173e5c7b3e</sys_update_name>
+        <sys_updated_by>atfappadminuser</sys_updated_by>
+        <sys_updated_on>2026-08-24 18:16:42</sys_updated_on>
+        <table/>
+        <test display_value="IncentIQ_IncentivePlan_BusinessUnit_ApprovalFlow">a44e00133336c310dccb9c173e5c7b68</test>
+        <timeout/>
+        <warning_message/>
+    </sys_atf_step>
+    <sys_variable_value action="delete_multiple" query="document_key=5e510e5f33720710dccb9c173e5c7b3e"/>
+    <sys_variable_value action="INSERT_OR_UPDATE">
+        <document>sys_atf_step</document>
+        <document_key>5e510e5f33720710dccb9c173e5c7b3e</document_key>
+        <order>100</order>
+        <sys_class_name>sys_variable_value</sys_class_name>
+        <sys_created_by>shiva.erla</sys_created_by>
+        <sys_created_on>2026-08-24 17:52:59</sys_created_on>
+        <sys_id>4df14e9f33720710dccb9c173e5c7b93</sys_id>
+        <sys_mod_count>1</sys_mod_count>
+        <sys_updated_by>shiva.erla</sys_updated_by>
+        <sys_updated_on>2026-08-24 18:10:07</sys_updated_on>
+        <value>7a2a613cdb56c47859b6c47fc63273bd=ATF Lookup Rule 1^81c6d860d385cba1d95b1e657c5f9aef=Flat - Commission Rate^af0511eb19209ea5c4f78cef0bef9faa=4^56f90eeed733abcab6d11ce248a6b185=Percentage^c3a9531076ec4b2fb583d4d385fb56d5=ATF Lookup Desc^EQ</value>
+        <variable display_value="Component values">d12fde8473330300c79260bdfaf6a7b5</variable>
+    </sys_variable_value>
+    <sys_element_mapping action="delete_multiple" query="table=var__m_atf_input_variable_e5dd168473330300c79260bdfaf6a794^id=5e510e5f33720710dccb9c173e5c7b3e"/>
+</record_update>

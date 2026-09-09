@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update sys_domain="global" table="sysevent_email_action">
+    <sysevent_email_action action="INSERT_OR_UPDATE">
+        <action_insert>true</action_insert>
+        <action_update>true</action_update>
+        <active>true</active>
+        <advanced_condition/>
+        <affected_field_on_event/>
+        <category display_value="Uncategorized" name="Uncategorized">c97d83137f4432005f58108c3ffa917a</category>
+        <collection>x_ctans_incentnow_incentiq_dispute</collection>
+        <condition table="x_ctans_incentnow_incentiq_dispute">assigned_toVALCHANGES^assignment_groupISNOTEMPTY^EQ<item endquery="false" field="assigned_to" goto="false" newquery="false" operator="VALCHANGES" or="false" value=""/>
+            <item endquery="false" field="assignment_group" goto="false" newquery="false" operator="ISNOTEMPTY" or="false" value=""/>
+            <item endquery="true" field="" goto="false" newquery="false" operator="=" or="false" value=""/>
+        </condition>
+        <content_type>text/html</content_type>
+        <default_digest>false</default_digest>
+        <default_interval/>
+        <description/>
+        <digest_from/>
+        <digest_html/>
+        <digest_reply_to/>
+        <digest_separator_html><![CDATA[<p>&nbsp;</p>
+<hr>
+<p>&nbsp;</p>]]></digest_separator_html>
+        <digest_separator_text><![CDATA[\n--------------------------------------------------------------------------------\n]]></digest_separator_text>
+        <digest_subject/>
+        <digest_template/>
+        <digest_text/>
+        <digest_type>single</digest_type>
+        <digestable>false</digestable>
+        <enable_dynamic_translation>false</enable_dynamic_translation>
+        <event_name>activate.life.cycle.migration</event_name>
+        <event_parm_1>false</event_parm_1>
+        <event_parm_2>false</event_parm_2>
+        <exclude_delegates>false</exclude_delegates>
+        <force_delivery>false</force_delivery>
+        <from/>
+        <generation_type>engine</generation_type>
+        <importance/>
+        <include_attachments>false</include_attachments>
+        <item>event.parm1</item>
+        <item_table/>
+        <mandatory>false</mandatory>
+        <message/>
+        <message_html><![CDATA[<p>Hello ${assigned_to.first_name},</p>
+<p>A dispute has been assigned to you for review and resolution.</p>
+<p>Dispute Details:</p>
+<ul style="list-style-position: inside;" data-spread="false">
+<li>Dispute Number: ${number}</li>
+<li>Dispute Type: ${type}</li>
+<li>Priority: ${priority}</li>
+<li>Raised By: ${sys_created_by}</li>
+<li>Raised For: ${raised_for}</li>
+<li>Created On: ${sys_created_on}</li>
+<li>Short Description: ${short_description}</li>
+<li>Description: ${description}</li>
+</ul>
+<p>Please review the dispute and begin working on it as soon as possible. If you require additional information, update the dispute record and contact the requester.</p>
+<p>Open the Dispute in Workspace:</p>
+<p>Workspace Link:&nbsp;${mail_script:open_dispute}</p>
+<p>Thank you,</p>
+<p>Dispute Management System</p>]]></message_html>
+        <message_list/>
+        <message_text/>
+        <name>Dispute Assigned to fulfiller</name>
+        <omit_watermark>false</omit_watermark>
+        <order>100</order>
+        <push_message_only>false</push_message_only>
+        <recipient_fields>assigned_to</recipient_fields>
+        <recipient_groups/>
+        <recipient_users/>
+        <reply_to/>
+        <send_self>true</send_self>
+        <sms_alternate/>
+        <style/>
+        <subject>Dispute ${number} Assigned to You – Action Required</subject>
+        <subscribable>false</subscribable>
+        <sys_class_name>sysevent_email_action</sys_class_name>
+        <sys_created_by>karan.kumar</sys_created_by>
+        <sys_created_on>2026-07-06 05:22:20</sys_created_on>
+        <sys_domain>global</sys_domain>
+        <sys_domain_path>/</sys_domain_path>
+        <sys_id>9f300f5733f5c310dccb9c173e5c7b38</sys_id>
+        <sys_mod_count>6</sys_mod_count>
+        <sys_name>Dispute Assigned to fulfiller</sys_name>
+        <sys_overrides/>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sysevent_email_action_9f300f5733f5c310dccb9c173e5c7b38</sys_update_name>
+        <sys_updated_by>karan.kumar</sys_updated_by>
+        <sys_updated_on>2026-07-20 03:17:10</sys_updated_on>
+        <sys_version>2</sys_version>
+        <template display_value="Unsubscribe and Preferences">7ed0481f3b0b2200c869c2c703efc487</template>
+        <type>email</type>
+        <weight>0</weight>
+    </sysevent_email_action>
+</record_update>

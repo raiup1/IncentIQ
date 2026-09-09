@@ -249,7 +249,7 @@ textarea {
     data.plan = {};
 
     // -----------------------------
-    // TABLE & SYS_ID SETUP
+    // TABLE & SYS_ID  SETUP
     // -----------------------------
     if (input && input.table) 
         data.table = input.table;
@@ -289,6 +289,21 @@ textarea {
             { label: "Description", field: "description", col: 2 }
         ];
 				}
+			else if (data.table == "x_ctans_incentnow_participant_assignment") {
+
+					data.reviewTitle = "Review Participant Assignment";
+
+					data.planFields = [
+							{ label: "Participant", field: "number", col: 1 },
+							{ label: "Business Dimension", field: "business_dimension", col: 1 },
+							{ label: "Fiscal Year", field: "fiscal_year", col: 1 },
+							{ label: "Business Unit", field: "business_unit", col: 1 },
+							{ label: "Status", field: "status", col: 1 },
+							{ label: "Territory", field: "x_ctans_territory_territory", col: 1 },
+							{ label: "Created By", field: "sys_created_by", col: 1 }
+					];
+
+			}
 			else if(data.table=="x_ctans_incentnow_plan")
 				{
 					 data.planFields = [
@@ -374,14 +389,14 @@ textarea {
         <sys_created_by>karan.kumar</sys_created_by>
         <sys_created_on>2026-04-13 03:35:23</sys_created_on>
         <sys_id>a1f1ce903b180b50ffa00e9693e45a2b</sys_id>
-        <sys_mod_count>108</sys_mod_count>
+        <sys_mod_count>114</sys_mod_count>
         <sys_name>IncentNow Review Widget</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
         <sys_update_name>sp_widget_a1f1ce903b180b50ffa00e9693e45a2b</sys_update_name>
         <sys_updated_by>shroin.mandal</sys_updated_by>
-        <sys_updated_on>2026-06-11 12:19:24</sys_updated_on>
+        <sys_updated_on>2026-08-24 14:33:55</sys_updated_on>
         <template><![CDATA[
   <div class="card-container">
 
@@ -398,8 +413,12 @@ textarea {
     </button>
 
     <div class="header-text">
-      <h2>Review Plan: {{c.data.plan.name}}</h2>
-      <p>Review plan details and approve or reject</p>
+      <h2>
+          {{c.data.reviewTitle || 'Review Plan'}}:
+          {{c.data.plan.name || c.data.plan.plan_name || c.data.plan.participant}}
+      </h2>
+
+      <p>Review details and approve or reject</p>
     </div>
 
   </div>

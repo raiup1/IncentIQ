@@ -4,13 +4,13 @@
             <element>rule_name</element>
             <position>0</position>
             <sys_created_by>upma.rai</sys_created_by>
-            <sys_created_on>2026-06-12 05:03:15</sys_created_on>
-            <sys_id>3db5d3e33b914350a4cbaddc73e45a10</sys_id>
+            <sys_created_on>2026-08-18 11:53:36</sys_created_on>
+            <sys_id>4226b5d13bfa4b10a4cbaddc73e45abf</sys_id>
             <sys_mod_count>0</sys_mod_count>
             <sys_ui_formatter/>
             <sys_ui_section caption="NULL" display_value="" name="x_ctans_incentnow_payout_summary" sys_domain="global" view="Default view">882c1c3f3beb3e50ffa00e9693e45a11</sys_ui_section>
             <sys_updated_by>upma.rai</sys_updated_by>
-            <sys_updated_on>2026-06-12 05:03:15</sys_updated_on>
+            <sys_updated_on>2026-08-18 11:53:36</sys_updated_on>
             <sys_user/>
             <type/>
         </sys_ui_element>
@@ -18,13 +18,13 @@
             <element>input1_type</element>
             <position>1</position>
             <sys_created_by>upma.rai</sys_created_by>
-            <sys_created_on>2026-06-12 05:03:15</sys_created_on>
-            <sys_id>f1b5d3e33b914350a4cbaddc73e45a12</sys_id>
+            <sys_created_on>2026-08-18 11:53:36</sys_created_on>
+            <sys_id>4226b5d13bfa4b10a4cbaddc73e45acd</sys_id>
             <sys_mod_count>0</sys_mod_count>
             <sys_ui_formatter/>
             <sys_ui_section caption="NULL" display_value="" name="x_ctans_incentnow_payout_summary" sys_domain="global" view="Default view">882c1c3f3beb3e50ffa00e9693e45a11</sys_ui_section>
             <sys_updated_by>upma.rai</sys_updated_by>
-            <sys_updated_on>2026-06-12 05:03:15</sys_updated_on>
+            <sys_updated_on>2026-08-18 11:53:36</sys_updated_on>
             <sys_user/>
             <type/>
         </sys_ui_element>
@@ -32,13 +32,13 @@
             <element>input1_id</element>
             <position>2</position>
             <sys_created_by>upma.rai</sys_created_by>
-            <sys_created_on>2026-06-12 05:03:15</sys_created_on>
-            <sys_id>71b5d3e33b914350a4cbaddc73e45a13</sys_id>
+            <sys_created_on>2026-08-18 11:53:36</sys_created_on>
+            <sys_id>ce26b5d13bfa4b10a4cbaddc73e45acd</sys_id>
             <sys_mod_count>0</sys_mod_count>
             <sys_ui_formatter/>
             <sys_ui_section caption="NULL" display_value="" name="x_ctans_incentnow_payout_summary" sys_domain="global" view="Default view">882c1c3f3beb3e50ffa00e9693e45a11</sys_ui_section>
             <sys_updated_by>upma.rai</sys_updated_by>
-            <sys_updated_on>2026-06-12 05:03:15</sys_updated_on>
+            <sys_updated_on>2026-08-18 11:53:36</sys_updated_on>
             <sys_user/>
             <type/>
         </sys_ui_element>
@@ -46,13 +46,13 @@
             <element>input1_payout</element>
             <position>3</position>
             <sys_created_by>upma.rai</sys_created_by>
-            <sys_created_on>2026-06-12 05:03:15</sys_created_on>
-            <sys_id>fdb5d3e33b914350a4cbaddc73e45a13</sys_id>
+            <sys_created_on>2026-08-18 11:53:36</sys_created_on>
+            <sys_id>4e26b5d13bfa4b10a4cbaddc73e45ace</sys_id>
             <sys_mod_count>0</sys_mod_count>
             <sys_ui_formatter/>
             <sys_ui_section caption="NULL" display_value="" name="x_ctans_incentnow_payout_summary" sys_domain="global" view="Default view">882c1c3f3beb3e50ffa00e9693e45a11</sys_ui_section>
             <sys_updated_by>upma.rai</sys_updated_by>
-            <sys_updated_on>2026-06-12 05:03:15</sys_updated_on>
+            <sys_updated_on>2026-08-18 11:53:36</sys_updated_on>
             <sys_user/>
             <type/>
         </sys_ui_element>
@@ -60,13 +60,13 @@
             <element>input1_earning_rule</element>
             <position>4</position>
             <sys_created_by>upma.rai</sys_created_by>
-            <sys_created_on>2026-06-12 05:03:15</sys_created_on>
-            <sys_id>7db5d3e33b914350a4cbaddc73e45a14</sys_id>
+            <sys_created_on>2026-08-18 11:53:36</sys_created_on>
+            <sys_id>ca26b5d13bfa4b10a4cbaddc73e45acf</sys_id>
             <sys_mod_count>0</sys_mod_count>
             <sys_ui_formatter/>
             <sys_ui_section caption="NULL" display_value="" name="x_ctans_incentnow_payout_summary" sys_domain="global" view="Default view">882c1c3f3beb3e50ffa00e9693e45a11</sys_ui_section>
             <sys_updated_by>upma.rai</sys_updated_by>
-            <sys_updated_on>2026-06-12 05:03:15</sys_updated_on>
+            <sys_updated_on>2026-08-18 11:53:36</sys_updated_on>
             <sys_user/>
             <type/>
         </sys_ui_element>
@@ -74,13 +74,13 @@
             <element>operator</element>
             <position>5</position>
             <sys_created_by>upma.rai</sys_created_by>
-            <sys_created_on>2026-06-12 05:03:15</sys_created_on>
-            <sys_id>f9b5d3e33b914350a4cbaddc73e45a15</sys_id>
+            <sys_created_on>2026-08-18 11:53:36</sys_created_on>
+            <sys_id>4a26b5d13bfa4b10a4cbaddc73e45ad0</sys_id>
             <sys_mod_count>0</sys_mod_count>
             <sys_ui_formatter/>
             <sys_ui_section caption="NULL" display_value="" name="x_ctans_incentnow_payout_summary" sys_domain="global" view="Default view">882c1c3f3beb3e50ffa00e9693e45a11</sys_ui_section>
             <sys_updated_by>upma.rai</sys_updated_by>
-            <sys_updated_on>2026-06-12 05:03:15</sys_updated_on>
+            <sys_updated_on>2026-08-18 11:53:36</sys_updated_on>
             <sys_user/>
             <type/>
         </sys_ui_element>
@@ -88,13 +88,13 @@
             <element>input2_type</element>
             <position>6</position>
             <sys_created_by>upma.rai</sys_created_by>
-            <sys_created_on>2026-06-12 05:03:15</sys_created_on>
-            <sys_id>79b5d3e33b914350a4cbaddc73e45a16</sys_id>
+            <sys_created_on>2026-08-18 11:53:36</sys_created_on>
+            <sys_id>c626b5d13bfa4b10a4cbaddc73e45ad1</sys_id>
             <sys_mod_count>0</sys_mod_count>
             <sys_ui_formatter/>
             <sys_ui_section caption="NULL" display_value="" name="x_ctans_incentnow_payout_summary" sys_domain="global" view="Default view">882c1c3f3beb3e50ffa00e9693e45a11</sys_ui_section>
             <sys_updated_by>upma.rai</sys_updated_by>
-            <sys_updated_on>2026-06-12 05:03:15</sys_updated_on>
+            <sys_updated_on>2026-08-18 11:53:36</sys_updated_on>
             <sys_user/>
             <type/>
         </sys_ui_element>
@@ -102,13 +102,13 @@
             <element>input2_id</element>
             <position>7</position>
             <sys_created_by>upma.rai</sys_created_by>
-            <sys_created_on>2026-06-12 05:03:15</sys_created_on>
-            <sys_id>f5b5d3e33b914350a4cbaddc73e45a17</sys_id>
+            <sys_created_on>2026-08-18 11:53:36</sys_created_on>
+            <sys_id>4626b5d13bfa4b10a4cbaddc73e45ad2</sys_id>
             <sys_mod_count>0</sys_mod_count>
             <sys_ui_formatter/>
             <sys_ui_section caption="NULL" display_value="" name="x_ctans_incentnow_payout_summary" sys_domain="global" view="Default view">882c1c3f3beb3e50ffa00e9693e45a11</sys_ui_section>
             <sys_updated_by>upma.rai</sys_updated_by>
-            <sys_updated_on>2026-06-12 05:03:15</sys_updated_on>
+            <sys_updated_on>2026-08-18 11:53:36</sys_updated_on>
             <sys_user/>
             <type/>
         </sys_ui_element>
@@ -116,13 +116,13 @@
             <element>input2_earning_rule</element>
             <position>8</position>
             <sys_created_by>upma.rai</sys_created_by>
-            <sys_created_on>2026-06-12 05:03:15</sys_created_on>
-            <sys_id>75b5d3e33b914350a4cbaddc73e45a18</sys_id>
+            <sys_created_on>2026-08-18 11:53:36</sys_created_on>
+            <sys_id>c226b5d13bfa4b10a4cbaddc73e45ad3</sys_id>
             <sys_mod_count>0</sys_mod_count>
             <sys_ui_formatter/>
             <sys_ui_section caption="NULL" display_value="" name="x_ctans_incentnow_payout_summary" sys_domain="global" view="Default view">882c1c3f3beb3e50ffa00e9693e45a11</sys_ui_section>
             <sys_updated_by>upma.rai</sys_updated_by>
-            <sys_updated_on>2026-06-12 05:03:15</sys_updated_on>
+            <sys_updated_on>2026-08-18 11:53:36</sys_updated_on>
             <sys_user/>
             <type/>
         </sys_ui_element>
@@ -130,13 +130,13 @@
             <element>input2_payout</element>
             <position>9</position>
             <sys_created_by>upma.rai</sys_created_by>
-            <sys_created_on>2026-06-12 05:03:15</sys_created_on>
-            <sys_id>f1b5d3e33b914350a4cbaddc73e45a19</sys_id>
+            <sys_created_on>2026-08-18 11:53:36</sys_created_on>
+            <sys_id>4226b5d13bfa4b10a4cbaddc73e45ad4</sys_id>
             <sys_mod_count>0</sys_mod_count>
             <sys_ui_formatter/>
             <sys_ui_section caption="NULL" display_value="" name="x_ctans_incentnow_payout_summary" sys_domain="global" view="Default view">882c1c3f3beb3e50ffa00e9693e45a11</sys_ui_section>
             <sys_updated_by>upma.rai</sys_updated_by>
-            <sys_updated_on>2026-06-12 05:03:15</sys_updated_on>
+            <sys_updated_on>2026-08-18 11:53:36</sys_updated_on>
             <sys_user/>
             <type/>
         </sys_ui_element>
@@ -144,13 +144,13 @@
             <element>.split</element>
             <position>10</position>
             <sys_created_by>upma.rai</sys_created_by>
-            <sys_created_on>2026-06-12 05:03:15</sys_created_on>
-            <sys_id>71b5d3e33b914350a4cbaddc73e45a1a</sys_id>
+            <sys_created_on>2026-08-18 11:53:36</sys_created_on>
+            <sys_id>ce26b5d13bfa4b10a4cbaddc73e45ad4</sys_id>
             <sys_mod_count>0</sys_mod_count>
             <sys_ui_formatter/>
             <sys_ui_section caption="NULL" display_value="" name="x_ctans_incentnow_payout_summary" sys_domain="global" view="Default view">882c1c3f3beb3e50ffa00e9693e45a11</sys_ui_section>
             <sys_updated_by>upma.rai</sys_updated_by>
-            <sys_updated_on>2026-06-12 05:03:15</sys_updated_on>
+            <sys_updated_on>2026-08-18 11:53:36</sys_updated_on>
             <sys_user/>
             <type>.split</type>
         </sys_ui_element>
@@ -158,13 +158,13 @@
             <element>plan</element>
             <position>11</position>
             <sys_created_by>upma.rai</sys_created_by>
-            <sys_created_on>2026-06-12 05:03:15</sys_created_on>
-            <sys_id>fdb5d3e33b914350a4cbaddc73e45a1a</sys_id>
+            <sys_created_on>2026-08-18 11:53:36</sys_created_on>
+            <sys_id>4e26b5d13bfa4b10a4cbaddc73e45ad5</sys_id>
             <sys_mod_count>0</sys_mod_count>
             <sys_ui_formatter/>
             <sys_ui_section caption="NULL" display_value="" name="x_ctans_incentnow_payout_summary" sys_domain="global" view="Default view">882c1c3f3beb3e50ffa00e9693e45a11</sys_ui_section>
             <sys_updated_by>upma.rai</sys_updated_by>
-            <sys_updated_on>2026-06-12 05:03:15</sys_updated_on>
+            <sys_updated_on>2026-08-18 11:53:36</sys_updated_on>
             <sys_user/>
             <type/>
         </sys_ui_element>
@@ -172,13 +172,13 @@
             <element>payout_type</element>
             <position>12</position>
             <sys_created_by>upma.rai</sys_created_by>
-            <sys_created_on>2026-06-12 05:03:15</sys_created_on>
-            <sys_id>7db5d3e33b914350a4cbaddc73e45a1b</sys_id>
+            <sys_created_on>2026-08-18 11:53:36</sys_created_on>
+            <sys_id>ca26b5d13bfa4b10a4cbaddc73e45ad6</sys_id>
             <sys_mod_count>0</sys_mod_count>
             <sys_ui_formatter/>
             <sys_ui_section caption="NULL" display_value="" name="x_ctans_incentnow_payout_summary" sys_domain="global" view="Default view">882c1c3f3beb3e50ffa00e9693e45a11</sys_ui_section>
             <sys_updated_by>upma.rai</sys_updated_by>
-            <sys_updated_on>2026-06-12 05:03:15</sys_updated_on>
+            <sys_updated_on>2026-08-18 11:53:36</sys_updated_on>
             <sys_user/>
             <type/>
         </sys_ui_element>
@@ -186,15 +186,43 @@
             <element>output_unit</element>
             <position>13</position>
             <sys_created_by>upma.rai</sys_created_by>
-            <sys_created_on>2026-06-12 05:03:15</sys_created_on>
-            <sys_id>f9b5d3e33b914350a4cbaddc73e45a1c</sys_id>
+            <sys_created_on>2026-08-18 11:53:36</sys_created_on>
+            <sys_id>4a26b5d13bfa4b10a4cbaddc73e45ad7</sys_id>
             <sys_mod_count>0</sys_mod_count>
             <sys_ui_formatter/>
             <sys_ui_section caption="NULL" display_value="" name="x_ctans_incentnow_payout_summary" sys_domain="global" view="Default view">882c1c3f3beb3e50ffa00e9693e45a11</sys_ui_section>
             <sys_updated_by>upma.rai</sys_updated_by>
-            <sys_updated_on>2026-06-12 05:03:15</sys_updated_on>
+            <sys_updated_on>2026-08-18 11:53:36</sys_updated_on>
             <sys_user/>
             <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>.end_split</element>
+            <position>14</position>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-08-18 11:53:36</sys_created_on>
+            <sys_id>c626b5d13bfa4b10a4cbaddc73e45ad8</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="NULL" display_value="" name="x_ctans_incentnow_payout_summary" sys_domain="global" view="Default view">882c1c3f3beb3e50ffa00e9693e45a11</sys_ui_section>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-08-18 11:53:36</sys_updated_on>
+            <sys_user/>
+            <type>.end_split</type>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>activity.xml</element>
+            <position>15</position>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-08-18 11:53:36</sys_created_on>
+            <sys_id>4626b5d13bfa4b10a4cbaddc73e45ad9</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter display_value="Activities (filtered)">444ea5c6bf310100e628555b3f0739d6</sys_ui_formatter>
+            <sys_ui_section caption="NULL" display_value="" name="x_ctans_incentnow_payout_summary" sys_domain="global" view="Default view">882c1c3f3beb3e50ffa00e9693e45a11</sys_ui_section>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-08-18 11:53:36</sys_updated_on>
+            <sys_user/>
+            <type>formatter</type>
         </sys_ui_element>
         <sys_ui_section action="INSERT_OR_UPDATE">
             <caption/>

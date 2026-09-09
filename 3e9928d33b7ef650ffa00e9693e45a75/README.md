@@ -25,3 +25,6 @@ If you find yourself unable to import your repository due to the presence of fil
    2.3 Re-import the application from source control
    Currently listed dependencies:
    * System Import Sets
+   * Data Lookup and Record Matching Support
+   * Task table schema
+   * ServiceNow Otto for IT Service Management (ITSM)

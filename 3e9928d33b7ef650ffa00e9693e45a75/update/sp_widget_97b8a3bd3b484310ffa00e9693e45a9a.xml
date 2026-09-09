@@ -144,76 +144,233 @@ c.removeRule = function(index) {
   border-color: #94a3b8;
 }
 
-/* ================= STEP TABS ================= */
-
-/* ================= STEP TABS (FIXED) ================= */
+/* =========================================================
+INCENTIQ STYLE STEP INDICATOR
+========================================================= */
 
 .upload-step-tabs {
-  display: flex;
-  align-items: center;
-  margin: 20px 0;
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 14px;
-  padding: 8px 14px;
+display: flex;
+align-items: center;
+
+background: #ffffff;
+border: 1px solid #e2e8f0;
+border-radius: 12px;
+
+padding: 16px 24px;
+padding-right: 63rem;
+margin: 20px 0;
+
+width: 100%;
 }
 
-/* STEP BUTTON */
+/* STEP */
 .upload-step-tab {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 14px;
-  background: transparent;
-  border: none;
-  border-radius: 10px;
-  font-size: 14px;
-  font-weight: 500;
-  color: #6b7280;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  white-space: nowrap;
-}
+display: flex;
+align-items: center;
+gap: 8px;
 
-/* ✅ FIXED HOVER (only apply when NOT active) */
-.upload-step-tab:not(.upload-step-tab-active):hover {
-  background: #f1f5f9;
-  color: #111827;
-}
+background: transparent;
+border: none;
+padding: 0;
 
-/* ✅ STRONG ACTIVE STYLE */
-.upload-step-tab-active {
-  background: #0f172a;
-  color: #ffffff !important;
+color: #94a3b8;
+font-size: 13px;
+font-weight: 500;
+
+cursor: pointer;
+white-space: nowrap;
+
+transition: color .15s ease;
 }
 
 /* STEP NUMBER */
 .upload-step-num {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  background: rgba(0,0,0,0.08);
-  font-size: 12px;
-  font-weight: 700;
+width: 28px;
+height: 28px;
+
+border-radius: 50%;
+
+border: 2px solid #cbd5e1;
+background: #ffffff;
+
+color: #94a3b8;
+
+display: inline-flex;
+align-items: center;
+justify-content: center;
+
+font-size: 12px;
+font-weight: 700;
+
+flex-shrink: 0;
+
+transition: all .15s ease;
 }
 
-/* ACTIVE NUMBER */
+/* ACTIVE STEP */
+.upload-step-tab-active {
+color: #2563eb !important;
+}
+/* Remove focus outline from step indicator buttons */
+.upload-step-tab:focus,
+.upload-step-tab:active,
+.upload-step-tab:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* ACTIVE CIRCLE */
 .upload-step-tab-active .upload-step-num {
-  background: rgba(255,255,255,0.25);
-  color: #ffffff;
+background: #2563eb;
+border: none;
+//border-color: #2563eb;
+color: #ffffff;
+
+box-shadow: 0 0 0 4px #dbeafe;
+}
+
+/* COMPLETED STEP */
+.upload-step-tab-done {
+color: #2563eb !important;
+}
+
+/* COMPLETED CIRCLE */
+.upload-step-tab-done .upload-step-num {
+background: #2563eb;
+border-color: #2563eb;
+color: #ffffff;
+}
+
+/* CHECK ICON */
+.upload-step-tab-done .upload-step-num .glyphicon {
+font-size: 10px;
 }
 
 /* DIVIDER */
 .upload-step-divider {
-  flex: 1;
-  height: 1px;
-  background: #e2e8f0;
-  margin: 0 6px;
-  max-width: 32px; /* tighter like reference */
+flex: 1;
+
+height: 1px;
+
+background: #e2e8f0;
+
+margin: 0 12px;
+
+min-width: 32px;
 }
+
+/* COMPLETED DIVIDER */
+.upload-step-tab-done + .upload-step-divider {
+background: #2563eb;
+}
+
+/* =========================================================
+MOBILE
+========================================================= */
+
+@media (max-width: 767px) {
+
+.upload-step-tabs {
+padding: 12px 10px;
+
+margin: 16px 0;
+
+overflow-x: auto;
+overflow-y: hidden;
+
+justify-content: flex-start;
+
+-webkit-overflow-scrolling: touch;
+scrollbar-width: none;
+
+}
+
+.upload-step-tabs::-webkit-scrollbar {
+display: none;
+}
+
+.upload-step-tab {
+flex-shrink: 0;
+
+
+gap: 6px;
+
+font-size: 11px;
+
+}
+
+.upload-step-num {
+width: 26px;
+height: 26px;
+font-size: 11px;
+
+
+}
+
+.upload-step-divider {
+min-width: 20px;
+margin: 0 7px;
+}
+
+}
+
+/* =========================================================
+SMALL PHONES
+========================================================= */
+
+@media (max-width: 480px) {
+
+.upload-step-tabs {
+padding: 10px 8px;
+}
+
+.upload-step-tab {
+font-size: 10px;
+}
+
+.upload-step-num {
+width: 24px;
+height: 24px;
+
+```
+font-size: 10px;
+```
+
+}
+
+.upload-step-divider {
+min-width: 14px;
+margin: 0 5px;
+}
+
+}
+
+/* =========================================================
+EXTRA SMALL PHONES
+========================================================= */
+
+@media (max-width: 360px) {
+
+.upload-step-tab {
+font-size: 0;
+}
+
+.upload-step-num {
+width: 24px;
+height: 24px;
+
+```
+font-size: 10px;
+```
+
+}
+
+.upload-step-divider {
+min-width: 18px;
+}
+
+}
+
 
 .ip-steps {
   display: flex;
@@ -1093,14 +1250,14 @@ c.removeRule = function(index) {
         <sys_created_by>karan.kumar</sys_created_by>
         <sys_created_on>2026-04-05 16:38:52</sys_created_on>
         <sys_id>97b8a3bd3b484310ffa00e9693e45a9a</sys_id>
-        <sys_mod_count>228</sys_mod_count>
+        <sys_mod_count>236</sys_mod_count>
         <sys_name>IncentNow Create Plan</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
         <sys_update_name>sp_widget_97b8a3bd3b484310ffa00e9693e45a9a</sys_update_name>
-        <sys_updated_by>karan.kumar</sys_updated_by>
-        <sys_updated_on>2026-06-12 05:51:42</sys_updated_on>
+        <sys_updated_by>shroin.mandal</sys_updated_by>
+        <sys_updated_on>2026-08-31 06:47:23</sys_updated_on>
         <template><![CDATA[<div class="ip-container">
    <!-- HEADER -->
    <div class="ip-header">
@@ -1120,41 +1277,76 @@ c.removeRule = function(index) {
   
   <div class="upload-step-tabs">
 
-  <button class="upload-step-tab"
-          ng-class="{'upload-step-tab-active': c.activeStep=='basic'}"
-          ng-click="c.setStep('basic')">
-    <span class="upload-step-num">1</span>
+    <button class="upload-step-tab"
+           ng-class="{
+             'upload-step-tab-active': c.activeStep == 'basic',
+             'upload-step-tab-done': c.activeStep != 'basic'
+           }"
+           ng-click="c.setStep('basic')">
+
+    <span class="upload-step-num">
+      <span ng-if="c.activeStep != 'basic'" class="glyphicon glyphicon-ok"></span>
+      <span ng-if="c.activeStep == 'basic'">1</span>
+    </span>
+
     Basic Info
-  </button>
 
-  <div class="upload-step-divider"></div>
+      </button>
 
-  <button class="upload-step-tab"
-          ng-class="{'upload-step-tab-active': c.activeStep=='earning'}"
-          ng-click="c.setStep('earning')">
-    <span class="upload-step-num">2</span>
+      <div class="upload-step-divider"></div>
+
+    <button class="upload-step-tab"
+           ng-class="{
+             'upload-step-tab-active': c.activeStep == 'earning',
+             'upload-step-tab-done': c.activeStep == 'commission' || c.activeStep == 'summary'
+           }"
+           ng-click="c.setStep('earning')">
+
+    <span class="upload-step-num">
+      <span ng-if="c.activeStep == 'commission' || c.activeStep == 'summary'"
+            class="glyphicon glyphicon-ok"></span>
+      <span ng-if="c.activeStep == 'earning' || c.activeStep == 'basic'">2</span>
+    </span>
+
     Earning Rules
-  </button>
 
-  <div class="upload-step-divider"></div>
+      </button>
 
-  <button class="upload-step-tab"
-          ng-class="{'upload-step-tab-active': c.activeStep=='commission'}"
-          ng-click="c.setStep('commission')">
-    <span class="upload-step-num">3</span>
+      <div class="upload-step-divider"></div>
+
+    <button class="upload-step-tab"
+           ng-class="{
+             'upload-step-tab-active': c.activeStep == 'commission',
+             'upload-step-tab-done': c.activeStep == 'summary'
+           }"
+           ng-click="c.setStep('commission')">
+
+    <span class="upload-step-num">
+      <span ng-if="c.activeStep == 'summary'"
+            class="glyphicon glyphicon-ok"></span>
+      <span ng-if="c.activeStep != 'summary'">3</span>
+    </span>
+
     Commission Rules
-  </button>
 
-  <div class="upload-step-divider"></div>
+      </button>
 
-  <button class="upload-step-tab"
-          ng-class="{'upload-step-tab-active': c.activeStep=='summary'}"
-          ng-click="c.setStep('summary')">
+      <div class="upload-step-divider"></div>
+
+    <button class="upload-step-tab"
+           ng-class="{
+             'upload-step-tab-active': c.activeStep == 'summary'
+           }"
+           ng-click="c.setStep('summary')">
+
     <span class="upload-step-num">4</span>
-    Summary
-  </button>
 
-</div>
+    Summary
+
+      </button>
+
+    </div>
+
    <div id="basic" class="ip-tab-panel" ng-class="{'active': c.activeStep=='basic'}">
       <!-- MAIN CONTENT -->
       <div class="ip-main">

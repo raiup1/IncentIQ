@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_metadata_link">
+    <sys_metadata_link action="INSERT_OR_UPDATE">
+        <directory>update</directory>
+        <documentkey>142ed9703b0acb104be1ef9e53e45a31</documentkey>
+        <payload><![CDATA[<?xml version="1.0" encoding="UTF-8"?><record_update sys_domain="global" table="api_key_credentials">
+    <api_key_credentials action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <api_key>﷞﷟﷒b3bb88ca33e1cf50dccb9c173e5c7b87﷬﷔1﷬﷭H4pnT5MXF1KwOAG-ySOQNQ==5eAhBtRIT0pF8pZ4yWVchfm0nOnT9S7XKd7smRuO2CDtQGaan7U3NWRx8nGGn2OYf6ksxfatFuu1Xng086DcSpfiM34e56KzfvHZXaBHQ-DUaa0ZTaUJ2Ko03f27iJSFpVvIrmnckH7ErhTn64FMgpq8RqqvLAqjE4BzmlNjPNv3zffC8aBOBt5DE3IdcDElEquYT-7VlTBHq5Bp8pekl3-v9SxaPP3ZxAUW9mLunIT1-hn5﷮﷯</api_key>
+        <api_key_header_name>Authorization</api_key_header_name>
+        <api_key_prefix>Bearer </api_key_prefix>
+        <application display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</application>
+        <applies_to>all</applies_to>
+        <authentication_key/>
+        <authentication_protocol/>
+        <classification>api_key</classification>
+        <context_name/>
+        <credential_id/>
+        <credential_storage_vault display_value="CyberArk">2bb9bebab7462010eca29a85de11a96d</credential_storage_vault>
+        <credential_store_type>other</credential_store_type>
+        <lookup_key>credential_id</lookup_key>
+        <mid_list/>
+        <name>IncentIQ OpenAI API Key</name>
+        <order>100</order>
+        <password/>
+        <privacy_key/>
+        <privacy_protocol/>
+        <ssh_certificate/>
+        <ssh_passphrase/>
+        <ssh_private_key/>
+        <sys_class_name>api_key_credentials</sys_class_name>
+        <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+        <sys_created_on>2026-07-10 14:06:04</sys_created_on>
+        <sys_domain>global</sys_domain>
+        <sys_domain_path>/</sys_domain_path>
+        <sys_id>142ed9703b0acb104be1ef9e53e45a31</sys_id>
+        <sys_mod_count>2</sys_mod_count>
+        <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
+        <sys_updated_on>2026-07-10 14:35:34</sys_updated_on>
+        <tag/>
+        <type>api_key</type>
+        <use_context>false</use_context>
+        <use_high_security>false</use_high_security>
+        <user_name/>
+    </api_key_credentials>
+</record_update>
+]]></payload>
+        <sys_class_name>sys_metadata_link</sys_class_name>
+        <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+        <sys_created_on>2026-09-02 13:33:21</sys_created_on>
+        <sys_id>6ddc5bc63b830b104be1ef9e53e45ac4</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>IncentIQ OpenAI API Key</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_metadata_link_6ddc5bc63b830b104be1ef9e53e45ac4</sys_update_name>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-09-02 13:33:21</sys_updated_on>
+        <tablename>api_key_credentials</tablename>
+    </sys_metadata_link>
+</record_update>

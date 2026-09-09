@@ -272,6 +272,20 @@
             c.error = "Please select CSV file";
             return;
         }
+		var fi = document.getElementById('fileInput');
+        if (!fi || !fi.files.length) {
+            c.error = "Please select CSV file";
+            return;
+        }
+			var file = fi.files[0];
+ 
+				if (
+						file.name.toLowerCase().indexOf('.csv') === -1 ||
+						!file.name.toLowerCase().endsWith('.csv')
+				) {
+						c.error = "Please upload a valid CSV file";
+						return;
+				}
 
         c.uploadLoading = true;  /* fade button on click, stays faded through success message */
 
@@ -1272,41 +1286,40 @@ input:disabled {
         data.error = "Access Denied";
         return;
     }
-	
-	data.sourcesystem=[];
-		var grChoice = new GlideRecordSecure("sys_choice");
-		grChoice.addEncodedQuery("name=x_ctans_incentnow_data_model_object^element=data_source_system^inactive=false^language=en");
-		grChoice.query();
-		while(grChoice.next())
-			{
-				var obj={};
-				obj.label=grChoice.getValue("label");
-				obj.value=grChoice.getValue("value");
-				data.sourcesystem.push(obj);
-			}
-	
-	
-data.prefillModel = {};
 
-var modelSysId = $sp.getParameter('sys_id');
-
-if (modelSysId) {
-
-    var dm = new GlideRecordSecure('x_ctans_incentnow_data_model_object');
-
-    if (dm.get(modelSysId)) {
-
-        data.prefillModel = {
-            sys_id: dm.getUniqueValue(),
-            source_name: dm.getValue('source_name'),
-            source_type: dm.getValue('source_type'),
-            object_name: dm.getValue('object_name'),
-            data_source_system: dm.getValue('data_source_system')
-        };
+    data.sourcesystem = [];
+    var grChoice = new GlideRecordSecure("sys_choice");
+    grChoice.addEncodedQuery("name=x_ctans_incentnow_data_model_object^element=data_source_system^inactive=false^language=en");
+    grChoice.query();
+    while (grChoice.next()) {
+        var obj = {};
+        obj.label = grChoice.getValue("label");
+        obj.value = grChoice.getValue("value");
+        data.sourcesystem.push(obj);
     }
-}
-	
-	
+
+
+    data.prefillModel = {};
+
+    var modelSysId = $sp.getParameter('sys_id');
+
+    if (modelSysId) {
+
+        var dm = new GlideRecordSecure('x_ctans_incentnow_data_model_object');
+
+        if (dm.get(modelSysId)) {
+
+            data.prefillModel = {
+                sys_id: dm.getUniqueValue(),
+                source_name: dm.getValue('source_name'),
+                source_type: dm.getValue('source_type'),
+                object_name: dm.getValue('object_name'),
+                data_source_system: dm.getValue('data_source_system')
+            };
+        }
+    }
+
+
 
     /* -------------- CREATE MODEL -------------- */
 
@@ -1342,10 +1355,10 @@ if (modelSysId) {
         var newId = dm.insert();
         gs.addInfoMessage('Data Model Created Successfully:' + input.model.source_name);
 
-        data.success    = true;
-        data.error      = "";
-        data.message    = "Data Model Created Successfully";
-        data.newModelId   = newId + '';
+        data.success = true;
+        data.error = "";
+        data.message = "Data Model Created Successfully";
+        data.newModelId = newId + '';
         data.newModelName = input.model.source_name + " - " + input.model.object_name;
         return;
     }
@@ -1369,57 +1382,28 @@ if (modelSysId) {
     }
 
     /* -------------- INGEST CSV -------------- */
-
-    if (input.action === 'ingest') {
-
+    if (input && input.action === 'ingest') {
         if (!input.rows || !input.rows.length) {
             data.error = "No rows received.";
             return;
         }
-
-        var impSet = new GlideRecordSecure('sys_import_set');
-        impSet.initialize();
-        impSet.state = "loading";
-        impSet.table_name = "x_ctans_incentnow_data_lake_staging";
-        impSet.short_description = "IncentNow Portal Upload";
-        var batchId = impSet.insert();
-
-        for (var i = 0; i < input.rows.length; i++) {
-            var row = input.rows[i];
-            if (!row) continue;
-
-            var isEmpty = true;
-            for (var key in row) {
-                if (row[key] && row[key].toString().trim() !== "") {
-                    isEmpty = false;
-                    break;
-                }
-            }
-            if (isEmpty) continue;
-
-            var staging = new GlideRecordSecure('x_ctans_incentnow_data_lake_staging');
-            staging.initialize();
-            staging.sys_import_set = batchId;
-            staging.raw_json = JSON.stringify(row);
-            staging.row_number = i + 1;
-            staging.data_model_object = input.dataModelObject;
-            staging.insert();
-        }
-
-        data.batchId = batchId;
+        var loader = new IncentIQImportLoader();
+        data.result = loader.load(input.rows, input.dataModelObject);
+        data.batchId = data.result.batchId;
+        data.totalRows = data.result.totalRows;
         return;
     }
 
     /* -------------- PREVIEW -------------- */
 
     if (input.action === 'preview') {
-			//gs.addErrorMessage("inof "+input.dataModelObject);
+        //gs.addErrorMessage("inof "+input.dataModelObject);
 
         /* FIX: use pageSize sent from client instead of hardcoded 5 */
-        var pageSize   = input.pageSize ? parseInt(input.pageSize) : 15;
+        var pageSize = input.pageSize ? parseInt(input.pageSize) : 15;
         var pageNumber = input.pageNumber || 1;
-        var start      = (pageNumber - 1) * pageSize;
-        var end        = start + pageSize;
+        var start = (pageNumber - 1) * pageSize;
+        var end = start + pageSize;
 
         var grLake = new GlideRecordSecure('x_ctans_incentnow_data_lake_staging');
         grLake.addQuery('sys_import_set', input.batchId);
@@ -1436,123 +1420,123 @@ if (modelSysId) {
             }
             data.previewRows.push(rowObj);
         }
-				//gs.addErrorMessage(JSON.stringify(data.previewRows));
+        //gs.addErrorMessage(JSON.stringify(data.previewRows));
 
         var countGR = new GlideAggregate('x_ctans_incentnow_data_lake_staging');
-				countGR.addQuery('sys_import_set', input.batchId);
-				countGR.addAggregate('COUNT');
-				countGR.query();
+        countGR.addQuery('sys_import_set', input.batchId);
+        countGR.addAggregate('COUNT');
+        countGR.query();
 
-				if (countGR.next()) {
-						data.totalPreviewCount = parseInt(countGR.getAggregate('COUNT'), 10);
-				}
-        data.totalPages = Math.ceil(data.totalPreviewCount / pageSize);
-			
-			
-				data.existingMappings = {};
-				
-			
-	
-				var mapGR = new GlideRecordSecure('x_ctans_incentnow_metadata_mapping');
-				mapGR.addQuery('data_model_object_id', input.dataModelObject);
-				//mapGR.addQuery('source_field_name',data.previewHeaders[i]);
-				mapGR.addQuery('active', true);
-				mapGR.query();
-
-				while (mapGR.next()) {
-
-						data.existingMappings[
-								mapGR.getValue('source_field_name')
-						] = {
-								targetField: mapGR.data_lake_field_name.element.toString(),
-								sourceDisplayName: mapGR.getValue('source_display_name'),
-								fieldType: mapGR.field_type.name.toString()
-						};
-				}
-			
-					data.filtered = {};
-
-				for (var key in data.existingMappings) {
-						if (
-								data.existingMappings[key].targetField === "transaction_date" ||
-								data.existingMappings[key].targetField === "user_id"
-						) {
-								data.filtered[key] = data.existingMappings[key];
-						}
-				}
-
-//gs.addErrorMessage(JSON.stringify(filtered));
-			
-			//gs.addErrorMessage(JSON.stringify(data.existingMappings))
-			
-			
-			
-        return;
-    }
-	
-	
-			if (input.action === 'validateHeaders') {
-
-    var mappedHeaders = [];
-
-    var grMetaData = new GlideRecordSecure('x_ctans_incentnow_metadata_mapping');
-
-    grMetaData.addQuery('data_model_object_id', input.dataModelObject);
-    grMetaData.addQuery('active', true);
-    grMetaData.query();
-
-    while (grMetaData.next()) {
-        mappedHeaders.push(
-            grMetaData.getValue('source_field_name').trim().toLowerCase()
-        );
-    }
-				//gs.addInfoMessage("Mapped hea "+JSON.stringify(mappedHeaders))
-
-    var csvHeaders = input.headers || [];
-
-    if (csvHeaders.length != mappedHeaders.length) {
-
-        data.error =
-            'CSV column count (' + csvHeaders.length +
-            ') does not match metadata mapping count (' +
-            mappedHeaders.length + ').';
-			//gs.addErrorMessage(" AM i here "+data.error)
-
-        return;
-    }
-
-    var lookup = {};
-
-    mappedHeaders.forEach(function(h) {
-        lookup[h] = true;
-    });
-
-		var notMatchedArr=[]; 
-    for (var i = 0; i < csvHeaders.length; i++) {
-
-        var header = csvHeaders[i].trim().toLowerCase();
-
-        if (!lookup[header]) {
-						
-					notMatchedArr.push(csvHeaders[i]);
-            
+        if (countGR.next()) {
+            data.totalPreviewCount = parseInt(countGR.getAggregate('COUNT'), 10);
         }
+        data.totalPages = Math.ceil(data.totalPreviewCount / pageSize);
+
+
+        data.existingMappings = {};
+
+
+
+        var mapGR = new GlideRecordSecure('x_ctans_incentnow_metadata_mapping');
+        mapGR.addQuery('data_model_object_id', input.dataModelObject);
+        //mapGR.addQuery('source_field_name',data.previewHeaders[i]);
+        mapGR.addQuery('active', true);
+        mapGR.query();
+
+        while (mapGR.next()) {
+
+            data.existingMappings[
+                mapGR.getValue('source_field_name')
+            ] = {
+                targetField: mapGR.data_lake_field_name.element.toString(),
+                sourceDisplayName: mapGR.getValue('source_display_name'),
+                fieldType: mapGR.field_type.name.toString()
+            };
+        }
+
+        data.filtered = {};
+
+        for (var key in data.existingMappings) {
+            if (
+                data.existingMappings[key].targetField === "transaction_date" ||
+                data.existingMappings[key].targetField === "user_id"
+            ) {
+                data.filtered[key] = data.existingMappings[key];
+            }
+        }
+
+        //gs.addErrorMessage(JSON.stringify(filtered));
+
+        //gs.addErrorMessage(JSON.stringify(data.existingMappings))
+
+
+
+        return;
     }
-				//gs.addErrorMessage(JSON.stringify(notMatchedArr) + " ---- "+notMatchedArr.join(','));
-				
-				if(notMatchedArr.length>0)
-				{
-					data.error =
+
+
+    if (input.action === 'validateHeaders') {
+
+        var mappedHeaders = [];
+
+        var grMetaData = new GlideRecordSecure('x_ctans_incentnow_metadata_mapping');
+
+        grMetaData.addQuery('data_model_object_id', input.dataModelObject);
+        grMetaData.addQuery('active', true);
+        grMetaData.query();
+
+        while (grMetaData.next()) {
+            mappedHeaders.push(
+                grMetaData.getValue('source_field_name').trim().toLowerCase()
+            );
+        }
+        //gs.addInfoMessage("Mapped hea "+JSON.stringify(mappedHeaders))
+
+        var csvHeaders = input.headers || [];
+
+        if (csvHeaders.length != mappedHeaders.length) {
+
+            data.error =
+                'CSV column count (' + csvHeaders.length +
+                ') does not match metadata mapping count (' +
+                mappedHeaders.length + ').';
+            //gs.addErrorMessage(" AM i here "+data.error)
+
+            return;
+        }
+
+        var lookup = {};
+
+        mappedHeaders.forEach(function(h) {
+            lookup[h] = true;
+        });
+
+        var notMatchedArr = [];
+        for (var i = 0; i < csvHeaders.length; i++) {
+
+            var header = csvHeaders[i].trim().toLowerCase();
+
+            if (!lookup[header]) {
+
+                notMatchedArr.push(csvHeaders[i]);
+
+            }
+        }
+        //gs.addErrorMessage(JSON.stringify(notMatchedArr) + " ---- "+notMatchedArr.join(','));
+
+        if (notMatchedArr.length > 0) {
+            data.error =
                 'Column "' + notMatchedArr.join(',') +
                 '" does not exist in metadata mapping.';
 
-            return;}
-				
+            return;
+        }
 
-    data.success = true;
-    return;
-}
-	
+
+        data.success = true;
+        return;
+    }
+
 
     /* -------------- GET TARGET FIELDS -------------- */
 
@@ -1566,13 +1550,13 @@ if (modelSysId) {
         if (!typeGR.next()) return;
 
         var fieldTypeSysId = typeGR.getUniqueValue();
-		var dictGR = new GlideRecordSecure('sys_dictionary');
-		new DataLakeUtils().applyColumnFilter(
-						dictGR,
-						fieldTypeSysId
-					);
+        var dictGR = new GlideRecordSecure('sys_dictionary');
+        new DataLakeUtils().applyColumnFilter(
+            dictGR,
+            fieldTypeSysId
+        );
 
-		dictGR.query();
+        dictGR.query();
 
         while (dictGR.next()) {
             data.targetFields.push({
@@ -1580,8 +1564,8 @@ if (modelSysId) {
                 label: dictGR.getValue('column_label')
             });
         }
-			
-		
+
+
         return;
     }
 
@@ -1593,7 +1577,7 @@ if (modelSysId) {
             data.error = "Invalid mapping payload.";
             return;
         }
-																				 //gs.addErrorMessage(input.dataModelObject);
+        //gs.addErrorMessage(input.dataModelObject);
 
         //var old = new GlideRecordSecure('x_ctans_incentnow_metadata_mapping');
         //old.addQuery('data_model_object_id', input.dataModelObject);
@@ -1604,22 +1588,22 @@ if (modelSysId) {
             if (!m.source || !m.targetField) continue;
 
             var dict = new GlideRecordSecure('sys_dictionary');
-            dict.addQuery('name', 'x_ctans_incentnow_data_lake');
+            dict.addQuery('name', 'x_ctans_incentnow_data_lake_master');
             dict.addQuery('element', m.targetField);
             dict.query();
             if (!dict.next()) continue;
 
             var grMap = new GlideRecordSecure('x_ctans_incentnow_metadata_mapping');
 
-						grMap.addQuery('data_model_object_id', input.dataModelObject);
-						grMap.addQuery('source_field_name', m.source.trim());
-						grMap.query();
+            grMap.addQuery('data_model_object_id', input.dataModelObject);
+            grMap.addQuery('source_field_name', m.source.trim());
+            grMap.query();
 
-						var isUpdate = grMap.next();
+            var isUpdate = grMap.next();
 
-						if (!isUpdate) {
-								grMap.initialize();
-						}
+            if (!isUpdate) {
+                grMap.initialize();
+            }
             grMap.data_model_object_id = input.dataModelObject;
             grMap.source_field_name = m.source.trim();
             grMap.data_lake_field_name = dict.getUniqueValue();
@@ -1639,175 +1623,29 @@ if (modelSysId) {
 
             grMap.is_primary_key = m.isPrimary ? true : false;
             grMap.active = true;
-           if (isUpdate) {
-								grMap.update();
-						} else {
-								grMap.insert();
-						}
+            if (isUpdate) {
+                grMap.update();
+            } else {
+                grMap.insert();
+            }
         }
 
         gs.addInfoMessage("Mapping Saved Successfully");
         return;
-				
+
     }
 
     /* -------------- RUN TRANSFORM -------------- */
 
-    if (input.action === 'runTransform') {
-
-        gs.addInfoMessage("Transform has started. Please refer to Import Runs and Import Errors for the status");
-
+    if (input && input.action === 'runTransform') {
         if (!input.batchId) {
             data.error = "Invalid Batch ID.";
             gs.info("IncentNow - ERROR: Batch ID missing");
             return;
         }
-
-        var stagingCheck = new GlideRecordSecure('x_ctans_incentnow_data_lake_staging');
-        stagingCheck.addQuery('sys_import_set', input.batchId);
-        stagingCheck.setLimit(1);
-        stagingCheck.query();
-
-        if (!stagingCheck.next()) {
-            data.error = "No staging records found.";
-            gs.info("IncentNow - ERROR: No staging records found");
-            return;
-        }
-
-        var dataModelId = stagingCheck.getValue("data_model_object");
-        gs.info("IncentNow - Data Model ID: " + dataModelId);
-
-        var runGR = new GlideRecordSecure("x_ctans_incentnow_import_run");
-        runGR.initialize();
-        runGR.status = "Processing";
-        runGR.batch_id = input.batchId;
-        runGR.data_model_object = dataModelId;
-        runGR.run_by = gs.getUserID();
-        var runSysId = runGR.insert();
-        gs.addInfoMessage("IncentNow - Import Run Created: " + runGR.number);
-
-        var mappings = [];
-        var pkSource = "";
-        var pkTarget = "";
-
-        var mapGR = new GlideRecordSecure('x_ctans_incentnow_metadata_mapping');
-        mapGR.addQuery('data_model_object_id', dataModelId);
-        mapGR.addQuery('active', true);
-        mapGR.query();
-
-        while (mapGR.next()) {
-            var source = mapGR.getValue('source_field_name');
-            var dictSysId = mapGR.getValue('data_lake_field_name');
-            var target = "";
-
-            if (!gs.nil(dictSysId)) {
-                var dictGR2 = new GlideRecordSecure('sys_dictionary');
-                if (dictGR2.get(dictSysId)) {
-                    target = dictGR2.getValue('element');
-                    gs.info("IncentNow - Mapping Found: " + source + " -> " + target);
-                } else {
-                    gs.info("IncentNow - ERROR: Dictionary not found for sys_id: " + dictSysId);
-                }
-            }
-
-            if (!source || !target) continue;
-
-            mappings.push({
-                source: source,
-                target: target
-            });
-
-            if (mapGR.getValue('is_primary_key') == "1") {
-                pkSource = source;
-                pkTarget = target;
-                gs.info("IncentNow - Primary Key Mapping: " + pkSource + " -> " + pkTarget);
-            }
-        }
-
-        gs.info("IncentNow - Total Mappings Loaded: " + mappings.length);
-
-        var stagingGR = new GlideRecordSecure('x_ctans_incentnow_data_lake_staging');
-        stagingGR.addQuery('sys_import_set', input.batchId);
-        stagingGR.orderBy('row_number');
-        stagingGR.query();
-
-        while (stagingGR.next()) {
-            var raw = stagingGR.getValue("raw_json");
-            if (!raw) {
-                gs.info("IncentNow - Skipping empty raw_json row");
-                continue;
-            }
-
-            var rowData = JSON.parse(raw);
-            gs.info("IncentNow - Processing Row: " + stagingGR.row_number);
-            gs.info("IncentNow - Raw JSON: " + raw);
-
-            if (pkSource && !rowData[pkSource]) {
-                gs.info("IncentNow - ERROR: Primary Key missing for row: " + stagingGR.row_number);
-                var errPK = new GlideRecordSecure('x_ctans_incentnow_import_error');
-                errPK.initialize();
-                errPK.batch_id = input.batchId;
-                errPK.data_model_object = dataModelId;
-                errPK.row_number = stagingGR.row_number;
-                errPK.error_message = "Primary Key missing: " + pkSource;
-                errPK.raw_json = raw;
-                errPK.insert();
-                continue;
-            }
-
-            var targetGR = new GlideRecordSecure('x_ctans_incentnow_data_lake');
-            var exists = false;
-
-            if (pkSource && pkTarget && rowData[pkSource]) {
-                gs.info("IncentNow - Searching existing record using PK: " + pkTarget + "=" + rowData[pkSource]);
-                targetGR.addQuery(pkTarget, rowData[pkSource]);
-                targetGR.query();
-                if (targetGR.next()) {
-                    exists = true;
-                    gs.info("IncentNow - Updating existing record");
-                }
-            }
-
-            if (!exists) {
-                gs.info("IncentNow - Creating new Data Lake record");
-                targetGR.initialize();
-                targetGR.setValue("data_model_object", dataModelId);
-            }
-
-            for (var mi = 0; mi < mappings.length; mi++) {
-                var sourceField = mappings[mi].source;
-                var targetColumn = mappings[mi].target;
-                var value = rowData[sourceField];
-                gs.info("IncentNow - Checking field: " + sourceField + " -> " + targetColumn + " | Value: " + value);
-                if (value !== undefined && value !== null) {
-                    gs.info("IncentNow - Setting value: " + targetColumn + " = " + value);
-                    targetGR.setValue(targetColumn, value);
-                }
-            }
-
-            if (exists) targetGR.update();
-            else targetGR.insert();
-
-            /* FIX: set processing_status to processed after successful insert/update */
-            targetGR.setValue('processing_status', 'processed');
-            targetGR.update();
-
-            stagingGR.is_valid = true;
-            stagingGR.primary_key_value = rowData[pkSource] || "";
-            stagingGR.update();
-            gs.info("IncentNow - Row processed successfully");
-        }
-
-				if(runGR.get(runSysId))
-					{
-						runGR.status = "Completed";
-        		runGR.update();
-        		gs.info("IncentNow - Transform Completed. Run Number: " + runGR.number);
-
-        		data.message = "Transform completed successfully. Run Number: " + runGR.number;
-					}
-        
-        
+        gs.addInfoMessage("Transform has started. Please refer to Import Runs and Import Errors for the status");
+        var processor = new IncentIQImportProcessor();
+        data.result = processor.start(input.batchId);
         return;
     }
 
@@ -1817,14 +1655,14 @@ if (modelSysId) {
         <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
         <sys_created_on>2026-02-15 09:02:20</sys_created_on>
         <sys_id>274a6d423b477650ffa00e9693e45ac3</sys_id>
-        <sys_mod_count>326</sys_mod_count>
+        <sys_mod_count>336</sys_mod_count>
         <sys_name>IncentNow Excel Upload</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
         <sys_update_name>sp_widget_274a6d423b477650ffa00e9693e45ac3</sys_update_name>
-        <sys_updated_by>karan.kumar</sys_updated_by>
-        <sys_updated_on>2026-06-19 05:33:32</sys_updated_on>
+        <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+        <sys_updated_on>2026-06-25 11:52:59</sys_updated_on>
         <template><![CDATA[<div class="upload-page-wrap">
 
   <!-- TOPBAR — updated to match standard portal banner -->

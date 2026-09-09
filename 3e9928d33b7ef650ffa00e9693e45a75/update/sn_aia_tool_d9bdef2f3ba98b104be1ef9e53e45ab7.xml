@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update sys_domain="global" table="sn_aia_tool">
+    <sn_aia_tool action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <description>An AI-powered assistant that provides contextual guidance, intelligent recommendations, industry best practices, and page-aware assistance across the IncentIQ platform. The assistant helps users design, configure, manage, and optimize compensation programs, quota plans, incentive structures, performance management processes, and organizational setups using available business context and platform data.</description>
+        <input_schema>[]</input_schema>
+        <name>IncentIQSmart Assistant</name>
+        <record_type>custom</record_type>
+        <script><![CDATA[undefined]]></script>
+        <sys_class_name>sn_aia_tool</sys_class_name>
+        <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+        <sys_created_on>2026-06-24 17:03:46</sys_created_on>
+        <sys_domain>global</sys_domain>
+        <sys_id>d9bdef2f3ba98b104be1ef9e53e45ab7</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>IncentIQSmart Assistant</sys_name>
+        <sys_overrides/>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sn_aia_tool_d9bdef2f3ba98b104be1ef9e53e45ab7</sys_update_name>
+        <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
+        <sys_updated_on>2026-06-24 17:03:46</sys_updated_on>
+        <target_document>4db98fa3336d4b10dccb9c173e5c7bf1</target_document>
+        <target_document_table>sn_nowassist_skill_config</target_document_table>
+        <type>capability</type>
+    </sn_aia_tool>
+</record_update>

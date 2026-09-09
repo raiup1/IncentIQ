@@ -16,7 +16,7 @@
         <element attributes="encode_utf8=false" label="Fiscal Period" mandatory="true" max_length="32" name="fiscal_period" reference="x_ctans_incentnow_fiscal_period" type="reference"/>
         <element attributes="ignore_filter_on_new=true" default="javascript:global.getNextObjNumberPadded();" label="Number" max_length="40" name="number" read_only="true" type="string"/>
         <element attributes="encode_utf8=false" label="Fiscal Year" mandatory="true" max_length="32" name="fiscal_year" reference="x_ctans_incentnow_fiscal_calendar" type="reference"/>
-        <element attributes="encode_utf8=false" label="Plan" mandatory="true" max_length="32" name="plan" reference="x_ctans_incentnow_plan" type="reference"/>
+        <element attributes="encode_utf8=false" label="Plan" mandatory="true" max_length="1024" name="plan" reference="x_ctans_incentnow_plan" type="glide_list"/>
         <element label="Domain" max_length="32" name="sys_domain" type="domain_id"/>
         <element label="Quota Attainment" max_length="15" name="quota_attainment" type="decimal"/>
         <element attributes="encode_utf8=false" label="Statement ID" max_length="32" name="statement_id" reference="x_ctans_incentnow_incentive_statement" type="reference"/>

@@ -8,6 +8,7 @@
 	return false;
 })(current);]]></condition_script>
         <context_profile/>
+        <provenance>none</provenance>
         <roles>now_assist_panel_user</roles>
         <skill_id display_value="IncentNow Copilot Skill">e7a7f1323b5407105493ddb693e45a7e</skill_id>
         <sys_class_name>sys_gen_ai_skill_applicability</sys_class_name>

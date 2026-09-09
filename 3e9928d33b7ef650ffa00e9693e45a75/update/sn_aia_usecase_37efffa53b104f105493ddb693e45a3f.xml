@@ -106,6 +106,7 @@
         <name>Sales Compensation Overview</name>
         <parent/>
         <record_type>custom</record_type>
+        <root_usecase_id/>
         <source_id/>
         <strategy display_value="ReActive Planner">b264c470ff1022106c36ffffffffff67</strategy>
         <sys_class_name>sn_aia_usecase</sys_class_name>

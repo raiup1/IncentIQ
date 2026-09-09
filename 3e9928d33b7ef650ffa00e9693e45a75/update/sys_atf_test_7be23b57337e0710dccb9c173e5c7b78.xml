@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_atf_test">
+    <sys_atf_test action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <copied_from display_value="IncentIQ_Quota_BusinessUnit_ApprovalWorkFlow">9b76d24533eac714dccb9c173e5c7b8e</copied_from>
+        <description>Creating a new Business Unit from the IncentIQ portal</description>
+        <enable_parameterized_testing>false</enable_parameterized_testing>
+        <fail_on_server_error>true</fail_on_server_error>
+        <name>IncentIQ_AddBusinessUnit</name>
+        <parameters/>
+        <remember/>
+        <sn_atf_tg_generated>false</sn_atf_tg_generated>
+        <sys_class_name>sys_atf_test</sys_class_name>
+        <sys_created_by>shiva.erla</sys_created_by>
+        <sys_created_on>2026-08-25 02:06:37</sys_created_on>
+        <sys_id>7be23b57337e0710dccb9c173e5c7b78</sys_id>
+        <sys_mod_count>2</sys_mod_count>
+        <sys_name>IncentIQ_AddBusinessUnit</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_atf_test_7be23b57337e0710dccb9c173e5c7b78</sys_update_name>
+        <sys_updated_by>shiva.erla</sys_updated_by>
+        <sys_updated_on>2026-08-25 02:08:01</sys_updated_on>
+        <test_origin>manual</test_origin>
+    </sys_atf_test>
+    <sys_variable_value action="delete_multiple" query="document_key=7be23b57337e0710dccb9c173e5c7b78"/>
+</record_update>

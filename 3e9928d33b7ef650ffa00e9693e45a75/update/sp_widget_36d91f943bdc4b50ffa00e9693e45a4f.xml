@@ -1208,20 +1208,22 @@
         <roles>x_ctans_incentnow.user</roles>
         <script><![CDATA[(function() {
 
+    data.isTerritoryEnabled =
+        new x_ctans_incentnow.IncentNowUtils().isTerritoryExtensionActive() === true;
     data = data || {};
     input = input || {};
 
     data.table = input.table || data.table || options.table || "";
-		data.sysid = input.sysid || data.sysid || options.sysid || "";
+    data.sysid = input.sysid || data.sysid || options.sysid || "";
     data.title = input.title || options.title || "Plan";
-	
-	if (!input.action) {
-    data.table = data.table;
-    data.sysid = data.sysid;
-}
-	
-		data.isIncentNowGroupAdmin= gs.hasRole('x_ctans_incentnow.business_group_admin') || gs.hasRole('x_ctans_incentnow.admin');
-	
+
+    if (!input.action) {
+        data.table = data.table;
+        data.sysid = data.sysid;
+    }
+
+    data.isIncentNowGroupAdmin = gs.hasRole('x_ctans_incentnow.business_group_admin') || gs.hasRole('x_ctans_incentnow.admin') || gs.hasRole('x_ctans_incentnow.territory_admin');
+
 
     if (data.table == "x_ctans_incentnow_plan") {
         data.assigneduser = $sp.getWidget("incentnow-table-widget", {
@@ -1244,13 +1246,14 @@
 
     /* ================= ASSIGN ================= */
 
-   
+
 
     data.recordName = "";
 
-	if (!MAIN_TABLE) {
-    data.status = "error table not available";}
-    
+    if (!MAIN_TABLE) {
+        data.status = "error table not available";
+    }
+
     if (data.sysid && MAIN_TABLE) {
         var rec = new GlideRecordSecure(MAIN_TABLE);
         if (rec.get(data.sysid)) {
@@ -1304,8 +1307,8 @@
         data.status = "success";
         return;
     }
-	
-	
+
+
 
     if (input.action === "assignplan") {
         var selectedUsers = input.selectedUsers;
@@ -1341,8 +1344,8 @@
 
         });
 
-        if (insertion > 0 && unassigned.length == 0) { 
-					//gs.addInfoMessage("- - - - - - - - - - - - - - - - ")
+        if (insertion > 0 && unassigned.length == 0) {
+            //gs.addInfoMessage("- - - - - - - - - - - - - - - - ")
             gs.addInfoMessage("Plan has been Assigned to " + assigned.join() + ".");
             data.status = "success"
         } else if (insertion > 0 && unassigned.length > 0) {
@@ -1360,92 +1363,101 @@
 
 
     /* ================= USERS ================= */
-	
-	 data.planBU = '';
 
-		if (data.sysid) {
-				var planGR = new GlideRecordSecure(MAIN_TABLE);
-				if (planGR.get(data.sysid)) {
-						data.planBU = planGR.getValue('business_unit') || '';
-				}
-		}
-	
+    data.planBU = '';
+    data.planTerritory = '';
 
-	getUsers();
-    function getUsers()
-	{
-		data.users = [];
-    var segmentSet = {};
-    var roleSet = {};
+    if (data.sysid) {
+        var planGR = new GlideRecordSecure(MAIN_TABLE);
+        if (planGR.get(data.sysid)) {
+            data.planBU = planGR.getValue('business_unit') || '';
 
-    var mappedUsers = {};
-
-    var relGR = new GlideRecordSecure('x_ctans_incentnow_plan_users');
-		relGR.addEncodedQuery("x_ctans_incentnow_plan.status!=inactive");
-    relGR.query();
-
-    while (relGR.next()) {
-        var userId = relGR.getValue('x_ctans_incentnow_sales_user');
-        if (userId) {
-            mappedUsers[userId.toString()] = relGR.getDisplayValue('x_ctans_incentnow_plan');
+            if (data.isTerritoryEnabled) {
+                data.planTerritory = planGR.getValue('x_ctans_territory_territory') || ''; 
+            }
         }
     }
-    //gs.addErrorMessage(JSON.stringify(mappedUsers));
 
-    var userGR = new GlideRecordSecure(USER_TABLE);
-    userGR.addQuery('user.active', true);
-		if (data.planBU) {
-    		userGR.addQuery('business_unit', data.planBU);
-				}
-		
 
-    /*if (Object.keys(mappedUsers).length > 0) {
-    	userGR.addQuery('sys_id', 'NOT IN', Object.keys(mappedUsers).join(','));
-    }*/
+    getUsers();
 
-    userGR.query();
-		//gs.addErrorMessage("q1 "+userGR.getEncodedQuery());
+    function getUsers() {
+        data.users = [];
+        var segmentSet = {};
+        var roleSet = {};
 
-    while (userGR.next()) {
+        var mappedUsers = {};
 
-    var userId = userGR.getUniqueValue();
+        var relGR = new GlideRecordSecure('x_ctans_incentnow_plan_users');
+        relGR.addEncodedQuery("x_ctans_incentnow_plan.status!=inactive");
+        relGR.query();
 
-    var segment = userGR.getDisplayValue('business_unit') || '';
+        while (relGR.next()) {
+            var userId = relGR.getValue('x_ctans_incentnow_sales_user');
+            if (userId) {
+                mappedUsers[userId.toString()] = relGR.getDisplayValue('x_ctans_incentnow_plan');
+            }
+        }
+        //gs.addErrorMessage(JSON.stringify(mappedUsers));
 
-    var role = userGR.getDisplayValue('role') || '';
+        var userGR = new GlideRecordSecure(USER_TABLE);
+        userGR.addQuery('user.active', true);
+        if (data.planBU) {
+            userGR.addQuery('business_unit', data.planBU);
+        }
 
-    var planName = mappedUsers[userId];
+        if (data.planTerritory) {
+            userGR.addQuery('x_ctans_territory_territory', data.planTerritory); 
+        }
 
-    data.users.push({
-        sys_id: userId,
 
-        // values from sys_user
-        name: userGR.getDisplayValue('user') || '',
-        email: userGR.user.email.toString() || '',
+        /*if (Object.keys(mappedUsers).length > 0) {
+        	userGR.addQuery('sys_id', 'NOT IN', Object.keys(mappedUsers).join(','));
+        }*/
 
-        // values from profile table
-        segment: segment,
-        role: role,
+        userGR.query();
+        //gs.addErrorMessage("q1 "+userGR.getEncodedQuery());
 
-        selected: false,
-        disabled: !!planName,
-        plan: planName || '',
-        tooltip: planName ? 'Assigned to: ' + planName : ''
-    });
+        while (userGR.next()) {
 
-    if (segment)
-        segmentSet[segment] = true;
+            var userId = userGR.getUniqueValue();
 
-    if (role)
-        roleSet[role] = true;
-}
-    data.users.sort(function(a, b) {
-        return (b.disabled === true) - (a.disabled === true);
-    });
-    data.userSegments = Object.keys(segmentSet).sort();
-    data.userRoles = Object.keys(roleSet).sort();
+            var segment = userGR.getDisplayValue('business_unit') || '';
 
-	}
+            var role = userGR.getDisplayValue('role') || '';
+
+            var planName = mappedUsers[userId];
+
+            data.users.push({
+                sys_id: userId,
+
+                // values from sys_user
+                name: userGR.getDisplayValue('user') || '',
+                email: userGR.user.email.toString() || '',
+
+                // values from profile table
+                segment: segment,
+                role: role,
+
+                selected: false,
+                disabled: !!planName,
+                plan: planName || '',
+                tooltip: planName ? 'Assigned to: ' + planName : ''
+            });
+
+            if (segment)
+                segmentSet[segment] = true;
+
+            if (role)
+                roleSet[role] = true;
+        }
+        data.users.sort(function(a, b) {
+            return (b.disabled === true) - (a.disabled === true);
+        });
+        data.userSegments = Object.keys(segmentSet).sort();
+        data.userRoles = Object.keys(roleSet).sort();
+
+    }
     /* ================= QUOTAS ================= */
 
     data.quotas = [];
@@ -1473,32 +1485,31 @@
             });
         }
     }
-	
-	
-	if (input.action === "unassignUser") {
 
-    var userId = input.userId;
-    var removed = false;
 
-    var grPlanUser = new GlideRecordSecure("x_ctans_incentnow_plan_users");
-    grPlanUser.addQuery("x_ctans_incentnow_sales_user", userId);
-    grPlanUser.query();
+    if (input.action === "unassignUser") {
 
-    while (grPlanUser.next()) {
-        grPlanUser.deleteRecord();
-        removed = true;
+        var userId = input.userId;
+        var removed = false;
+
+        var grPlanUser = new GlideRecordSecure("x_ctans_incentnow_plan_users");
+        grPlanUser.addQuery("x_ctans_incentnow_sales_user", userId);
+        grPlanUser.query();
+
+        while (grPlanUser.next()) {
+            grPlanUser.deleteRecord();
+            removed = true;
+        }
+
+        data.status = removed ? "success" : "error";
+        return;
     }
 
-    data.status = removed ? "success" : "error";
-    return;
-}
-	
-	if(input.action==='getUsers')
-		{
-			getUsers();
-		}
-	
-	
+    if (input.action === 'getUsers') {
+        getUsers();
+    }
+
+
 
 
 
@@ -1508,15 +1519,15 @@
         <sys_created_by>karan.kumar</sys_created_by>
         <sys_created_on>2026-04-13 10:00:09</sys_created_on>
         <sys_id>36d91f943bdc4b50ffa00e9693e45a4f</sys_id>
-        <sys_mod_count>173</sys_mod_count>
+        <sys_mod_count>177</sys_mod_count>
         <sys_name>IncentNow Assignment User</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
         <sys_update_name>sp_widget_36d91f943bdc4b50ffa00e9693e45a4f</sys_update_name>
-        <sys_updated_by>karan.kumar</sys_updated_by>
-        <sys_updated_on>2026-06-12 04:59:09</sys_updated_on>
-        <template><![CDATA[<div class="admin-main">
+        <sys_updated_by>shroin.mandal</sys_updated_by>
+        <sys_updated_on>2026-07-17 05:22:23</sys_updated_on>
+        <template><![CDATA[<div class="admin-main" >
 
   <!-- ================= ASSIGN QUOTA PAGE ================= -->
 

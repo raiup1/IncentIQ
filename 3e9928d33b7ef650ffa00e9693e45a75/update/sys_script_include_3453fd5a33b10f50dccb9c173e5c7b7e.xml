@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>package_private</access>
+        <active>true</active>
+        <api_name>x_ctans_incentnow.IncentIQOpportunityService </api_name>
+        <caller_access/>
+        <client_callable>false</client_callable>
+        <description>Retrieves the current user's open opportunities and opportunity count from the configured CRM source objects. Used by the advisor and settings widgets for the opportunity summary and by the orchestrator when answering opportunity/pipeline questions.</description>
+        <mobile_callable>false</mobile_callable>
+        <name>IncentIQOpportunityService </name>
+        <sandbox_callable>false</sandbox_callable>
+        <script><![CDATA[var IncentIQOpportunityService = Class.create();
+IncentIQOpportunityService.prototype = {
+
+    initialize: function() {
+        this.LOG = "IncentIQOpportunityService :: ";
+        this.SAP_QUOTE_OBJECT_ID = 'b314ae5b33adc710dccb9c173e5c7bda';
+    },
+
+    getOpportunities: function() {
+
+        var opportunities = [];
+
+        var profileGR = new GlideRecordSecure('x_ctans_incentnow_user_profile');
+        profileGR.addQuery('user', gs.getUserID());
+        profileGR.setLimit(1);
+        profileGR.query();
+
+        if (!profileGR.next()) {
+            return { found: false, message: "User not onboarded to IncentIQ", opportunities: [] };
+        }
+
+        var externalId = profileGR.getValue('external_user_id');
+
+        if (!externalId) {
+            return { found: true, message: "No external user ID on file", opportunities: [] };
+        }
+
+        var lakeGR = new GlideRecordSecure('x_ctans_incentnow_data_lake_master');
+        lakeGR.addQuery('user_id', externalId);
+        lakeGR.addQuery('data_model_object', this.SAP_QUOTE_OBJECT_ID);
+        lakeGR.orderByDesc('transaction_date');
+        lakeGR.query();
+
+        while (lakeGR.next()) {
+            opportunities.push({
+                accountId: lakeGR.getValue('column_01'),
+                orderId: lakeGR.getValue('column_02'),
+                amount: parseFloat(lakeGR.getValue('column_61')) || 0,
+                date: lakeGR.getValue('transaction_date')
+            });
+        }
+
+        return {
+            found: true,
+            opportunityCount: opportunities.length,
+            opportunities: opportunities
+        };
+    },
+
+    type: 'IncentIQOpportunityService'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+        <sys_created_on>2026-07-02 21:12:41</sys_created_on>
+        <sys_id>3453fd5a33b10f50dccb9c173e5c7b7e</sys_id>
+        <sys_mod_count>3</sys_mod_count>
+        <sys_name>IncentIQOpportunityService </sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_script_include_3453fd5a33b10f50dccb9c173e5c7b7e</sys_update_name>
+        <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
+        <sys_updated_on>2026-07-22 10:02:41</sys_updated_on>
+    </sys_script_include>
+</record_update>

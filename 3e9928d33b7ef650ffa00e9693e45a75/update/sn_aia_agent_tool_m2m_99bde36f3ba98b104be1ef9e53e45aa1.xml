@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update sys_domain="global" table="sn_aia_agent_tool_m2m">
+    <sn_aia_agent_tool_m2m action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <agent display_value="IncentIQ Smart Agent">0da34b2b332d4b10dccb9c173e5c7b1a</agent>
+        <description>Builds comprehensive IncentIQ business context for the current user and page. Retrieves page context, user profile information, security roles, business unit details, organizational context, and record-specific information. Use this tool before generating recommendations to ensure responses are personalized, context-aware, and aligned with the user's role and current activity within IncentIQ.</description>
+        <display_mode>inline</display_mode>
+        <display_output>true</display_output>
+        <document_status/>
+        <entity>sn_aia_agent</entity>
+        <entity_id>0da34b2b332d4b10dccb9c173e5c7b1a</entity_id>
+        <execution_mode>autopilot</execution_mode>
+        <inputs>[]</inputs>
+        <max_auto_executions>10</max_auto_executions>
+        <name>IncentIQSmart Agent</name>
+        <output_transformation_strategy>custom</output_transformation_strategy>
+        <post_message>Built user context</post_message>
+        <post_processing_script/>
+        <pre_message>Building user context</pre_message>
+        <pre_run>false</pre_run>
+        <requires_text_refined_message>false</requires_text_refined_message>
+        <requires_widget_transformation>true</requires_widget_transformation>
+        <should_display_refined_message>false</should_display_refined_message>
+        <sys_class_name>sn_aia_agent_tool_m2m</sys_class_name>
+        <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+        <sys_created_on>2026-06-24 17:03:46</sys_created_on>
+        <sys_domain>global</sys_domain>
+        <sys_id>99bde36f3ba98b104be1ef9e53e45aa1</sys_id>
+        <sys_mod_count>11</sys_mod_count>
+        <sys_name>IncentIQSmart Agent</sys_name>
+        <sys_overrides/>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sn_aia_agent_tool_m2m_99bde36f3ba98b104be1ef9e53e45aa1</sys_update_name>
+        <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
+        <sys_updated_on>2026-07-01 11:02:51</sys_updated_on>
+        <timeout/>
+        <tool display_value="IncentIQSmartAdvisor">a9c7fc853b3583504be1ef9e53e45a91</tool>
+        <tool_attributes>{}</tool_attributes>
+        <transformation_instructions>You are formatting a response from the IncentIQ Advisor Skill for display to the user.
+
+Instructions:
+- Use only the data already present in the Skill's response and the supplied context.
+- Do not recalculate, re-derive, estimate, or alter any figures, percentages, or dollar values that were already provided.
+- Do not introduce information that is not present in the supplied data.
+- Preserve all numbers and facts exactly as given.
+
+Present the response in the following format:
+
+Summary
+- A brief, direct answer to the user's question in plain business language.
+
+Key Details
+- List the most relevant metrics and values from the response (e.g., quota, attainment, payout, commission).
+- If a value is missing or not available, state "Not Available." Do not guess or estimate.
+
+Data Available
+- Briefly note which compensation records were used to produce this answer (e.g., compensation plan, quota, incentive statements, payout results).
+- If any expected data was not found, state that clearly.
+
+Suggested Follow-up Questions
+- Provide 3 to 5 relevant follow-up questions the user could ask next, based on the topic of this response.
+
+Additional Rules:
+- Do not provide generic advice or consulting-style recommendations unless the underlying data supports it directly.
+- Do not reference technical implementation details, scripts, errors, APIs, tables, or system configuration.
+- Keep the tone professional, factual, and concise.
+- Use bullet points for readability.
+- Do not use Markdown symbols such as **, ##, or tables — use plain text with clear line breaks and headings.</transformation_instructions>
+        <widgets>db0e858eff62b210f465ffffffffff2c</widgets>
+    </sn_aia_agent_tool_m2m>
+</record_update>
