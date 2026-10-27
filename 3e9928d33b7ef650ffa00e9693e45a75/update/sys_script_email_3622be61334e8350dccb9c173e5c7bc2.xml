@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_email">
+    <sys_script_email action="INSERT_OR_UPDATE">
+        <name>recent_two_comments</name>
+        <new_lines_to_html>false</new_lines_to_html>
+        <script><![CDATA[(function runMailScript(current, template, email, email_action, event) {
+
+    var grJournal = new GlideRecordSecure('sys_journal_field');
+    grJournal.addQuery('element_id', current.sys_id);
+    grJournal.addQuery('name', current.getTableName());
+    grJournal.addQuery('element', 'comments');
+    grJournal.orderByDesc('sys_created_on');
+    grJournal.setLimit(2);
+    grJournal.query();
+
+    if (!grJournal.hasNext()) {
+        template.print('<p>No comments available.</p>');
+        return;
+    }
+
+    template.print('<table style="width:100%; border-collapse:collapse; font-family:Arial, sans-serif;">');
+
+    while (grJournal.next()) {
+        template.print(
+            '<tr>' +
+                '<td style="padding:12px; border:1px solid #ddd;">' +
+                    '<div style="font-size:12px; color:#666; margin-bottom:6px;">' +
+                        '<strong>' + grJournal.sys_created_by + '</strong>' +
+                        ' | ' + grJournal.sys_created_on.getDisplayValue() +
+                    '</div>' +
+                    '<div style="font-size:14px; color:#333;">' +
+                        GlideStringUtil.escapeHTML(grJournal.value.toString()).replace(/\n/g, '<br/>') +
+                    '</div>' +
+                '</td>' +
+            '</tr>'
+        );
+    }
+
+    template.print('</table>');
+
+})(current, template, email, email_action, event);]]></script>
+        <sys_class_name>sys_script_email</sys_class_name>
+        <sys_created_by>karan.kumar</sys_created_by>
+        <sys_created_on>2026-07-13 04:08:12</sys_created_on>
+        <sys_id>3622be61334e8350dccb9c173e5c7bc2</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>recent_two_comments</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_script_email_3622be61334e8350dccb9c173e5c7bc2</sys_update_name>
+        <sys_updated_by>karan.kumar</sys_updated_by>
+        <sys_updated_on>2026-07-13 04:08:12</sys_updated_on>
+    </sys_script_email>
+</record_update>

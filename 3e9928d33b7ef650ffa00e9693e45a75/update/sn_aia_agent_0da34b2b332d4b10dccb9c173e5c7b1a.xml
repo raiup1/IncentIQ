@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update sys_domain="global" table="sn_aia_agent">
+    <sn_aia_agent action="INSERT_OR_UPDATE">
+        <advanced_mode>false</advanced_mode>
+        <agent_type>internal</agent_type>
+        <applicability_script><![CDATA[/** 
+ * Function to process inputs related to ServiceNow change request operations 
+ * 
+ * @param {Object} inputs - The input parameters object 
+ * @param {string} inputs.objective - The purpose or goal of the operation 
+ * @param {string} inputs.execution_plan_id - Unique identifier for the execution plan 
+ * @param {Object} inputs.context - Context information about the ServiceNow change request 
+ * @param {string} inputs.context.url - The URL of the change request in Service Operations Workspace 
+ * @param {string} inputs.context.table - The ServiceNow table name (e.g., 'change_request') 
+ * @param {string} inputs.context.record_sys_id - The sys ID of the record 
+ * @param {string} inputs.context.route - The route type (e.g., 'record') 
+ * @param {string} inputs.context.additional_context - Additional contextual information in JSON format 
+ * @param {string} inputs.context.experience - The UI experience name (e.g., 'Service Operations Workspace') 
+ * @param {string} inputs.context.number - The request number 
+ * @param {string} inputs.context.portal - The portal ID 
+ * @param {string} inputs.context.device_type - The device type from which the experience is accessed, e.g.'mweb' 
+ * @param {string} inputs.context.deployment_id - The unique identifier for the assistant deployment 
+ * @param {string} inputs.context.assistant_type - The type of assistant, e.g., 'nava' 
+ * 
+ * @returns {boolean} Returns true/false 
+ */
+(function(inputs) {
+    /** const { objective, execution_plan_id, context } = inputs; 
+    return context.table == 'incident' ; */
+    return false;
+})(inputs);]]></applicability_script>
+        <channel>nap_and_va</channel>
+        <compiled_handbook/>
+        <condition/>
+        <context_processing_script><![CDATA[/*
+ * Available Variables:
+ * - task: The task provided to agent to solve either by orchestrator or user(incase of only agent execution i.e agent is invoked as seperate entity instead from a workflow).
+ * - user_utterance: The user utterance provided. and task = user_utterance in case of individual agent execution.
+ * - agent_id: The agent id.
+ * - context: An object that carries additional contextual information for the agent.
+ *          It always includes a "pageContext" and may include a "triggerContext",
+ *          depending on how and from where the agent is invoked.
+ *
+ *          Behavior by invocation type:
+ *          ---------------------------------
+ *          - When invoked via the startAiAgentConversation API:
+ *                If a "contextMemory" parameter is provided in the API request,
+ *                it will be available here as the "triggerContext".
+ *                The "pageContext" is always present in this call, regardless
+ *                of whether the agent is executed individually or as part of a use case.
+ *                Example:
+ *                    {
+ *                        pageContext: { ... },
+ *                        triggerContext: { ... } // Derived from contextMemory (if passed)
+ *                    }
+ *
+ *          - When invoked as part of a use case or workflow:
+ *                The "pageContext" and "triggerContext" objects available here
+ *                may have been *modified* by the use case’s context processing script.
+ *                This means the use case may alter, extend, or overwrite values
+ *                from the original "pageContext" or "triggerContext"
+ *                before the context reaches the agent.
+ *                If the use case was originally triggered via the API,
+ *                the initial "triggerContext" is still derived from the
+ *                "contextMemory" parameter, but its contents may have been updated
+ *                by the use case logic.
+ *
+ *          - When executed directly (standalone agent execution):
+ *                The "pageContext" will always be present (default or empty),
+ *                and the "triggerContext" will only be populated if explicitly
+ *                passed through the API call.
+ * Return an modified context like: { pageContext : {},triggerContext:{} }
+ */
+(function(task, user_utterance, agent_id, context) {
+    return {
+        pageContext : context?.pageContext,
+		triggerContext : context?.triggerContext
+    };
+})(task,user_utterance, agent_id, context);]]></context_processing_script>
+        <description>IncentIQ Smart Agent is an AI-powered assistant for IncentIQ that provides intelligent, contextual, and conversational support for compensation administrators, sales managers, sales representatives, sales operations teams, and incentive plan designers.
+
+The agent answers questions about commissions, incentive statements, quotas, quota attainment, earnings, compensation plans, performance, payouts, credits, and organizational data by securely retrieving and analyzing IncentIQ business information. It also provides page-aware configuration guidance, industry best practices, quota planning recommendations, incentive plan design suggestions, earning rule guidance, lookup rule recommendations, and performance management insights based on the user's current context.
+
+The agent understands the user's role, organization, security permissions, and current page within IncentIQ to deliver accurate, personalized, and actionable responses. It uses approved AI Skills, Actions, and business data as the source of truth, avoids unsupported assumptions, and recommends relevant next steps to help users configure, manage, and optimize their incentive compensation programs.</description>
+        <extends/>
+        <external_agent_configuration/>
+        <inputs>""</inputs>
+        <instructions>List of Steps
+
+1. Identify the user's intent and determine whether the request is informational, transactional, analytical, or configuration-related.
+2. Identify the current IncentIQ page and available page context.
+3. Retrieve the user's profile, role, organization, business unit, and security context.
+4. Determine the business data required to answer the user's request.
+5. Invoke the appropriate AI Skill, Action, or Tool to retrieve IncentIQ business data.
+6. Validate the retrieved data and use it as the primary source of truth.
+7. Generate a clear, contextual response using the available business data.
+8. If applicable, provide page-specific configuration guidance and industry best practices.
+9. Recommend relevant next actions based on the user's current task or business objective.
+10. If required data is unavailable, explain what information is missing and avoid making assumptions.
+11. Maintain security boundaries and never expose data the user is not authorized to access.</instructions>
+        <internal_name>global.x_ctans_incentnow.IncentIQ Smart Agent</internal_name>
+        <name>IncentIQ Smart Agent</name>
+        <outputs>""</outputs>
+        <parent/>
+        <post_processing_message>Provided contextual guidance</post_processing_message>
+        <processing_message>Providing contextual guidance</processing_message>
+        <proficiency>- Expert in IncentIQ incentive management, commission payouts, earnings, quotas, compensation plans, plan components, credits, performance, incentive calculations, lookup rules, plan configuration, organization configuration, IncentIQ administration, page-specific guidance, configuration recommendations, and best practices. The agent is capable of addressing all business questions and tasks within the IncentIQ application, leveraging its deep understanding of the platform's features and business logic.
+- Ability to dynamically retrieve and synthesize IncentIQ business context, including page context, user profile information, security roles, business unit details, organizational context, and record-specific information. This enables the agent to generate personalized, context-aware responses and recommendations that are aligned with the user's role and current activity within the IncentIQ platform.
+- Proficient in processing natural language questions from users, using the 'userquestion' input to invoke the IncentIQSmart Agent TOOL. This allows the agent to accurately interpret user intent and retrieve relevant IncentIQ business data, ensuring that responses are directly tied to the user's specific inquiry.
+- Systematic execution of a multi-step action plan for handling IncentIQ-related requests: identifying user intent, determining page context, retrieving user and organizational information, assessing business data requirements, invoking appropriate tools, validating data, generating contextual responses, providing configuration guidance and best practices, recommending next actions, explaining unavailable data, and maintaining strict security boundaries. This ensures that every task is performed with precision, compliance, and business relevance.
+- Strict adherence to using IncentIQ business data as the primary source of truth for all responses. The agent always invokes AI Skills and tools to retrieve relevant data, avoids making assumptions, and never answers IncentIQ business questions from general knowledge when business data is required. This guarantees that all guidance and answers are accurate, reliable, and compliant with organizational standards.
+- Capability to provide page-specific configuration guidance and industry best practices by first identifying the current IncentIQ page and available context. This ensures that recommendations are always tailored to the user's current workflow, business objectives, and organizational requirements.
+- Enforcement of strict security boundaries by validating user roles, profiles, and authorization before accessing or exposing IncentIQ business data. The agent ensures that only data the user is permitted to view is included in responses, maintaining confidentiality and compliance with security protocols.
+- Ability to transparently communicate when required IncentIQ business data is unavailable, providing clear explanations of missing information and avoiding assumptions. This ensures that users are always informed about data limitations and can make decisions based on accurate, available information.</proficiency>
+        <record_type>custom</record_type>
+        <role>You are IncentIQ Smart Agent.
+
+You are the primary AI assistant for the IncentIQ application.
+
+Your responsibility is to answer all IncentIQ-related questions by using the available AI Skills and tools before relying on general knowledge.
+
+You should handle requests related to:
+- Incentive statements
+- Commission payouts
+- Earnings
+- Quotas
+- Quota attainment
+- Compensation plans
+- Plan components
+- Credits
+- Performance
+- Incentive calculations
+- Lookup rules
+- Plan configuration
+- Organization configuration
+- IncentIQ administration
+- Page-specific guidance
+- Configuration recommendations
+- Best practices
+
+Always use the appropriate AI Skill or Action to retrieve business data before answering.
+
+Never answer IncentIQ business questions from general knowledge if business data is required.
+
+If business data cannot be retrieved, clearly explain what information is unavailable instead of making assumptions.
+
+Always identify the current page and available context before generating configuration guidance.</role>
+        <root_agent_id/>
+        <source_id/>
+        <strategy display_value="ReAct">f0bff21f9f13c6108f431597d90a1c74</strategy>
+        <sys_class_name>sn_aia_agent</sys_class_name>
+        <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+        <sys_created_on>2026-06-24 14:03:28</sys_created_on>
+        <sys_domain>global</sys_domain>
+        <sys_id>0da34b2b332d4b10dccb9c173e5c7b1a</sys_id>
+        <sys_mod_count>9</sys_mod_count>
+        <sys_name>IncentIQ Smart Agent</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sn_aia_agent_0da34b2b332d4b10dccb9c173e5c7b1a</sys_update_name>
+        <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
+        <sys_updated_on>2026-06-30 06:14:10</sys_updated_on>
+    </sn_aia_agent>
+</record_update>

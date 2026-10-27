@@ -4,7 +4,7 @@
         <definition display_value="Tool inputs evaluation">46542201ebee5210b356f4a8cad0cdc6</definition>
         <eval_strategy display_value="IncentNow Payout Validation Test">15d82b303b2043905493ddb693e45a19</eval_strategy>
         <gen_ai_config display_value="OneExtend Capability Definition: Tool inputs evaluation">ad0f661afff03210d9c1ffffffffff88</gen_ai_config>
-        <metric_name>Tool calling evaluation</metric_name>
+        <metric_name>Tool calling evaluation batch</metric_name>
         <sys_class_name>sys_one_extend_eval_strategy_metric</sys_class_name>
         <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
         <sys_created_on>2026-04-27 10:37:47</sys_created_on>

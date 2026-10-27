@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <client_script><![CDATA[api.controller=function() {
+  /* widget controller */
+  var c = this;
+	
+};]]></client_script>
+        <controller_as>c</controller_as>
+        <css/>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description/>
+        <docs/>
+        <field_list/>
+        <has_preview>true</has_preview>
+        <id>create_dispute</id>
+        <internal>false</internal>
+        <link><![CDATA[function link(scope, element, attrs, controller) {
+  
+}]]></link>
+        <name>Create Dispute</name>
+        <option_schema/>
+        <public>false</public>
+        <roles>x_ctans_incentnow.user</roles>
+        <script><![CDATA[(function() {
+  /* populate the 'data' object */
+  /* e.g., data.table = $sp.getValue('table'); */
+data.table="x_ctans_incentnow_incentiq_dispute";
+	data.sys_id="-1";
+	data.view="portal_view";
+	//data.f = $sp.getForm(data.table, data.sys_id, '', data.view);
+	data.form= $sp.getForm("x_ctans_incentnow_incentiq_dispute","-1",'','portal_view');
+	
+	
+//gs.addInfoMessage(data.form);
+	
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>karan.kumar</sys_created_by>
+        <sys_created_on>2026-07-10 10:19:25</sys_created_on>
+        <sys_id>2c8a647c3b82cb104be1ef9e53e45a07</sys_id>
+        <sys_mod_count>24</sys_mod_count>
+        <sys_name>Create Dispute</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sp_widget_2c8a647c3b82cb104be1ef9e53e45a07</sys_update_name>
+        <sys_updated_by>karan.kumar</sys_updated_by>
+        <sys_updated_on>2026-07-13 11:13:43</sys_updated_on>
+        <template><![CDATA[<div>
+  
+  <div>
+  <div class="panel panel-default modern-card">   
+    <!-- BODY -->
+    <div class="panel-body modern-body">
+      <form>
+        <sp-model form_model="data.form"></sp-model>
+      </form>
+    </div>   
+    <div class="panel-footer footer-actions modern-footer">
+      <button class="btn btn-primary modern-btn"
+              ng-click="c.save()">
+        Save
+      </button>
+    </div>
+  </div>
+</div>
+  
+  
+</div>]]></template>
+    </sp_widget>
+</record_update>

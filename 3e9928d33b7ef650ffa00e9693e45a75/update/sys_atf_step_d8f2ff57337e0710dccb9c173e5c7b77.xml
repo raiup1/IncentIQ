@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_atf_step">
+    <sys_atf_step action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <callable_outputs/>
+        <copied_from display_value="Click Component (Custom UI)">ff76164533eac714dccb9c173e5c7bfa</copied_from>
+        <description>Click the component: 'Button &lt;button&gt;: Create Business Unit', Page area: 'default'</description>
+        <display_name>Click Component (Custom UI)</display_name>
+        <inputs/>
+        <mugshots_cache_json>{"32400caf567f8a102729d6994e2cec47":"{\"area\":\"Organization Management\",\"sn_atf_mugshot_short_description\":\"Button &lt;button&gt;: Create Business Unit\",\"inner_text\":\"Create Business Unit\",\"sn_atf_mugshot_long_description\":\"Button &lt;button&gt;: Create Business Unit in page area Organization Management\",\"methods\":[\"click\"],\"sn_atf_mugshot_label\":\"Create Business Unit\",\"index\":1,\"type\":\"submit\",\"version\":\"26.0\",\"sn_atf_mugshot_label_for_label_path\":\"\",\"interesting_element_path\":[\"body\",\"div\",\"div\",\"sp-page-row\",\"span\",\"div\",\"button\"],\"get_value_result\":\"Create Business Unit\",\"sn_atf_mugshot_tag_display_name\":\"Button &lt;button&gt;\",\"sn_atf_mugshot_value\":\"Create Business Unit\",\"tag\":\"button\",\"isDisabled\":false,\"label_path\":[\"default\"],\"hash\":\"32400caf567f8a102729d6994e2cec47\",\"html_value\":\"\"}"}</mugshots_cache_json>
+        <notes>Clicking on 'Create Business Unit' button</notes>
+        <order>11</order>
+        <step_config display_value="Click Component (Custom UI)">def25c4b73730300c79260bdfaf6a700</step_config>
+        <sys_class_name>sys_atf_step</sys_class_name>
+        <sys_created_by>shiva.erla</sys_created_by>
+        <sys_created_on>2026-08-25 02:06:38</sys_created_on>
+        <sys_id>d8f2ff57337e0710dccb9c173e5c7b77</sys_id>
+        <sys_mod_count>4</sys_mod_count>
+        <sys_name>Click Component (Custom UI)</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_atf_step_d8f2ff57337e0710dccb9c173e5c7b77</sys_update_name>
+        <sys_updated_by>shiva.erla</sys_updated_by>
+        <sys_updated_on>2026-08-25 02:24:33</sys_updated_on>
+        <table/>
+        <test display_value="IncentIQ_AddBusinessUnit">7be23b57337e0710dccb9c173e5c7b78</test>
+        <timeout/>
+        <warning_message/>
+    </sys_atf_step>
+    <sys_variable_value action="delete_multiple" query="document_key=d8f2ff57337e0710dccb9c173e5c7b77"/>
+    <sys_variable_value action="INSERT_OR_UPDATE">
+        <document>sys_atf_step</document>
+        <document_key>d8f2ff57337e0710dccb9c173e5c7b77</document_key>
+        <order>100</order>
+        <sys_class_name>sys_variable_value</sys_class_name>
+        <sys_created_by>shiva.erla</sys_created_by>
+        <sys_created_on>2026-08-25 02:06:38</sys_created_on>
+        <sys_id>10f2ff57337e0710dccb9c173e5c7b79</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>shiva.erla</sys_updated_by>
+        <sys_updated_on>2026-08-25 02:06:38</sys_updated_on>
+        <value>32400caf567f8a102729d6994e2cec47</value>
+        <variable display_value="Component">ee05588b73730300c79260bdfaf6a749</variable>
+    </sys_variable_value>
+</record_update>

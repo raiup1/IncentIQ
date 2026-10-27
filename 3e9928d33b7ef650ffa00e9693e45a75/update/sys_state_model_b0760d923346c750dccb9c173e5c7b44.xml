@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_state_model">
+    <sys_state_model action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <condition/>
+        <description/>
+        <global_exit_condition/>
+        <name>Dispute State Model</name>
+        <order>100</order>
+        <sys_class_name>sys_state_model</sys_class_name>
+        <sys_created_by>karan.kumar</sys_created_by>
+        <sys_created_on>2026-07-15 04:12:14</sys_created_on>
+        <sys_id>b0760d923346c750dccb9c173e5c7b44</sys_id>
+        <sys_mod_count>2</sys_mod_count>
+        <sys_name>Dispute State Model</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_state_model_b0760d923346c750dccb9c173e5c7b44</sys_update_name>
+        <sys_updated_by>karan.kumar</sys_updated_by>
+        <sys_updated_on>2026-07-15 04:21:50</sys_updated_on>
+        <table>x_ctans_incentnow_incentiq_dispute</table>
+    </sys_state_model>
+</record_update>

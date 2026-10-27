@@ -2,18 +2,108 @@
     <sys_ui_list parent="" relationship="" sys_domain="global" table="x_ctans_incentnow_data_lake_staging" version="2" view="sys_ref_list">
         <sys_ui_list_element action="INSERT_OR_UPDATE">
             <average_value>false</average_value>
-            <element>sys_import_row</element>
-            <list_id display_value="x_ctans_incentnow_data_lake_staging" element="NULL" name="x_ctans_incentnow_data_lake_staging" parent="NULL" relationship="NULL" sys_domain="global" view="6c601c103b1103104be1ef9e53e45a72">44dac64a93708710ddb7f2d89803d673</list_id>
+            <element>number</element>
+            <list_id display_value="x_ctans_incentnow_data_lake_staging" element="NULL" name="x_ctans_incentnow_data_lake_staging" parent="NULL" relationship="NULL" sys_domain="global" view="6c601c103b1103104be1ef9e53e45a72">e93cdadb336dc710dccb9c173e5c7ba8</list_id>
             <max_value>false</max_value>
             <min_value>false</min_value>
             <position>0</position>
             <sum>false</sum>
-            <sys_created_by>upma.rai</sys_created_by>
-            <sys_created_on>2026-05-13 11:13:43</sys_created_on>
-            <sys_id>44dac64a93708710ddb7f2d89803d675</sys_id>
+            <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+            <sys_created_on>2026-06-23 16:29:13</sys_created_on>
+            <sys_id>a93cdadb336dc710dccb9c173e5c7ba9</sys_id>
             <sys_mod_count>0</sys_mod_count>
-            <sys_updated_by>upma.rai</sys_updated_by>
-            <sys_updated_on>2026-05-13 11:13:43</sys_updated_on>
+            <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+            <sys_updated_on>2026-06-23 16:29:13</sys_updated_on>
+        </sys_ui_list_element>
+        <sys_ui_list_element action="INSERT_OR_UPDATE">
+            <average_value>false</average_value>
+            <element>sys_import_row</element>
+            <list_id display_value="x_ctans_incentnow_data_lake_staging" element="NULL" name="x_ctans_incentnow_data_lake_staging" parent="NULL" relationship="NULL" sys_domain="global" view="6c601c103b1103104be1ef9e53e45a72">e93cdadb336dc710dccb9c173e5c7ba8</list_id>
+            <max_value>false</max_value>
+            <min_value>false</min_value>
+            <position>1</position>
+            <sum>false</sum>
+            <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+            <sys_created_on>2026-06-23 16:29:13</sys_created_on>
+            <sys_id>213cdadb336dc710dccb9c173e5c7baa</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+            <sys_updated_on>2026-06-23 16:29:13</sys_updated_on>
+        </sys_ui_list_element>
+        <sys_ui_list_element action="INSERT_OR_UPDATE">
+            <average_value>false</average_value>
+            <element>data_model_object</element>
+            <list_id display_value="x_ctans_incentnow_data_lake_staging" element="NULL" name="x_ctans_incentnow_data_lake_staging" parent="NULL" relationship="NULL" sys_domain="global" view="6c601c103b1103104be1ef9e53e45a72">e93cdadb336dc710dccb9c173e5c7ba8</list_id>
+            <max_value>false</max_value>
+            <min_value>false</min_value>
+            <position>2</position>
+            <sum>false</sum>
+            <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+            <sys_created_on>2026-06-23 16:29:13</sys_created_on>
+            <sys_id>a53cdadb336dc710dccb9c173e5c7baa</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+            <sys_updated_on>2026-06-23 16:29:13</sys_updated_on>
+        </sys_ui_list_element>
+        <sys_ui_list_element action="INSERT_OR_UPDATE">
+            <average_value>false</average_value>
+            <element>sys_import_set</element>
+            <list_id display_value="x_ctans_incentnow_data_lake_staging" element="NULL" name="x_ctans_incentnow_data_lake_staging" parent="NULL" relationship="NULL" sys_domain="global" view="6c601c103b1103104be1ef9e53e45a72">e93cdadb336dc710dccb9c173e5c7ba8</list_id>
+            <max_value>false</max_value>
+            <min_value>false</min_value>
+            <position>3</position>
+            <sum>false</sum>
+            <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+            <sys_created_on>2026-06-23 16:29:13</sys_created_on>
+            <sys_id>213c5edb336dc710dccb9c173e5c7bce</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+            <sys_updated_on>2026-06-23 16:29:13</sys_updated_on>
+        </sys_ui_list_element>
+        <sys_ui_list_element action="INSERT_OR_UPDATE">
+            <average_value>false</average_value>
+            <element>import_run</element>
+            <list_id display_value="x_ctans_incentnow_data_lake_staging" element="NULL" name="x_ctans_incentnow_data_lake_staging" parent="NULL" relationship="NULL" sys_domain="global" view="6c601c103b1103104be1ef9e53e45a72">e93cdadb336dc710dccb9c173e5c7ba8</list_id>
+            <max_value>false</max_value>
+            <min_value>false</min_value>
+            <position>4</position>
+            <sum>false</sum>
+            <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+            <sys_created_on>2026-06-23 16:29:13</sys_created_on>
+            <sys_id>a53c5edb336dc710dccb9c173e5c7bce</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+            <sys_updated_on>2026-06-23 16:29:13</sys_updated_on>
+        </sys_ui_list_element>
+        <sys_ui_list_element action="INSERT_OR_UPDATE">
+            <average_value>false</average_value>
+            <element>sys_import_state</element>
+            <list_id display_value="x_ctans_incentnow_data_lake_staging" element="NULL" name="x_ctans_incentnow_data_lake_staging" parent="NULL" relationship="NULL" sys_domain="global" view="6c601c103b1103104be1ef9e53e45a72">e93cdadb336dc710dccb9c173e5c7ba8</list_id>
+            <max_value>false</max_value>
+            <min_value>false</min_value>
+            <position>5</position>
+            <sum>false</sum>
+            <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+            <sys_created_on>2026-06-23 16:29:13</sys_created_on>
+            <sys_id>2d3c5edb336dc710dccb9c173e5c7bce</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+            <sys_updated_on>2026-06-23 16:29:13</sys_updated_on>
+        </sys_ui_list_element>
+        <sys_ui_list_element action="INSERT_OR_UPDATE">
+            <average_value>false</average_value>
+            <element>raw_json</element>
+            <list_id display_value="x_ctans_incentnow_data_lake_staging" element="NULL" name="x_ctans_incentnow_data_lake_staging" parent="NULL" relationship="NULL" sys_domain="global" view="6c601c103b1103104be1ef9e53e45a72">e93cdadb336dc710dccb9c173e5c7ba8</list_id>
+            <max_value>false</max_value>
+            <min_value>false</min_value>
+            <position>6</position>
+            <sum>false</sum>
+            <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+            <sys_created_on>2026-06-23 16:29:13</sys_created_on>
+            <sys_id>a13c5edb336dc710dccb9c173e5c7bcf</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+            <sys_updated_on>2026-06-23 16:29:13</sys_updated_on>
         </sys_ui_list_element>
         <sys_ui_list action="INSERT_OR_UPDATE">
             <average_value>false</average_value>
@@ -26,19 +116,19 @@
             <relationship/>
             <sum>false</sum>
             <sys_class_name>sys_ui_list</sys_class_name>
-            <sys_created_by>upma.rai</sys_created_by>
-            <sys_created_on>2026-05-13 11:13:43</sys_created_on>
+            <sys_created_by>upma.rai@CtrlAltNow.com</sys_created_by>
+            <sys_created_on>2026-06-23 16:29:13</sys_created_on>
             <sys_domain>global</sys_domain>
             <sys_domain_path>/</sys_domain_path>
-            <sys_id>44dac64a93708710ddb7f2d89803d673</sys_id>
+            <sys_id>e93cdadb336dc710dccb9c173e5c7ba8</sys_id>
             <sys_mod_count>0</sys_mod_count>
             <sys_name>x_ctans_incentnow_data_lake_staging</sys_name>
             <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
             <sys_policy/>
             <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
             <sys_update_name>sys_ui_list_x_ctans_incentnow_data_lake_staging_sys_ref_list</sys_update_name>
-            <sys_updated_by>upma.rai</sys_updated_by>
-            <sys_updated_on>2026-05-13 11:13:43</sys_updated_on>
+            <sys_updated_by>upma.rai@CtrlAltNow.com</sys_updated_by>
+            <sys_updated_on>2026-06-23 16:29:13</sys_updated_on>
             <sys_user/>
             <view display_value="Reference List" name="sys_ref_list">6c601c103b1103104be1ef9e53e45a72</view>
             <view_name/>

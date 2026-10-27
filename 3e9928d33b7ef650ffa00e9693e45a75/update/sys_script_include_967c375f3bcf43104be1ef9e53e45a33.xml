@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>public</access>
+        <active>true</active>
+        <api_name>x_ctans_incentnow.IncentIQIngestionAPI</api_name>
+        <caller_access/>
+        <client_callable>false</client_callable>
+        <description/>
+        <mobile_callable>false</mobile_callable>
+        <name>IncentIQIngestionAPI</name>
+        <sandbox_callable>false</sandbox_callable>
+        <script><![CDATA[var IncentIQIngestionAPI = Class.create();
+IncentIQIngestionAPI.prototype = {
+
+    // IncentIQ ingestion tables (this Script Include runs IN x_ctans_incentnow scope,
+    // so all reads/writes below are in-scope — no cross-scope refusal).
+    T_DMO: 'x_ctans_incentnow_data_model_object',
+    T_STAGING: 'x_ctans_incentnow_data_lake_staging',
+    T_MASTER: 'x_ctans_incentnow_data_lake_master',
+    T_MAPPING: 'x_ctans_incentnow_metadata_mapping',
+
+    initialize: function() {},
+
+    /* -------------------- DATA MODELS (DMO) -------------------- */
+
+    /** List active Data Model Objects. */
+    getDataModels: function() {
+        var out = [];
+        var gr = new GlideRecordSecure(this.T_DMO);
+        gr.addQuery('active', true);
+        gr.orderBy('object_name');
+        gr.query();
+        while (gr.next()) {
+            out.push({
+                sysId: gr.getUniqueValue(),
+                name: gr.getValue('source_name') + ' - ' + gr.getValue('object_name'),
+                sourceName: gr.getValue('source_name'),
+                sourceType: gr.getValue('source_type'),
+                objectName: gr.getValue('object_name')
+            });
+        }
+        return out;
+    },
+
+    /**
+     * Create a Data Model Object for a connection-based source.
+     * payload: { sourceName, sourceType ('api'|'database'|'file_upload'), objectName, dataSourceSystem? }
+     */
+    createDataModel: function(payload) {
+        var res = {
+            ok: false,
+            sysId: '',
+            name: '',
+            error: ''
+        };
+        var p = payload || {};
+        if (!p.sourceName || !p.sourceType || !p.objectName) {
+            res.error = 'All fields are required.';
+            return res;
+        }
+
+        var dup = new GlideRecordSecure(this.T_DMO);
+        dup.addQuery('source_name', p.sourceName);
+        dup.addQuery('object_name', p.objectName);
+        dup.query();
+        if (dup.next()) {
+            res.error = 'Model already exists.';
+            return res;
+        }
+
+        var dm = new GlideRecordSecure(this.T_DMO);
+        dm.initialize();
+        dm.setValue('source_name', p.sourceName);
+        dm.setValue('source_type', p.sourceType);
+        dm.setValue('object_name', p.objectName);
+        dm.setValue('data_source_system', p.dataSourceSystem || 'External');
+        dm.setValue('active', true);
+        var id = dm.insert();
+        if (!id) {
+            res.error = 'Could not create the Data Model.';
+            return res;
+        }
+
+        res.ok = true;
+        res.sysId = id + '';
+        res.name = p.sourceName + ' - ' + p.objectName;
+        return res;
+    },
+
+    /* -------------------- STAGING LOAD (wraps IncentIQImportLoader) -------------------- */
+
+    /**
+     * Land pulled rows into the IncentIQ data-lake staging table via the existing loader.
+     * rows: array of plain objects (header -> value); dmoSysId: Data Model Object sys_id.
+     * Returns { ok, batchId, totalRows, error }.
+     */
+    loadToStaging: function(rows, dmoSysId) {
+        var res = {
+            ok: false,
+            batchId: '',
+            totalRows: 0,
+            error: ''
+        };
+        if (!rows || !rows.length) {
+            res.error = 'No rows to load.';
+            return res;
+        }
+        if (!dmoSysId) {
+            res.error = 'Data Model is required.';
+            return res;
+        }
+        try {
+            var loader = new IncentIQImportLoader();
+            var r = loader.load(rows, dmoSysId); // same call the Create Data Model widget makes
+            var batchId = r ? (r.batchId || r.batch_id || '') : '';
+            res.batchId = '' + batchId;
+            res.totalRows = r && (r.totalRows || r.total_rows) ? (r.totalRows || r.total_rows) : rows.length;
+            res.ok = !!res.batchId;
+            if (!res.ok) res.error = 'Loader did not return a batch id.';
+        } catch (e) {
+            res.error = 'Load failed: ' + e;
+        }
+        return res;
+    },
+
+    /* -------------------- MAPPING (mirrors the widget's mapping logic) -------------------- */
+
+    /** Type-aware target columns of the data-lake master for a given data type name. */
+    getTargetFields: function(dataType) {
+        var out = [];
+        if (!dataType) return out;
+        var typeGR = new GlideRecordSecure('sys_glide_object');
+        typeGR.addQuery('name', dataType);
+        typeGR.query();
+        if (!typeGR.next()) return out;
+
+        var encodedQuery = new DataLakeUtils().filterColumnsbyType(typeGR.getUniqueValue());
+        var dictGR = new GlideRecordSecure('sys_dictionary');
+        dictGR.addEncodedQuery(encodedQuery);
+        dictGR.query();
+        while (dictGR.next()) {
+            out.push({
+                name: dictGR.getValue('element'),
+                label: dictGR.getValue('column_label')
+            });
+        }
+        return out;
+    },
+
+    /** Existing active mappings for a DMO. */
+    getMappings: function(dmoSysId) {
+        var out = [];
+        if (!dmoSysId) return out;
+        var mapGR = new GlideRecordSecure(this.T_MAPPING);
+        mapGR.addQuery('data_model_object_id', dmoSysId);
+        mapGR.addQuery('active', true);
+        mapGR.query();
+        while (mapGR.next()) {
+            out.push({
+                source: mapGR.getValue('source_field_name'),
+                targetField: mapGR.data_lake_field_name.element.toString(),
+                sourceDisplayName: mapGR.getValue('source_display_name'),
+                fieldType: mapGR.field_type.name.toString(),
+                isPrimary: mapGR.getValue('is_primary_key') == '1'
+            });
+        }
+        return out;
+    },
+
+    /**
+     * Upsert metadata mappings for a DMO (mirrors the Create Data Model widget saveMapping).
+     * mappings: [{ source, targetField, dataType, sourceDisplayName, isPrimary }]
+     */
+    saveMapping: function(dmoSysId, mappings) {
+        var res = {
+            ok: false,
+            saved: 0,
+            error: ''
+        };
+        if (!dmoSysId || !mappings || !mappings.length) {
+            res.error = 'Invalid mapping payload.';
+            return res;
+        }
+
+        var saved = 0;
+        for (var i = 0; i < mappings.length; i++) {
+            var m = mappings[i];
+            if (!m.source || !m.targetField) continue;
+
+            var dict = new GlideRecordSecure('sys_dictionary');
+            dict.addQuery('name', this.T_MASTER);
+            dict.addQuery('element', m.targetField);
+            dict.query();
+            if (!dict.next()) continue;
+
+            var grMap = new GlideRecordSecure(this.T_MAPPING);
+            grMap.addQuery('data_model_object_id', dmoSysId);
+            grMap.addQuery('source_field_name', ('' + m.source).trim());
+            grMap.query();
+            var isUpdate = grMap.next();
+            if (!isUpdate) grMap.initialize();
+
+            grMap.setValue('data_model_object_id', dmoSysId);
+            grMap.setValue('source_field_name', ('' + m.source).trim());
+            grMap.setValue('data_lake_field_name', dict.getUniqueValue());
+            grMap.setValue('data_lake_column_name', dict.getValue('element'));
+            grMap.setValue('source_display_name', m.sourceDisplayName || m.source);
+
+            if (m.dataType) {
+                var ft = new GlideRecordSecure('sys_glide_object');
+                ft.addQuery('name', m.dataType);
+                ft.query();
+                if (ft.next()) grMap.setValue('field_type', ft.getUniqueValue());
+            }
+            grMap.setValue('is_primary_key', m.isPrimary ? true : false);
+            grMap.setValue('active', true);
+
+            if (isUpdate) grMap.update();
+            else grMap.insert();
+            saved++;
+        }
+        res.ok = true;
+        res.saved = saved;
+        return res;
+    },
+
+    /* -------------------- TRANSFORM (wraps IncentIQImportProcessor) -------------------- */
+
+    /** Run the staging -> data-lake-master transform for a batch. Returns { ok, result, error }. */
+    runTransform: function(batchId) {
+        var res = {
+            ok: false,
+            result: null,
+            error: ''
+        };
+        if (!batchId) {
+            res.error = 'Batch id is required.';
+            return res;
+        }
+        try {
+            var processor = new IncentIQImportProcessor();
+            var out = processor.start(batchId); // same call the widget makes
+            res.result = (out && typeof out === 'object') ? out : ('' + out);
+            res.ok = true;
+        } catch (e) {
+            res.error = 'Transform failed: ' + e;
+        }
+        return res;
+    },
+
+    type: 'IncentIQIngestionAPI'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+        <sys_created_on>2026-09-06 13:04:57</sys_created_on>
+        <sys_id>967c375f3bcf43104be1ef9e53e45a33</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>IncentIQIngestionAPI</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_script_include_967c375f3bcf43104be1ef9e53e45a33</sys_update_name>
+        <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
+        <sys_updated_on>2026-09-06 13:04:57</sys_updated_on>
+    </sys_script_include>
+</record_update>

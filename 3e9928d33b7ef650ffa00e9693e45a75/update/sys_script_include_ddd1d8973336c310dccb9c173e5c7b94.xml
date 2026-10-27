@@ -1,0 +1,434 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>package_private</access>
+        <active>true</active>
+        <api_name>x_ctans_incentnow.IncentIQForecastEngine</api_name>
+        <caller_access/>
+        <client_callable>false</client_callable>
+        <description/>
+        <mobile_callable>false</mobile_callable>
+        <name>IncentIQForecastEngine</name>
+        <sandbox_callable>false</sandbox_callable>
+        <script><![CDATA[var IncentIQForecastEngine = Class.create();
+IncentIQForecastEngine.prototype = {
+
+    CONFIG: {
+        userProfileTable: 'x_ctans_incentnow_user_profile',
+        participantAssignmentTable: 'x_ctans_incentnow_participant_assignment',
+        planUsersTable: 'x_ctans_incentnow_plan_users',
+        planTable: 'x_ctans_incentnow_plan',
+        quotaTable: 'x_ctans_incentnow_quota',
+        earningRuleTable: 'x_ctans_incentnow_earning_rule',
+        lookupRuleTable: 'x_ctans_incentnow_lookup_rule',
+        statementTable: 'x_ctans_incentnow_incentive_statement',
+
+        userProfileFields: {
+            user: 'user',
+            externalId: 'external_user_id',
+            status: 'status'
+        },
+
+        assignmentFields: {
+            user: 'user',
+            fiscalYear: 'fiscal_year',
+            status: 'status',
+            businessDimension: 'business_dimension',
+            businessUnit: 'business_unit',
+            territory: 'x_ctans_territory_territory'
+        },
+        assignmentActiveStatus: 'active',
+
+        planUsersFields: {
+            salesUser: 'x_ctans_incentnow_sales_user',
+            plan: 'x_ctans_incentnow_plan'
+        },
+        planFields: {
+            name: 'plan_name',
+            status: 'status',
+            fiscalYear: 'fiscal_year',
+            businessDimension: 'business_dimension',
+            businessUnit: 'business_unit',
+            territory: 'x_ctans_territory_territory'
+        },
+        planActiveStatus: 'active',
+
+        quotaFields: {
+            name: 'name',
+            targetValue: 'target_value',
+            status: 'status',
+            fiscalYear: 'fiscal_year',
+            businessDimension: 'business_dimension',
+            businessUnit: 'business_unit',
+            territory: 'x_ctans_territory_territory'
+        },
+        quotaActiveStatus: 'active',
+
+        earningRuleFields: {
+            plan: 'plan',
+            ruleName: 'rule_name',
+            aggregation: 'aggregation',
+            field: 'field',
+            sourceObject: 'source_object',
+            order: 'order',
+            active: 'active'
+        },
+        lookupRuleFields: {
+            plan: 'plan',
+            rateValue: 'rate_value',
+            rateUnit: 'rate_unit',
+            stepNumber: 'step_number'
+        },
+        statementFields: {
+            user: 'user',
+            fiscalPeriod: 'fiscal_period',
+            fiscalYear: 'fiscal_year',
+            plan: 'plan',
+            targetQuota: 'target_quota',
+            quotaAttainment: 'quota_attainment',
+            totalCommission: 'total_commission',
+            status: 'status'
+        },
+
+        maxPerOrder: 100,
+        maxEffectiveRate: 0
+    },
+
+    initialize: function() {
+        this.resolver = new x_ctans_incentnow.IncentIQDataSourceResolver();
+    },
+
+    getForecast: function(opts) {
+        opts = opts || {};
+        var r = this._emptyResult();
+        var assume = r.assumptions;
+        try {
+            var userSysId = opts.userSysId || gs.getUserID();
+
+            var profile = new GlideRecordSecure(this.CONFIG.userProfileTable);
+            profile.addQuery(this.CONFIG.userProfileFields.user, userSysId);
+            profile.setLimit(1);
+            profile.query();
+            if (!profile.next()) {
+                r.error = 'User not onboarded to IncentIQ.';
+                return r;
+            }
+            var profileId = profile.getUniqueValue();
+            var externalId = profile.getValue(this.CONFIG.userProfileFields.externalId);
+            if (!externalId) {
+                assume.push('No external_user_id on the user profile; pipeline orders cannot be scoped to this user and will be empty.');
+            }
+
+            var planGr = null;
+            var quotaTarget = 0;
+            var fiscalYearId = '';
+
+            var asg = this._resolveAssignment(userSysId, profileId, assume);
+            if (asg) {
+                fiscalYearId = asg.fiscalYear;
+                r.fiscalYear = asg.fiscalYearLabel;
+                planGr = this._resolvePlanByDimension(asg, assume);
+                quotaTarget = this._resolveQuotaTargetByDimension(asg, assume);
+                r.assignmentSource = 'participant_assignment';
+            } else {
+                assume.push('No active participant_assignment for this user; fell back to legacy plan_users resolution and statement-based quota target.');
+                planGr = this._resolvePlanLegacy(profileId, assume);
+                r.assignmentSource = 'legacy_plan_users';
+            }
+
+            if (!planGr) {
+                r.error = 'No compensation plan could be resolved for this user.';
+                return r;
+            }
+            r.planName = planGr.getValue(this.CONFIG.planFields.name);
+            var planId = planGr.getUniqueValue();
+
+            var stmt = this._latestStatement(profileId, fiscalYearId, assume);
+            r.currentCommission = stmt.totalCommission;
+            r.currentCredit = this._round(stmt.currentCredit);
+            r.statementPeriod = stmt.fiscalPeriod;
+
+            var targetQuota = (quotaTarget && quotaTarget > 0) ? quotaTarget : stmt.targetQuota;
+            r.targetQuota = this._round(targetQuota);
+            if (!(quotaTarget > 0) && stmt.targetQuota > 0) {
+                assume.push('Quota target came from the latest statement (no active quota matched the assignment dimension/fiscal year).');
+            }
+
+            r.currentAttainmentPercent = targetQuota > 0 ? this._pct(stmt.currentCredit / targetQuota) : stmt.quotaAttainment;
+
+            var effRate = this._effectiveRate(stmt, planId, assume);
+            r.effectiveRatePercent = this._pct(effRate);
+
+            var pipeline = this._loadPipeline(planId, externalId, userSysId, opts, assume);
+            r.pipelineOrderCount = pipeline.length;
+
+            var pipelineAmount = 0;
+            for (var i = 0; i < pipeline.length; i++) pipelineAmount += this._num(pipeline[i].amount);
+            r.pipelineAmount = this._round(pipelineAmount);
+
+            r.projectedCredit = this._round(stmt.currentCredit + pipelineAmount);
+            r.projectedAttainmentPercent = targetQuota > 0 ? this._pct(r.projectedCredit / targetQuota) : 0;
+            r.projectedIncrementalCommission = this._round(pipelineAmount * effRate);
+            r.projectedCommission = this._round(stmt.totalCommission + r.projectedIncrementalCommission);
+
+            r.perOrder = [];
+            var cap = Math.min(pipeline.length, this.CONFIG.maxPerOrder);
+            for (var j = 0; j < cap; j++) {
+                var o = pipeline[j];
+                r.perOrder.push({
+                    orderId: o.orderId,
+                    account: o.account,
+                    amount: this._round(o.amount),
+                    date: o.date,
+                    estimatedCommission: this._round(this._num(o.amount) * effRate)
+                });
+            }
+            if (pipeline.length > cap) {
+                assume.push('Listed the first ' + cap + ' of ' + pipeline.length + ' open orders; totals above include all of them.');
+            }
+
+            r.ok = true;
+            return r;
+        } catch (e) {
+            r.error = 'Forecast failed: ' + e;
+            gs.error('[IncentIQForecastEngine] ' + e + (e.stack ? ('\n' + e.stack) : ''));
+            return r;
+        }
+    },
+
+    getForecastJSON: function(opts) {
+        return new global.JSON().encode(this.getForecast(opts));
+    },
+
+    _resolveAssignment: function(userSysId, profileId, assume) {
+        var gr = new GlideRecordSecure(this.CONFIG.participantAssignmentTable);
+        gr.addQuery(this.CONFIG.assignmentFields.user, 'IN', userSysId + ',' + profileId);
+        gr.addQuery(this.CONFIG.assignmentFields.status, this.CONFIG.assignmentActiveStatus);
+        gr.query();
+        if (!gr.next()) return null;
+        var first = {
+            id: gr.getUniqueValue(),
+            fiscalYear: gr.getValue(this.CONFIG.assignmentFields.fiscalYear),
+            fiscalYearLabel: gr.getDisplayValue(this.CONFIG.assignmentFields.fiscalYear),
+            businessDimension: gr.getValue(this.CONFIG.assignmentFields.businessDimension),
+            businessUnit: gr.getValue(this.CONFIG.assignmentFields.businessUnit),
+            territory: gr.getValue(this.CONFIG.assignmentFields.territory)
+        };
+        // hasNext detects a second active assignment without loading or counting all rows.
+        if (gr.hasNext()) {
+            assume.push('More than one active participant_assignment found for this user; used the first. Expected exactly one active per user per fiscal year.');
+        }
+        return first;
+    },
+
+    _resolvePlanByDimension: function(asg, assume) {
+        var gr = new GlideRecordSecure(this.CONFIG.planTable);
+        gr.addQuery(this.CONFIG.planFields.status, this.CONFIG.planActiveStatus);
+        gr.addQuery(this.CONFIG.planFields.fiscalYear, asg.fiscalYear);
+        gr.addQuery(this.CONFIG.planFields.businessDimension, asg.businessDimension);
+        if (String(asg.businessDimension) === 'territory') {
+            gr.addQuery(this.CONFIG.planFields.territory, asg.territory);
+        } else {
+            gr.addQuery(this.CONFIG.planFields.businessUnit, asg.businessUnit);
+        }
+        gr.orderByDesc('sys_updated_on');
+        gr.query();
+        if (!gr.next()) {
+            assume.push('No active plan matched the assignment dimension (' + asg.businessDimension + ') and fiscal year.');
+            return null;
+        }
+        // hasNext flags more than one match without loading or counting all rows.
+        if (gr.hasNext()) {
+            assume.push('AMBIGUOUS: more than one active plan matches this dimension/fiscal year; used the most recently updated ("' +
+                gr.getValue(this.CONFIG.planFields.name) + '"). The model expects exactly one active plan per dimension per fiscal year.');
+        }
+        return gr;
+    },
+
+    _resolveQuotaTargetByDimension: function(asg, assume) {
+        var gr = new GlideRecordSecure(this.CONFIG.quotaTable);
+        gr.addQuery(this.CONFIG.quotaFields.status, this.CONFIG.quotaActiveStatus);
+        gr.addQuery(this.CONFIG.quotaFields.fiscalYear, asg.fiscalYear);
+        gr.addQuery(this.CONFIG.quotaFields.businessDimension, asg.businessDimension);
+        if (String(asg.businessDimension) === 'territory') {
+            gr.addQuery(this.CONFIG.quotaFields.territory, asg.territory);
+        } else {
+            gr.addQuery(this.CONFIG.quotaFields.businessUnit, asg.businessUnit);
+        }
+        gr.orderByDesc('sys_updated_on');
+        gr.query();
+        if (!gr.next()) {
+            assume.push('No active quota matched the assignment dimension and fiscal year; will fall back to the statement target.');
+            return 0;
+        }
+        if (gr.hasNext()) {
+            assume.push('AMBIGUOUS: more than one active quota matches this dimension/fiscal year; used the most recently updated ("' +
+                gr.getValue(this.CONFIG.quotaFields.name) + '", target ' + gr.getValue(this.CONFIG.quotaFields.targetValue) +
+                '). The model expects exactly one active quota per dimension per fiscal year.');
+        }
+        return this._num(gr.getValue(this.CONFIG.quotaFields.targetValue));
+    },
+
+    _resolvePlanLegacy: function(profileId, assume) {
+        var pu = new GlideRecordSecure(this.CONFIG.planUsersTable);
+        pu.addQuery(this.CONFIG.planUsersFields.salesUser, profileId);
+        pu.query();
+        var planIds = [];
+        while (pu.next()) {
+            var pid = pu.getValue(this.CONFIG.planUsersFields.plan);
+            if (pid && planIds.indexOf(pid) === -1) planIds.push(pid);
+        }
+        if (!planIds.length) return null;
+
+        // Prefer an ACTIVE assigned plan (most recently updated), matched by sys_id query.
+        var pg = new GlideRecordSecure(this.CONFIG.planTable);
+        pg.addQuery('sys_id', 'IN', planIds.join(','));
+        pg.addQuery(this.CONFIG.planFields.status, this.CONFIG.planActiveStatus);
+        pg.orderByDesc('sys_updated_on');
+        pg.setLimit(1);
+        pg.query();
+        if (pg.next()) return pg;
+
+        // No active plan; fall back to any assigned plan (most recently updated).
+        var fp = new GlideRecordSecure(this.CONFIG.planTable);
+        fp.addQuery('sys_id', 'IN', planIds.join(','));
+        fp.orderByDesc('sys_updated_on');
+        fp.setLimit(1);
+        fp.query();
+        return fp.next() ? fp : null;
+    },
+
+    _latestStatement: function(profileId, fiscalYearId, assume) {
+        var out = {
+            fiscalPeriod: '',
+            targetQuota: 0,
+            quotaAttainment: 0,
+            totalCommission: 0,
+            currentCredit: 0,
+            found: false
+        };
+        var gr = new GlideRecordSecure(this.CONFIG.statementTable);
+        gr.addQuery(this.CONFIG.statementFields.user, profileId);
+        if (fiscalYearId) gr.addQuery(this.CONFIG.statementFields.fiscalYear, fiscalYearId);
+        gr.orderByDesc(this.CONFIG.statementFields.fiscalPeriod);
+        gr.query();
+        while (gr.next()) {
+            var target = this._num(gr.getValue(this.CONFIG.statementFields.targetQuota));
+            if (target <= 0) continue;
+            out.found = true;
+            out.fiscalPeriod = gr.getDisplayValue(this.CONFIG.statementFields.fiscalPeriod);
+            out.targetQuota = target;
+            out.quotaAttainment = this._num(gr.getValue(this.CONFIG.statementFields.quotaAttainment));
+            out.totalCommission = this._num(gr.getValue(this.CONFIG.statementFields.totalCommission));
+            out.currentCredit = (out.quotaAttainment / 100) * out.targetQuota;
+            break;
+        }
+        if (!out.found && fiscalYearId) {
+            assume.push('No statement with a positive target quota in the assigned fiscal year; actuals treated as 0.');
+        } else if (!out.found) {
+            assume.push('No statement with a positive target quota found; actuals treated as 0.');
+        }
+        return out;
+    },
+
+    _effectiveRate: function(stmt, planId, assume) {
+        if (stmt.currentCredit > 0 && stmt.totalCommission > 0) {
+            var rate = stmt.totalCommission / stmt.currentCredit;
+            if (this.CONFIG.maxEffectiveRate > 0 && rate > this.CONFIG.maxEffectiveRate) {
+                assume.push('Derived effective rate (' + this._pct(rate) + '%) exceeded the safety cap and was clamped.');
+                rate = this.CONFIG.maxEffectiveRate;
+            }
+            return rate;
+        }
+        var lr = new GlideRecordSecure(this.CONFIG.lookupRuleTable);
+        lr.addQuery(this.CONFIG.lookupRuleFields.plan, planId);
+        lr.orderBy(this.CONFIG.lookupRuleFields.stepNumber);
+        lr.query();
+        while (lr.next()) {
+            var rv = lr.getValue(this.CONFIG.lookupRuleFields.rateValue);
+            if (rv !== null && rv !== undefined && String(rv) !== '') {
+                var unit = String(lr.getValue(this.CONFIG.lookupRuleFields.rateUnit) || '').toLowerCase();
+                var asRatio = (unit === 'decimal' || unit === 'ratio' || unit === 'multiplier' || unit === 'fraction');
+                var val = asRatio ? this._num(rv) : (this._num(rv) / 100);
+                assume.push('No credited history to derive an effective rate; used the plan lookup_rule rate_value (' + rv + (asRatio ? ' as ratio' : '%') + ').');
+                return val;
+            }
+        }
+        assume.push('No effective rate could be derived and no lookup_rule flat rate exists; projected commission on pipeline is 0.');
+        return 0;
+    },
+
+    _loadPipeline: function(planId, externalId, userSysId, opts, assume) {
+        var er = new GlideRecordSecure(this.CONFIG.earningRuleTable);
+        er.addQuery(this.CONFIG.earningRuleFields.plan, planId);
+        if (er.isValidField(this.CONFIG.earningRuleFields.active)) er.addQuery(this.CONFIG.earningRuleFields.active, true);
+        er.orderBy(this.CONFIG.earningRuleFields.order);
+        er.setLimit(1);
+        er.query();
+        if (!er.next()) {
+            assume.push('Plan has no earning rule; no pipeline source_object to read. Pipeline empty.');
+            return [];
+        }
+        var dmoId = er.getValue(this.CONFIG.earningRuleFields.sourceObject);
+        var rows = this.resolver.fetchOrders(dmoId, {
+            userExternalId: externalId,
+            userSysId: userSysId,
+            startDate: opts.startDate,
+            endDate: opts.endDate
+        });
+        var ra = this.resolver.lastAssumptions || [];
+        for (var i = 0; i < ra.length; i++) assume.push(ra[i]);
+        return rows;
+    },
+
+    _emptyResult: function() {
+        return {
+            ok: false,
+            error: '',
+            generatedOn: new GlideDateTime().getDisplayValue(),
+            assignmentSource: '',
+            fiscalYear: '',
+            planName: '',
+            statementPeriod: '',
+            targetQuota: 0,
+            currentCommission: 0,
+            currentCredit: 0,
+            currentAttainmentPercent: 0,
+            effectiveRatePercent: 0,
+            pipelineOrderCount: 0,
+            pipelineAmount: 0,
+            projectedCredit: 0,
+            projectedAttainmentPercent: 0,
+            projectedCommission: 0,
+            projectedIncrementalCommission: 0,
+            perOrder: [],
+            assumptions: []
+        };
+    },
+
+    _num: function(v) {
+        var n = parseFloat(v);
+        return isNaN(n) ? 0 : n;
+    },
+    _round: function(n) {
+        return Math.round((this._num(n) + Number.EPSILON) * 100) / 100;
+    },
+    _pct: function(ratio) {
+        return Math.round(this._num(ratio) * 10000) / 100;
+    },
+
+    type: 'IncentIQForecastEngine'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+        <sys_created_on>2026-08-24 09:43:25</sys_created_on>
+        <sys_id>ddd1d8973336c310dccb9c173e5c7b94</sys_id>
+        <sys_mod_count>5</sys_mod_count>
+        <sys_name>IncentIQForecastEngine</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_script_include_ddd1d8973336c310dccb9c173e5c7b94</sys_update_name>
+        <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
+        <sys_updated_on>2026-08-27 05:42:03</sys_updated_on>
+    </sys_script_include>
+</record_update>

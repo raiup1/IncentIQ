@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update sys_domain="global" table="sysevent_email_action">
+    <sysevent_email_action action="INSERT_OR_UPDATE">
+        <action_insert>false</action_insert>
+        <action_update>true</action_update>
+        <active>true</active>
+        <advanced_condition/>
+        <affected_field_on_event/>
+        <category display_value="Uncategorized" name="Uncategorized">c97d83137f4432005f58108c3ffa917a</category>
+        <collection>x_ctans_incentnow_incentiq_dispute</collection>
+        <condition table="x_ctans_incentnow_incentiq_dispute">escalated=true^escalated_reasonISNOTEMPTY^EQ<item endquery="false" field="escalated" goto="false" newquery="false" operator="=" or="false" value="true"/>
+            <item endquery="false" field="escalated_reason" goto="false" newquery="false" operator="ISNOTEMPTY" or="false" value=""/>
+            <item endquery="true" field="" goto="false" newquery="false" operator="=" or="false" value=""/>
+        </condition>
+        <content_type>text/html</content_type>
+        <default_digest>false</default_digest>
+        <default_interval/>
+        <description/>
+        <digest_from/>
+        <digest_html/>
+        <digest_reply_to/>
+        <digest_separator_html><![CDATA[<p>&nbsp;</p>
+<hr>
+<p>&nbsp;</p>]]></digest_separator_html>
+        <digest_separator_text><![CDATA[\n--------------------------------------------------------------------------------\n]]></digest_separator_text>
+        <digest_subject/>
+        <digest_template/>
+        <digest_text/>
+        <digest_type>single</digest_type>
+        <digestable>false</digestable>
+        <enable_dynamic_translation>false</enable_dynamic_translation>
+        <event_name>activate.life.cycle.migration</event_name>
+        <event_parm_1>false</event_parm_1>
+        <event_parm_2>false</event_parm_2>
+        <exclude_delegates>false</exclude_delegates>
+        <force_delivery>false</force_delivery>
+        <from/>
+        <generation_type>engine</generation_type>
+        <importance/>
+        <include_attachments>false</include_attachments>
+        <item>event.parm1</item>
+        <item_table/>
+        <mandatory>false</mandatory>
+        <message/>
+        <message_html><![CDATA[<p>${mail_script:cc_for_escalations}<br>Hello ${assigned_to.name},</p>
+<p>The following dispute has been escalated and requires your attention.</p>
+<p>Dispute Details</p>
+<ul style="list-style-position: inside;" data-spread="false">
+<li>Dispute Number: ${number}</li>
+<li>Short Description: ${short_description}</li>
+<li>Raised For: ${raised_for}</li>
+<li>Assigned To: ${assigned_to}</li>
+<li>Assignment Group: ${assignment_group}</li>
+<li>Priority: ${priority}</li>
+<li>Current State: ${state}</li>
+</ul>
+<p>Escalated Reason: ${escalated_reason}</p>
+<p>This escalation has been raised because additional attention or managerial review is required to help progress the dispute toward resolution.</p>
+<p>Please review the dispute at your earliest convenience and take the appropriate action.</p>
+<p>Thank you,<br>IncentIQ Support</p>]]></message_html>
+        <message_list/>
+        <message_text/>
+        <name>Escalate Case</name>
+        <omit_watermark>false</omit_watermark>
+        <order>100</order>
+        <push_message_only>false</push_message_only>
+        <recipient_fields>assigned_to,raised_for</recipient_fields>
+        <recipient_groups/>
+        <recipient_users/>
+        <reply_to/>
+        <send_self>true</send_self>
+        <sms_alternate/>
+        <style/>
+        <subject>Dispute ${number} has been Escalated</subject>
+        <subscribable>false</subscribable>
+        <sys_class_name>sysevent_email_action</sys_class_name>
+        <sys_created_by>karan.kumar</sys_created_by>
+        <sys_created_on>2026-07-16 07:01:12</sys_created_on>
+        <sys_domain>global</sys_domain>
+        <sys_domain_path>/</sys_domain_path>
+        <sys_id>aff4b2ee3b4e87504be1ef9e53e45ad2</sys_id>
+        <sys_mod_count>2</sys_mod_count>
+        <sys_name>Escalate Case</sys_name>
+        <sys_overrides/>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sysevent_email_action_aff4b2ee3b4e87504be1ef9e53e45ad2</sys_update_name>
+        <sys_updated_by>karan.kumar</sys_updated_by>
+        <sys_updated_on>2026-07-16 07:07:38</sys_updated_on>
+        <sys_version>2</sys_version>
+        <template display_value="Unsubscribe and Preferences">7ed0481f3b0b2200c869c2c703efc487</template>
+        <type>email</type>
+        <weight>0</weight>
+    </sysevent_email_action>
+    <sys_es_latest_script action="INSERT_OR_UPDATE">
+        <id>aff4b2ee3b4e87504be1ef9e53e45ad2</id>
+        <sys_created_by>karan.kumar</sys_created_by>
+        <sys_created_on>2026-07-16 07:04:34</sys_created_on>
+        <sys_id>6e87f6263b8e87504be1ef9e53e45a0f</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>karan.kumar</sys_updated_by>
+        <sys_updated_on>2026-07-16 07:04:34</sys_updated_on>
+        <table>sysevent_email_action</table>
+        <use_es_latest>true</use_es_latest>
+    </sys_es_latest_script>
+</record_update>

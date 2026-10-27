@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="dl_definition">
+    <dl_definition action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <matcher_table>x_ctans_incentnow_severity_data_lookups</matcher_table>
+        <name>Priority Lookup Dispute</name>
+        <run_on_form_change>true</run_on_form_change>
+        <run_on_insert>true</run_on_insert>
+        <run_on_update>true</run_on_update>
+        <source_table>x_ctans_incentnow_incentiq_dispute</source_table>
+        <sys_class_name>dl_definition</sys_class_name>
+        <sys_created_by>karan.kumar</sys_created_by>
+        <sys_created_on>2026-07-01 01:42:16</sys_created_on>
+        <sys_id>98cddcb93bb987504be1ef9e53e45ae5</sys_id>
+        <sys_mod_count>2</sys_mod_count>
+        <sys_name>Priority Lookup Dispute</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>dl_definition_98cddcb93bb987504be1ef9e53e45ae5</sys_update_name>
+        <sys_updated_by>karan.kumar</sys_updated_by>
+        <sys_updated_on>2026-07-13 18:03:58</sys_updated_on>
+    </dl_definition>
+</record_update>

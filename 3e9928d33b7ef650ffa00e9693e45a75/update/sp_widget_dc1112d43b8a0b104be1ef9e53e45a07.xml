@@ -1,0 +1,886 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <client_script><![CDATA[api.controller=function($scope,spUtil, nowAttachmentHandler,$location){
+ var c=this;
+ c.post=function(){
+   if(!c.comment)return;
+   c.data.comment=c.comment;
+   c.server.update().then(function(response){
+		 //spUtil.addInfoMessage(JSON.stringify(response));
+      c.data=response;
+		 	c.data.id=response.sys_id;
+      c.comment='';
+		// $scope.update();
+   });
+ };
+	
+	c.goBack = function() {
+        window.history.back();
+    };
+	
+	
+	$scope.attachmentHandler = new nowAttachmentHandler(
+    setAttachments,
+    appendError
+);
+	c.escalatereason = c.data.dispute.escalated_reason;
+	c.escalateDispute = function () {
+
+    if (!c.escalatereason) {
+        spUtil.addErrorMessage("Please enter escalation reason.");
+        return;
+    }
+
+		c.data.reason = c.escalatereason;
+    c.data.action = "escalate";
+    
+
+    c.server.update().then(function(response) {
+
+        spUtil.addInfoMessage("Dispute escalated successfully.");
+
+        c.showEscalation = false;
+
+        c.escalatereason = c.data.dispute.escalated_reason;
+
+      spUtil.update($scope);
+
+    });
+
+};
+
+function setAttachments(attachments) {
+    c.attachments = attachments;
+}
+
+function appendError(error) {
+    spUtil.addErrorMessage(error.msg);
+}
+	
+	
+	$scope.attachmentHandler.setParams(
+    "x_ctans_incentnow_incentiq_dispute",
+    c.data.id,
+    1024 * 1024 * 50   // 50 MB
+);
+	
+};
+]]></client_script>
+        <controller_as>c</controller_as>
+        <css>/* ==========================================================
+   GLOBAL
+========================================================== */
+
+body{
+    background:#f5f7fa;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+}
+
+*{
+    box-sizing:border-box;
+}
+
+.page-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 16px;
+}
+
+
+
+/* ==========================================================
+   BACK BUTTON
+========================================================== */
+
+.admin-back-btn{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    width:42px;
+    height:42px;
+    border-radius:50%;
+    border:1px solid #d0d5dd;
+    background:#fff;
+    cursor:pointer;
+    transition:.2s;
+  flex-shrink: 0;
+}
+
+
+.admin-back-btn:hover{
+    background:#f8f9fc;
+    border-color:#98a2b3;
+}
+
+/* ==========================================================
+   PAGE
+========================================================== */
+
+.dispute-container{
+
+    max-width:1200px;
+    margin:auto;
+    padding-bottom:40px;
+}
+
+.content-layout{
+
+    display:grid;
+    grid-template-columns:2fr 360px;
+    gap:24px;
+    align-items:start;
+}
+
+.description-divider{
+    height:1px;
+    background:#eaecf0;
+    margin:20px 0;
+}
+
+/* ==========================================================
+   CARD
+========================================================== */
+
+.card{
+
+    background:#fff;
+
+    border:1px solid #eaecf0;
+
+    border-radius:14px;
+
+    padding:24px;
+
+    margin-bottom:24px;
+
+    box-shadow:0 2px 10px rgba(16,24,40,.05);
+
+    transition:.25s;
+}
+
+.card:hover{
+
+    box-shadow:0 10px 24px rgba(16,24,40,.08);
+}
+
+/* ==========================================================
+   HEADER
+========================================================== */
+
+.dispute-header-card{
+
+    margin-bottom:25px;
+
+    background:linear-gradient(180deg,#fff,#fafbfc);
+}
+
+.dispute-number{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:15px;
+
+    flex-wrap:wrap;
+
+    font-size:30px;
+
+    font-weight:700;
+
+    color:#101828;
+}
+
+.dispute-title{
+
+    margin:15px 0 10px;
+
+    font-size:28px;
+
+    font-weight:600;
+
+    color:#344054;
+}
+
+.header-meta{
+
+    display:flex;
+
+    gap:20px;
+
+    flex-wrap:wrap;
+
+    color:#667085;
+
+    font-size:14px;
+}
+
+.header-meta i{
+
+    margin-right:6px;
+}
+
+/* ==========================================================
+   BADGE
+========================================================== */
+
+.badge{
+
+    padding:8px 16px;
+
+    border-radius:999px;
+
+    font-size:12px;
+
+    font-weight:600;
+}
+
+.badge-primary{
+
+    background:#eef4ff;
+
+    color:#175cd3;
+}
+
+.badge-success{
+
+    background:#ecfdf3;
+
+    color:#027a48;
+}
+
+.badge-warning{
+
+    background:#fff7e6;
+
+    color:#b54708;
+}
+
+.badge-danger{
+
+    background:#fef3f2;
+
+    color:#d92d20;
+}
+
+/* ==========================================================
+   SECTION
+========================================================== */
+
+.section-title{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+
+    font-size:18px;
+
+    font-weight:600;
+
+    color:#101828;
+
+    margin-bottom:20px;
+
+    padding-bottom:12px;
+
+    border-bottom:1px solid #eaecf0;
+}
+
+.section-title i{
+
+    color:#000;
+}
+
+/* ==========================================================
+   DESCRIPTION
+========================================================== */
+
+.description-box{
+
+    background:#f9fafb;
+
+    border:1px solid #eaecf0;
+
+    border-radius:12px;
+
+    padding:22px;
+
+    color:#344054;
+
+    line-height:1.8;
+
+    white-space:pre-wrap;
+}
+
+.short-description-box
+{
+  background:#f9fafb;
+
+    border:1px solid #eaecf0;
+
+    border-radius:12px;
+
+    padding:10px;
+
+    color:#344054;
+
+    line-height:1;
+
+    white-space:pre-wrap;
+}
+.badge-info {
+    background: #f4f3ff;
+    color: #6941c6;
+}
+/* ==========================================================
+   SIDEBAR
+========================================================== */
+
+.info-card{
+
+    border:1px solid #eaecf0;
+
+    border-radius:12px;
+
+    padding:16px;
+
+    margin-bottom:14px;
+
+    transition:.2s;
+}
+
+.info-card:hover{
+
+    transform:translateY(-2px);
+
+    border-color:#d0d5dd;
+}
+
+.info-label{
+
+    font-size:11px;
+
+    font-weight:700;
+
+    text-transform:uppercase;
+
+    letter-spacing:.08em;
+
+    color:#98a2b3;
+
+    margin-bottom:8px;
+}
+
+.info-value{
+
+    font-size:15px;
+
+    font-weight:600;
+
+    color:#101828;
+
+    word-break:break-word;
+}
+
+/* ==========================================================
+   COMMENT BOX
+========================================================== */
+
+.comment-box label{
+
+    display:block;
+
+    margin-bottom:10px;
+
+    font-weight:600;
+
+    color:#344054;
+}
+
+.comment-box textarea{
+
+    width:100%;
+
+    resize:none;
+
+    min-height:140px;
+
+    padding:15px;
+
+    border-radius:12px;
+
+    border:1px solid #d0d5dd;
+
+    transition:.2s;
+}
+
+.comment-box textarea:focus{
+
+    outline:none;
+
+    border-color:#000;
+
+    box-shadow:0 0 0 4px rgba(0,0,0,.08);
+}
+
+.comment-actions{
+
+    display:flex;
+
+    justify-content:flex-end;
+
+    align-items:center;
+
+    gap:12px;
+
+    margin-top:18px;
+}
+
+/* ==========================================================
+   BUTTON
+========================================================== */
+
+.btn-post{
+
+    background:#000;
+
+    color:#fff;
+
+    border:none;
+
+    border-radius:10px;
+
+    padding:11px 24px;
+
+    font-weight:600;
+
+    transition:.25s;
+  
+  margin-top: 10px;
+}
+
+.btn-post:hover{
+
+    background:#fff;
+  	color: #000;
+  border: 1px solid #0b5fff;
+}
+
+.btn-post i{
+
+    margin-right:8px;
+}
+
+/* ==========================================================
+   ACTIVITY
+========================================================== */
+
+.activity-stream{
+
+    margin-top:25px;
+
+    border-top:1px solid #eaecf0;
+
+    padding-top:20px;
+}
+
+/* ==========================================================
+   RESPONSIVE
+========================================================== */
+
+@media(max-width:992px){
+
+.content-layout{
+
+    grid-template-columns:1fr;
+}
+
+.content-sidebar{
+
+    order:-1;
+}
+
+}
+
+@media(max-width:768px){
+
+.dispute-number{
+
+    font-size:24px;
+}
+
+.dispute-title{
+
+    font-size:22px;
+}
+
+.header-meta{
+
+    flex-direction:column;
+
+    gap:8px;
+}
+
+.comment-actions{
+
+    flex-direction:column;
+
+    align-items:stretch;
+}
+
+.btn-post{
+
+    width:100%;
+}
+
+}
+
+/* ==========================================================
+   ATTACHMENT BUTTON
+========================================================== */
+
+sp-attachment-button{
+
+    display:flex;
+
+    align-items:center;
+}
+
+sp-attachment-button button{
+
+    border-radius:10px !important;
+}</css>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description/>
+        <docs/>
+        <field_list/>
+        <has_preview>true</has_preview>
+        <id>dispute_details</id>
+        <internal>false</internal>
+        <link><![CDATA[function link(scope, element, attrs, controller) {
+  
+}]]></link>
+        <name>Dispute Details</name>
+        <option_schema/>
+        <public>false</public>
+        <roles>x_ctans_incentnow.user,x_ctans_incentnow.dispute_agent</roles>
+        <script><![CDATA[(function() {
+  /* populate the 'data' object */
+  /* e.g., data.table = $sp.getValue('table'); */
+	
+
+		data.access=false;
+		data.id=$sp.getParameter('sys_id');
+		var grDispute=new GlideRecordSecure('x_ctans_incentnow_incentiq_dispute');
+		grDispute.addQuery('sys_id',data.id);
+		//var qc=gr.addQuery('raised_for',gs.getUserID());
+		//qc.addOrCondition('assigned_to',gs.getUserID());
+		grDispute.query();
+
+		if(!grDispute.next()) return;
+		data.access=true;
+		if(input && input.comment){
+			grDispute.comments=input.comment;
+			grDispute.update();
+			
+			data.sysid=data.id;
+		}
+	
+		if (input && input.action == "escalate") {
+
+    grDispute.setValue("escalated", true);
+    grDispute.setValue("escalated_reason", input.reason);
+
+
+    grDispute.update();
+
+    data.success = true;
+}
+	
+		data.dispute={
+		 	number:grDispute.getValue('number'),
+		 	state:grDispute.getDisplayValue('state'),
+			stateval: grDispute.getValue('state'),
+		 	priority:grDispute.getDisplayValue('priority'),
+		 	raised_for:grDispute.getDisplayValue('raised_for'),
+			short_description:grDispute.getDisplayValue('short_description'),
+		 	description:grDispute.getDisplayValue('description'),
+			created:grDispute.getDisplayValue('sys_created_on'),
+			assigned_to:grDispute.getDisplayValue('assigned_to'),
+			escalated: grDispute.getValue('escalated'),
+			escalated_reason: grDispute.getDisplayValue('escalated_reason')
+		};
+	
+
+	
+	
+		if(data.dispute.stateval=="6" || data.dispute.stateval=="7" || data.dispute.stateval=="8")
+			{
+				data.allFieldReadonly=true;
+			}
+	else
+		{
+			data.allFieldReadonly=false;
+		}
+
+		data.comments=[];
+		var jf=new GlideRecordSecure('sys_journal_field');
+		jf.addQuery('element_id',grDispute.getUniqueValue());
+		jf.addQuery('element','comments');
+		jf.orderByDesc('sys_created_on');
+		jf.query();
+		while(jf.next()){
+			var name = jf.getDisplayValue("sys_created_by");
+
+    var initials = "";
+
+    if (name) {
+        var parts = name.trim().split(" ");
+
+        if (parts.length == 1) {
+            initials = parts[0].substring(0, 1).toUpperCase();
+        } else {
+            initials =
+                parts[0].substring(0, 1).toUpperCase() +
+                parts[parts.length - 1].substring(0, 1).toUpperCase();
+        }
+    }
+			
+		 data.comments.push({
+			user:jf.getDisplayValue('sys_created_by'),
+			date:jf.getDisplayValue('sys_created_on'),
+			comment:jf.getValue('value'),
+			 initials: initials,
+			
+		 });
+		}
+	
+	data.activityWidget = $sp.getWidget('dispute_conversations', {
+    table: 'x_ctans_incentnow_incentiq_dispute',
+    sys_id: data.id
+});
+	
+
+
+
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>karan.kumar</sys_created_by>
+        <sys_created_on>2026-07-09 04:31:18</sys_created_on>
+        <sys_id>dc1112d43b8a0b104be1ef9e53e45a07</sys_id>
+        <sys_mod_count>154</sys_mod_count>
+        <sys_name>Dispute Details</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sp_widget_dc1112d43b8a0b104be1ef9e53e45a07</sys_update_name>
+        <sys_updated_by>karan.kumar</sys_updated_by>
+        <sys_updated_on>2026-07-20 04:59:15</sys_updated_on>
+        <template><![CDATA[<!-- Back Button -->
+
+<div class="page-toolbar">
+    <button class="admin-back-btn" ng-click="c.goBack()">
+        <svg width="18"
+             height="18"
+             viewBox="0 0 24 24"
+             fill="none"
+             stroke="currentColor"
+             stroke-width="2.5">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 8 8 12 12 16"></polyline>
+            <line x1="16" y1="12" x2="8" y2="12"></line>
+        </svg>
+    </button>
+
+    <button
+    class="btn-post"
+            ng-if="c.data.dispute.stateval == '2'"
+    ng-if="!c.data.allFieldReadonly && (c.data.dispute.stateval == '2' || c.data.dispute.stateval == '3')"
+    ng-click="c.showEscalation = !c.showEscalation">
+    {{ c.data.dispute.escalated == true
+        ? 'Already Escalated'
+        : 'Escalate Dispute' }}
+</button>
+  
+</div>
+<div class="dispute-container"
+   ng-if="c.data.access">
+<!-- HEADER -->
+<div class="card dispute-header-card">
+   <div class="header-left">
+      <div class="dispute-number">
+         {{::c.data.dispute.number}}
+         <span class="badge"
+            ng-class="{
+              'badge-primary': c.data.dispute.state == 'New',
+              'badge-warning': c.data.dispute.state == 'In Progress',
+              'badge-info': c.data.dispute.state == 'Awaiting Info',
+              'badge-success': c.data.dispute.state == 'Resolved',
+              'badge-danger': c.data.dispute.state == 'Closed'
+            }">
+          {{::c.data.dispute.state}}
+      </span>
+        
+      </div>
+      <h3 class="dispute-title">
+         {{::c.data.dispute.short_description}}
+      </h3>
+      <div class="header-meta">
+         <span>
+         <i class="fa fa-calendar"></i>
+         Created
+         {{::c.data.dispute.created}}
+         </span>
+         <span>
+         <i class="fa fa-user"></i>
+         {{::c.data.dispute.raised_for}}
+         </span>
+      </div>
+   </div>
+</div>
+<!-- CONTENT -->
+<div class="content-layout">
+<!-- LEFT -->
+  <div class="content-main-wrapper">
+<div class="content-main">
+   <!-- DESCRIPTION -->
+   <div class="card">
+      <div class="section-title">
+         <i class="fa fa-align-left"></i>
+         Description
+      </div>
+      <div class="short-description-box">
+         {{::c.data.dispute.short_description}}
+      </div>
+      <div class="description-divider"></div>
+      <div class="description-box">
+         {{::c.data.dispute.description}}
+      </div>
+   </div>
+   <!-- ACTIVITY -->
+   <div class="card">
+      <div class="section-title">
+         <i class="fa fa-comments"></i>
+         Activity
+      </div>
+      <div class="comment-box">
+         <label>
+         Add Comment
+         </label>
+         <textarea
+            class="form-control"
+            ng-model="c.comment"
+            placeholder="Share an update..." ng-disabled="c.data.allFieldReadonly">
+
+                    </textarea>
+         <div class="comment-actions">
+            <sp-attachment-button
+               modal="true"
+               supported-extensions="{{::data.supportedAttachmentExtensions}}"
+               table="'x_ctans_incentnow_dispute'"
+               sys-id="c.data.id" ng-if="!c.data.allFieldReadonly">
+            </sp-attachment-button>
+            <button
+               class="btn-post"
+               ng-click="c.post()" ng-disabled="c.data.allFieldReadonly">
+            <i class="fa fa-paper-plane"></i>
+            Post Comment
+            </button>
+         </div>
+      </div>
+      <div class="activity-stream">
+         <sp-widget
+            widget="c.data.activityWidget">
+         </sp-widget>
+      </div>
+   </div>
+</div>
+  </div>
+<!-- RIGHT SIDEBAR -->
+<div class="content-sidebar">
+<div class="card">
+   <div class="section-title">
+      <i class="fa fa-info-circle"></i>
+      Dispute Information
+   </div>
+   <div class="info-card">
+      <div class="info-label">
+         Raised For
+      </div>
+      <div class="info-value">
+         {{::c.data.dispute.raised_for}}
+      </div>
+   </div>
+   <div class="info-card">
+      <div class="info-label">
+         Assigned To
+      </div>
+      <div class="info-value">
+         {{::c.data.dispute.assigned_to || '-'}}
+      </div>
+   </div>
+   <div class="info-card">
+      <div class="info-label">
+         Priority
+      </div>
+      <div class="info-value">
+         {{::c.data.dispute.priority}}
+      </div>
+   </div>
+   <div class="info-card">
+      <div class="info-label">
+         Created
+      </div>
+      <div class="info-value">
+         {{::c.data.dispute.created}}
+      </div>
+   </div>
+   
+  
+   
+</div>
+  <div class="card" ng-if="c.showEscalation || c.data.dispute.escalated_reason">
+   <div class="section-title">
+      <i class="fa fa-info-circle"></i>
+      Escalation Information
+   </div>
+   
+      
+      <label>Escalation Reason</label>   
+     
+      <div class="info-value">
+        <textarea
+    class="form-control"
+    ng-model="c.escalatereason"
+    ng-readonly="!!c.data.dispute.escalated_reason">
+</textarea>
+      </div>
+  
+   <div>
+      <button
+        class="btn-post"
+        ng-if="!c.data.dispute.escalated_reason && !c.data.allFieldReadonly"
+        ng-click="c.escalateDispute()">
+        Save
+    </button>
+   </div>
+</div>
+<!-- Unauthorized -->
+<div class="card"
+   ng-if="!c.data.access">
+   <h3>
+      Access Denied
+   </h3>
+   <p>
+      You are not authorized to view this dispute.
+   </p>
+</div>]]></template>
+    </sp_widget>
+</record_update>

@@ -4,6 +4,7 @@
         <can_delegate>true</can_delegate>
         <description>Default admin role</description>
         <elevated_privilege>false</elevated_privilege>
+        <encryption_context/>
         <federated_id>2/mrhLEGCRr5h8Q4FT1OADIecgmogKKV1fevtnwbEyk=</federated_id>
         <grantable>true</grantable>
         <includes_roles/>

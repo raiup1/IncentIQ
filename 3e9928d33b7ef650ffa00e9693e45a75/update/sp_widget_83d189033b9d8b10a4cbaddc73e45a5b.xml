@@ -31,6 +31,7 @@
     c.uploadLoading = false;  /* CHANGE 2: new flag for upload button fade */
     c.modelLoading = false;
     c.saveMappingDone = false;
+		
     c.transformDone = false;
 		c.newModel.data_source_system="External";
 
@@ -425,11 +426,18 @@
             $timeout(function() {
                 /* NOTE: saveMappingDone stays true — button stays faded */
                 /* It is reset to false only when user closes the success banner (in HTML) */
-                if (r.data.error) {
+             // console.log("Server response:", r.data);
+						//	console.log("Server responsess:", r);
+  
+							if (r.error) {
+							//	console.log("Success block executed");
                     c.saveMappingDone = false;   /* re-enable only on error */
-                    c.mappingError = r.data.error;
+                    c.mappingError = r.error;
                     c.mappingSuccess = '';
                 } else {
+									//    console.log("Success block executed else");
+
+										c.saveMappingDone=true;
                     c.mappingSuccess = 'Mapping saved successfully';
                     c.mappingError = '';
                 }
@@ -454,11 +462,13 @@
             $timeout(function() {
                 /* NOTE: transformDone stays true — button stays faded */
                 /* It is reset to false only when user closes the success banner (in HTML) */
-                if (r.data.error) {
+                if (r.error) {
                     c.transformDone = false;   /* re-enable only on error */
-                    c.mappingError = r.data.error;
+                  	c.saveMappingDone = false;   
+										c.mappingError = r.data.error;
                     c.mappingSuccess = '';
                 } else {
+										c.saveMappingDone=true;
                     c.mappingSuccess = 'Transform started successfully.';
                     c.mappingError = '';
                 }
@@ -472,6 +482,35 @@
     });
 
     return model ? model.name : '';
+};
+	
+	
+	c.saveMappingDisabled = function() {
+
+    if (c.transformDone)
+        return true;
+
+    // Mandatory disclaimer fields
+    if (!c.disclaimer.targetUserId || !c.disclaimer.transactionDate)
+        return true;
+
+    // Every non-disclaimer mapping must be complete
+    for (var i = 0; i < c.mappings.length; i++) {
+
+        var m = c.mappings[i];
+
+        if (c.isDisclaimerField(m.source))
+            continue;
+
+        if (!m.sourceDisplayName ||
+            !m.sourceDisplayName.trim() ||
+            !m.dataType ||
+            !m.targetField) {
+            return true;
+        }
+    }
+
+    return false;
 };
 	
 
@@ -1194,20 +1233,19 @@ select:disabled {
         data.error = "Access Denied";
         return;
     }
-	
-	data.sourcesystem=[];
-		var grChoice = new GlideRecordSecure("sys_choice");
-		grChoice.addEncodedQuery("name=x_ctans_incentnow_data_model_object^element=data_source_system^inactive=false^language=en");
-		grChoice.query();
-		while(grChoice.next())
-			{
-				var obj={};
-				obj.label=grChoice.getValue("label");
-				obj.value=grChoice.getValue("value");
-				data.sourcesystem.push(obj);
-			}
-	
-	
+
+    data.sourcesystem = [];
+    var grChoice = new GlideRecordSecure("sys_choice");
+    grChoice.addEncodedQuery("name=x_ctans_incentnow_data_model_object^element=data_source_system^inactive=false^language=en");
+    grChoice.query();
+    while (grChoice.next()) {
+        var obj = {};
+        obj.label = grChoice.getValue("label");
+        obj.value = grChoice.getValue("value");
+        data.sourcesystem.push(obj);
+    }
+
+
 
     /* -------------- CREATE MODEL -------------- */
 
@@ -1241,18 +1279,18 @@ select:disabled {
         dm.object_name = input.model.object_name;
         dm.active = true;
         var newId = dm.insert();
-        
-				
-				if(newId)
-					data.success    = true;
-				else
-					data.success=false;
-        
-        data.error      = "";
-        data.message    = "Data Model Created Successfully";
-        data.newModelId   = newId + '';
+
+
+        if (newId)
+            data.success = true;
+        else
+            data.success = false;
+
+        data.error = "";
+        data.message = "Data Model Created Successfully";
+        data.newModelId = newId + '';
         data.newModelName = input.model.source_name + " - " + input.model.object_name;
-				gs.addInfoMessage('Data Model Created Successfully:' + data.newModelName);
+        gs.addInfoMessage('Data Model Created Successfully:' + data.newModelName);
         return;
     }
 
@@ -1260,9 +1298,9 @@ select:disabled {
 
     if (input && input.action == 'getDataModels') {
 
-			
+
         var dmList = new GlideRecordSecure('x_ctans_incentnow_data_model_object');
-				dmList.addQuery('sys_id',input.datamodel);
+        dmList.addQuery('sys_id', input.datamodel);
         dmList.addQuery('active', true);
         dmList.orderBy('object_name');
         dmList.query();
@@ -1277,57 +1315,25 @@ select:disabled {
     }
 
     /* -------------- INGEST CSV -------------- */
-
-    if (input && input.action === 'ingest') {
-
-        if (!input.rows || !input.rows.length) {
-            data.error = "No rows received.";
-            return;
-        }
-
-        var impSet = new GlideRecordSecure('sys_import_set');
-        impSet.initialize();
-        impSet.state = "loading";
-        impSet.table_name = "x_ctans_incentnow_data_lake_staging";
-        impSet.short_description = "IncentNow Portal Upload";
-        var batchId = impSet.insert();
-
-        for (var i = 0; i < input.rows.length; i++) {
-            var row = input.rows[i];
-            if (!row) continue;
-
-            var isEmpty = true;
-            for (var key in row) {
-                if (row[key] && row[key].toString().trim() !== "") {
-                    isEmpty = false;
-                    break;
-                }
-            }
-            if (isEmpty) continue;
-
-            var staging = new GlideRecordSecure('x_ctans_incentnow_data_lake_staging');
-            staging.initialize();
-            staging.sys_import_set = batchId;
-            staging.raw_json = JSON.stringify(row);
-            staging.row_number = i + 1;
-            staging.data_model_object = input.dataModelObject;
-            staging.insert();
-        }
-
-        data.batchId = batchId;
+  if (input && input.action === 'ingest') {
+        var loader = new IncentIQImportLoader();
+        data.result = loader.load(input.rows, input.dataModelObject);
+        data.batchId = data.result.batchId;
+        data.totalRows =  data.result.totalRows;
         return;
     }
+  
 
     /* -------------- PREVIEW -------------- */
 
     if (input && input.action === 'preview') {
-			//gs.addErrorMessage("inof "+input.dataModelObject);
+        //gs.addErrorMessage("inof "+input.dataModelObject);
 
         /* FIX: use pageSize sent from client instead of hardcoded 5 */
-        var pageSize   = input.pageSize ? parseInt(input.pageSize) : 15;
+        var pageSize = input.pageSize ? parseInt(input.pageSize) : 15;
         var pageNumber = input.pageNumber || 1;
-        var start      = (pageNumber - 1) * pageSize;
-        var end        = start + pageSize;
+        var start = (pageNumber - 1) * pageSize;
+        var end = start + pageSize;
 
         var grLake = new GlideRecordSecure('x_ctans_incentnow_data_lake_staging');
         grLake.addQuery('sys_import_set', input.batchId);
@@ -1344,57 +1350,57 @@ select:disabled {
             }
             data.previewRows.push(rowObj);
         }
-				//gs.addErrorMessage(JSON.stringify(data.previewRows));
+        //gs.addErrorMessage(JSON.stringify(data.previewRows));
 
         var countGR = new GlideAggregate('x_ctans_incentnow_data_lake_staging');
-				countGR.addQuery('sys_import_set', input.batchId);
-				countGR.addAggregate('COUNT');
-				countGR.query();
+        countGR.addQuery('sys_import_set', input.batchId);
+        countGR.addAggregate('COUNT');
+        countGR.query();
 
-				if (countGR.next()) {
-						data.totalPreviewCount = parseInt(countGR.getAggregate('COUNT'), 10);
-				}
+        if (countGR.next()) {
+            data.totalPreviewCount = parseInt(countGR.getAggregate('COUNT'), 10);
+        }
         data.totalPages = Math.ceil(data.totalPreviewCount / pageSize);
-			
-			
-				data.existingMappings = {};
-				
-			
-	
-				var mapGR = new GlideRecordSecure('x_ctans_incentnow_metadata_mapping');
-				mapGR.addQuery('data_model_object_id', input.dataModelObject);
-				//mapGR.addQuery('source_field_name',data.previewHeaders[i]);
-				mapGR.addQuery('active', true);
-				mapGR.query();
 
-				while (mapGR.next()) {
 
-						data.existingMappings[
-								mapGR.getValue('source_field_name')
-						] = {
-								targetField: mapGR.data_lake_field_name.element.toString(),
-								sourceDisplayName: mapGR.getValue('source_display_name'),
-								fieldType: mapGR.field_type.name.toString()
-						};
-				}
-			
-					data.filtered = {};
+        data.existingMappings = {};
 
-				for (var key in data.existingMappings) {
-						if (
-								data.existingMappings[key].targetField === "transaction_date" ||
-								data.existingMappings[key].targetField === "user_id"
-						) {
-								data.filtered[key] = data.existingMappings[key];
-						}
-				}
 
-//gs.addErrorMessage(JSON.stringify(filtered));
-			
-			//gs.addErrorMessage(JSON.stringify(data.existingMappings))
-			
-			
-			
+
+        var mapGR = new GlideRecordSecure('x_ctans_incentnow_metadata_mapping');
+        mapGR.addQuery('data_model_object_id', input.dataModelObject);
+        //mapGR.addQuery('source_field_name',data.previewHeaders[i]);
+        mapGR.addQuery('active', true);
+        mapGR.query();
+
+        while (mapGR.next()) {
+
+            data.existingMappings[
+                mapGR.getValue('source_field_name')
+            ] = {
+                targetField: mapGR.data_lake_field_name.element.toString(),
+                sourceDisplayName: mapGR.getValue('source_display_name'),
+                fieldType: mapGR.field_type.name.toString()
+            };
+        }
+
+        data.filtered = {};
+
+        for (var key in data.existingMappings) {
+            if (
+                data.existingMappings[key].targetField === "transaction_date" ||
+                data.existingMappings[key].targetField === "user_id"
+            ) {
+                data.filtered[key] = data.existingMappings[key];
+            }
+        }
+
+        //gs.addErrorMessage(JSON.stringify(filtered));
+
+        //gs.addErrorMessage(JSON.stringify(data.existingMappings))
+
+
+
         return;
     }
 
@@ -1423,8 +1429,8 @@ select:disabled {
                 label: dictGR.getValue('column_label')
             });
         }
-			
-		
+
+
         return;
     }
 
@@ -1436,7 +1442,7 @@ select:disabled {
             data.error = "Invalid mapping payload.";
             return;
         }
-																				 //gs.addErrorMessage(input.dataModelObject);
+        //gs.addErrorMessage(input.dataModelObject);
 
         //var old = new GlideRecordSecure('x_ctans_incentnow_metadata_mapping');
         //old.addQuery('data_model_object_id', input.dataModelObject);
@@ -1447,22 +1453,22 @@ select:disabled {
             if (!m.source || !m.targetField) continue;
 
             var dict = new GlideRecordSecure('sys_dictionary');
-            dict.addQuery('name', 'x_ctans_incentnow_data_lake');
+            dict.addQuery('name', 'x_ctans_incentnow_data_lake_master');
             dict.addQuery('element', m.targetField);
             dict.query();
             if (!dict.next()) continue;
 
             var grMap = new GlideRecordSecure('x_ctans_incentnow_metadata_mapping');
 
-						grMap.addQuery('data_model_object_id', input.dataModelObject);
-						grMap.addQuery('source_field_name', m.source.trim());
-						grMap.query();
+            grMap.addQuery('data_model_object_id', input.dataModelObject);
+            grMap.addQuery('source_field_name', m.source.trim());
+            grMap.query();
 
-						var isUpdate = grMap.next();
+            var isUpdate = grMap.next();
 
-						if (!isUpdate) {
-								grMap.initialize();
-						}
+            if (!isUpdate) {
+                grMap.initialize();
+            }
             grMap.data_model_object_id = input.dataModelObject;
             grMap.source_field_name = m.source.trim();
             grMap.data_lake_field_name = dict.getUniqueValue();
@@ -1482,175 +1488,29 @@ select:disabled {
 
             grMap.is_primary_key = m.isPrimary ? true : false;
             grMap.active = true;
-           if (isUpdate) {
-								grMap.update();
-						} else {
-								grMap.insert();
-						}
+            if (isUpdate) {
+                grMap.update();
+            } else {
+                grMap.insert();
+            }
         }
 
         gs.addInfoMessage("Mapping Saved Successfully");
         return;
-				
+
     }
 
     /* -------------- RUN TRANSFORM -------------- */
 
     if (input && input.action === 'runTransform') {
-
-        gs.addInfoMessage("Transform has started. Please refer to Import Runs and Import Errors for the status");
-
         if (!input.batchId) {
             data.error = "Invalid Batch ID.";
             gs.info("IncentNow - ERROR: Batch ID missing");
             return;
         }
-
-        var stagingCheck = new GlideRecordSecure('x_ctans_incentnow_data_lake_staging');
-        stagingCheck.addQuery('sys_import_set', input.batchId);
-        stagingCheck.setLimit(1);
-        stagingCheck.query();
-
-        if (!stagingCheck.next()) {
-            data.error = "No staging records found.";
-            gs.info("IncentNow - ERROR: No staging records found");
-            return;
-        }
-
-        var dataModelId = stagingCheck.getValue("data_model_object");
-        gs.info("IncentNow - Data Model ID: " + dataModelId);
-
-        var runGR = new GlideRecordSecure("x_ctans_incentnow_import_run");
-        runGR.initialize();
-        runGR.status = "Processing";
-        runGR.batch_id = input.batchId;
-        runGR.data_model_object = dataModelId;
-        runGR.run_by = gs.getUserID();
-        var runSysId = runGR.insert();
-        gs.addInfoMessage("IncentNow - Import Run Created: " + runGR.number);
-
-        var mappings = [];
-        var pkSource = "";
-        var pkTarget = "";
-
-        var mapGR = new GlideRecordSecure('x_ctans_incentnow_metadata_mapping');
-        mapGR.addQuery('data_model_object_id', dataModelId);
-        mapGR.addQuery('active', true);
-        mapGR.query();
-
-        while (mapGR.next()) {
-            var source = mapGR.getValue('source_field_name');
-            var dictSysId = mapGR.getValue('data_lake_field_name');
-            var target = "";
-
-            if (!gs.nil(dictSysId)) {
-                var dictGR2 = new GlideRecordSecure('sys_dictionary');
-                if (dictGR2.get(dictSysId)) {
-                    target = dictGR2.getValue('element');
-                    gs.info("IncentNow - Mapping Found: " + source + " -> " + target);
-                } else {
-                    gs.info("IncentNow - ERROR: Dictionary not found for sys_id: " + dictSysId);
-                }
-            }
-
-            if (!source || !target) continue;
-
-            mappings.push({
-                source: source,
-                target: target
-            });
-
-            if (mapGR.getValue('is_primary_key') == "1") {
-                pkSource = source;
-                pkTarget = target;
-                gs.info("IncentNow - Primary Key Mapping: " + pkSource + " -> " + pkTarget);
-            }
-        }
-
-        gs.info("IncentNow - Total Mappings Loaded: " + mappings.length);
-
-        var stagingGR = new GlideRecordSecure('x_ctans_incentnow_data_lake_staging');
-        stagingGR.addQuery('sys_import_set', input.batchId);
-        stagingGR.orderBy('row_number');
-        stagingGR.query();
-
-        while (stagingGR.next()) {
-            var raw = stagingGR.getValue("raw_json");
-            if (!raw) {
-                gs.info("IncentNow - Skipping empty raw_json row");
-                continue;
-            }
-
-            var rowData = JSON.parse(raw);
-            gs.info("IncentNow - Processing Row: " + stagingGR.row_number);
-            gs.info("IncentNow - Raw JSON: " + raw);
-
-            if (pkSource && !rowData[pkSource]) {
-                gs.info("IncentNow - ERROR: Primary Key missing for row: " + stagingGR.row_number);
-                var errPK = new GlideRecordSecure('x_ctans_incentnow_import_error');
-                errPK.initialize();
-                errPK.batch_id = input.batchId;
-                errPK.data_model_object = dataModelId;
-                errPK.row_number = stagingGR.row_number;
-                errPK.error_message = "Primary Key missing: " + pkSource;
-                errPK.raw_json = raw;
-                errPK.insert();
-                continue;
-            }
-
-            var targetGR = new GlideRecordSecure('x_ctans_incentnow_data_lake');
-            var exists = false;
-
-            if (pkSource && pkTarget && rowData[pkSource]) {
-                gs.info("IncentNow - Searching existing record using PK: " + pkTarget + "=" + rowData[pkSource]);
-                targetGR.addQuery(pkTarget, rowData[pkSource]);
-                targetGR.query();
-                if (targetGR.next()) {
-                    exists = true;
-                    gs.info("IncentNow - Updating existing record");
-                }
-            }
-
-            if (!exists) {
-                gs.info("IncentNow - Creating new Data Lake record");
-                targetGR.initialize();
-                targetGR.setValue("data_model_object", dataModelId);
-            }
-
-            for (var mi = 0; mi < mappings.length; mi++) {
-                var sourceField = mappings[mi].source;
-                var targetColumn = mappings[mi].target;
-                var value = rowData[sourceField];
-                gs.info("IncentNow - Checking field: " + sourceField + " -> " + targetColumn + " | Value: " + value);
-                if (value !== undefined && value !== null) {
-                    gs.info("IncentNow - Setting value: " + targetColumn + " = " + value);
-                    targetGR.setValue(targetColumn, value);
-                }
-            }
-
-            if (exists) targetGR.update();
-            else targetGR.insert();
-
-            /* FIX: set processing_status to processed after successful insert/update */
-            targetGR.setValue('processing_status', 'processed');
-            targetGR.update();
-
-            stagingGR.is_valid = true;
-            stagingGR.primary_key_value = rowData[pkSource] || "";
-            stagingGR.update();
-            gs.info("IncentNow - Row processed successfully");
-        }
-
-				if(runGR.get(runSysId))
-					{
-						runGR.status = "Completed";
-        		runGR.update();
-        		gs.info("IncentNow - Transform Completed. Run Number: " + runGR.number);
-
-        		data.message = "Transform completed successfully. Run Number: " + runGR.number;
-					}
-        
-        
+        gs.addInfoMessage("Transform has started. Please refer to Import Runs and Import Errors for the status");
+        var processor = new IncentIQImportProcessor();
+        data.result = processor.start(input.batchId);
         return;
     }
 
@@ -1660,14 +1520,14 @@ select:disabled {
         <sys_created_by>karan.kumar</sys_created_by>
         <sys_created_on>2026-06-10 05:00:18</sys_created_on>
         <sys_id>83d189033b9d8b10a4cbaddc73e45a5b</sys_id>
-        <sys_mod_count>23</sys_mod_count>
+        <sys_mod_count>47</sys_mod_count>
         <sys_name>Create Data Model</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
         <sys_update_name>sp_widget_83d189033b9d8b10a4cbaddc73e45a5b</sys_update_name>
         <sys_updated_by>karan.kumar</sys_updated_by>
-        <sys_updated_on>2026-06-18 06:56:19</sys_updated_on>
+        <sys_updated_on>2026-07-21 12:27:13</sys_updated_on>
         <template><![CDATA[<div class="upload-page-wrap">
 
   <!-- TOPBAR — updated to match standard portal banner -->
@@ -1963,15 +1823,15 @@ select:disabled {
           <!-- REQ-4: stays faded until success banner is dismissed -->
           <button class="save-btn primary-btn"
                   ng-click="c.saveMapping()"
-                  ng-disabled="c.saveMappingDone"
-                  ng-class="{'btn-faded': c.saveMappingDone}">
+                  ng-disabled="c.saveMappingDisabled()"
+                  ng-class="{'btn-faded': c.saveMappingDisabled()}">
             Save Mapping
           </button>
           <!-- REQ-4: stays faded until success banner is dismissed -->
           <button class="run-btn secondary-btn"
                   ng-click="c.runTransform()"
-                  ng-disabled="c.transformDone"
-                  ng-class="{'btn-faded': c.transformDone}">
+                  ng-disabled="!c.saveMappingDone || c.transformDone"
+ng-class="{'btn-faded': !c.saveMappingDone || c.transformDone}">
             Run Transform
           </button>
         </div>

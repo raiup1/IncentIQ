@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update sys_domain="global" table="sys_script_client">
+    <sys_script_client action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <applies_extended>false</applies_extended>
+        <condition/>
+        <description/>
+        <field/>
+        <global>true</global>
+        <isolate_script>true</isolate_script>
+        <messages/>
+        <name>Populate Participant Assignment and User</name>
+        <order/>
+        <script><![CDATA[function onLoad() {
+
+    if (!g_form.isNewRecord())
+        return;
+
+    var planAssignmentId = g_form.getValue('plan_assignment');
+
+    if (!planAssignmentId)
+        return;
+
+    populateFromPlanAssignment();
+}
+
+function populateFromPlanAssignment() {
+
+    var planAssignmentId = g_form.getValue('plan_assignment');
+
+    if (!planAssignmentId)
+        return;
+
+    var ga = new GlideAjax('IncentNowClientUtils');
+    ga.addParam( 'sysparm_name', 'getPlanAssignmentDetails');
+    ga.addParam('sysparm_plan_assignment',planAssignmentId);
+    ga.getXMLAnswer(function(answer) {
+
+        if (!answer)
+            return;
+
+        var result;
+
+        try {
+            result = JSON.parse(answer);
+        } catch (e) {
+            return;
+        }
+
+        if (!result.success)
+            return;
+
+        if (result.participant_assignment) {
+            g_form.setValue('participant_assignment',result.participant_assignment);
+			g_form.setReadOnly('participant_assignment', true);
+        }
+
+        if (result.user) {
+            g_form.setValue('user', result.user);
+			g_form.setReadOnly('user', true);
+        }
+    });
+}]]></script>
+        <sys_class_name>sys_script_client</sys_class_name>
+        <sys_created_by>upma.rai</sys_created_by>
+        <sys_created_on>2026-08-04 12:38:56</sys_created_on>
+        <sys_domain>global</sys_domain>
+        <sys_domain_path>/</sys_domain_path>
+        <sys_id>700a397093eec750ddb7f2d89803d6b0</sys_id>
+        <sys_mod_count>8</sys_mod_count>
+        <sys_name>Populate Participant Assignment and User</sys_name>
+        <sys_overrides/>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_script_client_700a397093eec750ddb7f2d89803d6b0</sys_update_name>
+        <sys_updated_by>upma.rai</sys_updated_by>
+        <sys_updated_on>2026-08-11 12:38:31</sys_updated_on>
+        <table>x_ctans_incentnow_user_quota_assignment</table>
+        <type>onLoad</type>
+        <ui_type>10</ui_type>
+        <view/>
+    </sys_script_client>
+</record_update>

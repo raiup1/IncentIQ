@@ -10,7 +10,6 @@
                 <element inactive_on_update="false" label="Max" sequence="2" value="max"/>
             </choice>
         </element>
-        <element label="Target Quota" max_length="15" name="target_quota" type="decimal"/>
         <element label="Count" max_length="40" name="count" type="integer"/>
         <element attributes="encode_utf8=false" label="Source Object" max_length="32" name="source_object" reference="x_ctans_incentnow_data_model_object" type="reference"/>
         <element attributes="encode_utf8=false" label="Statement ID" max_length="32" name="statement_id" reference="x_ctans_incentnow_incentive_statement" type="reference"/>

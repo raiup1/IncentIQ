@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update>
+    <sys_ui_section caption="" section_id="b18220f13bf987504be1ef9e53e45a25" sys_domain="global" table="x_ctans_incentnow_severity_data_lookups" version="3" view="">
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>.begin_split</element>
+            <position>0</position>
+            <sys_created_by>karan.kumar</sys_created_by>
+            <sys_created_on>2026-07-01 02:02:23</sys_created_on>
+            <sys_id>318220f13bf987504be1ef9e53e45a2e</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="NULL" display_value="" name="x_ctans_incentnow_severity_data_lookups" sys_domain="global" view="Default view">b18220f13bf987504be1ef9e53e45a25</sys_ui_section>
+            <sys_updated_by>karan.kumar</sys_updated_by>
+            <sys_updated_on>2026-07-01 02:02:23</sys_updated_on>
+            <sys_user/>
+            <type>.begin_split</type>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>severity</element>
+            <position>1</position>
+            <sys_created_by>karan.kumar</sys_created_by>
+            <sys_created_on>2026-07-01 02:02:23</sys_created_on>
+            <sys_id>f98220f13bf987504be1ef9e53e45a2e</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="NULL" display_value="" name="x_ctans_incentnow_severity_data_lookups" sys_domain="global" view="Default view">b18220f13bf987504be1ef9e53e45a25</sys_ui_section>
+            <sys_updated_by>karan.kumar</sys_updated_by>
+            <sys_updated_on>2026-07-01 02:02:23</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>impact</element>
+            <position>2</position>
+            <sys_created_by>karan.kumar</sys_created_by>
+            <sys_created_on>2026-07-01 02:02:23</sys_created_on>
+            <sys_id>758220f13bf987504be1ef9e53e45a2f</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="NULL" display_value="" name="x_ctans_incentnow_severity_data_lookups" sys_domain="global" view="Default view">b18220f13bf987504be1ef9e53e45a25</sys_ui_section>
+            <sys_updated_by>karan.kumar</sys_updated_by>
+            <sys_updated_on>2026-07-01 02:02:23</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>.split</element>
+            <position>3</position>
+            <sys_created_by>karan.kumar</sys_created_by>
+            <sys_created_on>2026-07-01 02:02:23</sys_created_on>
+            <sys_id>fd8220f13bf987504be1ef9e53e45a2f</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="NULL" display_value="" name="x_ctans_incentnow_severity_data_lookups" sys_domain="global" view="Default view">b18220f13bf987504be1ef9e53e45a25</sys_ui_section>
+            <sys_updated_by>karan.kumar</sys_updated_by>
+            <sys_updated_on>2026-07-01 02:02:23</sys_updated_on>
+            <sys_user/>
+            <type>.split</type>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>sys_scope</element>
+            <position>4</position>
+            <sys_created_by>karan.kumar</sys_created_by>
+            <sys_created_on>2026-07-01 02:02:23</sys_created_on>
+            <sys_id>798220f13bf987504be1ef9e53e45a30</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="NULL" display_value="" name="x_ctans_incentnow_severity_data_lookups" sys_domain="global" view="Default view">b18220f13bf987504be1ef9e53e45a25</sys_ui_section>
+            <sys_updated_by>karan.kumar</sys_updated_by>
+            <sys_updated_on>2026-07-01 02:02:23</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>urgency</element>
+            <position>5</position>
+            <sys_created_by>karan.kumar</sys_created_by>
+            <sys_created_on>2026-07-01 02:02:23</sys_created_on>
+            <sys_id>f18220f13bf987504be1ef9e53e45a31</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="NULL" display_value="" name="x_ctans_incentnow_severity_data_lookups" sys_domain="global" view="Default view">b18220f13bf987504be1ef9e53e45a25</sys_ui_section>
+            <sys_updated_by>karan.kumar</sys_updated_by>
+            <sys_updated_on>2026-07-01 02:02:23</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>.end_split</element>
+            <position>6</position>
+            <sys_created_by>karan.kumar</sys_created_by>
+            <sys_created_on>2026-07-01 02:02:23</sys_created_on>
+            <sys_id>7d8220f13bf987504be1ef9e53e45a31</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="NULL" display_value="" name="x_ctans_incentnow_severity_data_lookups" sys_domain="global" view="Default view">b18220f13bf987504be1ef9e53e45a25</sys_ui_section>
+            <sys_updated_by>karan.kumar</sys_updated_by>
+            <sys_updated_on>2026-07-01 02:02:23</sys_updated_on>
+            <sys_user/>
+            <type>.end_split</type>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>priority</element>
+            <position>7</position>
+            <sys_created_by>karan.kumar</sys_created_by>
+            <sys_created_on>2026-07-13 18:16:07</sys_created_on>
+            <sys_id>2e74b5fd3bca43504be1ef9e53e45aa4</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="NULL" display_value="" name="x_ctans_incentnow_severity_data_lookups" sys_domain="global" view="Default view">b18220f13bf987504be1ef9e53e45a25</sys_ui_section>
+            <sys_updated_by>karan.kumar</sys_updated_by>
+            <sys_updated_on>2026-07-13 18:16:07</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_section action="INSERT_OR_UPDATE">
+            <caption/>
+            <header>false</header>
+            <name>x_ctans_incentnow_severity_data_lookups</name>
+            <roles/>
+            <sys_class_name>sys_ui_section</sys_class_name>
+            <sys_created_by>karan.kumar</sys_created_by>
+            <sys_created_on>2026-07-01 02:02:23</sys_created_on>
+            <sys_domain>global</sys_domain>
+            <sys_domain_path>/</sys_domain_path>
+            <sys_id>b18220f13bf987504be1ef9e53e45a25</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_name>x_ctans_incentnow_severity_data_lookups</sys_name>
+            <sys_overrides/>
+            <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+            <sys_policy/>
+            <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+            <sys_update_name>sys_ui_section_b18220f13bf987504be1ef9e53e45a25</sys_update_name>
+            <sys_updated_by>karan.kumar</sys_updated_by>
+            <sys_updated_on>2026-07-01 02:02:23</sys_updated_on>
+            <sys_user/>
+            <title>true</title>
+            <view display_value="Default view" name="NULL">Default view</view>
+            <view_name/>
+        </sys_ui_section>
+    </sys_ui_section>
+</record_update>

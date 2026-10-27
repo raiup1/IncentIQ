@@ -2,48 +2,33 @@
     <sys_ui_list parent="" relationship="" sys_domain="global" table="x_ctans_incentnow_user_quota_assignment" version="2" view="">
         <sys_ui_list_element action="INSERT_OR_UPDATE">
             <average_value>false</average_value>
-            <element>user</element>
+            <element>plan_assignment.x_ctans_incentnow_plan</element>
             <list_id display_value="x_ctans_incentnow_user_quota_assignment" element="NULL" name="x_ctans_incentnow_user_quota_assignment" parent="NULL" relationship="NULL" sys_domain="global" view="Default view">50e4377b3bfff214ffa00e9693e45ad6</list_id>
             <max_value>false</max_value>
             <min_value>false</min_value>
             <position>0</position>
             <sum>false</sum>
             <sys_created_by>upma.rai</sys_created_by>
-            <sys_created_on>2026-03-30 12:23:42</sys_created_on>
-            <sys_id>90e4377b3bfff214ffa00e9693e45ad7</sys_id>
+            <sys_created_on>2026-08-06 07:38:26</sys_created_on>
+            <sys_id>93a8c35593e28f50ddb7f2d89803d6a5</sys_id>
             <sys_mod_count>0</sys_mod_count>
             <sys_updated_by>upma.rai</sys_updated_by>
-            <sys_updated_on>2026-03-30 12:23:42</sys_updated_on>
+            <sys_updated_on>2026-08-06 07:38:26</sys_updated_on>
         </sys_ui_list_element>
         <sys_ui_list_element action="INSERT_OR_UPDATE">
             <average_value>false</average_value>
-            <element>user.role</element>
+            <element>quota_dimension</element>
             <list_id display_value="x_ctans_incentnow_user_quota_assignment" element="NULL" name="x_ctans_incentnow_user_quota_assignment" parent="NULL" relationship="NULL" sys_domain="global" view="Default view">50e4377b3bfff214ffa00e9693e45ad6</list_id>
             <max_value>false</max_value>
             <min_value>false</min_value>
             <position>1</position>
             <sum>false</sum>
             <sys_created_by>upma.rai</sys_created_by>
-            <sys_created_on>2026-03-30 12:23:42</sys_created_on>
-            <sys_id>18e4377b3bfff214ffa00e9693e45ad7</sys_id>
+            <sys_created_on>2026-08-06 07:38:26</sys_created_on>
+            <sys_id>1ba8c35593e28f50ddb7f2d89803d6a5</sys_id>
             <sys_mod_count>0</sys_mod_count>
             <sys_updated_by>upma.rai</sys_updated_by>
-            <sys_updated_on>2026-03-30 12:23:42</sys_updated_on>
-        </sys_ui_list_element>
-        <sys_ui_list_element action="INSERT_OR_UPDATE">
-            <average_value>false</average_value>
-            <element>user.business_unit</element>
-            <list_id display_value="x_ctans_incentnow_user_quota_assignment" element="NULL" name="x_ctans_incentnow_user_quota_assignment" parent="NULL" relationship="NULL" sys_domain="global" view="Default view">50e4377b3bfff214ffa00e9693e45ad6</list_id>
-            <max_value>false</max_value>
-            <min_value>false</min_value>
-            <position>2</position>
-            <sum>false</sum>
-            <sys_created_by>upma.rai</sys_created_by>
-            <sys_created_on>2026-03-30 12:23:42</sys_created_on>
-            <sys_id>9ce4377b3bfff214ffa00e9693e45ad7</sys_id>
-            <sys_mod_count>0</sys_mod_count>
-            <sys_updated_by>upma.rai</sys_updated_by>
-            <sys_updated_on>2026-03-30 12:23:42</sys_updated_on>
+            <sys_updated_on>2026-08-06 07:38:26</sys_updated_on>
         </sys_ui_list_element>
         <sys_ui_list_element action="INSERT_OR_UPDATE">
             <average_value>false</average_value>
@@ -51,14 +36,14 @@
             <list_id display_value="x_ctans_incentnow_user_quota_assignment" element="NULL" name="x_ctans_incentnow_user_quota_assignment" parent="NULL" relationship="NULL" sys_domain="global" view="Default view">50e4377b3bfff214ffa00e9693e45ad6</list_id>
             <max_value>false</max_value>
             <min_value>false</min_value>
-            <position>3</position>
+            <position>2</position>
             <sum>false</sum>
             <sys_created_by>upma.rai</sys_created_by>
-            <sys_created_on>2026-03-30 12:23:42</sys_created_on>
-            <sys_id>14e4377b3bfff214ffa00e9693e45ad8</sys_id>
+            <sys_created_on>2026-08-06 07:38:26</sys_created_on>
+            <sys_id>9fa8c35593e28f50ddb7f2d89803d6a5</sys_id>
             <sys_mod_count>0</sys_mod_count>
             <sys_updated_by>upma.rai</sys_updated_by>
-            <sys_updated_on>2026-03-30 12:23:42</sys_updated_on>
+            <sys_updated_on>2026-08-06 07:38:26</sys_updated_on>
         </sys_ui_list_element>
         <sys_ui_list_element action="INSERT_OR_UPDATE">
             <average_value>false</average_value>
@@ -66,14 +51,14 @@
             <list_id display_value="x_ctans_incentnow_user_quota_assignment" element="NULL" name="x_ctans_incentnow_user_quota_assignment" parent="NULL" relationship="NULL" sys_domain="global" view="Default view">50e4377b3bfff214ffa00e9693e45ad6</list_id>
             <max_value>false</max_value>
             <min_value>false</min_value>
-            <position>4</position>
+            <position>3</position>
             <sum>false</sum>
             <sys_created_by>upma.rai</sys_created_by>
-            <sys_created_on>2026-03-30 12:23:42</sys_created_on>
-            <sys_id>98e4377b3bfff214ffa00e9693e45ad8</sys_id>
+            <sys_created_on>2026-08-06 07:38:26</sys_created_on>
+            <sys_id>17a8c35593e28f50ddb7f2d89803d6a6</sys_id>
             <sys_mod_count>0</sys_mod_count>
             <sys_updated_by>upma.rai</sys_updated_by>
-            <sys_updated_on>2026-03-30 12:23:42</sys_updated_on>
+            <sys_updated_on>2026-08-06 07:38:26</sys_updated_on>
         </sys_ui_list_element>
         <sys_ui_list_element action="INSERT_OR_UPDATE">
             <average_value>false</average_value>
@@ -81,14 +66,59 @@
             <list_id display_value="x_ctans_incentnow_user_quota_assignment" element="NULL" name="x_ctans_incentnow_user_quota_assignment" parent="NULL" relationship="NULL" sys_domain="global" view="Default view">50e4377b3bfff214ffa00e9693e45ad6</list_id>
             <max_value>false</max_value>
             <min_value>false</min_value>
+            <position>4</position>
+            <sum>false</sum>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-08-06 07:38:26</sys_created_on>
+            <sys_id>53a8c35593e28f50ddb7f2d89803d6b3</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-08-06 07:38:26</sys_updated_on>
+        </sys_ui_list_element>
+        <sys_ui_list_element action="INSERT_OR_UPDATE">
+            <average_value>false</average_value>
+            <element>user</element>
+            <list_id display_value="x_ctans_incentnow_user_quota_assignment" element="NULL" name="x_ctans_incentnow_user_quota_assignment" parent="NULL" relationship="NULL" sys_domain="global" view="Default view">50e4377b3bfff214ffa00e9693e45ad6</list_id>
+            <max_value>false</max_value>
+            <min_value>false</min_value>
             <position>5</position>
             <sum>false</sum>
             <sys_created_by>upma.rai</sys_created_by>
-            <sys_created_on>2026-03-30 12:23:42</sys_created_on>
-            <sys_id>10e4377b3bfff214ffa00e9693e45ad9</sys_id>
+            <sys_created_on>2026-08-06 07:38:26</sys_created_on>
+            <sys_id>d7a8c35593e28f50ddb7f2d89803d6b3</sys_id>
             <sys_mod_count>0</sys_mod_count>
             <sys_updated_by>upma.rai</sys_updated_by>
-            <sys_updated_on>2026-03-30 12:23:42</sys_updated_on>
+            <sys_updated_on>2026-08-06 07:38:26</sys_updated_on>
+        </sys_ui_list_element>
+        <sys_ui_list_element action="INSERT_OR_UPDATE">
+            <average_value>false</average_value>
+            <element>user.business_unit</element>
+            <list_id display_value="x_ctans_incentnow_user_quota_assignment" element="NULL" name="x_ctans_incentnow_user_quota_assignment" parent="NULL" relationship="NULL" sys_domain="global" view="Default view">50e4377b3bfff214ffa00e9693e45ad6</list_id>
+            <max_value>false</max_value>
+            <min_value>false</min_value>
+            <position>6</position>
+            <sum>false</sum>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-08-06 07:38:26</sys_created_on>
+            <sys_id>5fa8c35593e28f50ddb7f2d89803d6b3</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-08-06 07:38:26</sys_updated_on>
+        </sys_ui_list_element>
+        <sys_ui_list_element action="INSERT_OR_UPDATE">
+            <average_value>false</average_value>
+            <element>participant_assignment</element>
+            <list_id display_value="x_ctans_incentnow_user_quota_assignment" element="NULL" name="x_ctans_incentnow_user_quota_assignment" parent="NULL" relationship="NULL" sys_domain="global" view="Default view">50e4377b3bfff214ffa00e9693e45ad6</list_id>
+            <max_value>false</max_value>
+            <min_value>false</min_value>
+            <position>7</position>
+            <sum>false</sum>
+            <sys_created_by>upma.rai</sys_created_by>
+            <sys_created_on>2026-08-06 07:38:26</sys_created_on>
+            <sys_id>d3a8c35593e28f50ddb7f2d89803d6b4</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>upma.rai</sys_updated_by>
+            <sys_updated_on>2026-08-06 07:38:26</sys_updated_on>
         </sys_ui_list_element>
         <sys_ui_list action="INSERT_OR_UPDATE">
             <average_value>false</average_value>
@@ -102,7 +132,7 @@
             <sum>false</sum>
             <sys_class_name>sys_ui_list</sys_class_name>
             <sys_created_by>upma.rai</sys_created_by>
-            <sys_created_on>2026-03-30 12:23:42</sys_created_on>
+            <sys_created_on>2026-08-06 07:38:26</sys_created_on>
             <sys_domain>global</sys_domain>
             <sys_domain_path>/</sys_domain_path>
             <sys_id>50e4377b3bfff214ffa00e9693e45ad6</sys_id>
@@ -113,7 +143,7 @@
             <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
             <sys_update_name>sys_ui_list_x_ctans_incentnow_user_quota_assignment_null</sys_update_name>
             <sys_updated_by>upma.rai</sys_updated_by>
-            <sys_updated_on>2026-03-30 12:23:42</sys_updated_on>
+            <sys_updated_on>2026-08-06 07:38:26</sys_updated_on>
             <sys_user/>
             <view display_value="Default view" name="NULL">Default view</view>
             <view_name/>

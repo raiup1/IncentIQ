@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?><database>
-    <element db_object_id="c0af66a13b610790a4cbaddc73e45a94" label="AI Execution failure" max_length="40" name="x_ctans_incentnow_ai_execution_failure" type="collection">
+    <element db_object_id="c0af66a13b610790a4cbaddc73e45a94" label="AI Execution Failure" max_length="40" name="x_ctans_incentnow_ai_execution_failure" type="collection">
         <element label="Normalized Question" max_length="1000" name="normalized_question" type="string"/>
         <element choice="1" label="Source Channel" max_length="40" name="source_channel" type="choice">
             <choice>
@@ -34,6 +34,7 @@
                 <element inactive_on_update="false" label="Orchestrator" sequence="2" value="Orchestrator"/>
                 <element inactive_on_update="false" label="Intent Router" sequence="1" value="Intent Router"/>
                 <element inactive_on_update="false" label="AI Service" sequence="5" value="AI Service"/>
+                <element inactive_on_update="false" label="Input Guard" sequence="8" value="input_guard"/>
                 <element inactive_on_update="false" label="Response Builder" sequence="4" value="Response Builder"/>
             </choice>
         </element>
@@ -43,11 +44,15 @@
         <element label="Resolved On" max_length="40" name="resolved_on" type="glide_date_time"/>
         <element label="Handler Name" max_length="255" name="handler_name" type="string"/>
         <element label="Agent Name" max_length="255" name="agent_name" type="string"/>
+        <element label="Domain" max_length="32" name="sys_domain" type="domain_id"/>
         <index name="index">
             <element name="resolved_by"/>
         </index>
         <index name="index2">
             <element name="user"/>
+        </index>
+        <index name="index3">
+            <element name="sys_domain"/>
         </index>
     </element>
 </database>

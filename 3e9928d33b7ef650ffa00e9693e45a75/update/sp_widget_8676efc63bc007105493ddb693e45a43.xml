@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
     <sp_widget action="INSERT_OR_UPDATE">
         <category>custom</category>
-        <client_script><![CDATA[api.controller = function($window,$location) {
+        <client_script><![CDATA[api.controller = function($scope,$window,$location,$timeout) {
   var c = this;
 
   c.filteredQuotas = [];
@@ -117,6 +117,103 @@
       c.filteredQuotas        = angular.copy(c.data.quotaAssignments || []);
     });
   };
+	
+	
+	// Approval Flow Pagination
+		c.approvalCurrentPage = 1;
+		c.approvalPageSize = 5;
+
+		c.getPaginatedApprovalFlow = function () {
+
+				if (!c.approvalFlow)
+						return [];
+
+				var start = (c.approvalCurrentPage - 1) * c.approvalPageSize;
+				var end = start + c.approvalPageSize;
+
+				return c.approvalFlow.slice(start, end);
+		};
+
+		c.approvalTotalPages = function () {
+
+				if (!c.approvalFlow || c.approvalFlow.length === 0)
+						return 1;
+
+				return Math.ceil(c.approvalFlow.length / c.approvalPageSize);
+		};
+
+		c.nextApprovalPage = function () {
+
+				if (c.approvalCurrentPage < c.approvalTotalPages()) {
+						c.approvalCurrentPage++;
+				}
+		};
+
+		c.prevApprovalPage = function () {
+
+				if (c.approvalCurrentPage > 1) {
+						c.approvalCurrentPage--;
+				}
+		};
+	
+	//approval flow
+
+		c.showApprovalFlow = false;
+		c.approvalFlow = [];
+
+		c.openApprovalFlow = function(quotaId) {
+
+			c.server.get({
+					action: "getApprovalFlow",
+					quotaId: quotaId
+			}).then(function(response) {
+
+					c.approvalFlow = response.data.approvalFlow;
+					c.approvalCurrentPage = 1;
+					c.showApprovalFlow = true;
+
+					$timeout(function () {
+
+							var el = document.getElementById("approvalFlowSection");
+
+							if (el) {
+									el.scrollIntoView({
+											behavior: "smooth",
+											block: "start"
+									});
+							}
+
+					}, 100);
+			});
+	};
+	
+		$scope.$on('showQuotaApprovalFlow', function(event, data) {
+
+			c.server.get({
+					action: 'getApprovalFlow',
+					quotaId: data.quotaId
+			}).then(function(response){
+
+					c.approvalFlow = response.data.approvalFlow;
+					c.approvalCurrentPage = 1;
+					c.showApprovalFlow = true;
+
+					$timeout(function () {
+
+							var el = document.getElementById("approvalFlowSection");
+
+							if (el) {
+									el.scrollIntoView({
+											behavior: "smooth",
+											block: "start"
+									});
+							}
+
+					}, 100);
+
+			});
+
+	});
 
 };]]></client_script>
         <controller_as>c</controller_as>
@@ -129,6 +226,25 @@
 .quota-page {
 	background: #f1f5f9;
   font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.pagination-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+    width: 100%;
+}
+
+.pagination-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.pg-info {
+    min-width: 110px;
+    text-align: center;
 }
 
 .set {
@@ -377,6 +493,472 @@ body {
   background: white;
   border-radius: 1rem;
   cursor: pointer;
+}
+
+/* ============================================================
+   QUOTA SETUP WIDGET
+   MOBILE RESPONSIVE OVERRIDES
+   Existing HTML / classes / Angular / JS untouched
+   ============================================================ */
+
+
+/* ------------------------------------------------------------
+   TABLET
+   ------------------------------------------------------------ */
+@media (max-width: 991px) {
+
+  .quota-page {
+    width: 100%;
+    max-width: 100%;
+    padding: 0 14px;
+    box-sizing: border-box;
+    overflow-x: hidden;
+  }
+
+  /* Header */
+  .header-row {
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .admin-page-topbar {
+    min-width: 0;
+  }
+
+  .headd {
+    font-size: 2.3rem;
+  }
+
+  .header-actions {
+    flex-shrink: 0;
+  }
+
+  .btn-create {
+    white-space: nowrap;
+  }
+
+  /* Stats */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .stat-box {
+    min-width: 0;
+  }
+
+  /* Approval table */
+  #approvalFlowSection {
+    width: 100%;
+  }
+
+  #approvalFlowSection .panel-body {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  #approvalFlowSection table {
+    min-width: 650px;
+  }
+}
+
+
+/* ------------------------------------------------------------
+   MOBILE
+   ------------------------------------------------------------ */
+@media (max-width: 767px) {
+
+  .quota-page {
+    width: 100%;
+    max-width: 100%;
+    padding: 0 10px;
+    margin: 0 auto;
+    overflow-x: hidden;
+  }
+
+
+  /* ==========================================================
+     HEADER
+     ========================================================== */
+
+  .header-row {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .admin-page-topbar {
+    width: 100%;
+    min-width: 0;
+    padding-bottom: 10px;
+  }
+
+  .headd {
+    font-size: 2.2rem;
+    line-height: 1.2;
+  }
+
+  .header-actions {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .header-actions button {
+    margin-left: 0;
+  }
+
+  .btn-create {
+    width: 100%;
+    justify-content: center;
+    min-height: 42px;
+    padding: 9px 14px;
+    font-size: 13px;
+  }
+
+  .subtitle {
+    margin-top: 0;
+    margin-bottom: 18px;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+
+  /* ==========================================================
+     STATS
+     ========================================================== */
+
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .stat-box {
+    width: 100%;
+    min-width: 0;
+    padding: 15px;
+    border-radius: 10px;
+  }
+
+  .stat-box .box {
+    font-size: 11px;
+    line-height: 1.35;
+    margin-bottom: 9px;
+  }
+
+  .stat-box .set {
+    font-size: 2.3rem;
+    line-height: 1.1;
+    margin-bottom: 6px;
+    overflow-wrap: anywhere;
+  }
+
+  .stat-box span {
+    display: block;
+    font-size: 10px;
+    line-height: 1.4;
+  }
+
+
+  /* ==========================================================
+     QUOTA TABLE WIDGET
+     ========================================================== */
+
+  .quota-page &gt; div &gt; sp-widget,
+  .quota-page sp-widget {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+  }
+
+
+  /* ==========================================================
+     APPROVAL FLOW
+     ========================================================== */
+
+  #approvalFlowSection {
+    width: 100%;
+    margin-top: 18px;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  #approvalFlowSection .panel-heading {
+    padding: 12px 14px;
+  }
+
+  #approvalFlowSection .panel-heading h4 {
+    margin: 0;
+    font-size: 14px;
+  }
+
+  #approvalFlowSection .panel-body {
+    padding: 12px;
+    overflow-x: auto;
+    overflow-y: visible;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+  }
+
+  #approvalFlowSection table {
+    min-width: 620px;
+    margin-bottom: 0;
+  }
+
+  #approvalFlowSection th,
+  #approvalFlowSection td {
+    white-space: nowrap;
+    font-size: 11px;
+    padding: 9px 10px;
+    vertical-align: middle;
+  }
+
+
+  /* ==========================================================
+     PAGINATION
+     ========================================================== */
+
+  .pagination-wrapper {
+    margin-top: 16px;
+    padding: 0;
+  }
+
+  .pagination-container {
+    width: 100%;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .pagination-container .pg-btn {
+    min-height: 36px;
+    padding: 7px 11px;
+    font-size: 11px;
+  }
+
+  .pg-info {
+    min-width: 85px;
+    font-size: 11px;
+  }
+
+
+  /* ==========================================================
+     GENERAL TABLE SAFETY
+     ========================================================== */
+
+  .quota-page .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .quota-page table {
+    max-width: none;
+  }
+}
+
+
+/* ------------------------------------------------------------
+   SMALL PHONES
+   ------------------------------------------------------------ */
+@media (max-width: 480px) {
+
+  .quota-page {
+    padding: 0 7px;
+  }
+
+  .headd {
+    font-size: 2rem;
+  }
+
+  .subtitle {
+    font-size: 11px;
+  }
+
+
+  /* Stats */
+  .stats-row {
+    gap: 8px;
+  }
+
+  .stat-box {
+    padding: 12px;
+    border-radius: 9px;
+  }
+
+  .stat-box .box {
+    font-size: 10px;
+  }
+
+  .stat-box .set {
+    font-size: 2rem;
+  }
+
+  .stat-box span {
+    font-size: 9px;
+  }
+
+
+  /* Create button */
+  .btn-create {
+    min-height: 40px;
+    font-size: 12px;
+  }
+
+
+  /* Approval section */
+  #approvalFlowSection .panel-heading {
+    padding: 11px 12px;
+  }
+
+  #approvalFlowSection .panel-body {
+    padding: 10px;
+  }
+
+  #approvalFlowSection table {
+    min-width: 570px;
+  }
+
+  #approvalFlowSection th,
+  #approvalFlowSection td {
+    font-size: 10px;
+    padding: 8px;
+  }
+
+
+  /* Pagination */
+  .pagination-container {
+    gap: 5px;
+  }
+
+  .pagination-container .pg-btn {
+    padding: 6px 9px;
+    font-size: 10px;
+  }
+
+  .pg-info {
+    min-width: 75px;
+    font-size: 10px;
+  }
+}
+
+
+/* ------------------------------------------------------------
+   EXTRA SMALL PHONES
+   ------------------------------------------------------------ */
+@media (max-width: 360px) {
+
+  .quota-page {
+    padding: 0 5px;
+  }
+
+  .headd {
+    font-size: 1.85rem;
+  }
+
+  .stats-row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .stat-box {
+    padding: 13px;
+  }
+
+  .stat-box .set {
+    font-size: 2.1rem;
+  }
+
+  #approvalFlowSection table {
+    min-width: 540px;
+  }
+
+  .pagination-container {
+    gap: 4px;
+  }
+
+  .pagination-container .pg-btn {
+    padding: 6px 8px;
+  }
+}
+
+
+/* ------------------------------------------------------------
+   MOBILE HORIZONTAL SCROLL SAFETY
+   ------------------------------------------------------------ */
+
+@media (max-width: 767px) {
+
+  .quota-page,
+  .header-row,
+  .stats-row {
+    box-sizing: border-box;
+    max-width: 100%;
+  }
+
+  .quota-page input,
+  .quota-page select,
+  .quota-page textarea,
+  .quota-page button {
+    max-width: 100%;
+  }
+
+  /*
+     Prevent long content from creating page-level
+     horizontal scrolling.
+  */
+  .quota-page {
+    overflow-x: hidden;
+  }
+
+  /*
+     Tables can scroll independently when necessary.
+  */
+  #approvalFlowSection .panel-body {
+    overscroll-behavior-x: contain;
+  }
+}
+
+/* ============================================================
+   STAT CARD NUMBER SIZING
+   ============================================================ */
+
+/* Desktop */
+.stat-box .set {
+  font-size: 2.8rem;
+  line-height: 1.1;
+  font-weight: 700;
+}
+
+/* Tablet */
+@media (max-width: 991px) {
+  .stat-box .set {
+    font-size: 2.5rem;
+  }
+}
+
+/* Mobile */
+@media (max-width: 767px) {
+  .stat-box .set {
+    font-size: 1.9rem;
+    line-height: 1.15;
+  }
+}
+
+/* Small phones */
+@media (max-width: 480px) {
+  .stat-box .set {
+    font-size: 1.7rem;
+  }
+}
+
+/* Very small phones */
+@media (max-width: 360px) {
+  .stat-box .set {
+    font-size: 1.8rem;
+  }
 }</css>
         <data_table>sp_instance</data_table>
         <demo_data/>
@@ -395,11 +977,21 @@ body {
         <roles>x_ctans_incentnow.user</roles>
         <script><![CDATA[(function() {
 
+	data.currencySymbol = gs.getProperty('x_ctans_incentnow.currency_symbol','$');
+	data.currencyPosition = gs.getProperty('x_ctans_incentnow.currency_position','before');
   data.isEdit    = !!options.quota_batch_id;
   data.quotaModel = {};
-	data.tableWidget=$sp.getWidget('incentnow-table-widget',{ table: 'x_ctans_incentnow_quota',view:'portal_view',viewperiod:'false'});
+	data.isTerritoryEnabled =
+    new x_ctans_incentnow.IncentNowUtils().isTerritoryExtensionActive() === true;
 
-	data.isIncentNowGroupAdmin= gs.hasRole('x_ctans_incentnow.business_group_admin') || gs.hasRole('x_ctans_incentnow.admin');
+	if (data.isTerritoryEnabled) {
+	data.tableWidget=$sp.getWidget('incentnow-table-widget',{ table: 'x_ctans_incentnow_quota',view:'territory',viewperiod:'false'});
+	}
+	else
+		{
+			data.tableWidget=$sp.getWidget('incentnow-table-widget',{ table: 'x_ctans_incentnow_quota',view:'portal_view',viewperiod:'false'});
+		}
+	data.isIncentNowGroupAdmin= gs.hasRole('x_ctans_incentnow.business_group_admin') || gs.hasRole('x_ctans_incentnow.admin') || gs.hasRole('x_ctans_incentnow.territory_admin') ;
 
 
   /* ================= FISCAL CALENDAR ================= */
@@ -552,6 +1144,19 @@ body {
 	if (activeGR.next()) {
 			data.activeQuotaCount = parseInt(activeGR.getAggregate('COUNT'), 10);
 	}
+	
+	data.assignedRepCount = 0;
+
+	var repGA = new GlideAggregate('x_ctans_incentnow_user_quota_assignment');
+	repGA.addEncodedQuery('quota.status!=inactive'); // adjust if your status field differs
+	repGA.addAggregate('COUNT', 'user');             // change 'user' if your field name is different
+	repGA.groupBy('user');
+	repGA.query();
+
+	data.assignedRepCount = 0;
+		while (repGA.next()) {
+				data.assignedRepCount++;
+		}
 
   data.quotaAssignments = [];
 
@@ -562,6 +1167,18 @@ body {
   while (quotaGR2.next()) {
     var rawQ    = quotaGR2.getValue('target_value');
     var targetQ = (!rawQ || isNaN(parseFloat(rawQ))) ? 0 : parseFloat(rawQ);
+		
+		// Count assigned reps for this quota
+    var repGA = new GlideAggregate('x_ctans_incentnow_user_quota_assignment');
+    repGA.addQuery('quota', quotaGR2.getUniqueValue());   // <-- use the reference field to Quota
+    repGA.addAggregate('COUNT', 'user');
+    repGA.groupBy('user');
+    repGA.query();
+		
+		var assignedRepCount = 0;
+			while (repGA.next()) {
+					assignedRepCount++;
+			}
 
     data.quotaAssignments.push({
       id:                 quotaGR2.getUniqueValue(),
@@ -571,9 +1188,33 @@ body {
       targetValue:        targetQ,
       targetDisplay:      targetQ.toString(),
       quotaMetric:        quotaGR2.getDisplayValue('quota_metric') || '',
-      distributionMethod: quotaGR2.getDisplayValue('quota_frequency') || ''
+      distributionMethod: quotaGR2.getDisplayValue('quota_frequency') || '',
+			assignedReps: assignedRepCount
     });
   }
+	
+	//approval flow
+
+		if (input && input.action == "getApprovalFlow") {
+
+				data.approvalFlow = [];
+
+				var apprGR = new GlideRecordSecure('sysapproval_approver');
+				apprGR.addQuery('document_id', input.quotaId);
+				apprGR.orderByDesc('sys_created_on');
+				apprGR.query();
+
+				while (apprGR.next()) {
+						data.approvalFlow.push({
+								approver: apprGR.getDisplayValue('approver'),
+								state: apprGR.getDisplayValue('state'),
+								updated: apprGR.getDisplayValue('sys_updated_on'),
+								comments: apprGR.getDisplayValue('comments')
+						});
+				}
+		}
+	
+	
 	
 	
 
@@ -583,16 +1224,16 @@ body {
         <sys_created_by>shroin.mandal</sys_created_by>
         <sys_created_on>2026-04-06 11:07:55</sys_created_on>
         <sys_id>8676efc63bc007105493ddb693e45a43</sys_id>
-        <sys_mod_count>111</sys_mod_count>
+        <sys_mod_count>138</sys_mod_count>
         <sys_name>Quota Setup</sys_name>
         <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
         <sys_update_name>sp_widget_8676efc63bc007105493ddb693e45a43</sys_update_name>
-        <sys_updated_by>upma.rai</sys_updated_by>
-        <sys_updated_on>2026-06-12 12:02:05</sys_updated_on>
+        <sys_updated_by>shroin.mandal</sys_updated_by>
+        <sys_updated_on>2026-08-17 10:13:48</sys_updated_on>
         <template><![CDATA[<div class="quota-page">
-  <!-- Header Section -->
+  <!-- Header Section  -->
   <div class="header-row">
     <div class="admin-page-topbar">
       <!--<button class="admin-back-btn" ng-click="c.goBack()">
@@ -607,7 +1248,8 @@ body {
     <!--h2 class="setup">Quota Setup</h2-->
     <div class="header-actions">
       <!-- <button class="btn-secondary" ng-click="c.viewAssign()">View Assignments</button> -->
-      <button class="btn-create" ng-click="c.createQuota()" ng-if="c.data.isIncentNowGroupAdmin">+ Create Quota</button>
+      <button class="btn-create" ng-click
+              ="c.createQuota()" ng-if="c.data.isIncentNowGroupAdmin">+ Create Quota</button>
     </div>
   </div>
   <p class="subtitle">Configure sales quotas for different periods and frequencies</p>
@@ -643,8 +1285,18 @@ body {
       <span>Currently in Use</span>
     </div>
     <div class="stat-box">
+      <p class="box">Assigned Reps</p>
+      <p class="set">{{c.data.assignedRepCount}}</p>
+      <span>Across Quotas</span>
+    </div>
+    <div class="stat-box">
       <p class="box">Total Active Quota Value</p>
-      <p class="set">$ {{c.getQuotaSummary().totalValue | number}}</p>
+      <p class="set" ng-if="c.data.currencyPosition == 'before'">
+          {{c.data.currencySymbol}}{{c.getQuotaSummary().totalValue | number}}
+      </p>
+      <p class="set" ng-if="c.data.currencyPosition == 'after'">
+          {{c.getQuotaSummary().totalValue | number}}{{c.data.currencySymbol}}
+      </p>
       <span>Across all Active Quotas</span>
     </div>
   </div>
@@ -654,6 +1306,55 @@ body {
       <div>
         <sp-widget widget="data.tableWidget"></sp-widget>
       </div>
+  
+  <div id="approvalFlowSection"
+       class="panel panel-default m-t-lg"
+       ng-if="c.showApprovalFlow">
+      <div class="panel-heading">
+          <h4>Approval Flow</h4>
+      </div>
+      <div class="panel-body">
+          <table class="table table-striped">
+              <thead>
+                  <tr>
+                      <th>Approver</th>
+                      <th>Status</th>
+                      <th>Updated</th>
+                      <th>Comments</th>
+                  </tr>
+              </thead>
+              <tbody>
+                  <tr ng-repeat="item in c.getPaginatedApprovalFlow()">
+                      <td>{{item.approver}}</td>
+                      <td>{{item.state}}</td>
+                      <td>{{item.updated}}</td>
+                      <td>{{item.comments}}</td>
+                  </tr>
+              </tbody>
+          </table>
+        <div class="pagination-wrapper" ng-if="c.approvalFlow.length">
+            <div class="pagination-container">
+
+                <button class="pg-btn"
+                        ng-click="c.prevApprovalPage()"
+                        ng-disabled="c.approvalCurrentPage === 1">
+                    ← Prev
+                </button>
+
+                <span class="pg-info">
+                    Page {{c.approvalCurrentPage}} / {{c.approvalTotalPages()}}
+                </span>
+
+                <button class="pg-btn"
+                        ng-click="c.nextApprovalPage()"
+                        ng-disabled="c.approvalCurrentPage === c.approvalTotalPages()">
+                    Next →
+                </button>
+
+            </div>
+        </div>
+      </div>
+  </div>
 
   <!-- old table---
   <div class="panel panel-default config">

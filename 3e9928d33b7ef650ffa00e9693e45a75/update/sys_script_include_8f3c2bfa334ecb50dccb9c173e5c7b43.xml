@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>package_private</access>
+        <active>true</active>
+        <api_name>x_ctans_incentnow.IncentIQAuditMaintenance</api_name>
+        <caller_access/>
+        <client_callable>false</client_callable>
+        <description>Scheduled data-retention utility for the AI audit table (x_ctans_incentnow_incentiq_ai_audit). Purges audit records older than the admin-configured retention period (x_ctans_incentnow.audit_retention_days; 0 disables) in safe batches. Invoked daily by the "IncentIQ Audit Retention Cleanup" scheduled job.</description>
+        <mobile_callable>false</mobile_callable>
+        <name>IncentIQAuditMaintenance</name>
+        <sandbox_callable>false</sandbox_callable>
+        <script><![CDATA[var IncentIQAuditMaintenance = Class.create();
+IncentIQAuditMaintenance.prototype = {
+
+    initialize: function() {
+        this.LOG = 'IncentIQAuditMaintenance :: ';
+    },
+
+    purgeOldAudit: function() {
+        var days = parseInt(gs.getProperty('x_ctans_incentnow.audit_retention_days', '90'), 10);
+        if (isNaN(days) || days <= 0) {
+            gs.info(this.LOG + 'Retention disabled (audit_retention_days <= 0). Nothing purged.');
+            return 0;
+        }
+
+        var cutoff = new GlideDateTime();
+        cutoff.addSeconds(-1 * days * 86400);
+        var cutoffStr = cutoff.getValue();
+
+        var BATCH = 10000; // rows per pass — bounds each transaction
+        var MAX_PASSES = 500; // safety cap: up to 5M rows per run
+        var totalDeleted = 0;
+
+        for (var pass = 0; pass < MAX_PASSES; pass++) {
+            var gr = new GlideRecord('x_ctans_incentnow_incentiq_ai_audit');
+            gr.addQuery('sys_created_on', '<', cutoffStr);
+            gr.setLimit(BATCH);
+            gr.query();
+            if (!gr.hasNext()) {
+                break;
+            }
+            var passCount = 0;
+            while (gr.next()) {
+                gr.deleteRecord();
+                passCount++;
+            }
+            totalDeleted += passCount;
+            if (passCount < BATCH) {
+                break;
+            } // last partial batch
+        }
+
+        gs.info(this.LOG + 'Purged ' + totalDeleted + ' audit rows older than ' + days + ' days (before ' + cutoffStr + ').');
+        return totalDeleted;
+    },
+
+    type: 'IncentIQAuditMaintenance'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
+        <sys_created_on>2026-07-17 05:37:07</sys_created_on>
+        <sys_id>8f3c2bfa334ecb50dccb9c173e5c7b43</sys_id>
+        <sys_mod_count>1</sys_mod_count>
+        <sys_name>IncentIQAuditMaintenance</sys_name>
+        <sys_package display_value="IncentIQ" source="x_ctans_incentnow">3e9928d33b7ef650ffa00e9693e45a75</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="IncentIQ">3e9928d33b7ef650ffa00e9693e45a75</sys_scope>
+        <sys_update_name>sys_script_include_8f3c2bfa334ecb50dccb9c173e5c7b43</sys_update_name>
+        <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
+        <sys_updated_on>2026-07-21 05:34:33</sys_updated_on>
+    </sys_script_include>
+</record_update>

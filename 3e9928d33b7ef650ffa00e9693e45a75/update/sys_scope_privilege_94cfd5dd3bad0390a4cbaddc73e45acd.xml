@@ -16,7 +16,7 @@
         <sys_updated_by>ashok.kumar@ctrlaltnow.com</sys_updated_by>
         <sys_updated_on>2026-06-17 06:57:14</sys_updated_on>
         <target_name>sn_prd_invt_product_inventory_relationship</target_name>
-        <target_scope display_value="">a595d543c3323010bc0526083c40dd8b</target_scope>
+        <target_scope display_value="Product Inventory Advanced">a595d543c3323010bc0526083c40dd8b</target_scope>
         <target_type>sys_db_object</target_type>
     </sys_scope_privilege>
 </record_update>

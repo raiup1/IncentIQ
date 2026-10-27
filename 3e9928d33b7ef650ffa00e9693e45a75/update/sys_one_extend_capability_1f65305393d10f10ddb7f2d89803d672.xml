@@ -5,6 +5,7 @@
         <external>true</external>
         <metadata>{}</metadata>
         <name>73ca109793ddcb10ddb7f2d89803d610_IncentI</name>
+        <offglide_enabled>false</offglide_enabled>
         <short_description/>
         <sys_class_name>sys_one_extend_capability</sys_class_name>
         <sys_created_by>ashok.kumar@ctrlaltnow.com</sys_created_by>
